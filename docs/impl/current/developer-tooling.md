@@ -5,6 +5,8 @@
 `pyproject.toml` declares Python 3.12+ package metadata and a `dev` extra. `uv.lock` fixes the full
 resolution. `make bootstrap` installs the locked environment; direct uv investigations use
 `scripts/shared/common.sh` so `DATA_DIR`, caches, and adaptive link mode have one implementation.
+Its functions use the `arxiv_int_` namespace; direct uv investigations begin with
+`arxiv_int_load_env`.
 
 ## Quality gates
 

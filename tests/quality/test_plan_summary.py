@@ -1,21 +1,21 @@
 from pathlib import Path
 
-from agent_py.quality.plan_summary import main, summary_lines
+from arxiv_int.quality.plan_summary import main, summary_lines
 from tests.quality._plan_fixture import plan_with, task_block, write_project
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
-def test_repository_plan_starts_with_template_personalization() -> None:
+def test_repository_plan_reports_the_next_foundation_task() -> None:
     lines = summary_lines(PROJECT_ROOT)
 
     assert lines == [
-        "tasks: 1",
-        "agent lane: 1",
-        "human lane: 0",
-        "statuses: CLEAR=1",
-        "next agent: personalize-template-project [project-identity]",
-        "next human: none",
+        "tasks: 44",
+        "agent lane: 38",
+        "human lane: 6",
+        "statuses: BLOCKED BY HUMAN=1, CLEAR=19, HUMAN-GATED=5, RUN NEEDED=19",
+        "next agent: establish-domain-dependency-seams [project-foundation]",
+        "next human: approve-representative-corpus-and-gold [corpus-foundation]",
     ]
 
 

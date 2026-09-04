@@ -14,5 +14,5 @@ change. Write behavior, modules, commands, tests, and results at the narrowest l
 | Area | Owns |
 | --- | --- |
 | [Developer tooling](current/developer-tooling.md) | Locked setup, Make workflows, CI, quality gates, artifact roots |
-| [Product core](current/product-core.md) | Starter package identity and CLI |
+| [Project foundation](current/project-foundation.md) | Distribution, import package, CLI identity, and project metadata |
 | [Governance](current/governance.md) | Agent adapters, capability registry, plan lanes, integrity checks |

@@ -7,36 +7,6 @@ resolution-markers = [
 ]
 
 [[package]]
-name = "agent-python-project"
-version = "0.1.0"
-source = { editable = "." }
-
-[package.optional-dependencies]
-dev = [
-    { name = "complexipy" },
-    { name = "mypy" },
-    { name = "pymarkdownlnt" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "radon" },
-    { name = "ruff" },
-    { name = "shellcheck-py" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "complexipy", marker = "extra == 'dev'", specifier = "==6.0.0" },
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.15,<2" },
-    { name = "pymarkdownlnt", marker = "extra == 'dev'", specifier = ">=0.9.32,<1" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8,<10" },
-    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=6,<8" },
-    { name = "radon", marker = "extra == 'dev'", specifier = "==6.0.1" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.11,<0.17" },
-    { name = "shellcheck-py", marker = "extra == 'dev'", specifier = "==0.11.0.1" },
-]
-provides-extras = ["dev"]
-
-[[package]]
 name = "annotated-doc"
 version = "0.0.5"
 source = { registry = "https://pypi.org/simple" }
@@ -72,6 +42,36 @@ sdist = { url = "https://files.pythonhosted.org/packages/c0/bb/321da0e3734160808
 wheels = [
     { url = "https://files.pythonhosted.org/packages/95/72/3ac1bda73e9c95444b1e13a0de73e847048a776e5ac5b3977c37f04167f9/application_properties-0.9.3-py3-none-any.whl", hash = "sha256:32dbd62b3fb657ec1c7fdc352590463c2ffd14950ffd258a5c091e8798d8aec0", size = 24595, upload-time = "2026-06-02T03:52:06.416Z" },
 ]
+
+[[package]]
+name = "arxiv-int"
+version = "0.1.0"
+source = { editable = "." }
+
+[package.optional-dependencies]
+dev = [
+    { name = "complexipy" },
+    { name = "mypy" },
+    { name = "pymarkdownlnt" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "radon" },
+    { name = "ruff" },
+    { name = "shellcheck-py" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "complexipy", marker = "extra == 'dev'", specifier = "==6.0.0" },
+    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.15,<2" },
+    { name = "pymarkdownlnt", marker = "extra == 'dev'", specifier = ">=0.9.32,<1" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8,<10" },
+    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=6,<8" },
+    { name = "radon", marker = "extra == 'dev'", specifier = "==6.0.1" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.11,<0.17" },
+    { name = "shellcheck-py", marker = "extra == 'dev'", specifier = "==0.11.0.1" },
+]
+provides-extras = ["dev"]
 
 [[package]]
 name = "colorama"

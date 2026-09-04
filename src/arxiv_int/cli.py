@@ -1,17 +1,17 @@
-"""Command-line entrypoint for starter project diagnostics."""
+"""Command-line entrypoint for arxiv-int."""
 
 import argparse
 import logging
 from collections.abc import Sequence
 
-from agent_py.metadata import project_info
+from arxiv_int.metadata import project_info
 
 _LOG = logging.getLogger(__name__)
 
 
 def build_parser() -> argparse.ArgumentParser:
     """Build the command parser independently for tests and future subcommands."""
-    parser = argparse.ArgumentParser(prog="agent-py")
+    parser = argparse.ArgumentParser(prog="arxiv-int")
     subcommands = parser.add_subparsers(dest="command", required=True)
     subcommands.add_parser("info", help="show the installed project identity")
     return parser
