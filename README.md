@@ -28,15 +28,18 @@ make ci
 `make bootstrap` creates `.venv` from the committed lockfile. `make doctor` checks the local tools,
 repository markers, package import, and distribution identity. `make run` executes `arxiv-int info`.
 
-## Available command
+## Available commands
 
 ```bash
 arxiv-int info
+arxiv-int features [--stage STAGE]
 ```
 
-The command reports the distribution name, installed version, and import package. It is a packaging
-and executable-path smoke test; domain pipeline commands will be added only as their specified
-capabilities are implemented.
+`info` reports the distribution name, installed version, and import package. It is a packaging and
+executable-path smoke test. `features` lists the optional dependency groups, their install status
+and install command, the licence of every declared distribution, and the system dependencies they
+expect; `--stage` narrows the list to one pipeline stage. Domain pipeline commands will be added
+only as their specified capabilities are implemented.
 
 ## Daily commands
 
@@ -46,6 +49,7 @@ capabilities are implemented.
 | `make bootstrap` | Create or update the locked development environment |
 | `make doctor` | Check tools, repository markers, and installed package identity |
 | `make run` | Run `arxiv-int info` |
+| `make features` | List optional feature groups, licences, and install commands |
 | `make test` | Run the deterministic unit test suite |
 | `make coverage` | Run tests with the coverage gate |
 | `make format` | Apply Ruff formatting |
@@ -79,6 +83,8 @@ plan and into the narrowest current-state page.
 
 ```text
 src/arxiv_int/             production package and repository quality checks
+src/arxiv_int/features/    optional dependency groups, licences, and install guards
+src/arxiv_int/interfaces/  typed seams for extractors, embedders, providers, stores, stages
 tests/                     mirrored unit and governance tests
 docs/design/               product specification
 docs/impl/plan.md          forward-only work

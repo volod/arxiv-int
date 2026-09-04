@@ -873,6 +873,7 @@ The installed command is `arxiv-int`. Representative commands are:
 
 ```text
 arxiv-int doctor
+arxiv-int features [--stage STAGE]
 arxiv-int config show --redact
 arxiv-int contracts lint|generate|diff|check|test
 arxiv-int services status

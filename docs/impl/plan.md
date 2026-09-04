@@ -10,27 +10,6 @@ ordering, and lifecycle rules belong in the
 
 ### Project foundation -- `project-foundation`
 
-#### establish-domain-dependency-seams
-
-Define the smallest core dependency set and optional extras so heavy extraction, NLP, graph, UI,
-evaluation, and GPU stacks stay isolated.
-
-- Serves: `project-foundation` -- [Design principles](../design/spec.md#design-principles)
-- Agent status: CLEAR
-- Dependencies: Personalized package and CLI identity documented in
-[Project foundation](current/project-foundation.md#project-identity).
-- User-visible outcome: A fresh operator can install the core CLI quickly and add only the feature
-groups required for the selected pipeline stage.
-- Scope boundary: Define extras and adapter protocols; do not download models or run services.
-- Data and artifact paths: `pyproject.toml`, `uv.lock`, `src/arxiv_int/interfaces/`,
-`docs/guide/development.md`, and dependency-license notices.
-- Execution path: Add typed protocols for extractors, embedders, inference providers, stores, and
-stage runners; declare non-conflicting extras; pin output-sensitive tooling; document system
-dependencies.
-- Acceptance gates: Core import has no optional heavy imports; missing extras produce actionable
-messages; lock resolution, license inventory, unit tests, and `make ci` pass.
-- Documentation target: `docs/impl/current/project-foundation.md`
-
 #### resolve-selfsuvis-reuse-integration
 
 Measure the `selfsuvis` configuration, path-safety, queued-logging, step-timing, and model-lifecycle
@@ -40,7 +19,9 @@ deferral.
 - Serves: `project-foundation` -- [Reuse decision rule](../design/spec.md#reuse-decision-rule)
 - Agent status: CLEAR
 - Research: yes
-- Dependencies: `establish-domain-dependency-seams`; read access to the pinned `selfsuvis` revision.
+- Dependencies: Feature groups and domain interfaces described in
+[Project foundation](current/project-foundation.md#dependency-seams-and-feature-groups);
+read access to the pinned `selfsuvis` revision.
 - User-visible outcome: A clean `arxiv-int` checkout runs layered path resolution, preflight checks,
 serialized logging, step timings, and GPU-aware model scheduling without a sibling checkout and
 without that repository's video, IoT, or vector-store dependencies.
@@ -75,7 +56,9 @@ deferral.
 - Serves: `project-foundation` -- [Reuse decision rule](../design/spec.md#reuse-decision-rule)
 - Agent status: CLEAR
 - Research: yes
-- Dependencies: `establish-domain-dependency-seams`; read access to the pinned `fl-op` revision.
+- Dependencies: Feature groups and domain interfaces described in
+[Project foundation](current/project-foundation.md#dependency-seams-and-feature-groups);
+read access to the pinned `fl-op` revision.
 - User-visible outcome: A clean `arxiv-int` checkout loads and generates contracts through the
 reused registry, canonical model, and semantic fingerprints without a sibling checkout and without
 fleet-domain or solver dependencies.
@@ -110,7 +93,9 @@ recorded deferral.
 - Serves: `project-foundation` -- [Reuse decision rule](../design/spec.md#reuse-decision-rule)
 - Agent status: CLEAR
 - Research: yes
-- Dependencies: `establish-domain-dependency-seams`; read access to the pinned `loc-lm-bench` revision.
+- Dependencies: Feature groups and domain interfaces described in
+[Project foundation](current/project-foundation.md#dependency-seams-and-feature-groups);
+read access to the pinned `loc-lm-bench` revision.
 - User-visible outcome: A clean `arxiv-int` checkout computes retrieval and extraction metrics,
 paired verdicts, linkage comparisons, and immutable run bundles without a sibling checkout and
 without the full benchmark CLI, FAISS, or robotics dependencies.
@@ -437,7 +422,8 @@ embeddings, health, model identity, timeout, and cancellation.
 
 - Serves: `local-inference` -- [Local inference](../design/spec.md#local-inference)
 - Agent status: CLEAR
-- Dependencies: `establish-domain-dependency-seams`;
+- Dependencies: Feature groups and domain interfaces described in
+[Project foundation](current/project-foundation.md#dependency-seams-and-feature-groups);
 `implement-layered-configuration-and-path-safety`.
 - User-visible outcome: The same extraction/retrieval code can use the Ollama system service or an
 optional vLLM container through explicit configuration.
