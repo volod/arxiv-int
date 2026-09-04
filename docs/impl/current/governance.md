@@ -8,9 +8,11 @@ change therefore has one canonical edit.
 
 ## Product state transition
 
-`docs/design/spec.md` owns capabilities, boundaries, evaluations, and registry order.
-`docs/impl/plan.md` owns only work that remains and separates independent agent work from
-human-gated acceptance. This current tree owns available behavior and durable results.
+`docs/design/spec.md` owns capabilities, boundaries, evaluations, delivery strategy, and registry
+order. `docs/impl/plan.md` contains only work that remains and separates independent agent work from
+human-gated acceptance. Status definitions, task shape, ordering rules, and completion mechanics
+live in the planning workflow instead of being repeated in the plan. This current tree owns
+available behavior and durable results.
 
 `src/arxiv_int/quality/plan_integrity.py` parses the registry and plan. It rejects unknown or
 misfiled capabilities, missing task fields, status-lane mismatches, missing evaluations or current

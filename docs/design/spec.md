@@ -767,6 +767,38 @@ Backups include:
 Because Community ParadeDB does not promise enterprise HA/read-replica support, local recovery is
 based on tested backup plus projection rebuild, not an assumed replica.
 
+## Delivery strategy
+
+| Phase                       | Outcome                                                          | Capability span                                          | Exit signal                                                     |
+| --------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------------------- |
+| 0 - Foundation              | Personalized repo, portable paths, contracts, one database image | `project-foundation` through `canonical-store`           | Fresh-copy service and contract smoke passes                    |
+| 1 - Local evidence seams    | Local inference adapters and replayable evaluation fixtures      | `local-inference`, `evaluation-foundation`               | Provider and metric conformance tests pass                      |
+| 2 - Corpus substrate        | Rebuildable normalized lake and restartable stages               | `corpus-foundation`, `pipeline-control`                  | Representative extraction run resumes without duplication       |
+| 3 - Retrieval and NLP       | Russian lexical baseline, selected vectors, mentions             | `lexical-retrieval` through `russian-nlp`                | Held-out lexical and NLP baselines are readable                 |
+| 4 - Knowledge and discovery | Facts, identity, ontology, graph, topics, reports, UI            | `knowledge-extraction` through `discovery-visualization` | Evidence-bearing operator scenarios pass                        |
+| 5 - Evidence and operations | Comparative scale evidence and recovery                          | `evaluation-evidence`, `operational-recovery`            | Staged pilot and restore drill support an adopt/retain decision |
+
+The critical path is:
+
+```text
+project foundation
+  -> portable runtime
+  -> contract governance
+  -> canonical store
+  -> local inference and evaluation foundation
+  -> corpus foundation
+  -> pipeline control
+  -> lexical retrieval
+  -> Russian NLP
+  -> knowledge extraction
+  -> identity/ontology/graph
+  -> discovery and visualization
+  -> evaluation and operational recovery
+```
+
+Semantic retrieval and vLLM are evaluated branches. They must not block a useful lexical, CPU-first
+system when their valid result is `retain baseline`.
+
 ## Capability Registry
 
 Every capability appears once. Status is `planned` until current-state documentation and acceptance

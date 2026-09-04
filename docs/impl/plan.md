@@ -1,65 +1,14 @@
 # arxiv-int Implementation Plan
 
-Forward-only: this file describes work that remains. Product behavior, boundaries, and evaluation
-belong in [the specification](../design/spec.md). As capabilities become available, durable implementation
-detail and evidence move to `docs/impl/current/`; finished tasks are removed from this plan.
-
-Every task serves a capability from the [capability registry](../design/spec.md#capability-registry).
-Capability groups follow registry order in both lanes. Take the first required task in the earliest
-group whose dependencies are satisfied. Within a group, required tasks precede optional work and
-cheap deterministic work precedes expensive runs.
-
-Statuses follow the project planning workflow:
-
-- `CLEAR`: an agent can implement and verify the task locally.
-- `RUN NEEDED`: implementation is deterministic, but acceptance includes a declared heavier run.
-- `BLOCKED BY HUMAN`: a person must supply an artifact or decision before acceptance.
-- `HUMAN-GATED`: the outcome itself requires human judgment, authorization, or risk acceptance.
-- `Research: yes` means a well-supported negative result is acceptable.
-
-
-
-## Delivery phases and dependency spine
-
-
-| Phase                       | Outcome                                                          | Capability span                                          | Exit signal                                                     |
-| --------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------------------- |
-| 0 - Foundation              | Personalized repo, portable paths, contracts, one database image | `project-foundation` through `canonical-store`           | Fresh-copy service and contract smoke passes                    |
-| 1 - Local evidence seams    | Local inference adapters and replayable evaluation fixtures      | `local-inference`, `evaluation-foundation`               | Provider and metric conformance tests pass                      |
-| 2 - Corpus substrate        | Rebuildable normalized lake and restartable stages               | `corpus-foundation`, `pipeline-control`                  | Representative extraction run resumes without duplication       |
-| 3 - Retrieval and NLP       | Russian lexical baseline, selected vectors, mentions             | `lexical-retrieval` through `russian-nlp`                | Held-out lexical and NLP baselines are readable                 |
-| 4 - Knowledge and discovery | Facts, identity, ontology, graph, topics, reports, UI            | `knowledge-extraction` through `discovery-visualization` | Evidence-bearing operator scenarios pass                        |
-| 5 - Evidence and operations | Comparative scale evidence and recovery                          | `evaluation-evidence`, `operational-recovery`            | Staged pilot and restore drill support an adopt/retain decision |
-
-
-The critical path is:
-
-```text
-project foundation
-  -> portable runtime
-  -> contract governance
-  -> canonical store
-  -> local inference and evaluation foundation
-  -> corpus foundation
-  -> pipeline control
-  -> lexical retrieval
-  -> Russian NLP
-  -> knowledge extraction
-  -> identity/ontology/graph
-  -> discovery and visualization
-  -> evaluation and operational recovery
-```
-
-Semantic retrieval and vLLM are evaluated branches. They must not block a useful lexical, CPU-first
-system when their valid result is `retain baseline`.
+Forward-only: this file contains only work that remains. Product behavior, boundaries, evaluation,
+and delivery strategy belong in [the specification](../design/spec.md). Task structure, statuses,
+ordering, and lifecycle rules belong in the
+[planning workflow](../guide/planning-workflow.md). Available behavior and durable results belong in
+[current-state documentation](current.md).
 
 ## Agent Implementation Tasks
 
-
-
 ### Project foundation -- `project-foundation`
-
-
 
 #### establish-domain-dependency-seams
 
@@ -82,11 +31,7 @@ dependencies.
 messages; lock resolution, license inventory, unit tests, and `make ci` pass.
 - Documentation target: `docs/impl/current/project-foundation.md`
 
-
-
 ### Portable runtime -- `portable-runtime`
-
-
 
 #### implement-layered-configuration-and-path-safety
 
@@ -111,8 +56,6 @@ symlinks, separate device ids, CLI overrides, redaction, missing values, and dan
 machine-specific path is committed.
 - Documentation target: `docs/impl/current/portable-runtime.md`
 
-
-
 #### define-compose-profiles-and-operator-wrappers
 
 Create the pinned Compose topology and Make wrappers for core, graph, UI, observability, and vLLM
@@ -136,8 +79,6 @@ mounts resolve to configured SSD paths; healthchecks and stop behavior are defin
 absent from rendered test output.
 - Documentation target: `docs/impl/current/portable-runtime.md`
 
-
-
 #### add-fresh-copy-doctor
 
 Implement a preflight command that turns configuration, tool, device, model endpoint, extension, and
@@ -159,11 +100,7 @@ emit console and JSON reports.
 exit codes distinguish ready/degraded/blocked; checks have timeouts.
 - Documentation target: `docs/impl/current/portable-runtime.md`
 
-
-
 ### Contract governance -- `contract-governance`
-
-
 
 #### establish-canonical-contract-registry
 
@@ -189,8 +126,6 @@ references, canonical bindings, relationship targets, and required identities ar
 complete.
 - Documentation target: `docs/impl/current/contracts.md`
 
-
-
 #### implement-deterministic-schema-generation
 
 Generate physical schemas and model boundaries from ODCS while minimizing custom generator code.
@@ -211,8 +146,6 @@ Pydantic/JSON Schema; normalize ordering and fingerprints.
 parses and round-trips; generated SQL parses against a disposable database; no source contract
 metadata is silently lost.
 - Documentation target: `docs/impl/current/contracts.md`
-
-
 
 #### enforce-evolution-and-migration-policy
 
@@ -236,11 +169,7 @@ vector-dimension, semantic-retarget, and graph-projection cases; version rules f
 out-of-order migrations and drift fail CI.
 - Documentation target: `docs/impl/current/contracts.md`
 
-
-
 ### Canonical store -- `canonical-store`
-
-
 
 #### build-pinned-paradedb-age-image
 
@@ -267,8 +196,6 @@ pass across restart and dump/restore; licenses are present. A valid negative res
 AGE profile and records the incompatibility without blocking relational graph work.
 - Documentation target: `docs/impl/current/canonical-store.md`
 
-
-
 #### create-canonical-relational-schema
 
 Apply generated migrations for control, corpus, search, knowledge, ontology, and evaluation schemas
@@ -291,8 +218,6 @@ idempotent upserts; add SQLAlchemy/psycopg typed adapters only where useful.
 invalid fact shapes, missing provenance, duplicates, and cross-version vector mixing; migration
 and clean-load schemas match.
 - Documentation target: `docs/impl/current/canonical-store.md`
-
-
 
 #### implement-rebuildable-search-and-graph-projections
 
@@ -317,11 +242,7 @@ builds never replace active projections; graph-disabled mode supports recursive 
 exports.
 - Documentation target: `docs/impl/current/canonical-store.md`
 
-
-
 ### Local inference -- `local-inference`
-
-
 
 #### implement-local-inference-adapters
 
@@ -346,8 +267,6 @@ incompatible models fail clearly; prompts and secrets are not logged; no remote 
 local-only policy by default.
 - Documentation target: `docs/impl/current/local-inference.md`
 
-
-
 #### implement-model-resource-scheduler
 
 Schedule GPU-heavy embedding, reranking, OCR, and generation sequentially by default and record
@@ -371,11 +290,7 @@ consumes.
 cancellation releases leases; model-fit rejection is actionable; CPU fallback is explicit.
 - Documentation target: `docs/impl/current/local-inference.md`
 
-
-
 ### Evaluation foundation -- `evaluation-foundation`
-
-
 
 #### create-evaluation-fixtures-and-metrics
 
@@ -398,11 +313,7 @@ adopt/retain/inconclusive verdicts.
 replay; missing evidence refuses a verdict; metrics have positive/negative fixtures.
 - Documentation target: `docs/impl/current/evaluation-foundation.md`
 
-
-
 ### Corpus foundation -- `corpus-foundation`
-
-
 
 #### implement-streaming-inventory
 
@@ -427,8 +338,6 @@ renamed duplicates, nested archives, encrypted files, interruption, and resume; 
 independently of file count.
 - Documentation target: `docs/impl/current/corpus-foundation.md`
 
-
-
 #### integrate-tiered-text-extraction
 
 Compose Tika, Docling, and OCR/layout fallbacks behind one evidence-preserving extractor interface.
@@ -450,8 +359,6 @@ child processes, timeouts, and decompression.
 coverage; corrupt/encrypted/oversized inputs fail safely; repeated content hashes reuse outputs;
 source files remain unchanged.
 - Documentation target: `docs/impl/current/corpus-foundation.md`
-
-
 
 #### implement-normalization-dedupe-and-chunking
 
@@ -475,11 +382,7 @@ ids; dedupe precision is measured on labels; no suppression occurs without an ov
 memory and shard-resume tests pass.
 - Documentation target: `docs/impl/current/corpus-foundation.md`
 
-
-
 ### Pipeline control -- `pipeline-control`
-
-
 
 #### implement-run-ledger-and-atomic-artifacts
 
@@ -504,8 +407,6 @@ no partial output is accepted; unchanged rerun is a cache hit; forced retry crea
 without overwriting evidence.
 - Documentation target: `docs/impl/current/pipeline-control.md`
 
-
-
 #### implement-stage-dag-cli-and-make-targets
 
 Build the dependency-aware stage registry, independent stage command, end-to-end runner, resume, and
@@ -527,8 +428,6 @@ upstream manifests; add pipeline/stage/status/resume/invalidate commands; keep M
 pass; CLI help lists defaults and precedence; end-to-end smoke produces the same manifests as
 independent stages.
 - Documentation target: `docs/impl/current/pipeline-control.md`
-
-
 
 #### add-progress-logging-and-resource-telemetry
 
@@ -553,11 +452,7 @@ corpus text; stalled worker and ETA states are distinguishable; metric labels ha
 cardinality.
 - Documentation target: `docs/impl/current/pipeline-control.md`
 
-
-
 ### Lexical retrieval -- `lexical-retrieval`
-
-
 
 #### build-paradedb-lexical-load-and-query-path
 
@@ -581,8 +476,6 @@ explain/diagnostic modes.
 concurrent index build/rebuild remains observable; query and index failures have actionable
 diagnostics.
 - Documentation target: `docs/impl/current/lexical-retrieval.md`
-
-
 
 #### calibrate-russian-tokenization-and-bm25
 
@@ -608,11 +501,7 @@ mixed-language cases; use paired bootstrap verdicts.
 metrics and costs cite immutable runs; profile changes name required reindex work.
 - Documentation target: `docs/impl/current/lexical-retrieval.md`
 
-
-
 ### Semantic retrieval -- `semantic-retrieval`
-
-
 
 #### implement-selective-embedding-pipeline
 
@@ -638,8 +527,6 @@ selected-tier reason is recorded; embedding output is deterministic within decla
 GB VRAM stays within budget.
 - Documentation target: `docs/impl/current/semantic-retrieval.md`
 
-
-
 #### compare-pgvector-paradedb-native-and-fallback-seam
 
 Benchmark pgvector HNSW/IVFFlat/quantized candidates and ParadeDB native vector/hybrid search on the
@@ -663,11 +550,7 @@ run paired answer-side check for promoted candidates.
 visible; fallback addition requires a failed mandatory gate and its own integration plan.
 - Documentation target: `docs/impl/current/semantic-retrieval.md`
 
-
-
 ### Russian NLP -- `russian-nlp`
-
-
 
 #### build-russian-language-morphology-and-terminology-lane
 
@@ -692,8 +575,6 @@ glossary proposals.
 - Acceptance gates: Language and normalization metrics pass by fixture slice; offsets map to
 original evidence; dictionary changes are versioned; unsupported/ambiguous tokens remain explicit.
 - Documentation target: `docs/impl/current/russian-nlp.md`
-
-
 
 #### evaluate-general-and-domain-ner
 
@@ -720,11 +601,7 @@ high-impact low-precision types stay review-only; inference cost and fallback be
 resource budget.
 - Documentation target: `docs/impl/current/russian-nlp.md`
 
-
-
 ### Knowledge extraction -- `knowledge-extraction`
-
-
 
 #### implement-provenance-bearing-fact-extraction
 
@@ -750,8 +627,6 @@ typed failures, not facts; per-type precision/recall and citation validity are m
 idempotent.
 - Documentation target: `docs/impl/current/knowledge-extraction.md`
 
-
-
 #### implement-fact-validation-conflict-and-review-overlays
 
 Validate facts against ontology and temporal/unit rules, group duplicates/contradictions, and expose
@@ -775,11 +650,7 @@ active status derives from an audit event; rejected/superseded facts retain evid
 versioned and replayable.
 - Documentation target: `docs/impl/current/knowledge-extraction.md`
 
-
-
 ### Identity, ontology, and graph -- `identity-ontology-graph`
-
-
 
 #### implement-probabilistic-entity-resolution
 
@@ -805,8 +676,6 @@ floor; replay does not refit; uncertain/rejected pairs remain separate; rollback
 prior cluster view.
 - Documentation target: `docs/impl/current/identity-ontology-graph.md`
 
-
-
 #### establish-versioned-ontology-assets
 
 Create the controlled vocabulary, classes, predicates, semantic mappings, SHACL shapes, and open RDF
@@ -829,8 +698,6 @@ rdflib/pySHACL and a second reasoner where practical.
 every active predicate maps to a contract binding; breaking ontology changes follow evolution
 policy.
 - Documentation target: `docs/impl/current/identity-ontology-graph.md`
-
-
 
 #### build-and-validate-age-projection
 
@@ -856,11 +723,7 @@ lookup succeeds for every sampled edge; AGE-disabled mode exports the same logic
 build leaves prior graph active.
 - Documentation target: `docs/impl/current/identity-ontology-graph.md`
 
-
-
 ### Discovery and visualization -- `discovery-visualization`
-
-
 
 #### implement-scalable-topic-discovery
 
@@ -887,8 +750,6 @@ review are reported; repeated seeded run is reproducible within tolerance; topic
 versioned.
 - Documentation target: `docs/impl/current/discovery-visualization.md`
 
-
-
 #### build-search-graph-and-report-interfaces
 
 Expose bounded lexical/semantic/hybrid search, object/fact lookup, Cypher or SQL traversal, and
@@ -911,8 +772,6 @@ text/depth/result/time.
 injection and path tests pass; large/unbounded requests are refused; exports conform to generated
 contracts.
 - Documentation target: `docs/impl/current/discovery-visualization.md`
-
-
 
 #### provision-local-dashboards-and-age-viewer
 
@@ -937,11 +796,7 @@ tests.
 mutate canonical rows; dashboards load fixture data; graph profile absence degrades cleanly.
 - Documentation target: `docs/impl/current/discovery-visualization.md`
 
-
-
 ### Evaluation and evidence -- `evaluation-evidence`
-
-
 
 #### run-representative-scale-pilots
 
@@ -968,8 +823,6 @@ uncertainty and concurrent-rebuild space; every failure and excluded format is c
 ends in authorize-next, resize/reconfigure, retain-subset, or stop.
 - Documentation target: `docs/impl/current/evaluation.md`
 
-
-
 #### audit-reuse-provenance-and-published-claims
 
 Verify copied/adapted code attribution, artifact lineage, and every number or architectural claim
@@ -992,11 +845,7 @@ changes.
 resolves to one immutable artifact field; orphan or stale claims fail CI.
 - Documentation target: `docs/impl/current/evaluation.md`
 
-
-
 ### Operational recovery -- `operational-recovery`
-
-
 
 #### harden-local-security-and-no-egress-mode
 
@@ -1021,8 +870,6 @@ profile.
 mutations fail; secrets/corpus snippets do not appear in logs; dependency/image scan findings are
 triaged without suppressing gates.
 - Documentation target: `docs/impl/current/operations.md`
-
-
 
 #### implement-backup-restore-and-rebuild-runbook
 
@@ -1049,8 +896,6 @@ missing/corrupt backup parts fail before mutation; recovery time/space are recor
 remains untouched.
 - Documentation target: `docs/impl/current/operations.md`
 
-
-
 #### test-failure-and-capacity-boundaries
 
 Exercise disk pressure, database restart, worker death, corrupt artifacts, model timeout, invalid
@@ -1075,15 +920,9 @@ bounded; invalid indexes/projections never become active; capacity refusal occur
 configured safety margin is consumed.
 - Documentation target: `docs/impl/current/operations.md`
 
-
-
 ## Human-Assisted Tasks
 
-
-
 ### Corpus foundation -- `corpus-foundation`
-
-
 
 #### approve-representative-corpus-and-gold
 
@@ -1108,11 +947,7 @@ documented; reviewer decisions and disagreements are recorded; final split remai
 tuning.
 - Documentation target: `docs/impl/current/evaluation.md`
 
-
-
 ### Knowledge extraction -- `knowledge-extraction`
-
-
 
 #### approve-fact-review-and-publication-policy
 
@@ -1136,11 +971,7 @@ cost; record policy with version, rationale, effective scope, and rollback.
 facts have explicit report treatment; policy version is included in query/report provenance.
 - Documentation target: `docs/impl/current/knowledge-extraction.md`
 
-
-
 ### Identity, ontology, and graph -- `identity-ontology-graph`
-
-
 
 #### approve-entity-merge-and-ontology-policy
 
@@ -1165,11 +996,7 @@ and ontology commits.
 draft; every accepted change has rollback/deprecation behavior.
 - Documentation target: `docs/impl/current/identity-ontology-graph.md`
 
-
-
 ### Discovery and visualization -- `discovery-visualization`
-
-
 
 #### accept-operator-discovery-workflows
 
@@ -1193,11 +1020,7 @@ confusing controls, and desired exports; route true capability gaps back to the 
 classified as bug, data gap, policy gap, or new capability; no silent workaround is accepted.
 - Documentation target: `docs/impl/current/discovery-visualization.md`
 
-
-
 ### Evaluation and evidence -- `evaluation-evidence`
-
-
 
 #### authorize-full-corpus-run
 
@@ -1221,11 +1044,7 @@ margin, stop conditions, backup, and responsible operator; an unapproved or stal
 launch full scope.
 - Documentation target: `docs/impl/current/evaluation.md`
 
-
-
 ### Operational recovery -- `operational-recovery`
-
-
 
 #### accept-recovery-and-security-posture
 
@@ -1249,22 +1068,3 @@ residual risks.
 - Acceptance gates: Restore evidence and residual-risk list are signed off or rejected; rejected
 items return to the owning capability; Community ParadeDB HA limitations remain explicit.
 - Documentation target: `docs/impl/current/operations.md`
-
-
-
-## Plan maintenance rules
-
-At each task completion transition:
-
-1. Run `make plan-status` before and after the change.
-2. Record available behavior, modules, commands, tests, and measured results in the narrowest
-  current-state page.
-3. Remove the finished task from this forward plan; retain only genuine residual work.
-4. Mark a capability `shipped` in the specification only when current-state documentation and its
-  evaluation exist. A shipped capability may retain explicitly optional refinements.
-5. Run `make lint-spec-plan`, `make lint-doc-links`, and `make ci`.
-6. Inspect repository and runtime state; stop processes started by tests unless they are the
-  requested persistent service, and retain run evidence under configured data paths.
-
-New capabilities return to the specification first: state the operator problem, behavior, boundary,
-evaluation, and valid negative result; register the capability; then add tasks in registry order.
