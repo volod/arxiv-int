@@ -27,7 +27,9 @@ specific files must link here and keep only integration-specific routing.
   functional seam; cohesion is more important than the number.
 - Use named constants instead of unexplained literals and `logging` instead of `print()` in
   production code.
-- Runtime output belongs under `$DATA_DIR/<method>/<run-id>/`, never inside `src/`.
+- Repository task and tool output belongs under `$DATA_DIR/<method>/<run-id>/`, never inside `src/`.
+  Product runtime output belongs under the operator's configured roots described in the
+  specification, never under `DATA_DIR`.
 - Shared shell behavior belongs in `scripts/shared/common.sh`. Every tracked shell function must
   use the `arxiv_int_` prefix because sourced functions share one namespace.
 

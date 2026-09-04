@@ -3,13 +3,16 @@
 ## Purpose
 
 `arxiv-int` is a local-first Knowledge Discovery Platform for multi-terabyte, mostly
-Russian-language document archives. Its Python distribution and import package are both `arxiv-int`
-/ `arxiv_int`. The system inventories and normalizes an immutable archive, builds reproducible
-lexical and selected semantic indexes, discovers topics, extracts and resolves entities and facts,
-classifies source files in a UDC-derived hierarchy, projects a knowledge graph and evidence-backed
-domain artifacts, and supports local search, analysis, and visualization without requiring document
-or prompt egress. An explicit, separately authorized maintenance command can reorganize physical
-archive paths after classification while preserving an auditable original-to-current path map.
+Russian-language document archives. Its input is one or more read-only directory silos of ordinary
+files; its output is evidence-backed knowledge: canonical objects, provenance-bearing facts, and the
+search, graph, and investigation views built from them. Its Python distribution and import package
+are both `arxiv-int` / `arxiv_int`. The system inventories and normalizes an immutable archive,
+builds reproducible lexical and selected semantic indexes, discovers topics, extracts and resolves
+entities and facts, classifies source files in a UDC-derived hierarchy, projects a knowledge graph
+and evidence-backed domain artifacts, and supports local search, analysis, and visualization without
+requiring document or prompt egress. An explicit, separately authorized maintenance command can
+reorganize the archive after classification -- copying the classified tree into a target directory,
+or moving the silo in place -- while preserving an auditable original-to-current path map.
 
 The target workstation typically has about 128GB of RAM and 16GB of GPU VRAM. Speed is secondary to
 quality, but every expensive result must be resumable, attributable, and independently rebuildable.
@@ -116,13 +119,14 @@ The governing principles are:
 
 The first production-shaped release includes:
 
-- recursive archive inventory with stable identities, MIME/encoding/language detection, hashes,
-  exact deduplication, and quarantines;
+- recursive inventory of one or more declared source silos with stable identities, source-root
+  attribution, MIME/encoding/language detection, hashes, exact deduplication, and quarantines;
 - text and metadata extraction from common office, text, email, archive, image, and PDF formats,
   with OCR/layout lanes selected by policy;
 - versioned, multi-label hierarchical source classification derived from UDC, including explicit
   `unclassified` and `unreadable` outcomes, plus a separately authorized archive-reorganization
-  command with a reversible path ledger;
+  command that either copies the classified tree to a target directory or moves the silo in place,
+  with a reversible path ledger;
 - normalized partitioned Parquet datasets and optional Avro object containers;
 - Russian-aware BM25 search, metadata filters, snippets, and hybrid retrieval;
 - selective multilingual embeddings, reranking, and local RAG;
@@ -202,7 +206,7 @@ feature parity.
 ## Logical architecture
 
 ```text
-SSD A: ARCHIVE_DIR (read-only)         SSD B: NORMALIZED_DIR
+SSD A: ARCHIVE_DIR (read-only)         SSD B: RESULTS_DIR
           |                                      |
           v                                      v
  inventory -> extract -> normalize -> dedupe -> partitioned Parquet/Avro
@@ -210,7 +214,7 @@ SSD A: ARCHIVE_DIR (read-only)         SSD B: NORMALIZED_DIR
                           +---- run manifests ----+
                                       |
                                       v
-SSD C: PGDATA_DIR          ParadeDB / PostgreSQL
+SSD C: PGDATA_DIR          ParadeDB / PostgreSQL (tables and indexes)
                     +-------------------------------+
                     | ctl: runs, shards, contracts  |
                     | corpus: docs, spans, chunks   |
@@ -229,12 +233,16 @@ SSD C: PGDATA_DIR          ParadeDB / PostgreSQL
                 or optional vLLM container
 ```
 
-The checkout can live on any fourth disk. No runtime path is derived from the checkout unless the
-operator deliberately accepts a local default.
+The checkout can live on any other disk and holds only code, documentation, and its own `DATA_DIR`
+tooling output. No corpus runtime path is derived from the checkout unless the operator deliberately
+accepts a local default for a small trial. The optional archive-reorganization target is a further
+independent root, written only by that authorized command.
 
 ## Repository and package structure
 
-The repository foundation was adapted from the pinned `agent-py` source above. Its active layout is:
+The repository foundation was adapted from the pinned `agent-py` source above. Behavior that exists
+today is indexed by [current implementation](../impl/current.md); the target layout the capabilities
+below build toward is:
 
 ```text
 arxiv-int/
@@ -258,15 +266,35 @@ arxiv-int/
     postgres/Dockerfile
     postgres/initdb/
     grafana/
+  configs/
+    capacity/ classification/ evaluation/ models/ nlp/ policy/ proofs/ retrieval/ topics/
+  ontology/
   src/arxiv_int/
     cli.py
     config.py
+    paths.py
+    interfaces/
+    adapters/
+    vendor/
     contracts/
+    doctor/
     pipeline/
     stores/
-    nlp/
+    inference/
+    observability/
     extraction/
+    classification/
+    archive/
+    retrieval/
+    nlp/
+    identity/
+    graph/
+    domain_artifacts/
+    query/
+    reporting/
+    security/
     evaluation/
+    quality/
   tests/
   docs/
     design/spec.md
@@ -275,6 +303,10 @@ arxiv-int/
     guide/
   scripts/shared/common.sh
 ```
+
+`configs/` holds versioned operator profiles and policies; `ontology/` holds Turtle and SHACL assets;
+`src/arxiv_int/vendor/` holds attributed small extractions from other repositories under the reuse
+decision rule below. Every directory arrives with the capability that needs it, not in advance.
 
 Custom Python is orchestration and domain policy, not reimplementation of Tika, Docling, OCR,
 ParadeDB, pgvector, AGE, DuckDB, PyArrow, or model runtimes. Production modules remain typed and
@@ -295,20 +327,34 @@ resolution. `make config` renders redacted application configuration and runs
 
 Required or prominent variables:
 
+The operator configures three roots, one per job:
+
+| Root            | Holds                                                                              | Access             |
+| --------------- | ---------------------------------------------------------------------------------- | ------------------ |
+| `ARCHIVE_DIR`   | The source silos: the operator's own files, untouched                              | Read-only          |
+| `RESULTS_DIR`   | Everything the pipeline produces: normalized datasets, runs, logs, reports, proofs  | Read-write         |
+| `PGDATA_DIR`    | The one PostgreSQL data directory: canonical tables and every lexical, vector, and graph index | Postgres-owned |
+
+Nothing else is required to start. The remaining variables are overrides with documented defaults
+inside those roots, so a working configuration is three paths, a database password, and a model
+profile.
+
 | Variable                                                | Purpose                                              | Default policy                                                 |
 | ------------------------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------- |
-| `ARCHIVE_DIR`                                           | Immutable input tree; bind-mounted read-only         | Required for corpus stages                                     |
-| `PROOF_ARCHIVE_DIR`                                     | Operator-provided read-only archive for proof runs   | Required only by provided-archive proof tasks                   |
-| `NORMALIZED_DIR`                                        | Parquet, Avro, extracted text, quarantine, manifests | Required; must not be inside source tree by accident           |
-| `PGDATA_DIR`                                            | PostgreSQL data directory on fast local SSD/NVMe     | Required for services                                          |
-| `RUNS_DIR`                                              | Run journals, logs, reports, checkpoints             | `${NORMALIZED_DIR}/runs`                                       |
-| `MODEL_CACHE_DIR`                                       | Hugging Face/model cache                             | `${NORMALIZED_DIR}/models`                                     |
-| `TMP_DIR`                                               | Bounded extraction and sort scratch                  | `${NORMALIZED_DIR}/tmp`                                        |
+| `ARCHIVE_DIR`                                           | Declared immutable input silos; bind-mounted read-only | Required for corpus stages; one path, or several named roots |
+| `RESULTS_DIR`                                           | Single pipeline output root                          | Required for corpus stages; must not be inside the archive or the checkout |
+| `PGDATA_DIR`                                            | PostgreSQL data and index directory on fast local SSD/NVMe | Required for services                                     |
+| `PROOF_ARCHIVE_DIR`                                     | Operator-provided read-only archive silo for proof runs | Required only by provided-archive proof tasks                |
+| `DEV_ARCHIVE_DIR`                                       | Read-only archive used by the development loop       | `${PROOF_ARCHIVE_DIR}`; never read by `make ci`                |
+| `RUNS_DIR`                                              | Run journals, logs, reports, checkpoints             | `${RESULTS_DIR}/runs`                                          |
+| `MODEL_CACHE_DIR`                                       | Hugging Face/model cache                             | `${RESULTS_DIR}/models`                                        |
+| `TMP_DIR`                                               | Bounded extraction and sort scratch                  | `${RESULTS_DIR}/tmp`                                           |
 | `DATABASE_URL`                                          | Host-side application connection                     | Local-only default assembled from non-secret fields            |
 | `POSTGRES_PASSWORD`                                     | Database secret                                      | No committed value; doctor rejects placeholder in non-dev mode |
 | `OLLAMA_BASE_URL`                                       | Host Ollama endpoint                                 | `http://127.0.0.1:11434` for host CLI                          |
 | `INFERENCE_BACKEND`                                     | `ollama` or `vllm`                                   | `ollama`                                                       |
 | `EMBEDDING_MODEL`, `GENERATION_MODEL`, `RERANK_MODEL`   | Model identities                                     | Pinned by an evaluated profile, not silently floated           |
+| `DATA_DIR`                                              | Repository-local root for developer tooling only     | `.data`, resolved from the project root                        |
 | `LOG_LEVEL`, `LOG_FORMAT`, `PROGRESS_INTERVAL_SEC`      | Operator feedback                                    | `INFO`, console plus JSONL, 30 seconds                         |
 | `PIPELINE_WORKERS`, `BATCH_SIZE`, `GPU_MAX_CONCURRENCY` | Resource bounds                                      | Auto-detected conservative values; GPU concurrency `1`         |
 
@@ -317,15 +363,59 @@ mount is readable, verify outputs are writable, record filesystem/device identif
 space, and refuse dangerous roots such as `/`. Docker receives absolute bind-mount sources, even
 when `.env` contains paths relative to the project root.
 
+### Source silos
+
+The archive input is a declared set of one or more read-only source roots. Each root has a stable,
+operator-declared silo id and an absolute path; a single configured path is the one-silo case and
+carries a default id. The silo id is part of source identity: every inventory row, document, path
+event, quarantine record, classification row, and move-ledger entry stores its silo id together with
+the root-relative path, so two silos may hold the same relative path without colliding and any
+derived fact can name the silo it came from. Content identity remains the content hash, so the same
+bytes found in two silos are one document with two source locations rather than two documents.
+Silos may sit on different filesystems, and each is separately declared readable, forecast, and
+counted; the archive-reorganization command operates on exactly one silo per plan.
+
+### The results root
+
+`RESULTS_DIR` is the single output root, so an operator can point one path at a spare disk, inspect
+everything the system produced in one tree, and delete or archive that tree without touching the
+source silos or the database. Its layout is fixed and documented:
+
+```text
+$RESULTS_DIR/
+  normalized/   contract-versioned Parquet and Avro datasets: inventory, documents, spans, chunks,
+                classifications, nlp, mentions, facts, linkage, embeddings, topics, domain-artifacts
+  quarantine/   inputs that could not be processed, by reason
+  runs/         one directory per run: journal, logs, manifests, telemetry, evaluation, reports
+  proofs/       provided-archive proof bundles, by capability and proof id
+  exports/      operator-requested portable outputs
+  models/       model cache, unless MODEL_CACHE_DIR points elsewhere
+  tmp/          bounded scratch, unless TMP_DIR points elsewhere
+```
+
+Everything under `RESULTS_DIR` is rebuildable from the archive plus contracts and code, given enough
+time; nothing under it is the only copy of an operator's file. `PGDATA_DIR` is separate because
+PostgreSQL owns that directory exclusively and its failure and backup semantics differ from a lake of
+files. Keeping indexes inside `PGDATA_DIR` rather than in a fourth root is deliberate: ParadeDB,
+pgvector, and AGE are all PostgreSQL extensions, so their storage is part of the database.
+
+`DATA_DIR` is not part of this model. It is the repository's own convention for developer tooling --
+linter, type-checker, and test caches, and local records produced by repository tasks -- and it
+defaults to `.data` inside the checkout. Corpus-scale output never goes there, and preflight refuses
+a `RESULTS_DIR` or `PGDATA_DIR` that resolves inside the checkout unless the operator states that
+intent for a small local trial.
+
 `PROOF_ARCHIVE_DIR` is never committed as a machine-specific value and may not overlap generated
 proof data. Proof tasks retain source manifests and hashes, not corpus contents, in repository
 documentation. A bounded disposable copy under the configured data root may be used for addition,
 modification, and removal drills; the provided archive itself remains read-only.
 
 `ARCHIVE_DIR` remains read-only for analysis. The archive-reorganization command is the sole
-exception: it takes an explicit archive root, runs outside the read-only service mounts, defaults to
-dry-run, and requires `--apply` plus the accepted classification and move-plan ids before requesting
-write access.
+exception, and only in its `move` mode: it takes an explicit silo root, runs outside the read-only
+service mounts, defaults to dry-run, and requires `--apply` plus the accepted classification and plan
+ids before requesting write access. Its `copy` mode needs no write access to the archive at all -- it
+reads the silo read-only and writes into an explicit target root that must not overlap the archive,
+the results root, or the database directory.
 
 ## Docker and local-service topology
 
@@ -420,20 +510,21 @@ rollback/rebuild path.
 
 ### Normalized data lake
 
-`NORMALIZED_DIR` is organized by contract id/version and stable partitions, never by an ephemeral
-checkout path:
+`$RESULTS_DIR/normalized/` is organized by contract id/version and stable partitions, never by an
+ephemeral checkout path:
 
 ```text
-normalized/
-  inventory/contract_version=.../scan_id=.../*.parquet
-  documents/contract_version=.../bucket=ab/*.parquet
-  spans/contract_version=.../bucket=ab/*.parquet
-  chunks/chunker_id=.../bucket=ab/*.parquet
-  classifications/scheme_id=.../bucket=ab/*.parquet
-  mentions/extractor_id=.../bucket=ab/*.parquet
-  facts/extractor_id=.../bucket=ab/*.parquet
-  embeddings/profile_id=.../bucket=ab/*.parquet
-  domain-artifacts/type=.../artifact_id=.../
+$RESULTS_DIR/
+  normalized/
+    inventory/contract_version=.../scan_id=.../*.parquet
+    documents/contract_version=.../bucket=ab/*.parquet
+    spans/contract_version=.../bucket=ab/*.parquet
+    chunks/chunker_id=.../bucket=ab/*.parquet
+    classifications/scheme_id=.../bucket=ab/*.parquet
+    mentions/extractor_id=.../bucket=ab/*.parquet
+    facts/extractor_id=.../bucket=ab/*.parquet
+    embeddings/profile_id=.../bucket=ab/*.parquet
+    domain-artifacts/type=.../artifact_id=.../
   quarantine/reason=.../
   runs/<run-id>/
 ```
@@ -526,7 +617,7 @@ orchestrator.
 | Stage          | Main work                                                                   | Primary output                |
 | -------------- | --------------------------------------------------------------------------- | ----------------------------- |
 | `preflight`    | Paths, devices, space, tools, services, contracts, model endpoints          | Readiness report              |
-| `inventory`    | Walk archive, stat, MIME, encoding, hashes, archive-member policy           | Inventory Parquet             |
+| `inventory`    | Walk declared silos, stat, MIME, encoding, hashes, archive-member policy    | Inventory Parquet             |
 | `extract`      | Tika baseline; Docling/OCR/layout fallback; source coordinates              | Extracted documents/spans     |
 | `normalize`    | UTF-8, Unicode normalization, boilerplate policy, language, metadata        | Canonical document records    |
 | `dedupe`       | Exact, normalized, lexical/MinHash, edition groups; no destructive deletion | Duplicate overlays            |
@@ -569,45 +660,66 @@ masquerade as official UDC codes. Two project outcomes are mandatory and are not
   corrupt, unsupported, or an unknown/binary format for which extraction failed.
 
 Every file-classification row contains the stable inventory id, content/document id when readable,
-original relative path, primary and alternate class ids, ancestor chain, confidence and calibration
-profile, decisive source spans or failure reason, extraction/classifier/configuration fingerprints,
-and run id.
+silo id and original root-relative path, primary and alternate class ids, ancestor chain, confidence
+and calibration profile, decisive source spans or failure reason,
+extraction/classifier/configuration fingerprints, and run id.
 Low-confidence cases remain `unclassified`; unreadability is determined from recorded inventory and
 extraction outcomes, not guessed from filename extensions. A valid negative result is a complete
 mapping with a high exceptional-outcome rate and a recommendation to improve extraction or labels;
 the pipeline must not force ordinary UDC assignments to improve coverage.
 
 `arxiv-int archive reorganize` is a separate maintenance command, not an ordinary pipeline stage.
-It consumes one accepted, complete classification artifact and produces a deterministic move plan.
-Dry-run is the default; `--apply --plan PLAN_ID` requires explicit operator authorization, a
-writable archive, and revalidation of every source path, available content hash, destination,
+It consumes one accepted, complete classification artifact and produces a deterministic plan for
+exactly one declared silo. Dry-run is the default; `--apply --plan PLAN_ID` requires explicit
+operator authorization and revalidation of every source path, available content hash, destination,
 free-space/device condition, and classification fingerprint. Entries lacking the permissions or
-strong hash needed for a safe move remain explicitly blocked. The normal pipeline and all containers
-continue to mount the archive read-only.
+strong hash needed for a safe placement remain explicitly blocked. The normal pipeline and all
+containers continue to mount the archive read-only.
+
+The plan declares one of two placement modes, and the mode is part of the authorized decision:
+
+| Mode                            | Effect                                                                              | Cost and risk                                                                            |
+| ------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `copy` to `--target DIR`        | Builds the classified tree in a separate target root and leaves the silo untouched  | Needs free space for the selected subset; the source archive is never modified, so the target can be deleted and rebuilt at any time |
+| `move` in place                 | Renames files inside the silo root into their class directories                     | Reclaims no extra space but rewrites the operator's own tree, so it requires a writable archive and a verified backup |
+
+`copy` is the default and the recommended first organization: it turns an accepted classification
+into a browsable subject tree without ever putting the original files at risk, and it may target a
+different device. When the target is on the same filesystem, an opt-in hardlink placement gives the
+same tree without duplicating bytes, which is safe only because both paths then reference the same
+immutable content. `move` exists for operators who want the archive itself reorganized and accept
+that cost; it stays same-filesystem and atomic, and it is refused without a verified backup. Both
+modes read the same classification mapping, write the same ledger, and support the same resume,
+verification, and lookup behavior.
 
 Physical directories follow the primary class's ancestor path. Each segment combines a reversible
 safe class token with a short meaningful ASCII slug, is capped at a configured byte length, and is
 checked together with the full destination against filesystem component and path limits. Dedicated
 ASCII directories such as `_unclassified` and `_unreadable` hold exceptional outcomes that can be
-safely moved. Complex facets and secondary classes stay in metadata. The command never overwrites a
-destination, never follows a link outside the selected root, never moves virtual members
-independently of their container, and refuses stale, colliding, cross-device, overlong, or
-incompletely accounted plans.
+safely placed. Complex facets and secondary classes stay in metadata. The command never overwrites a
+destination, never follows a link outside the selected root, never relocates virtual members
+independently of their container, and refuses stale, colliding, overlong, or incompletely accounted
+plans. A `move` plan additionally refuses cross-device entries; a `copy` plan expects a different
+device and refuses a target that overlaps the silo, the results root, or the database directory.
 
-Before the first move, the command seals an append-only move ledger containing inventory and
-document/content ids, original and proposed destination relative paths, action order, available
-hashes, classification and plan ids, moved/blocked status, and rollback information. It journals
-each atomic same-filesystem rename and can resume or reverse only operations proven by that ledger.
-Original provenance is never rewritten to contain only the new path. The
+Before the first placement, the command seals an append-only ledger containing inventory and
+document/content ids, silo id, mode, original and proposed destination relative paths, action order,
+available hashes, classification and plan ids, placed/blocked status, and rollback information. It
+journals each atomic rename or verified copy and can resume or reverse only operations proven by that
+ledger. A copied file is verified against its recorded hash before the entry is marked complete, and
+reversing a `copy` plan removes only target files the ledger proves this plan created. Original
+provenance is never rewritten to contain only the new path, and in `copy` mode the original location
+remains the source of record while the target path is recorded as an additional location. The
 `arxiv-int archive locate DOCUMENT_ID` command resolves the initial, run-time, and current known
 locations through path events, so later knowledge artifacts continue to find their sources.
 
 Evaluation uses a frozen, stratified file set with expert primary/alternate labels and expected
 unclassified/unreadable outcomes. It reports exact and ancestor-aware precision/recall, hierarchical
 distance, calibration/selective coverage, exceptional-outcome confusion, reproducibility, and cost.
-Move fixtures prove byte-identical contents, one-to-one path accounting, collision refusal,
-interruption/resume, rollback, and source lookup. No real archive move is accepted without review of
-the mapping, thresholds, directory vocabulary, dry-run diff, and backup/recovery readiness.
+Placement fixtures prove byte-identical contents in both modes, one-to-one path accounting,
+collision refusal, interruption/resume, rollback, and source lookup. No real archive placement is
+accepted without review of the mapping, thresholds, directory vocabulary, dry-run diff, target space,
+and, for `move`, backup/recovery readiness.
 
 ## Russian-language and document analysis
 
@@ -666,14 +778,15 @@ arxiv-int config show --redact
 arxiv-int contracts lint|generate|diff|check|test
 arxiv-int services status
 arxiv-int pipeline forecast --archive-dir PATH [--from STAGE] [--to STAGE]
-arxiv-int pipeline run --archive-dir PATH --normalized-dir PATH [--from STAGE] [--to STAGE]
+arxiv-int pipeline run --archive-dir PATH --results-dir PATH [--from STAGE] [--to STAGE]
 arxiv-int pipeline update --archive-dir PATH [--from STAGE] [--to STAGE]
 arxiv-int pipeline rebuild --archive-dir PATH [--from STAGE] [--to STAGE]
 arxiv-int pipeline invalidate STAGE [--document-id ID]
-arxiv-int stage STAGE --archive-dir PATH --normalized-dir PATH [stage options]
+arxiv-int stage STAGE --archive-dir PATH --results-dir PATH [stage options]
 arxiv-int artifacts prune --stale [--apply --plan PLAN_ID]
 arxiv-int archive reorganize --classification ID [--apply --plan PLAN_ID]
 arxiv-int archive locate DOCUMENT_ID
+arxiv-int inspect DATASET|RUN|latest [--limit N]
 arxiv-int run status RUN_ID
 arxiv-int run resume RUN_ID
 arxiv-int run artifacts RUN_ID
@@ -689,6 +802,7 @@ make help                  make bootstrap             make doctor
 make config                make contracts             make contracts-gen
 make contracts-evolution  make services-up           make services-down
 make services-status      make logs                   make forecast
+make dev-link              make dev-stage STAGE=...    make dev-check
 make pipeline              make update                 make proof CAPABILITY=...
 make stage STAGE=...       make resume RUN_ID=...     make search QUERY=...
 make graph-up              make ui-up                  make eval
@@ -699,15 +813,53 @@ make backup                make restore-check
 The primary path contract works in both forms:
 
 ```bash
-make pipeline ARCHIVE_DIR=/mnt/archive NORMALIZED_DIR=/mnt/normalized
+make pipeline ARCHIVE_DIR=/mnt/archive RESULTS_DIR=/mnt/results
 
 arxiv-int pipeline run \
   --archive-dir /mnt/archive \
-  --normalized-dir /mnt/normalized
+  --results-dir /mnt/results
 ```
 
 Command-line values override `.env`; resolved non-secret values and path device ids are written into
 the run manifest. Make never embeds machine-specific absolute paths.
+
+## Development loop
+
+A pipeline stage is built against fixtures but proven against files. The formats, encodings,
+truncations, and failures that decide whether a stage is correct live in the operator's own archive,
+so the moment a stage becomes runnable it must be runnable against real data and its output must be
+readable without knowing a run id. This is a build-time convenience, not an acceptance path.
+
+Three aliases are created from configuration and refreshed by `make dev-link`. They live under the
+repository's `DATA_DIR`, which is already ignored by Git, so a stable name is available on every
+machine while the machine-specific path stays in `.env`:
+
+| Alias                     | Points at                                     | Answers                                    |
+| ------------------------- | --------------------------------------------- | ------------------------------------------ |
+| `$DATA_DIR/dev/archive`   | `DEV_ARCHIVE_DIR`, read-only                  | where is the real archive on this machine  |
+| `$DATA_DIR/dev/results`   | `RESULTS_DIR`                                 | where did the output go                    |
+| `$DATA_DIR/dev/latest`    | the most recent run directory under `RUNS_DIR` | what did the step I just ran produce       |
+
+`DEV_ARCHIVE_DIR` defaults to `PROOF_ARCHIVE_DIR`, so one configured read-only archive serves both the
+development loop and proof runs while remaining separately overridable. Every published dataset under
+`$RESULTS_DIR/normalized/` additionally exposes a `current` pointer to its active generation, so a
+reader never has to know the newest generation id. A broken or missing alias reports the variable to
+set rather than falling back to a guessed path.
+
+`make dev-stage STAGE=...` runs one stage against the development archive over a bounded slice, so the
+loop costs seconds to minutes rather than a full pass, and then prints the artifact summary:
+row and byte counts, contract conformance, partitions written, sampled rows with their source anchors,
+quarantine reasons, and the failure taxonomy. `arxiv-int inspect` prints the same summary for any
+dataset, run, or the `latest` alias without recomputing anything, and `make dev-check` runs the
+opt-in real-archive lane for every stage that already exists.
+
+The real-archive lane is deliberately outside the deterministic gate. `make ci` never reads the
+archive, never depends on a configured `DEV_ARCHIVE_DIR`, and stays reproducible on a machine that has
+no corpus; when no development archive is configured, the lane skips with an actionable message and
+reports that as its result. Development-loop output is local evidence only: it is not a proof bundle,
+it does not satisfy a provided-archive proof task, no stage is complete because its development run
+looked reasonable, and no corpus content, sample row, or machine-specific path from this loop enters
+Git. The loop never writes to the development archive.
 
 ## Resumability, idempotency, and provenance
 
@@ -818,8 +970,8 @@ stage and target filesystem:
 - input files/bytes and added, changed, renamed, removed, cached, and recomputed shard counts;
 - expected output bytes as a range for normalized data, database heap, indexes, vectors, graph,
   registered artifacts, logs, and backups;
-- peak temporary, WAL, staging, rebuild, and rollback space, without double-counting paths on the
-  same filesystem device;
+- peak temporary, WAL, staging, rebuild, rollback, and archive-reorganization target space, without
+  double-counting paths on the same filesystem device;
 - expected wall-clock time as a range, critical path, CPU/GPU/RAM assumptions, and heavy model loads;
 - currently accessible free bytes, configured reserve, required headroom, confidence, and the sample
   or prior-run evidence behind every coefficient;
@@ -832,12 +984,13 @@ full run is refused until a pilot replaces that envelope with measured amplifica
 margin. Concurrent index rebuild may temporarily require a second full index.
 
 The command resolves device ids and checks read/write accessibility plus actual free space for
-`NORMALIZED_DIR`, `PGDATA_DIR`, `RUNS_DIR`, `TMP_DIR`, model cache, backup, and any configured export
-path. It exits non-zero before work when a requested stage's upper-bound peak plus safety reserve does
-not fit. The orchestrator requires a current forecast fingerprint and rechecks free space immediately
-before every large materialization, bulk load, index build, embedding batch, graph build, render,
-backup, and rebuild switch. Falling below the hard reserve checkpoints cleanly and blocks the next
-allocation rather than waiting for an out-of-space failure. An `unknown` estimate for a large stage
+`RESULTS_DIR`, `PGDATA_DIR`, `RUNS_DIR`, `TMP_DIR`, model cache, backup, any configured export path,
+and any archive-reorganization copy target. It exits non-zero before work when a requested stage's
+upper-bound peak plus safety reserve does not fit. The orchestrator requires a current forecast
+fingerprint and rechecks free space immediately before every large materialization, bulk load, index
+build, embedding batch, graph build, render, backup, and rebuild switch. Falling below the hard
+reserve checkpoints cleanly and blocks the next allocation rather than waiting for an out-of-space
+failure. An `unknown` estimate for a large stage
 requires a bounded pilot or an explicitly smaller scope, not a silent override.
 
 The first scale gate uses at least a representative 0.1-1% or 50-200 GB slice, whichever captures
@@ -927,25 +1080,41 @@ Human approval defines high-impact inclusion states and confirms that labels suc
 | `loc-lm-bench` | Citation-preserving ingestion where applicable, conflict/dedup audit, Splink linkage seam, retrieval metrics and paired verdicts, local backend abstraction, model fit/VRAM telemetry, ontology/fact gates, immutable run bundles | Ukrainian-only defaults, robotics lanes, FAISS as production store, the full benchmark CLI inside the core package |
 | Upstream OSS   | Tika, Docling, OCRmyPDF/Tesseract, PyArrow, DuckDB, Data Contract CLI, ParadeDB, pgvector, AGE, rdflib/pySHACL, Ollama/vLLM                                                                                                       | Thin local rewrites of their core engines                                                                          |
 
-Reuse from `volod/*` and other repositories is dependency-first. Prefer a released package pinned by
-version; a commit-pinned VCS package is acceptable while a release is being established. Upstream
-repositories must expose cohesive importable modules and optional dependency groups so `arxiv-int`
-can install only the reused seam. Portable locks must not rely on sibling checkout paths.
+### Reuse decision rule
 
-Before adding a dependency, record its license, maintainer/revision, reused API, transitive packages,
-wheel/download and installed sizes, native-build requirements, and the pipeline extras that activate
-it. PyTorch, CUDA toolchains, model runtimes, graph/UI stacks, and similarly heavy packages never
-enter the core dependency closure unless the core actually executes them. A heavy upstream package
-must first split or expose a lightweight subpackage/extra; otherwise the integration remains deferred.
+Reuse from `volod/*` and other repositories is smallest-footprint-first, not dependency-first. A new
+distribution dependency is a permanent installation, resolution, and upgrade cost, so it must be
+earned by the size of the reused surface rather than assumed. The reused seam is measured first, then
+one of two forms is chosen:
 
-If a useful seam is not installable, first prepare the reasonable module boundary and packaging
-change in its owning repository, then consume it here. A narrow local adapter around a stable public
-API is preferred to copied implementation. Copying source is the last resort, limited to a small
-attributed extraction whose dependency form is technically or legally unavailable; copying an
-entire application or maintaining parallel implementations is not reuse. Lock, import-isolation,
-clean-install, size, license, and behavioral-equivalence tests evaluate every decision. A valid
-negative result is to defer reuse and keep an existing local seam when packaging it would introduce
-unused heavy dependencies or an unstable API.
+| Reused surface                                                                                                                                          | Form                                                                                                                                                     |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Small and self-contained: at most about 400 source lines across a few cohesive modules, adding no transitive package, and not expected to track upstream | **Vendor it.** Copy the extraction into `src/arxiv_int/vendor/<source>/`, adapt it to project typing and style, and record source repository, revision, licence, and local changes in `THIRD_PARTY.md`. |
+| Large, or dependent on the upstream's own packages, or valuable mainly because it keeps receiving upstream fixes                                         | **Depend on it.** Prefer a released package pinned by version; a commit-pinned VCS revision is acceptable while a release is being established.          |
+
+A vendored extraction is a fork by intent: it carries the upstream licence and revision, is covered
+by project tests, and is refreshed only by a deliberate re-extraction. It is never a silent divergence
+and never an unattributed copy. Copying an entire application, vendoring an engine that upstream
+maintains as a product (Tika, ParadeDB, Splink, rdflib and similar), or maintaining a parallel
+implementation of behavior the project already owns is not reuse in either form.
+
+When the dependency form is chosen, upstream repositories must expose cohesive importable modules and
+optional dependency groups so `arxiv-int` installs only the reused seam, and portable locks must not
+rely on sibling checkout paths. Before adding a dependency, record its licence, maintainer/revision,
+reused API, transitive packages, wheel/download and installed sizes, native-build requirements, and
+the pipeline extras that activate it. PyTorch, CUDA toolchains, model runtimes, graph/UI stacks, and
+similarly heavy packages never enter the core dependency closure unless the core actually executes
+them. A heavy upstream package must first split or expose a lightweight subpackage/extra; otherwise
+the integration is resolved by vendoring the small seam or by deferral.
+
+Deciding, measuring, and testing this belongs to the implementing agent: it inventories the seam,
+measures size and transitive cost, and proves the choice with lock, import-isolation, clean-install,
+size, licence, and behavioral-equivalence tests. Only a change to a repository the project does not
+own requires human authorization. In that case the agent produces the change request as a reviewable
+artifact for the owning repository -- the module boundary, the interface contract, the packaging
+change, and the tests it needs -- and continues here with the vendored or deferred form until that
+request is authorized and released. Waiting on an external repository never blocks this project's
+critical path. A valid negative result is to defer reuse and keep an existing local seam.
 
 ## Evaluation and acceptance
 
@@ -1035,8 +1204,9 @@ and must not be hidden by choosing a convenient threshold.
 ## Operations, backup, and security
 
 The archive mount is read-only for every service and pipeline stage. Only the explicit host-side
-archive-reorganization command may request write access, and it requires an accepted dry-run plan,
-sealed move ledger, and recoverable backup or equivalent snapshot. Service ports bind to loopback.
+archive-reorganization command may request write access, only in `move` mode, and only with an
+accepted dry-run plan, a sealed ledger, and a recoverable backup or equivalent snapshot; its `copy`
+mode writes solely into the declared target root. Service ports bind to loopback.
 Database roles separate migration, pipeline writes, read-only UI, and backup. Secrets live in `.env`
 or operator-provided secret files, never generated artifacts or logs. Containers run non-root where
 upstream images permit, have bounded resources, and receive only required mounts.
@@ -1057,7 +1227,7 @@ based on tested backup plus projection rebuild, not an assumed replica.
 
 | Phase                       | Outcome                                                          | Capability span                                          | Exit signal                                                     |
 | --------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------------------- |
-| 0 - Foundation              | Personalized repo, portable paths, contracts, one database image | `project-foundation` through `canonical-store`           | Fresh-copy service and contract smoke passes                    |
+| 0 - Foundation              | Personalized repo, portable paths, development loop, contracts, one database image | `project-foundation` through `canonical-store` | Fresh-copy service and contract smoke passes            |
 | 1 - Local evidence seams    | Local inference adapters and replayable evaluation fixtures      | `local-inference`, `evaluation-foundation`               | Provider and metric conformance tests pass                      |
 | 2 - Corpus substrate        | Rebuildable lake, restartable stages, classification and path map | `corpus-foundation` through `archive-classification`     | Corpus/control/classification proof bundles pass                 |
 | 3 - Retrieval and NLP       | Russian lexical baseline, selected vectors, mentions             | `lexical-retrieval` through `russian-nlp`                | Retrieval and NLP proof bundles pass or retain a valid fallback |
@@ -1069,6 +1239,7 @@ The critical path is:
 ```text
 project foundation
   -> portable runtime
+  -> development loop
   -> contract governance
   -> canonical store
   -> local inference and evaluation foundation
@@ -1097,27 +1268,28 @@ evidence exist. Registry order is the implementation line used by `plan.md`.
 | --- | ------------------------- | ------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
 | 1   | `project-foundation`      | planned | Fresh copy, rename, locked bootstrap, CLI identity, docs integrity, and CI pass              | `plan.md#project-foundation----project-foundation`           |
 | 2   | `portable-runtime`        | planned | Multi-SSD path and Compose profile smoke tests pass from two checkout locations              | `plan.md#portable-runtime----portable-runtime`               |
-| 3   | `contract-governance`     | planned | ODCS lint/generation/evolution/Avro/migration/live-store gates pass                          | `plan.md#contract-governance----contract-governance`         |
-| 4   | `canonical-store`         | planned | ParadeDB/pgvector/AGE compatibility, schema, backup, restore, and projection checks pass     | `plan.md#canonical-store----canonical-store`                 |
-| 5   | `local-inference`         | planned | Ollama/vLLM conformance, structured outputs, model-fit, and local-only endpoint gates pass   | `plan.md#local-inference----local-inference`                 |
-| 6   | `evaluation-foundation`   | planned | Frozen fixtures, replayable metrics, split guards, and paired verdict utilities pass         | `plan.md#evaluation-foundation----evaluation-foundation`     |
-| 7   | `corpus-foundation`       | planned | Representative inventory, extraction, normalization, dedupe, and chunk gold sets pass        | `plan.md#corpus-foundation----corpus-foundation`             |
-| 8   | `pipeline-control`        | planned | Sharded stage, resume, retry, invalidation, idempotency, and progress tests pass             | `plan.md#pipeline-control----pipeline-control`               |
-| 9   | `archive-classification`  | planned | Hierarchical gold labels, calibrated exceptions, path safety, resume, rollback, and lookup pass | `plan.md#archive-classification----archive-classification`   |
-| 10  | `lexical-retrieval`       | planned | Held-out Russian relevance, latency, index size, and rebuild gates pass                      | `plan.md#lexical-retrieval----lexical-retrieval`             |
-| 11  | `semantic-retrieval`      | planned | Selected-tier vector and hybrid candidates receive paired adopt/retain verdicts              | `plan.md#semantic-retrieval----semantic-retrieval`           |
-| 12  | `russian-nlp`             | planned | Language, morphology, terminology, and NER metrics pass per type                             | `plan.md#russian-nlp----russian-nlp`                         |
-| 13  | `knowledge-extraction`    | planned | Structured extraction, evidence, fact quality, and contradiction gates pass                  | `plan.md#knowledge-extraction----knowledge-extraction`       |
-| 14  | `identity-ontology-graph` | planned | Linkage, ontology, SQL/Cypher parity, rebuild, and bounded traversal gates pass              | `plan.md#identity-ontology-graph----identity-ontology-graph` |
-| 15  | `domain-investigation-artifacts` | planned | Reviewed BOM, relationship, supply-chain, invoice/payment, render, and registry gates pass | `plan.md#domain-investigation-artifacts----domain-investigation-artifacts` |
-| 16  | `discovery-visualization` | planned | Topic stability plus operator completion of search, graph, equipment, and supplier scenarios | `plan.md#discovery-visualization----discovery-visualization` |
-| 17  | `evaluation-evidence`     | planned | Provenance audit and representative scale pilots produce readable, capacity-aware verdicts   | `plan.md#evaluation-evidence----evaluation-evidence`         |
-| 18  | `operational-recovery`    | planned | Security checks, backup/restore drill, disk exhaustion, interruption, and runbook tests pass | `plan.md#operational-recovery----operational-recovery`       |
+| 3   | `development-loop`        | planned | Stable aliases resolve from two checkouts and an opt-in real-archive stage lane runs outside the deterministic gate | `plan.md#development-loop----development-loop`               |
+| 4   | `contract-governance`     | planned | ODCS lint/generation/evolution/Avro/migration/live-store gates pass                          | `plan.md#contract-governance----contract-governance`         |
+| 5   | `canonical-store`         | planned | ParadeDB/pgvector/AGE compatibility, schema, backup, restore, and projection checks pass     | `plan.md#canonical-store----canonical-store`                 |
+| 6   | `local-inference`         | planned | Ollama/vLLM conformance, structured outputs, model-fit, and local-only endpoint gates pass   | `plan.md#local-inference----local-inference`                 |
+| 7   | `evaluation-foundation`   | planned | Frozen fixtures, replayable metrics, split guards, and paired verdict utilities pass         | `plan.md#evaluation-foundation----evaluation-foundation`     |
+| 8   | `corpus-foundation`       | planned | Representative inventory, extraction, normalization, dedupe, and chunk gold sets pass        | `plan.md#corpus-foundation----corpus-foundation`             |
+| 9   | `pipeline-control`        | planned | Sharded stage, resume, retry, invalidation, idempotency, and progress tests pass             | `plan.md#pipeline-control----pipeline-control`               |
+| 10  | `archive-classification`  | planned | Hierarchical gold labels, calibrated exceptions, path safety, resume, rollback, and lookup pass | `plan.md#archive-classification----archive-classification`   |
+| 11  | `lexical-retrieval`       | planned | Held-out Russian relevance, latency, index size, and rebuild gates pass                      | `plan.md#lexical-retrieval----lexical-retrieval`             |
+| 12  | `semantic-retrieval`      | planned | Selected-tier vector and hybrid candidates receive paired adopt/retain verdicts              | `plan.md#semantic-retrieval----semantic-retrieval`           |
+| 13  | `russian-nlp`             | planned | Language, morphology, terminology, and NER metrics pass per type                             | `plan.md#russian-nlp----russian-nlp`                         |
+| 14  | `knowledge-extraction`    | planned | Structured extraction, evidence, fact quality, and contradiction gates pass                  | `plan.md#knowledge-extraction----knowledge-extraction`       |
+| 15  | `identity-ontology-graph` | planned | Linkage, ontology, SQL/Cypher parity, rebuild, and bounded traversal gates pass              | `plan.md#identity-ontology-graph----identity-ontology-graph` |
+| 16  | `domain-investigation-artifacts` | planned | Reviewed BOM, relationship, supply-chain, invoice/payment, render, and registry gates pass | `plan.md#domain-investigation-artifacts----domain-investigation-artifacts` |
+| 17  | `discovery-visualization` | planned | Topic stability plus operator completion of search, graph, equipment, and supplier scenarios | `plan.md#discovery-visualization----discovery-visualization` |
+| 18  | `evaluation-evidence`     | planned | Provenance audit and representative scale pilots produce readable, capacity-aware verdicts   | `plan.md#evaluation-evidence----evaluation-evidence`         |
+| 19  | `operational-recovery`    | planned | Security checks, backup/restore drill, disk exhaustion, interruption, and runbook tests pass | `plan.md#operational-recovery----operational-recovery`       |
 
 ## Success criteria
 
 The project succeeds when an operator can copy the repository to any suitable disk, copy
-`.env.example` to `.env`, point it at separate archive, normalized-data, and PostgreSQL disks, start
+`.env.example` to `.env`, point it at separate archive, results, and PostgreSQL disks, start
 the selected local services, and run one stage or the complete pipeline with continuous progress and
 safe resume. Search, topics, objects, facts, ontologies, graphs, and equipment/supplier reports are
 useful on a representative Russian corpus, carry source evidence, and can be rebuilt from open,
