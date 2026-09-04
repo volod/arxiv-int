@@ -10,43 +10,6 @@ ordering, and lifecycle rules belong in the
 
 ### Project foundation -- `project-foundation`
 
-#### resolve-selfsuvis-reuse-integration
-
-Measure the `selfsuvis` configuration, path-safety, queued-logging, step-timing, and model-lifecycle
-seam and resolve it as a small attributed extraction, an installable dependency, or a recorded
-deferral.
-
-- Serves: `project-foundation` -- [Reuse decision rule](../design/spec.md#reuse-decision-rule)
-- Agent status: CLEAR
-- Research: yes
-- Dependencies: Feature groups and domain interfaces described in
-[Project foundation](current/project-foundation.md#dependency-seams-and-feature-groups);
-read access to the pinned `selfsuvis` revision.
-- User-visible outcome: A clean `arxiv-int` checkout runs layered path resolution, preflight checks,
-serialized logging, step timings, and GPU-aware model scheduling without a sibling checkout and
-without that repository's video, IoT, or vector-store dependencies.
-- Scope boundary: Decide, prove, and record the reuse form for this seam; do not modify the
-`selfsuvis` repository, publish an upstream release, or carry forward its video/IoT pipeline, Qdrant
-production dependency, or monolithic orchestration.
-- Data and artifact paths: `pyproject.toml`, `uv.lock`, `src/arxiv_int/vendor/selfsuvis/`,
-`src/arxiv_int/adapters/`, `THIRD_PARTY.md`, `NOTICE`, `tests/dependencies/`, and the measurement
-and decision record under `$DATA_DIR/reuse/selfsuvis/`.
-- Execution path: Inventory the pinned seam; measure reused source lines, module cohesion,
-transitive packages, wheel and installed size, native build needs, and licence; apply the
-specification's reuse decision rule; either copy the small extraction into the project vendor
-package with attribution and project typing or pin a release or immutable revision behind a narrow
-adapter; run clean-install, import-isolation, size, licence, and behavioral-equivalence checks. When
-the seam is reachable only through a change to the `selfsuvis` repository, write that change request
--- module boundary, interface contract, packaging change, and required tests -- under
-`$DATA_DIR/reuse/selfsuvis/change-request/` for `authorize-upstream-repository-changes`, and
-continue here with the vendored or deferred form.
-- Acceptance gates: The recorded decision names measured size, transitive cost, licence, and chosen
-form; a clean core and selected-extra install is portable and locked; core import pulls no optional
-heavy package; every copied file names its source repository, revision, and licence in
-`THIRD_PARTY.md`; behavioral fixtures cover the reused behavior in whichever form was chosen. A
-documented deferral with a working local seam is a valid negative result.
-- Documentation target: `docs/impl/current/project-foundation.md`
-
 #### resolve-fl-op-reuse-integration
 
 Measure the `fl-op` ODCS registry, canonical-model, generator, fingerprint, and evolution-baseline
@@ -65,23 +28,25 @@ fleet-domain or solver dependencies.
 - Scope boundary: Decide, prove, and record the reuse form for this seam; do not modify the `fl-op`
 repository, publish an upstream release, or carry forward its fleet domain, optimization solver, or
 Elasticsearch generator target.
-- Data and artifact paths: `pyproject.toml`, `uv.lock`, `src/arxiv_int/vendor/fl_op/`,
-`src/arxiv_int/adapters/`, `THIRD_PARTY.md`, `NOTICE`, `tests/dependencies/`, and the measurement
-and decision record under `$DATA_DIR/reuse/fl-op/`.
+- Data and artifact paths: `pyproject.toml`, `uv.lock`, `src/arxiv_int/contracts/`,
+`THIRD_PARTY.md`, `NOTICE`, matching tests under `tests/contracts/`, and the measurement and decision
+record under `$DATA_DIR/reuse/fl-op/`.
 - Execution path: Inventory the pinned seam; measure reused source lines, module cohesion,
 transitive packages, wheel and installed size, native build needs, and licence; apply the
-specification's reuse decision rule; either copy the small extraction into the project vendor
-package with attribution and project typing or pin a release or immutable revision behind a narrow
-adapter; run clean-install, import-isolation, size, licence, and behavioral-equivalence checks. When
-the seam is reachable only through a change to the `fl-op` repository, write that change request --
+specification's reuse decision rule; either copy each small behavior into its owning functional
+package with attribution docstrings and project typing or pin a release or immutable revision behind
+a narrow adapter; never create a source-named package or mixed provenance test module; run
+clean-install, import-isolation, size, licence, and behavioral-equivalence checks beside each owning
+module. When the seam is reachable only through a change to the `fl-op` repository, write that
+change request --
 module boundary, interface contract, packaging change, and required tests -- under
 `$DATA_DIR/reuse/fl-op/change-request/` for `authorize-upstream-repository-changes`, and continue
-here with the vendored or deferred form.
+here with the extracted or deferred form.
 - Acceptance gates: The recorded decision names measured size, transitive cost, licence, and chosen
 form; a clean core and selected-extra install is portable and locked; core import pulls no optional
-heavy package; every copied file names its source repository, revision, and licence in
-`THIRD_PARTY.md`; behavioral fixtures cover the reused behavior in whichever form was chosen. A
-documented deferral with a working local seam is a valid negative result.
+heavy package; every copied file names its source repository, revision, and licence in its docstring
+and `THIRD_PARTY.md`; functional test modules cover the reused behavior in whichever form was
+chosen. A documented deferral with a working local seam is a valid negative result.
 - Documentation target: `docs/impl/current/project-foundation.md`
 
 #### resolve-loc-lm-bench-reuse-integration
@@ -102,23 +67,26 @@ without the full benchmark CLI, FAISS, or robotics dependencies.
 - Scope boundary: Decide, prove, and record the reuse form for this seam; do not modify the
 `loc-lm-bench` repository, publish an upstream release, or carry forward its Ukrainian-only
 defaults, robotics lanes, FAISS production store, or full benchmark CLI.
-- Data and artifact paths: `pyproject.toml`, `uv.lock`, `src/arxiv_int/vendor/loc_lm_bench/`,
-`src/arxiv_int/adapters/`, `THIRD_PARTY.md`, `NOTICE`, `tests/dependencies/`, and the measurement
-and decision record under `$DATA_DIR/reuse/loc-lm-bench/`.
+- Data and artifact paths: `pyproject.toml`, `uv.lock`, `src/arxiv_int/evaluation/`,
+`src/arxiv_int/retrieval/`, `src/arxiv_int/inference/`, `THIRD_PARTY.md`, `NOTICE`, matching
+functional test packages, and the measurement and decision record under
+`$DATA_DIR/reuse/loc-lm-bench/`.
 - Execution path: Inventory the pinned seam; measure reused source lines, module cohesion,
 transitive packages, wheel and installed size, native build needs, and licence; apply the
-specification's reuse decision rule; either copy the small extraction into the project vendor
-package with attribution and project typing or pin a release or immutable revision behind a narrow
-adapter; run clean-install, import-isolation, size, licence, and behavioral-equivalence checks. When
-the seam is reachable only through a change to the `loc-lm-bench` repository, write that change
+specification's reuse decision rule; either copy each small behavior into its owning functional
+package with attribution docstrings and project typing or pin a release or immutable revision behind
+a narrow adapter; never create a source-named package or mixed provenance test module; run
+clean-install, import-isolation, size, licence, and behavioral-equivalence checks beside each owning
+module. When the seam is reachable only through a change to the `loc-lm-bench` repository, write that
+change
 request -- module boundary, interface contract, packaging change, and required tests -- under
 `$DATA_DIR/reuse/loc-lm-bench/change-request/` for `authorize-upstream-repository-changes`, and
-continue here with the vendored or deferred form.
+continue here with the extracted or deferred form.
 - Acceptance gates: The recorded decision names measured size, transitive cost, licence, and chosen
 form; a clean core and selected-extra install is portable and locked; core import pulls no optional
-heavy package; every copied file names its source repository, revision, and licence in
-`THIRD_PARTY.md`; behavioral fixtures cover the reused behavior in whichever form was chosen. A
-documented deferral with a working local seam is a valid negative result.
+heavy package; every copied file names its source repository, revision, and licence in its docstring
+and `THIRD_PARTY.md`; functional test modules cover the reused behavior in whichever form was
+chosen. A documented deferral with a working local seam is a valid negative result.
 - Documentation target: `docs/impl/current/project-foundation.md`
 
 ### Portable runtime -- `portable-runtime`
@@ -1568,26 +1536,26 @@ ends in authorize-next, resize/reconfigure, retain-subset, or stop.
 
 #### audit-reuse-provenance-and-published-claims
 
-Verify dependency and vendored-extraction provenance, artifact lineage, and every number or
+Verify dependency and copied-extraction provenance, artifact lineage, and every number or
 architectural claim published in reports and current-state docs.
 
 - Serves: `evaluation-evidence` -- [Reuse map](../design/spec.md#reuse-map)
 - Agent status: CLEAR
 - Dependencies: `create-evaluation-fixtures-and-metrics`; `resolve-selfsuvis-reuse-integration`;
-`resolve-fl-op-reuse-integration`; `resolve-loc-lm-bench-reuse-integration`; every task that vendors
+`resolve-fl-op-reuse-integration`; `resolve-loc-lm-bench-reuse-integration`; every task that copies
 source, adds a dependency, or publishes an evaluated artifact.
 - User-visible outcome: Reuse is legally and technically traceable, and a stale run cannot continue
 to support a changed published claim.
 - Scope boundary: Audit repository and generated evidence; do not invent missing benchmarks or
 license interpretations.
-- Data and artifact paths: `NOTICE`, `THIRD_PARTY.md`, dependency lock, `src/arxiv_int/vendor/`
-source headers, `ctl.artifact`, run manifests, and docs claim registry.
+- Data and artifact paths: `NOTICE`, `THIRD_PARTY.md`, dependency lock, attribution docstrings in
+functional `src/arxiv_int/` modules, `ctl.artifact`, run manifests, and docs claim registry.
 - Execution path: Recheck dependency revisions, licences, transitive size/build inventories, and every
-vendored extraction's source repository, revision, licence, and recorded size decision; link published
+copied extraction's source repository, revision, licence, and recorded size decision; link published
 metrics to run fields and content pins; list invalidations caused by dependency, contract, model,
 profile, classification, or artifact changes.
 - Acceptance gates: License scanner, clean-install/import-isolation checks, size budget, and manual
-notice checklist pass; every vendored file resolves to an attributed source revision and a recorded
+notice checklist pass; every copied file resolves to an attributed source revision and a recorded
 decision under the reuse rule; no heavy core dependency and no unattributed copy remains; every
 published number resolves to one immutable artifact field; orphan or stale claims fail CI.
 - Documentation target: `docs/impl/current/evaluation.md`
@@ -1690,19 +1658,19 @@ released so a reused seam can become an installable dependency.
 - Dependencies: `resolve-selfsuvis-reuse-integration`; `resolve-fl-op-reuse-integration`;
 `resolve-loc-lm-bench-reuse-integration`; each prepared change-request artifact those tasks produced.
 - User-visible outcome: The owner decides, per external repository, whether `arxiv-int` waits for an
-upstream package boundary or keeps the vendored or deferred form already working here.
+upstream package boundary or keeps the extracted or deferred form already working here.
 - Scope boundary: Authorize or decline work in the owning repository and its release; do not use this
-gate to approve local vendoring, which the reuse decision rule already delegates to the agent, and do
+gate to approve local extraction, which the reuse decision rule already delegates to the agent, and do
 not let an unauthorized request block work in this repository.
 - Data and artifact paths: Prepared change requests under
 `$DATA_DIR/reuse/<source>/change-request/`, `THIRD_PARTY.md`, dependency and licence inventories, and
 the local decision ledger.
 - Execution path: Review each request's module boundary, interface contract, packaging change,
-required tests, licence effect, and the measured cost of the vendored alternative; record
+required tests, licence effect, and the measured cost of the extracted alternative; record
 `authorize`, `defer`, or `decline` per repository with the exact revision the decision applies to.
 - Acceptance gates: Every open request has one recorded decision naming the repository, revision, and
 consequence for this project; an `authorize` names who executes the upstream work and which
-`arxiv-int` reuse form replaces the current one; `defer` and `decline` leave a working vendored or
+`arxiv-int` reuse form replaces the current one; `defer` and `decline` leave a working extracted or
 local seam in place. No outstanding request is a valid closing result.
 - Documentation target: `docs/impl/current/project-foundation.md`
 

@@ -275,7 +275,6 @@ arxiv-int/
     paths.py
     interfaces/
     adapters/
-    vendor/
     contracts/
     doctor/
     pipeline/
@@ -304,9 +303,11 @@ arxiv-int/
   scripts/shared/common.sh
 ```
 
-`configs/` holds versioned operator profiles and policies; `ontology/` holds Turtle and SHACL assets;
-`src/arxiv_int/vendor/` holds attributed small extractions from other repositories under the reuse
-decision rule below. Every directory arrives with the capability that needs it, not in advance.
+`configs/` holds versioned operator profiles and policies; `ontology/` holds Turtle and SHACL assets.
+Copied upstream code lives in the same functional package as project-owned code for that concept;
+source repository, revision, and licence stay visible in the module docstring and `THIRD_PARTY.md`.
+No production package is organized by source repository. Every directory arrives with the capability
+that needs it, not in advance.
 
 Custom Python is orchestration and domain policy, not reimplementation of Tika, Docling, OCR,
 ParadeDB, pgvector, AGE, DuckDB, PyArrow, or model runtimes. Production modules remain typed and
@@ -1196,14 +1197,16 @@ one of two forms is chosen:
 
 | Reused surface                                                                                                                                          | Form                                                                                                                                                     |
 | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Small and self-contained: at most about 400 source lines across a few cohesive modules, adding no transitive package, and not expected to track upstream | **Vendor it.** Copy the extraction into `src/arxiv_int/vendor/<source>/`, adapt it to project typing and style, and record source repository, revision, licence, and local changes in `THIRD_PARTY.md`. |
+| Small and self-contained: at most about 400 source lines across a few cohesive modules, adding no transitive package, and not expected to track upstream | **Extract it.** Copy each behavior into its owning functional package, adapt it to project typing and style, and record source repository, revision, licence, and local changes in its module docstring and `THIRD_PARTY.md`. |
 | Large, or dependent on the upstream's own packages, or valuable mainly because it keeps receiving upstream fixes                                         | **Depend on it.** Prefer a released package pinned by version; a commit-pinned VCS revision is acceptable while a release is being established.          |
 
-A vendored extraction is a fork by intent: it carries the upstream licence and revision, is covered
-by project tests, and is refreshed only by a deliberate re-extraction. It is never a silent divergence
-and never an unattributed copy. Copying an entire application, vendoring an engine that upstream
-maintains as a product (Tika, ParadeDB, Splink, rdflib and similar), or maintaining a parallel
-implementation of behavior the project already owns is not reuse in either form.
+A copied extraction is a fork by intent: it carries the upstream licence and revision, is covered by
+tests beside each functional area, and is refreshed only by a deliberate re-extraction. Provenance
+does not define package or test structure: do not create a source-named package, a source-named
+adapter over unrelated behaviors, or one mixed test module merely because code shares an origin. It
+is never a silent divergence or unattributed copy. Copying an entire application, copying an engine
+that upstream maintains as a product (Tika, ParadeDB, Splink, rdflib and similar), or maintaining a
+parallel implementation of behavior the project already owns is not reuse in either form.
 
 When the dependency form is chosen, upstream repositories must expose cohesive importable modules and
 optional dependency groups so `arxiv-int` installs only the reused seam, and portable locks must not
@@ -1212,14 +1215,14 @@ reused API, transitive packages, wheel/download and installed sizes, native-buil
 the pipeline extras that activate it. PyTorch, CUDA toolchains, model runtimes, graph/UI stacks, and
 similarly heavy packages never enter the core dependency closure unless the core actually executes
 them. A heavy upstream package must first split or expose a lightweight subpackage/extra; otherwise
-the integration is resolved by vendoring the small seam or by deferral.
+the integration is resolved by a small functional extraction or by deferral.
 
 Deciding, measuring, and testing this belongs to the implementing agent: it inventories the seam,
 measures size and transitive cost, and proves the choice with lock, import-isolation, clean-install,
 size, licence, and behavioral-equivalence tests. Only a change to a repository the project does not
 own requires human authorization. In that case the agent produces the change request as a reviewable
 artifact for the owning repository -- the module boundary, the interface contract, the packaging
-change, and the tests it needs -- and continues here with the vendored or deferred form until that
+change, and the tests it needs -- and continues here with the extracted or deferred form until that
 request is authorized and released. Waiting on an external repository never blocks this project's
 critical path. A valid negative result is to defer reuse and keep an existing local seam.
 

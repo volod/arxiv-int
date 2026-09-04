@@ -10,8 +10,14 @@ _PROBE = "\n".join(
         "import sys",
         "import arxiv_int",
         "import arxiv_int.cli",
+        "import arxiv_int.config",
+        "import arxiv_int.doctor",
         "import arxiv_int.features",
+        "import arxiv_int.inference",
         "import arxiv_int.interfaces",
+        "import arxiv_int.observability",
+        "import arxiv_int.paths",
+        "import arxiv_int.pipeline",
         "import arxiv_int.quality.plan_summary",
         "print('\\n'.join(sorted(sys.modules)))",
     )
@@ -30,3 +36,5 @@ def test_core_import_pulls_no_optional_module() -> None:
 
     assert "arxiv_int.interfaces" in loaded
     assert optional_modules().isdisjoint(loaded)
+    assert not any(name == "selfsuvis" or name.startswith("selfsuvis.") for name in loaded)
+    assert {"torch", "dotenv", "qdrant_client"}.isdisjoint(loaded)

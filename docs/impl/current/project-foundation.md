@@ -61,6 +61,33 @@ needs. That output is the dependency licence inventory.
 module that no group declares raises `LookupError`, so an optional import cannot reach production
 code without a catalog entry.
 
+## selfsuvis runtime-policy reuse
+
+The configuration, path-safety, preflight, queued-logging, timing, partial-result, and model-lifecycle
+seam is an attributed functional extraction from `selfsuvis` revision
+`bd0f4447bf20a72e9421c93f208ce1f52f1c622b`. The pinned upstream candidates total 1,495 lines across
+eight coupled modules. Its built wheel is 1,081,837 bytes and 3,391,073 bytes unpacked; its 30 direct
+requirements resolve to 136 distributions on Python 3.12, including Torch/CUDA, web, database,
+vector-store, and model-client packages. The upstream source distribution needs setuptools and
+wheel; several dependencies contain native code, while its optional vision lane includes CUDA JIT
+components.
+
+The chosen form is a 296-line, 9,439-byte standard-library-only extraction organized by project
+function:
+`arxiv_int.config`, `arxiv_int.paths`, `arxiv_int.doctor.report`, `arxiv_int.pipeline.steps`,
+`arxiv_int.observability.logging`, and `arxiv_int.inference.scheduling`. Together they provide
+mapping-based configuration precedence, fail-closed real-path containment, accumulated readiness
+findings, monotonic step timing with earlier results preserved after failure, queue-serialized
+logging, GPU-budget placement, and guaranteed model release. There is no source-named production
+package or adapter. The modules neither import the upstream package nor expose video, IoT, Qdrant,
+LangGraph, Torch, or service-client behavior.
+
+Each functional module docstring records the origin, immutable revision, and MIT licence.
+`THIRD_PARTY.md` maps those modules to their upstream basis and local changes, and `NOTICE`
+reproduces the licence. The measurement and decision evidence is stored under
+`$DATA_DIR/reuse/selfsuvis/decision.json`; no upstream change is required, so there is no change
+request.
+
 Output-sensitive tooling is pinned exactly: `complexipy`, `mypy`, `pymarkdownlnt`, `radon`, `ruff`,
 and `shellcheck-py`. Formatting, typing, complexity, and Markdown findings therefore do not move
 with a resolver update. `make bootstrap` still installs only the core plus the `dev` extra.
@@ -96,11 +123,14 @@ guide, current-state pages, tests, Make workflows, and `uv.lock` use the same ac
 `tests/quality/` exercise the quality package and verify the repository plan summary.
 `tests/features/` covers catalog lookup, stage mapping, install-status reporting, and the missing
 and undeclared import messages. `tests/interfaces/` proves fake backends satisfy each protocol.
-`tests/dependencies/` keeps the extras and the catalog in agreement, requires an exact pin for every
-output-sensitive tool, and imports the package in a subprocess to prove that no declared optional
-module reaches the core import graph.
+`tests/dependencies/` keep the extras and the catalog in agreement, require an exact pin for every
+output-sensitive tool, and import the package in a subprocess to prove that no declared optional
+module reaches the core import graph. Focused tests live beside their corresponding functional areas
+and cover layer precedence, symlink escape rejection, accumulated preflight results, partial-result
+preservation, concurrent log serialization, model placement and cleanup, and import isolation from
+the upstream and heavy stacks.
 
 The locked bootstrap and import doctor pass, and `make run` reports
-`arxiv-int 0.1.0 (arxiv_int)`. The required `make ci` gate passes all 70 tests plus formatting,
-linting, typing, complexity, shell, documentation-link, and specification-plan checks. `make build`
+`arxiv-int 0.1.0 (arxiv_int)`. The required `make ci` gate covers formatting, linting, typing,
+complexity, shell, documentation-link, specification-plan, and deterministic tests. `make build`
 produces `dist/arxiv_int-0.1.0.tar.gz` and `dist/arxiv_int-0.1.0-py3-none-any.whl`.
