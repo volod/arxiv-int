@@ -41,19 +41,20 @@ multi-SSD paths.
 - Serves: `portable-runtime` --
 [Configuration and multi-SSD paths](../design/spec.md#configuration-and-multi-ssd-paths)
 - Agent status: CLEAR
-- Dependencies: `establish-domain-dependency-seams`.
-- User-visible outcome: The same checkout runs with archive, normalized data, PostgreSQL, run,
-model-cache, and scratch paths on different disks.
+- Dependencies: `resolve-selfsuvis-reuse-integration`.
+- User-visible outcome: The same checkout runs with archive, optional proof archive, normalized
+data, PostgreSQL, run, model-cache, and scratch paths on different disks.
 - Scope boundary: Resolve and validate configuration; do not create corpus artifacts or start
 containers.
 - Data and artifact paths: `.env.example`, `.gitignore`, `src/arxiv_int/config.py`,
 `src/arxiv_int/paths.py`, `scripts/shared/common.sh`, and `tests/config/`.
-- Execution path: Adapt the documented repository and `selfsuvis` env helper patterns; implement
-CLI > environment > `.env` > default precedence; resolve relative paths from project root; add
-symlink, overlap, root-target, permissions, device-id, and free-space checks.
+- Execution path: Consume the approved installable `selfsuvis` seam where it remains lightweight;
+implement project-specific CLI > environment > `.env` > default precedence through a narrow
+adapter; resolve relative paths from project root; add symlink, overlap, root-target, permissions,
+device-id, free-space, and read-only `PROOF_ARCHIVE_DIR` checks.
 - Acceptance gates: Unit tests cover multiple current directories, two checkout roots, spaces,
-symlinks, separate device ids, CLI overrides, redaction, missing values, and dangerous roots; no
-machine-specific path is committed.
+symlinks, separate device ids, proof/output non-overlap, CLI overrides, redaction, missing values,
+and dangerous roots; no machine-specific path is committed.
 - Documentation target: `docs/impl/current/portable-runtime.md`
 
 #### define-compose-profiles-and-operator-wrappers
@@ -93,9 +94,10 @@ missing, or unsafe and the command needed next.
 - Scope boundary: Read-only diagnostics only; doctor does not install packages, pull models, mutate
 services, or create migrations.
 - Data and artifact paths: `src/arxiv_int/doctor/`, `tests/doctor/`, and `docs/guide/setup.md`.
-- Execution path: Check Python/uv/Docker/Compose, paths and filesystems, RAM/GPU/disk, service
-health, extension versions, Ollama/vLLM APIs, contract state, migrations, and model availability;
-emit console and JSON reports.
+- Execution path: Check Python/uv/Docker/Compose, archive/proof/output paths and filesystems,
+RAM/GPU/disk, service health, extension versions, Ollama/vLLM APIs, contract state, migrations, and
+model availability; emit console and JSON reports. Capacity estimation remains the forecast
+command's responsibility.
 - Acceptance gates: Network-free fixtures cover pass, degraded, and fail states; secrets are masked;
 exit codes distinguish ready/degraded/blocked; checks have timeouts.
 - Documentation target: `docs/impl/current/portable-runtime.md`
@@ -110,17 +112,17 @@ mappings for the first pipeline entities.
 - Serves: `contract-governance` --
 [Contract-first data governance](../design/spec.md#contract-first-data-governance)
 - Agent status: CLEAR
-- Dependencies: Personalized package and CLI identity documented in
-[Project foundation](current/project-foundation.md#project-identity).
+- Dependencies: `resolve-fl-op-reuse-integration`; personalized package and CLI identity documented
+in [Project foundation](current/project-foundation.md#project-identity).
 - User-visible outcome: Documents, spans, chunks, objects, mentions, facts, topics, ontology terms,
 embeddings, and evaluation items have one reviewable schema source of truth.
 - Scope boundary: Define contracts and semantic bindings; do not create live database tables or
 infer domain-specific ontology terms from the corpus.
 - Data and artifact paths: `contracts/registry.yaml`, `contracts/canonical/`, `contracts/datasets/`,
 `contracts/mappings/`, and `src/arxiv_int/contracts/`.
-- Execution path: Adapt the MIT `fl-op` registry/canonical-model patterns to ODCS 3.1; namespace
-project hints under `x-arxiv-int`; add Data Contract CLI validation and Pydantic loaders that
-preserve unknown metadata.
+- Execution path: Consume the approved installable `fl-op` registry/canonical-model seam where
+compatible; add only project-specific ODCS 3.1 adapters; namespace project hints under
+`x-arxiv-int`; add Data Contract CLI validation and Pydantic loaders that preserve unknown metadata.
 - Acceptance gates: Official ODCS JSON Schema and Data Contract CLI lint pass; ids, versions,
 references, canonical bindings, relationship targets, and required identities are unique and
 complete.
@@ -161,9 +163,9 @@ schema change can reach data.
 table-rewriting changes.
 - Data and artifact paths: `contracts/evolution/`, `db/migrations/`, `db/schema.sql`,
 `src/arxiv_int/contracts/evolution.py`, and `tests/contracts/evolution/`.
-- Execution path: Adapt `fl-op` adjacent-history and semantic-fingerprint checks; invoke Avro
-reader/writer compatibility and Data Contract CLI breaking checks; integrate dbmate; compare
-generated baseline, migration dump, and live information schema.
+- Execution path: Consume the approved `fl-op` adjacent-history and semantic-fingerprint seam;
+invoke Avro reader/writer compatibility and Data Contract CLI breaking checks; integrate dbmate;
+compare generated baseline, migration dump, and live information schema.
 - Acceptance gates: Fixtures prove identical, additive, breaking, tokenizer/reindex,
 vector-dimension, semantic-retarget, and graph-projection cases; version rules fail closed;
 out-of-order migrations and drift fail CI.
@@ -294,23 +296,29 @@ cancellation releases leases; model-fit rejection is actionable; CPU fallback is
 
 #### create-evaluation-fixtures-and-metrics
 
-Build immutable extraction, Russian retrieval, semantic, entity, fact, ontology, graph, and
-reporting fixtures plus paired evaluation utilities.
+Build immutable extraction, classification, Russian retrieval, semantic, entity, fact, ontology,
+graph, domain-artifact, and reporting fixtures plus paired evaluation utilities.
 
 - Serves: `evaluation-foundation` -- [Evaluation and acceptance](../design/spec.md#evaluation-and-acceptance)
 - Agent status: CLEAR
-- Dependencies: `establish-canonical-contract-registry`.
+- Dependencies: `establish-canonical-contract-registry`; `resolve-loc-lm-bench-reuse-integration`.
 - User-visible outcome: Every store/model/pipeline recommendation names the exact frozen items,
-metrics, thresholds, and run artifacts that support it.
+metrics, thresholds, and run artifacts that support it, and every usable stage can publish the same
+proof-bundle shape.
 - Scope boundary: Provide deterministic fixtures and measurement; human gold review remains in the
 human lane.
 - Data and artifact paths: `tests/fixtures/`, `eval.*`, `src/arxiv_int/evaluation/`,
-`configs/evaluation/`, and `$RUNS_DIR/<run-id>/evaluation/`.
-- Execution path: Adapt loc-lm-bench evidence patterns for recall@k, MRR, evidence intactness, p95,
-paired bootstrap, extraction/span metrics, linkage, graph parity, resource cost, and
-adopt/retain/inconclusive verdicts.
+`configs/evaluation/`, `configs/proofs/`, `Makefile`, `$RUNS_DIR/<run-id>/evaluation/`, and
+`$RUNS_DIR/proofs/`.
+- Execution path: Consume or adapt the approved loc-lm-bench seam for recall@k, MRR, evidence
+intactness, p95, paired bootstrap, extraction/span, hierarchical classification, linkage, domain
+artifact, graph parity, resource cost, and adopt/retain/inconclusive verdicts; add a typed proof
+manifest, stage-to-validator registry, redaction, fingerprint freshness, proof summary helpers, and
+a shared `make proof CAPABILITY=...` dispatcher.
 - Acceptance gates: Split leakage and provenance checks pass; bootstrap seeds and item ledgers
-replay; missing evidence refuses a verdict; metrics have positive/negative fixtures.
+replay; missing evidence refuses a verdict; metrics have positive/negative fixtures; proof bundles
+reject stale fingerprints, missing artifact checksums, unvalidated usable stages, and private paths
+or corpus content in repository summaries; proof target discovery and unknown capability tests pass.
 - Documentation target: `docs/impl/current/evaluation-foundation.md`
 
 ### Corpus foundation -- `corpus-foundation`
@@ -382,51 +390,107 @@ ids; dedupe precision is measured on labels; no suppression occurs without an ov
 memory and shard-resume tests pass.
 - Documentation target: `docs/impl/current/corpus-foundation.md`
 
+#### prove-corpus-foundation-on-provided-archive
+
+Run the completed corpus stages against the operator-provided archive and publish their first
+current proof bundle.
+
+- Serves: `corpus-foundation` --
+[Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
+- Agent status: RUN NEEDED
+- Dependencies: `implement-normalization-dedupe-and-chunking`;
+`implement-stage-dag-cli-and-make-targets`; `implement-evidence-based-pipeline-forecast`;
+`create-evaluation-fixtures-and-metrics`; `approve-representative-corpus-and-gold`.
+- User-visible outcome: The supplied file silos have inspectable inventory, extraction,
+normalization, duplicate, and chunk artifacts backed by one reproducible proof id.
+- Scope boundary: Read `PROOF_ARCHIVE_DIR` without mutation and stop after `chunk`; do not infer
+downstream classification, retrieval, or knowledge quality from this proof.
+- Data and artifact paths: Read-only `$PROOF_ARCHIVE_DIR`, `$NORMALIZED_DIR`, and
+`$RUNS_DIR/proofs/corpus-foundation/<proof-id>/`; only redacted summaries enter current docs.
+- Execution path: Run a passing forecast; execute `inventory` through `chunk`; validate contracts,
+counts, spans, offsets, quarantine reasons, and checksums; rerun the identical closure and capture
+cache decisions plus resource/timing evidence.
+- Acceptance gates: Every usable corpus stage is `passed` or contract-valid `empty`; every inventory
+item is accounted for; artifacts and source anchors validate; the unchanged rerun executes no heavy
+extraction/normalization work; failures keep the task open.
+- Documentation target: `docs/impl/current/corpus-foundation.md`
+
 ### Pipeline control -- `pipeline-control`
 
 #### implement-run-ledger-and-atomic-artifacts
 
-Create run, stage, shard, lease, checkpoint, error, and artifact-manifest state with deterministic
-reuse keys.
+Create run, stage, shard, lease, checkpoint, error, artifact-manifest, and transitive-lineage state
+with deterministic reuse keys.
 
 - Serves: `pipeline-control` --
 [Resumability, idempotency, and provenance](../design/spec.md#resumability-idempotency-and-provenance)
 - Agent status: CLEAR
 - Dependencies: `create-canonical-relational-schema`; `implement-streaming-inventory`.
-- User-visible outcome: Every long operation has inspectable state and an interrupted shard resumes
-or reuses prior valid output safely.
+- User-visible outcome: Every long operation has inspectable state; an interrupted shard resumes,
+and an unchanged shard reuses validated output without loading its heavy implementation.
 - Scope boundary: Implement generic control mechanics; stage-specific processing stays in its owning
 capability.
 - Data and artifact paths: `ctl.*` tables, `$RUNS_DIR/<run-id>/manifests/`,
 `src/arxiv_int/pipeline/control/`, and `tests/pipeline/control/`.
-- Execution path: Define fingerprints and state transitions, transaction/lease rules, atomic sibling
-writes, output validation, bounded retry taxonomy, stale-lease recovery, and downstream
-invalidation planning.
+- Execution path: Define stage-owned code/dependency/input fingerprints, transitive artifact edges,
+cache validation, concurrent reuse leases, state transitions, atomic sibling writes, bounded retry
+taxonomy, stale-lease recovery, and downstream invalidation planning.
 - Acceptance gates: Property/state-machine tests reject illegal transitions; crash injection proves
-no partial output is accepted; unchanged rerun is a cache hit; forced retry creates a new attempt
-without overwriting evidence.
+no partial output is accepted; unchanged rerun validates manifests and does not invoke the heavy
+worker; a changed owned fingerprint marks exactly the reachable closure stale; forced retry creates
+a new attempt without overwriting evidence.
 - Documentation target: `docs/impl/current/pipeline-control.md`
 
 #### implement-stage-dag-cli-and-make-targets
 
-Build the dependency-aware stage registry, independent stage command, end-to-end runner, resume, and
-status interfaces.
+Build the dependency-aware stage registry, independent stage command, end-to-end and incremental
+runners, resume, status, invalidate, rebuild, and stale-prune planning interfaces.
 
 - Serves: `pipeline-control` -- [CLI and Make interface](../design/spec.md#cli-and-make-interface)
 - Agent status: CLEAR
 - Dependencies: `implement-run-ledger-and-atomic-artifacts`;
 `implement-normalization-dedupe-and-chunking`.
-- User-visible outcome: Operators can run one stage or a `--from`/`--to` dependency closure and
-resume by run id through CLI or standardized Make targets.
+- User-visible outcome: Operators can run or update one stage or a `--from`/`--to` dependency
+closure, inspect invalidation, start a fresh generation, and resume by run id through CLI or Make.
 - Scope boundary: Orchestrate in-process/local workers first; do not introduce Airflow, Prefect,
 Celery, Redis, or Kubernetes.
 - Data and artifact paths: `src/arxiv_int/cli.py`, `src/arxiv_int/pipeline/registry.py`, `Makefile`,
 and `tests/pipeline/orchestration/`.
 - Execution path: Register typed stages and dependencies; resolve parameters; validate required
-upstream manifests; add pipeline/stage/status/resume/invalidate commands; keep Make wrappers thin.
-- Acceptance gates: DAG, range, skip, invalid dependency, resume, force, and signal-handling tests
-pass; CLI help lists defaults and precedence; end-to-end smoke produces the same manifests as
-independent stages.
+upstream manifests; add run/update/stage/status/resume/invalidate/rebuild and prune-plan commands;
+keep Make wrappers thin and destructive application separately confirmed.
+- Acceptance gates: DAG, range, skip, invalid dependency, update, resume, targeted invalidate,
+fresh-generation rebuild, prune dry-run, force, and signal-handling tests pass; CLI help lists
+defaults and precedence; end-to-end smoke produces the same manifests as independent stages.
+- Documentation target: `docs/impl/current/pipeline-control.md`
+
+#### implement-incremental-reconciliation-and-stale-pruning
+
+Reconcile archive and implementation deltas through artifact lineage, retract stale active data,
+and provide safe partial update, full rebuild, and physical-prune paths.
+
+- Serves: `pipeline-control` --
+[Resumability, idempotency, and provenance](../design/spec.md#resumability-idempotency-and-provenance)
+- Agent status: CLEAR
+- Dependencies: `implement-run-ledger-and-atomic-artifacts`;
+`implement-stage-dag-cli-and-make-targets`; `implement-rebuildable-search-and-graph-projections`.
+- User-visible outcome: Added, changed, renamed, or removed files and later analysis-code changes
+update only affected descendants, while operators can deliberately rebuild everything or reclaim
+obsolete derived storage.
+- Scope boundary: Reconcile derived/canonical active views and prune only unreferenced stale data;
+never delete archive sources, move ledgers, immutable review history, active generations, or the sole
+recovery copy.
+- Data and artifact paths: `ctl.artifact_lineage`, source delta/tombstone and prune-event contracts,
+`src/arxiv_int/pipeline/reconcile/`, `src/arxiv_int/pipeline/prune/`, additive `db/migrations/`, and
+`$RUNS_DIR/<run-id>/{delta,invalidation,rebuild,prune}/`.
+- Execution path: Diff source manifests into add/content-change/path-rename/remove; compute the
+minimal downstream closure; retract stale rows/edges from active views after replacements validate;
+retain shared evidence; create isolated rebuild generations and atomic activation; make prune
+two-phase with dry-run ids, reference/pin/backup checks, and compact retained lineage.
+- Acceptance gates: Deterministic fixtures prove no-op updates invoke no heavy workers; additions
+touch only new shards; path-only renames avoid content analysis; changes/removals retract exactly
+dependent active outputs; stage fingerprint changes invalidate only owned descendants; rebuild
+matches a clean baseline; prune refuses active, pinned, reviewed, rollback, or sole-backup data.
 - Documentation target: `docs/impl/current/pipeline-control.md`
 
 #### add-progress-logging-and-resource-telemetry
@@ -444,13 +508,184 @@ ETA, errors, and resource pressure without garbled concurrent output.
 unbounded ids in logs/metric labels.
 - Data and artifact paths: `src/arxiv_int/observability/`, `$RUNS_DIR/<run-id>/logs/`,
 `ctl.stage_run`, Grafana provisioning, and logging tests.
-- Execution path: Adapt selfsuvis queued logging and timing patterns; add time/count-throttled
-progress, heartbeats, psutil/NVML/disk/Postgres metrics, redaction filters, JSONL schema, and
-final manifests.
+- Execution path: Consume the approved lightweight `selfsuvis` logging/timing seam; add
+time/count-throttled progress, heartbeats, psutil/NVML/disk/Postgres metrics, redaction filters,
+JSONL schema, and final manifests.
 - Acceptance gates: Concurrent-log tests produce intact lines; redaction fixtures remove secrets and
 corpus text; stalled worker and ETA states are distinguishable; metric labels have bounded
 cardinality.
 - Documentation target: `docs/impl/current/pipeline-control.md`
+
+#### implement-evidence-based-pipeline-forecast
+
+Implement a read-only command that predicts requested work, duration, output/peak storage, and
+free-space safety before a pipeline run.
+
+- Serves: `pipeline-control` --
+[Pre-run forecast and resource refusal](../design/spec.md#pre-run-forecast-and-resource-refusal)
+- Agent status: CLEAR
+- Dependencies: `implement-incremental-reconciliation-and-stale-pruning`;
+`add-progress-logging-and-resource-telemetry`; `implement-streaming-inventory`;
+`implement-layered-configuration-and-path-safety`.
+- User-visible outcome: Before starting, an operator sees stage-by-stage cache hits, changed work,
+time and data-size ranges, peak scratch/rebuild needs, accessible SSD free space, confidence, and a
+clear ready/degraded/blocked decision.
+- Scope boundary: Perform inventory, sampling, manifest, telemetry, and filesystem checks only; do
+not load heavy models, materialize production artifacts, invent precise estimates, or bypass hard
+space reserves.
+- Data and artifact paths: `src/arxiv_int/pipeline/forecast/`, `configs/capacity/`, forecast JSON
+Schema/contracts, prior run manifests/telemetry, and `$RUNS_DIR/<forecast-id>/forecast/`.
+- Execution path: Resolve cache and delta plans; select comparable runs and bounded format samples;
+estimate lower/upper output, time, WAL, temp, staging, rebuild, rollback, and backup costs; deduplicate
+filesystem devices; read accessible free bytes; emit evidence/coefficient provenance and a
+fingerprinted console/JSON decision; add stage-boundary free-space rechecks.
+- Acceptance gates: Zero-history fixtures yield conservative low-confidence ranges; estimates replay
+from captured evidence; shared devices are counted once; inaccessible paths and upper-bound peak plus
+reserve shortfalls exit non-zero before heavy work; stale forecasts are rejected; simulated free-space
+loss checkpoints before allocation without accepting partial output.
+- Documentation target: `docs/impl/current/pipeline-control.md`
+
+#### prove-pipeline-control-on-provided-archive
+
+Exercise idempotency, incremental reconciliation, invalidation, forecasting, rebuild, and prune
+planning with the supplied archive and publish the pipeline-control proof bundle.
+
+- Serves: `pipeline-control` --
+[Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
+- Agent status: RUN NEEDED
+- Dependencies: `implement-evidence-based-pipeline-forecast`;
+`prove-corpus-foundation-on-provided-archive`; `create-evaluation-fixtures-and-metrics`.
+- User-visible outcome: The supplied archive demonstrates that unchanged inputs skip heavy work,
+deltas update only affected artifacts, stale data retracts safely, insufficient space blocks early,
+and a clean generation can be rebuilt.
+- Scope boundary: Keep `PROOF_ARCHIVE_DIR` read-only; perform add/change/rename/remove and prune-apply
+drills only on a bounded disposable proof copy; do not prune the sole proof or recovery generation.
+- Data and artifact paths: Read-only `$PROOF_ARCHIVE_DIR`, disposable
+`$NORMALIZED_DIR/proof-work/pipeline-control/<proof-id>/`, and
+`$RUNS_DIR/proofs/pipeline-control/<proof-id>/`.
+- Execution path: Forecast and run the corpus closure; rerun unchanged; create controlled source
+deltas and a stage-fingerprint bump; inspect minimal closures and active retractions; simulate low
+space; rebuild into a fresh generation; compare checksums; dry-run pruning and apply it only to an
+extra disposable stale generation.
+- Acceptance gates: Proof records zero heavy invocations on the no-op rerun, exact affected/unaffected
+shards for each delta, correct tombstones and active rows, targeted code invalidation, non-zero
+resource refusal before allocation, clean-rebuild parity, protected-data prune refusal, and no write
+to the supplied archive.
+- Documentation target: `docs/impl/current/pipeline-control.md`
+
+### Archive classification -- `archive-classification`
+
+#### establish-versioned-udc-derived-scheme
+
+Establish the authorized UDC-derived hierarchy, project extension namespace, special outcomes, and
+evaluation labels used to classify archive files.
+
+- Serves: `archive-classification` --
+[Hierarchical archive classification and optional reorganization](../design/spec.md#hierarchical-archive-classification-and-optional-reorganization)
+- Agent status: RUN NEEDED
+- Research: yes
+- Dependencies: `establish-canonical-contract-registry`;
+`create-evaluation-fixtures-and-metrics`.
+- User-visible outcome: Operators can inspect the exact hierarchy, captions, parent links, licence,
+local extensions, and version behind every file assignment.
+- Scope boundary: Use the distributable UDC Summary or an operator-provided licensed MRF snapshot;
+do not redistribute restricted schedules or label project extensions and exceptional outcomes as
+official UDC notation.
+- Data and artifact paths: `contracts/datasets/classification*.odcs.yaml`,
+`configs/classification/`, `src/arxiv_int/classification/vocabulary/`, classification gold fixtures,
+and `$RUNS_DIR/<run-id>/classification/`.
+- Execution path: Import and checksum the selected vocabulary; parse simple hierarchy, auxiliaries,
+and compound notation; define stable local extension ids plus `unclassified` and `unreadable`;
+freeze multilingual captions, parent closure, path-safe tokens, and evaluation splits.
+- Acceptance gates: Codes and parents round-trip; cycles, orphaned classes, namespace collisions,
+missing attribution, and stale snapshots fail validation; the Summary-only baseline works without a
+licence secret; unavailable deep schedules yield a documented Summary baseline rather than guessed
+classes.
+- Documentation target: `docs/impl/current/archive-classification.md`
+
+#### implement-hierarchical-file-classification
+
+Add a restartable stage that maps every inventoried physical file to primary and alternate
+UDC-derived classes or one explicit exceptional outcome.
+
+- Serves: `archive-classification` --
+[Hierarchical archive classification and optional reorganization](../design/spec.md#hierarchical-archive-classification-and-optional-reorganization)
+- Agent status: RUN NEEDED
+- Research: yes
+- Dependencies: `establish-versioned-udc-derived-scheme`;
+`implement-normalization-dedupe-and-chunking`; `implement-stage-dag-cli-and-make-targets`;
+`approve-representative-corpus-and-gold`.
+- User-visible outcome: Each source file has a searchable, evidence-backed hierarchical assignment,
+while random text and extraction failures remain visibly `unclassified` or `unreadable`.
+- Scope boundary: Produce mappings and review candidates only; do not move source files, classify
+virtual archive members as independently movable files, or force low-confidence assignments.
+- Data and artifact paths: `$NORMALIZED_DIR/classifications/`, `corpus.file_classification`,
+additive `db/migrations/`, `src/arxiv_int/classification/`, classifier profiles, and
+`$RUNS_DIR/<run-id>/evaluation/classification/`.
+- Execution path: Combine metadata and normalized-text rules with a measured lightweight classifier;
+allow bounded local-model assistance only when it improves held-out results; retain multi-label
+scores, one primary ancestor path, decisive evidence, failure taxonomy, and complete fingerprints;
+generate and apply the classification contract migration.
+- Acceptance gates: Every inventory file appears exactly once; unreadability follows extraction
+evidence; exact and ancestor-aware precision/recall, hierarchical distance, calibration, selective
+coverage, exceptional-outcome confusion, reproducibility, throughput, and memory meet predeclared
+gates. A high `unclassified` or `unreadable` rate is a valid reported result.
+- Documentation target: `docs/impl/current/archive-classification.md`
+
+#### implement-audited-archive-reorganization
+
+Implement dry-run, apply, resume, rollback, and locate commands for classification-based physical
+archive organization.
+
+- Serves: `archive-classification` --
+[Hierarchical archive classification and optional reorganization](../design/spec.md#hierarchical-archive-classification-and-optional-reorganization)
+- Agent status: CLEAR
+- Dependencies: `implement-hierarchical-file-classification`;
+`implement-run-ledger-and-atomic-artifacts`.
+- User-visible outcome: An authorized operator can move files into short meaningful ASCII class
+directories and still resolve every knowledge source to its initial and current path.
+- Scope boundary: Default to dry-run and same-filesystem atomic renames beneath one explicitly
+writable root; never overwrite, silently recategorize, cross filesystems, follow escaping links, or
+run from the ordinary read-only pipeline/Compose path.
+- Data and artifact paths: `src/arxiv_int/archive/`, `corpus.document_path_event`, additive
+`db/migrations/`, `$RUNS_DIR/<run-id>/archive-reorganization/{move-plan.json,move-ledger.parquet}`,
+CLI and path-limit fixtures, and the selected archive root only after `--apply`.
+- Execution path: Build ancestor directories from reversible class tokens and bounded ASCII slugs;
+route safely movable special outcomes to `_unclassified` and `_unreadable`; preflight
+component/full-path limits, available hashes, links, devices, collisions, backup, and complete path
+accounting; generate the path-event migration; record unmovable entries as blocked; seal the ledger
+before journaling renames; expose resume, verified rollback, and `archive locate`.
+- Acceptance gates: Dry-run is byte-for-byte reproducible; apply requires the exact accepted plan;
+fixtures prove no overwrite, byte-identical content, one-to-one moved/blocked path accounting,
+collision and stale-hash refusal, interruption/resume, reverse-order rollback, path-limit
+compliance, and knowledge-source lookup. No production archive is mutated by automated tests.
+- Documentation target: `docs/impl/current/archive-classification.md`
+
+#### prove-archive-classification-on-provided-archive
+
+Classify the supplied archive, validate the complete mapping, and publish a non-mutating
+reorganization proof bundle.
+
+- Serves: `archive-classification` --
+[Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
+- Agent status: RUN NEEDED
+- Dependencies: `implement-audited-archive-reorganization`;
+`prove-pipeline-control-on-provided-archive`.
+- User-visible outcome: Every supplied file has a UDC-derived or explicit exceptional result, and
+the operator can inspect deterministic ASCII destinations and initial/current source lookup before
+authorizing any move.
+- Scope boundary: Run classification, mapping validation, reorganize dry-run, and locate only; never
+apply moves to `PROOF_ARCHIVE_DIR`.
+- Data and artifact paths: Read-only `$PROOF_ARCHIVE_DIR`, `$NORMALIZED_DIR/classifications/`, and
+`$RUNS_DIR/proofs/archive-classification/<proof-id>/`.
+- Execution path: Forecast the closure; run classification; validate coverage, hierarchy, evidence,
+exceptions, and fingerprints; generate the move plan; check path/collision/device rules and lookup;
+rerun unchanged and record classifier/model cache hits.
+- Acceptance gates: Inventory-to-classification accounting is exact; every ordinary assignment or
+exception validates; move plan covers moved/blocked entries with no unsafe destination; supplied
+files remain unchanged; the identical rerun invokes no heavy classifier; proof artifacts and
+checksums are complete.
+- Documentation target: `docs/impl/current/archive-classification.md`
 
 ### Lexical retrieval -- `lexical-retrieval`
 
@@ -501,6 +736,29 @@ mixed-language cases; use paired bootstrap verdicts.
 metrics and costs cite immutable runs; profile changes name required reindex work.
 - Documentation target: `docs/impl/current/lexical-retrieval.md`
 
+#### prove-lexical-retrieval-on-provided-archive
+
+Build and query the lexical projection for the supplied archive and publish its proof bundle.
+
+- Serves: `lexical-retrieval` --
+[Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
+- Agent status: RUN NEEDED
+- Dependencies: `calibrate-russian-tokenization-and-bm25`;
+`prove-pipeline-control-on-provided-archive`.
+- User-visible outcome: Supplied documents are searchable through the selected Russian lexical
+profile, with filters, snippets, identifiers, and citations that resolve to source evidence.
+- Scope boundary: Prove lexical load/query behavior and declared evaluation queries; do not claim
+semantic retrieval or full-archive relevance from this test archive.
+- Data and artifact paths: Read-only `$PROOF_ARCHIVE_DIR`, lexical tables/indexes, and
+`$RUNS_DIR/proofs/lexical-retrieval/<proof-id>/`.
+- Execution path: Forecast; load/build the selected lexical projection; reconcile counts/checksums;
+run archive-appropriate smoke and held-out queries; validate citations and limits; rerun unchanged
+and record load/index cache decisions.
+- Acceptance gates: Projection and source counts reconcile; required queries return valid evidence
+under declared metrics; index/query manifests validate; unchanged rerun does not rebuild or reload
+unchanged partitions; failures or missing citations keep the task open.
+- Documentation target: `docs/impl/current/lexical-retrieval.md`
+
 ### Semantic retrieval -- `semantic-retrieval`
 
 #### implement-selective-embedding-pipeline
@@ -548,6 +806,30 @@ record build time, WAL/temp, disk, RAM, p95 latency, recall, updates, vacuum/reb
 run paired answer-side check for promoted candidates.
 - Acceptance gates: A predeclared adopt/retain/inconclusive rule is applied; native beta status is
 visible; fallback addition requires a failed mandatory gate and its own integration plan.
+- Documentation target: `docs/impl/current/semantic-retrieval.md`
+
+#### prove-semantic-retrieval-on-provided-archive
+
+Run the selected semantic/hybrid branch on a bounded supplied-archive tier and publish its proof or
+measured not-selected verdict.
+
+- Serves: `semantic-retrieval` --
+[Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
+- Agent status: RUN NEEDED
+- Dependencies: `compare-pgvector-paradedb-native-and-fallback-seam`;
+`prove-lexical-retrieval-on-provided-archive`; `implement-evidence-based-pipeline-forecast`.
+- User-visible outcome: Operators can inspect actual archive embeddings, vector/hybrid results,
+resource cost, and citations, or see why the branch remains disabled with lexical fallback working.
+- Scope boundary: Use only the forecast-approved selected tier and configured local models; do not
+embed the complete supplied archive or treat an unavailable/failed branch as successful proof.
+- Data and artifact paths: Read-only `$PROOF_ARCHIVE_DIR`, selected embedding/vector artifacts, and
+`$RUNS_DIR/proofs/semantic-retrieval/<proof-id>/`.
+- Execution path: Forecast model and index resources; run selected embedding/load/query profiles;
+validate vector identities, counts, paired retrieval evidence, and fallback; rerun unchanged and
+record that model inference and index build are reused.
+- Acceptance gates: A usable branch has checksum-valid vectors/indexes, cited queries, measured
+quality/cost verdict, and no heavy work on identical rerun. `not-selected` is valid only with the
+declared measured negative result and verified lexical fallback; other failures keep the task open.
 - Documentation target: `docs/impl/current/semantic-retrieval.md`
 
 ### Russian NLP -- `russian-nlp`
@@ -601,6 +883,30 @@ high-impact low-precision types stay review-only; inference cost and fallback be
 resource budget.
 - Documentation target: `docs/impl/current/russian-nlp.md`
 
+#### prove-russian-nlp-on-provided-archive
+
+Run the language, morphology, terminology, and NER stages on supplied archive content and publish
+their proof bundle.
+
+- Serves: `russian-nlp` --
+[Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
+- Agent status: RUN NEEDED
+- Dependencies: `evaluate-general-and-domain-ner`;
+`prove-pipeline-control-on-provided-archive`.
+- User-visible outcome: The supplied Russian and mixed-language documents expose inspectable terms,
+language/noise results, mentions, source offsets, model identities, and measured failure classes.
+- Scope boundary: Prove configured NLP profiles on available archive languages/types; do not treat
+unreviewed mentions as canonical objects or infer quality for absent strata.
+- Data and artifact paths: Read-only `$PROOF_ARCHIVE_DIR`, `$NORMALIZED_DIR/nlp/`, mention tables,
+and `$RUNS_DIR/proofs/russian-nlp/<proof-id>/`.
+- Execution path: Forecast; run NLP and mention extraction; validate schemas, language coverage,
+offset/source mapping, per-type summaries, and model fingerprints; rerun unchanged and record
+dictionary/model cache hits.
+- Acceptance gates: All usable NLP outputs validate and resolve to source spans; unsupported and
+ambiguous cases are counted; configured metrics are reported by present stratum; unchanged rerun
+performs no heavy NER or morphology work; incomplete evidence keeps the task open.
+- Documentation target: `docs/impl/current/russian-nlp.md`
+
 ### Knowledge extraction -- `knowledge-extraction`
 
 #### implement-provenance-bearing-fact-extraction
@@ -613,15 +919,16 @@ LLM calls for bounded high-value lanes.
 - Agent status: RUN NEEDED
 - Dependencies: `evaluate-general-and-domain-ner`; `implement-local-inference-adapters`;
 `create-canonical-relational-schema`.
-- User-visible outcome: Relations, specifications, equipment, suppliers, dates, quantities, and
-claims are queryable with exact source evidence and extraction provenance.
+- User-visible outcome: Design/revision, assembly/component, equipment, supplier, order, shipment,
+invoice, payment, date, quantity, and other relations are queryable with exact source evidence and
+extraction provenance.
 - Scope boundary: Insert `proposed` assertions only; no automatic truth acceptance and no ontology
 axiom invention.
 - Data and artifact paths: `$NORMALIZED_DIR/facts/`, `kg.fact`, `kg.fact_qualifier`,
 `src/arxiv_int/extraction/facts/`, generated output schemas, and prompt packages.
-- Execution path: Implement typed rule/table extractors; define JSON-schema LLM envelopes; retrieve
-bounded evidence; validate source spans, types, units, model output, and one bounded repair; batch
-and checkpoint by content hash.
+- Execution path: Implement typed rule/table extractors, including design/BOM and commercial
+document lanes; define JSON-schema LLM envelopes; retrieve bounded evidence; validate source spans,
+types, units, currencies, model output, and one bounded repair; batch and checkpoint by content hash.
 - Acceptance gates: Malformed, unsupported, uncited, and span-mismatched outputs are retained as
 typed failures, not facts; per-type precision/recall and citation validity are measured; rerun is
 idempotent.
@@ -650,6 +957,30 @@ active status derives from an audit event; rejected/superseded facts retain evid
 versioned and replayable.
 - Documentation target: `docs/impl/current/knowledge-extraction.md`
 
+#### prove-knowledge-extraction-on-provided-archive
+
+Run fact extraction and validation on the supplied archive and publish the knowledge-extraction
+proof bundle.
+
+- Serves: `knowledge-extraction` --
+[Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
+- Agent status: RUN NEEDED
+- Dependencies: `implement-fact-validation-conflict-and-review-overlays`;
+`prove-russian-nlp-on-provided-archive`; `implement-evidence-based-pipeline-forecast`.
+- User-visible outcome: Proposed design, commercial, and general facts from supplied files are
+inspectable with exact evidence, validation findings, conflicts, and extractor/model provenance.
+- Scope boundary: Exercise only forecast-approved deterministic and local-model lanes; do not
+auto-accept facts or claim correctness for unreviewed domain assertions.
+- Data and artifact paths: Read-only `$PROOF_ARCHIVE_DIR`, `$NORMALIZED_DIR/facts/`, knowledge
+tables, and `$RUNS_DIR/proofs/knowledge-extraction/<proof-id>/`.
+- Execution path: Forecast; run configured fact lanes and validators; reconcile input/output/failure
+counts; sample evidence-span resolution and conflict grouping; rerun unchanged and capture rule/model
+cache decisions.
+- Acceptance gates: Every emitted fact passes shape and evidence validation or remains a typed
+failure; conflicts and review states are preserved; present-type metrics and coverage are reported;
+unchanged rerun does not invoke heavy extraction; proof checksums and fingerprints validate.
+- Documentation target: `docs/impl/current/knowledge-extraction.md`
+
 ### Identity, ontology, and graph -- `identity-ontology-graph`
 
 #### implement-probabilistic-entity-resolution
@@ -668,9 +999,9 @@ transliterations resolve to canonical objects with match evidence and uncertaint
 auto-merge below the approved precision threshold.
 - Data and artifact paths: `kg.object`, `kg.alias`, `kg.resolution_edge`, `kg.cluster_version`,
 `$NORMALIZED_DIR/linkage/`, and `src/arxiv_int/identity/`.
-- Execution path: Adapt the loc-lm-bench Splink 4/DuckDB seam; define blocking and comparison specs;
-train/calibrate from reviewer labels; persist the model, thresholds, pair probabilities, and
-cluster algorithm.
+- Execution path: Consume the approved loc-lm-bench Splink 4/DuckDB seam; define blocking and
+comparison specs; train/calibrate from reviewer labels; persist the model, thresholds, pair
+probabilities, and cluster algorithm.
 - Acceptance gates: Held-out pair and cluster metrics pass the predeclared auto-merge precision
 floor; replay does not refit; uncertain/rejected pairs remain separate; rollback restores the
 prior cluster view.
@@ -723,6 +1054,139 @@ lookup succeeds for every sampled edge; AGE-disabled mode exports the same logic
 build leaves prior graph active.
 - Documentation target: `docs/impl/current/identity-ontology-graph.md`
 
+#### prove-identity-ontology-graph-on-provided-archive
+
+Resolve identities, validate ontology assets, build the graph or fallback exports, and publish the
+supplied-archive proof bundle.
+
+- Serves: `identity-ontology-graph` --
+[Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
+- Agent status: RUN NEEDED
+- Dependencies: `build-and-validate-age-projection`;
+`prove-knowledge-extraction-on-provided-archive`.
+- User-visible outcome: Supplied-archive objects, aliases, candidate clusters, ontology terms, and
+bounded graph paths are inspectable with reversible decisions and source evidence.
+- Scope boundary: Use approved or explicitly proposed review states; do not silently merge uncertain
+entities, publish disputed ontology changes, or require AGE when the declared fallback is active.
+- Data and artifact paths: Read-only `$PROOF_ARCHIVE_DIR`, identity/ontology/graph stores and
+exports, and `$RUNS_DIR/proofs/identity-ontology-graph/<proof-id>/`.
+- Execution path: Forecast; run entity resolution and ontology validation; build the active AGE or
+relational/open-export graph; reconcile counts and sampled SQL/path parity; resolve edge evidence;
+rerun unchanged and capture linkage/reasoning/projection cache hits.
+- Acceptance gates: Cluster and ontology validators pass at declared policies; graph/fallback counts
+and sampled paths agree with canonical facts; every sampled edge has evidence; unchanged rerun avoids
+heavy linkage and graph rebuild; failed projection never replaces the prior active version.
+- Documentation target: `docs/impl/current/identity-ontology-graph.md`
+
+### Domain investigation artifacts -- `domain-investigation-artifacts`
+
+#### define-domain-investigation-contracts-and-ontology
+
+Define evidence semantics and output contracts for design relationships, bills of materials,
+supply chains, invoices, payments, and their run-artifact registry entries.
+
+- Serves: `domain-investigation-artifacts` --
+[Domain investigation artifacts](../design/spec.md#domain-investigation-artifacts)
+- Agent status: CLEAR
+- Dependencies: `establish-versioned-ontology-assets`;
+`implement-deterministic-schema-generation`.
+- User-visible outcome: Operators see consistent definitions for `part-of`, supply roles, invoice
+obligations, payment allocations, conflicts, and empty/partial results before graphs are generated.
+- Scope boundary: Define source-asserted investigation semantics and schemas; do not infer missing
+ownership, delivery, settlement, liability, engineering completeness, or accounting truth.
+- Data and artifact paths: `contracts/datasets/domain-artifacts*.odcs.yaml`,
+`contracts/canonical/`, `ontology/`, generated table/JSON/graph schemas, and domain fixtures.
+- Execution path: Model designs, revisions, assemblies, components, materials, parties, locations,
+orders, shipments, invoices, invoice lines, payments, currencies, quantities, allocations, and
+typed relations; define evidence, review/inclusion, arithmetic, conflict, and artifact-status rules.
+- Acceptance gates: Contract and ontology validation pass; positive and negative fixtures separate
+reference from `part-of`, invoice from delivery, and amount/date similarity from payment; units,
+currencies, direction, cardinality, and creation statuses are unambiguous and versioned.
+- Documentation target: `docs/impl/current/domain-investigation-artifacts.md`
+
+#### build-evidence-backed-domain-artifacts
+
+Project canonical objects and facts into relationship, BOM, supply-chain, and invoice/payment
+tables and bounded graphical representations.
+
+- Serves: `domain-investigation-artifacts` --
+[Domain investigation artifacts](../design/spec.md#domain-investigation-artifacts)
+- Agent status: RUN NEEDED
+- Research: yes
+- Dependencies: `define-domain-investigation-contracts-and-ontology`;
+`implement-fact-validation-conflict-and-review-overlays`;
+`implement-probabilistic-entity-resolution`; `build-and-validate-age-projection` may yield AGE or
+the relational/open-export fallback; `approve-representative-corpus-and-gold`.
+- User-visible outcome: When the archive contains qualifying evidence, operators receive cited
+assembly trees, relationship graphs, supply networks, and invoice/payment flows with uncertainty and
+conflicts visible.
+- Scope boundary: Generate bounded derived views from selected review states; do not silently
+promote proposed facts, reconcile currencies without a sourced rate, or claim completeness beyond
+reported evidence coverage.
+- Data and artifact paths: `$NORMALIZED_DIR/domain-artifacts/`,
+`src/arxiv_int/domain_artifacts/`, `$RUNS_DIR/<run-id>/artifacts/`, reviewed domain fixtures, and
+snapshot/render tests.
+- Execution path: Build typed tabular/JSON projections; validate quantities, units, totals, and
+allocations; emit Parquet/JSON, GraphML, and deterministic self-contained HTML or SVG through the
+lightest accepted renderer; preserve fact ids, source spans, policy, confidence, and review state on
+every element.
+- Acceptance gates: Per-family relation precision/recall, BOM parent/child and quantity accuracy,
+invoice arithmetic, payment-allocation accuracy, unresolved/conflict coverage, table/graph parity,
+evidence links, deterministic bounded renders, and resource cost meet declared gates. Unsupported or
+evidence-free families produce valid `partial` or `empty` results.
+- Documentation target: `docs/impl/current/domain-investigation-artifacts.md`
+
+#### register-and-expose-domain-artifacts
+
+Publish all domain artifacts through an atomic per-run registry and expose discovery links without
+creating another source of truth.
+
+- Serves: `domain-investigation-artifacts` --
+[Domain investigation artifacts](../design/spec.md#domain-investigation-artifacts)
+- Agent status: CLEAR
+- Dependencies: `build-evidence-backed-domain-artifacts`;
+`implement-run-ledger-and-atomic-artifacts`.
+- User-visible outcome: Every run reaching the domain-artifact stage lists which special artifacts
+were produced, partial, empty, or failed and provides a verified local path plus evidence/coverage
+summary for each.
+- Scope boundary: Register immutable outputs and read-only links; do not mark failed output
+successful, embed unrestricted source text, or let dashboards become the canonical registry.
+- Data and artifact paths: `ctl.artifact`, additive `db/migrations/`,
+`$RUNS_DIR/<run-id>/artifacts/registry.{json,parquet}`, `src/arxiv_int/reporting/artifacts/`, CLI/API
+responses, and registry contract tests.
+- Execution path: Generate and apply additive artifact-registry migrations; assign stable artifact
+ids; capture type/schema/generator/input/policy fingerprints, paths, media types, checksums, counts,
+evidence coverage, status, and failure reason; validate output before one atomic registry
+publication; add `run artifacts` listing and report links.
+- Acceptance gates: Contract fixtures cover produced/partial/empty/failed states; every successful
+row resolves to checksum-valid files and source evidence; missing or corrupt output prevents
+publication; unchanged reruns reuse ids; CLI/API and manifest/SQL registries agree.
+- Documentation target: `docs/impl/current/domain-investigation-artifacts.md`
+
+#### prove-domain-investigation-artifacts-on-provided-archive
+
+Generate every applicable relationship, BOM, supply-chain, and invoice/payment artifact family from
+the supplied archive and publish its proof bundle.
+
+- Serves: `domain-investigation-artifacts` --
+[Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
+- Agent status: RUN NEEDED
+- Dependencies: `register-and-expose-domain-artifacts`;
+`prove-identity-ontology-graph-on-provided-archive`.
+- User-visible outcome: The run artifact registry exposes each applicable supplied-archive domain
+view, its table/graph files, evidence coverage, conflicts, review policy, and production status.
+- Scope boundary: Generate only evidence-supported bounded views; accept contract-valid `empty` or
+`partial` families and never manufacture relations to make a graphical artifact non-empty.
+- Data and artifact paths: Read-only `$PROOF_ARCHIVE_DIR`, `$NORMALIZED_DIR/domain-artifacts/`, and
+`$RUNS_DIR/proofs/domain-investigation-artifacts/<proof-id>/`.
+- Execution path: Forecast; build all configured artifact families; validate arithmetic,
+table-to-graph parity, source links, renders, registry rows, and checksums; rerun unchanged and record
+projection/render cache hits.
+- Acceptance gates: Every configured family is honestly `produced`, `partial`, or `empty` with a
+valid reason; no failed output is registered as successful; evidence and policy resolve for every
+element; identical rerun performs no heavy extraction, projection, or rendering.
+- Documentation target: `docs/impl/current/domain-investigation-artifacts.md`
+
 ### Discovery and visualization -- `discovery-visualization`
 
 #### implement-scalable-topic-discovery
@@ -758,9 +1222,10 @@ equipment/supplier reports through CLI and a small local API.
 - Serves: `discovery-visualization` -- [CLI and Make interface](../design/spec.md#cli-and-make-interface)
 - Agent status: CLEAR
 - Dependencies: `calibrate-russian-tokenization-and-bm25`; `build-and-validate-age-projection`;
-`implement-scalable-topic-discovery`.
+`register-and-expose-domain-artifacts`; `implement-scalable-topic-discovery`.
 - User-visible outcome: An operator can find evidence, inspect objects and facts, traverse
-relations, and export cited equipment/supplier lists without writing SQL.
+relations, and open or export cited equipment, supplier, BOM, supply-chain, and invoice/payment
+artifacts without writing SQL.
 - Scope boundary: Read-only query/report boundary with limits; no public multi-user web product and
 no hidden acceptance of proposed facts.
 - Data and artifact paths: `src/arxiv_int/query/`, `src/arxiv_int/reporting/`,
@@ -796,7 +1261,62 @@ tests.
 mutate canonical rows; dashboards load fixture data; graph profile absence degrades cleanly.
 - Documentation target: `docs/impl/current/discovery-visualization.md`
 
+#### prove-discovery-and-visualization-on-provided-archive
+
+Run topic discovery, search/report scenarios, exports, and configured local views against supplied
+archive artifacts and publish the discovery proof bundle.
+
+- Serves: `discovery-visualization` --
+[Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
+- Agent status: RUN NEEDED
+- Dependencies: `provision-local-dashboards-and-age-viewer`;
+`prove-domain-investigation-artifacts-on-provided-archive`;
+`prove-lexical-retrieval-on-provided-archive`.
+- User-visible outcome: Operators can navigate supplied-archive topics, searches, objects, facts,
+graphs, and domain reports through bounded interfaces whose displayed evidence can be verified.
+- Scope boundary: Prove local read-only scenarios and available profiles; do not expose services
+publicly, require an optional UI/AGE profile with a valid fallback, or claim usability acceptance for
+scenarios not executed.
+- Data and artifact paths: Read-only `$PROOF_ARCHIVE_DIR`, topic/query/report/export artifacts, and
+`$RUNS_DIR/proofs/discovery-visualization/<proof-id>/`.
+- Execution path: Forecast; run topics and report generation; execute scripted lexical and available
+hybrid, object/fact, graph, BOM, supply-chain, and invoice/payment scenarios; validate citations,
+limits, exports, dashboards/views, and unchanged-rerun cache decisions.
+- Acceptance gates: Every executed scenario resolves to bounded, policy-labelled source evidence;
+exports and configured views validate; unavailable optional profiles have working fallbacks;
+unchanged rerun avoids heavy topic/report recomputation; unresolved failures keep proof open.
+- Documentation target: `docs/impl/current/discovery-visualization.md`
+
 ### Evaluation and evidence -- `evaluation-evidence`
+
+#### publish-provided-archive-end-to-end-proof
+
+Run evaluation and reporting over the supplied archive and publish one proof index covering every
+usable pipeline stage and artifact family.
+
+- Serves: `evaluation-evidence` --
+[Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
+- Agent status: RUN NEEDED
+- Dependencies: `prove-archive-classification-on-provided-archive`;
+`prove-semantic-retrieval-on-provided-archive`;
+`prove-discovery-and-visualization-on-provided-archive`;
+`create-evaluation-fixtures-and-metrics`.
+- User-visible outcome: One command/report shows which pipeline stages have current proof on the
+supplied file silos, which artifacts they produced, which optional branches were not selected, and
+how every result resolves to evidence.
+- Scope boundary: Evaluate and index bounded proof outputs; do not substitute this test archive for
+representative-scale authorization or conceal failed, stale, blocked, or absent stages.
+- Data and artifact paths: Read-only `$PROOF_ARCHIVE_DIR`, prior capability proof bundles, and
+`$RUNS_DIR/proofs/evaluation-evidence/<proof-id>/` containing evaluation/report outputs and the
+end-to-end proof index.
+- Execution path: Require a passing forecast; verify prior proof fingerprints; run `evaluate` and
+`report`; join stage, artifact, validation, error, resource, and cache evidence; rerun unchanged;
+publish a machine-readable and human-readable coverage matrix with current-doc references.
+- Acceptance gates: Every required usable stage has a current `passed` or valid-empty proof and
+checksum-valid artifacts; optional not-selected branches cite verdicts and fallbacks; the end-to-end
+report exposes all failures/coverage gaps; unchanged evaluation/report work is reused; private paths
+and corpus content are absent from repository documentation.
+- Documentation target: `docs/impl/current/evaluation.md`
 
 #### run-representative-scale-pilots
 
@@ -808,16 +1328,19 @@ rebuild on two progressively larger corpus slices.
 - Agent status: RUN NEEDED
 - Research: yes
 - Dependencies: All required Phase 0-4 tasks for the selected pilot path;
-`create-evaluation-fixtures-and-metrics`; `approve-representative-corpus-and-gold`.
-- User-visible outcome: A capacity plan predicts normalized, heap, lexical, vector, graph, WAL,
-temp, backup, wall-time, and operator-review costs before the full archive runs.
+`create-evaluation-fixtures-and-metrics`; `approve-representative-corpus-and-gold`;
+`publish-provided-archive-end-to-end-proof`; `implement-evidence-based-pipeline-forecast`.
+- User-visible outcome: A capacity plan predicts normalized, classification, registered domain
+artifact, heap, lexical, vector, graph, WAL, temp, backup, wall-time, and operator-review costs
+before the full archive runs.
 - Scope boundary: Run only approved representative slices; do not authorize the full corpus or
 extrapolate without uncertainty and format mix.
 - Data and artifact paths: Approved `$ARCHIVE_DIR` slices, `$NORMALIZED_DIR`, `$PGDATA_DIR`,
 `$RUNS_DIR/<run-id>/pilot/`, and generated capacity report.
 - Execution path: Run 0.1-1% or 50-200 GB pilot, tune bounded parameters, then a larger partition;
-inject interruption; measure extraction yield, dedupe, chunks, indexes, updates, reindex, vector
-tiers, graph, and recovery.
+inject interruption; measure extraction yield, classification coverage, dedupe, chunks, indexes,
+updates, reindex, vector tiers, domain artifacts, graph, and recovery. Archive reorganization stays
+a separately authorized drill and is not implied by the pilot.
 - Acceptance gates: Both runs remain within declared resource safety margins; estimates include
 uncertainty and concurrent-rebuild space; every failure and excluded format is counted; report
 ends in authorize-next, resize/reconfigure, retain-subset, or stop.
@@ -825,24 +1348,26 @@ ends in authorize-next, resize/reconfigure, retain-subset, or stop.
 
 #### audit-reuse-provenance-and-published-claims
 
-Verify copied/adapted code attribution, artifact lineage, and every number or architectural claim
-published in reports and current-state docs.
+Verify dependency and exceptional copied-code provenance, artifact lineage, and every number or
+architectural claim published in reports and current-state docs.
 
 - Serves: `evaluation-evidence` -- [Reuse map](../design/spec.md#reuse-map)
 - Agent status: CLEAR
-- Dependencies: `create-evaluation-fixtures-and-metrics`; implementation tasks that adapt source
-repositories.
+- Dependencies: `create-evaluation-fixtures-and-metrics`; `resolve-selfsuvis-reuse-integration`;
+`resolve-fl-op-reuse-integration`; `resolve-loc-lm-bench-reuse-integration`; tasks that consume
+source repositories or publish evaluated artifacts.
 - User-visible outcome: Reuse is legally and technically traceable, and a stale run cannot continue
 to support a changed published claim.
 - Scope boundary: Audit repository and generated evidence; do not invent missing benchmarks or
 license interpretations.
 - Data and artifact paths: `NOTICE`, `THIRD_PARTY.md`, dependency lock, source headers,
 `ctl.artifact`, run manifests, and docs claim registry.
-- Execution path: Record upstream revision/license for adapted code, verify notices, link published
-metrics to run fields and content pins, and list invalidations caused by contract/model/profile
-changes.
-- Acceptance gates: License scanner and manual notice checklist pass; every published number
-resolves to one immutable artifact field; orphan or stale claims fail CI.
+- Execution path: Recheck dependency revisions, licences, transitive size/build inventories, and any
+exceptional extracted-source notices; link published metrics to run fields and content pins; list
+invalidations caused by dependency, contract, model, profile, classification, or artifact changes.
+- Acceptance gates: License scanner, clean-install/import-isolation checks, size budget, and manual
+notice checklist pass; no unapproved copied implementation or heavy core dependency remains; every
+published number resolves to one immutable artifact field; orphan or stale claims fail CI.
 - Documentation target: `docs/impl/current/evaluation.md`
 
 ### Operational recovery -- `operational-recovery`
@@ -856,9 +1381,11 @@ container mounts, and a network-denied run mode.
 [Operations, backup, and security](../design/spec.md#operations-backup-and-security)
 - Agent status: RUN NEEDED
 - Dependencies: `define-compose-profiles-and-operator-wrappers`;
-`create-canonical-relational-schema`; `implement-local-inference-adapters`.
+`create-canonical-relational-schema`; `implement-local-inference-adapters`;
+`implement-audited-archive-reorganization`.
 - User-visible outcome: The local stack can process prepared inputs without unintended network
-access or writable access to the archive.
+access or writable archive access, while the separate reorganization command cannot write without an
+accepted exact plan.
 - Scope boundary: Host-local hardening and verification; not a formal third-party penetration test
 or multi-user internet deployment.
 - Data and artifact paths: Compose security settings, database role migrations, `.env.example`,
@@ -866,9 +1393,9 @@ or multi-user internet deployment.
 - Execution path: Apply non-root/read-only mounts where supported, localhost ports, role separation,
 URL/path allowlists, secret filters, image/model pin checks, and network-denied integration
 profile.
-- Acceptance gates: Prepared smoke succeeds with egress denied; archive write attempts fail; UI role
-mutations fail; secrets/corpus snippets do not appear in logs; dependency/image scan findings are
-triaged without suppressing gates.
+- Acceptance gates: Prepared smoke succeeds with egress denied; pipeline archive writes fail;
+reorganization writes without an accepted plan fail; UI role mutations fail; secrets/corpus snippets
+do not appear in logs; dependency/image scan findings are triaged without suppressing gates.
 - Documentation target: `docs/impl/current/operations.md`
 
 #### implement-backup-restore-and-rebuild-runbook
@@ -881,16 +1408,18 @@ rebuild metadata.
 - Agent status: RUN NEEDED
 - Dependencies: `implement-rebuildable-search-and-graph-projections`;
 `harden-local-security-and-no-egress-mode`; `run-representative-scale-pilots` can use the first
-pilot for the drill.
-- User-visible outcome: A documented command sequence restores canonical state and validates or
-rebuilds search and graph projections on a clean target path.
+pilot for the drill; `register-and-expose-domain-artifacts`.
+- User-visible outcome: A documented command sequence restores canonical state, classifications,
+move/source lookup, and artifact registries, then validates or rebuilds search and graph projections
+on a clean target path.
 - Scope boundary: Single-host backup/restore and removable-disk workflow; no HA or enterprise
 replica claim.
 - Data and artifact paths: `scripts/backup/`, `scripts/restore/`, backup manifests outside
 `$PGDATA_DIR`, `$RUNS_DIR/<run-id>/recovery/`, and `docs/guide/recovery.md`.
 - Execution path: Capture extension/image/model ids, migrations and logical/physical backup,
-normalized manifest snapshot, checksums, free-space requirements, restore into a new directory,
-run contract/live-store checks, and rebuild disposable projections.
+normalized/classification manifests, archive move ledgers, artifact registries, checksums, and
+free-space requirements; restore into a new directory, run contract/live-store/source-lookup checks,
+and rebuild disposable projections.
 - Acceptance gates: Clean-target restore reproduces canonical counts/checksums and sampled queries;
 missing/corrupt backup parts fail before mutation; recovery time/space are recorded; original data
 remains untouched.
@@ -905,47 +1434,173 @@ index, and stale lease behavior before full-corpus authorization.
 [Resumability, idempotency, and provenance](../design/spec.md#resumability-idempotency-and-provenance)
 - Agent status: RUN NEEDED
 - Dependencies: `implement-backup-restore-and-rebuild-runbook`;
-`add-progress-logging-and-resource-telemetry`.
+`add-progress-logging-and-resource-telemetry`; `implement-audited-archive-reorganization`;
+`implement-evidence-based-pipeline-forecast`;
+`implement-incremental-reconciliation-and-stale-pruning`.
 - User-visible outcome: Known failures stop safely, preserve evidence, and provide a tested
 resume/rebuild action instead of corrupting state.
 - Scope boundary: Controlled disposable fixtures and pilot paths only; no destructive testing
 against the real archive or sole backup.
 - Data and artifact paths: Disposable test volumes under `$NORMALIZED_DIR/test/`,
 `$RUNS_DIR/<run-id>/failure-tests/`, and recovery fixtures.
-- Execution path: Inject bounded failures at artifact write, COPY, index build, AGE projection,
-model call, and shutdown boundaries; verify alerts, state transitions, cleanup plans, and
-recovery.
+- Execution path: Inject bounded failures at artifact write, archive rename journal, COPY, index
+build, AGE projection, model call, and shutdown boundaries; verify alerts, state transitions,
+cleanup plans, source lookup, and recovery.
 - Acceptance gates: No accepted partial artifact or duplicate canonical row results; retries are
-bounded; invalid indexes/projections never become active; capacity refusal occurs before
-configured safety margin is consumed.
+bounded; invalid indexes/projections never become active; forecast and each large-stage recheck
+refuse before the configured safety margin is consumed; stale cleanup never removes protected data.
 - Documentation target: `docs/impl/current/operations.md`
 
 ## Human-Assisted Tasks
+
+### Project foundation -- `project-foundation`
+
+#### resolve-selfsuvis-reuse-integration
+
+Resolve the `selfsuvis` configuration, path-safety, logging, timing, and model-lifecycle reuse as an
+installable dependency seam or an explicit deferral.
+
+- Serves: `project-foundation` -- [Reuse map](../design/spec.md#reuse-map)
+- Agent status: HUMAN-GATED
+- Research: yes
+- Dependencies: `establish-domain-dependency-seams`; access to the pinned `selfsuvis` revision and
+human authorization for changes to its owning repository and package or revision publication.
+- User-visible outcome: A clean `arxiv-int` checkout can install only the approved `selfsuvis`
+components needed by selected extras, without a sibling checkout or unrelated video/IoT and heavy
+model dependencies.
+- Scope boundary: Change `selfsuvis` only where a cohesive package boundary or additional shared
+behavior is required; do not copy its implementation, import its full pipeline, or publish an
+upstream release without authorization.
+- Data and artifact paths: `pyproject.toml`, `uv.lock`, `src/arxiv_int/adapters/`,
+`tests/dependencies/`, dependency and license inventories, and, when upstream work is required, the
+`selfsuvis` repository's `repo-plan.md`, interface contracts, packaging files, source, and tests.
+- Execution path: Inventory the pinned seam and its transitive/build costs; when installation or
+additional shared functionality requires an upstream change, create a focused `repo-plan.md` in the
+`selfsuvis` repository before changing it; when that change requires refactoring, define and review
+the reusable interface contracts before implementation; execute only the approved upstream work,
+then consume a release or immutable VCS revision through a narrow local adapter and record an
+integrate/defer decision.
+- Acceptance gates: The human approves the repository plan, interface contracts when applicable,
+and release or revision choice; a clean core and selected-extra install is portable and locked;
+behavioral fixtures and import-isolation checks pass; provenance, licence, and size/build records are
+complete. A documented deferral is a valid negative result and does not permit copy-paste.
+- Documentation target: `docs/impl/current/project-foundation.md`
+
+#### resolve-fl-op-reuse-integration
+
+Resolve the `fl-op` contract-registry, canonical-model, generation, fingerprint, and evolution reuse
+as an installable dependency seam or an explicit deferral.
+
+- Serves: `project-foundation` -- [Reuse map](../design/spec.md#reuse-map)
+- Agent status: HUMAN-GATED
+- Research: yes
+- Dependencies: `establish-domain-dependency-seams`; access to the pinned `fl-op` revision and human
+authorization for changes to its owning repository and package or revision publication.
+- User-visible outcome: A clean `arxiv-int` checkout can install only the approved reusable contract
+components without a sibling checkout or fleet, solver, and unused generator dependencies.
+- Scope boundary: Change `fl-op` only where a cohesive package boundary or additional shared
+contract behavior is required; do not copy its implementation, carry forward fleet-domain behavior,
+or publish an upstream release without authorization.
+- Data and artifact paths: `pyproject.toml`, `uv.lock`, `src/arxiv_int/adapters/`,
+`tests/dependencies/`, dependency and license inventories, and, when upstream work is required, the
+`fl-op` repository's `repo-plan.md`, interface contracts, packaging files, source, and tests.
+- Execution path: Inventory the pinned seam and its transitive/build costs; when installation or
+additional shared functionality requires an upstream change, create a focused `repo-plan.md` in the
+`fl-op` repository before changing it; when that change requires refactoring, define and review the
+reusable interface contracts before implementation; execute only the approved upstream work, then
+consume a release or immutable VCS revision through a narrow local adapter and record an
+integrate/defer decision.
+- Acceptance gates: The human approves the repository plan, interface contracts when applicable,
+and release or revision choice; a clean core and selected-extra install is portable and locked;
+behavioral fixtures and import-isolation checks pass; provenance, licence, and size/build records are
+complete. A documented deferral is a valid negative result and does not permit copy-paste.
+- Documentation target: `docs/impl/current/project-foundation.md`
+
+#### resolve-loc-lm-bench-reuse-integration
+
+Resolve the `loc-lm-bench` evaluation, provenance, retrieval, model-backend, and corpus-audit reuse
+as an installable dependency seam or an explicit deferral.
+
+- Serves: `project-foundation` -- [Reuse map](../design/spec.md#reuse-map)
+- Agent status: HUMAN-GATED
+- Research: yes
+- Dependencies: `establish-domain-dependency-seams`; access to the pinned `loc-lm-bench` revision
+and human authorization for changes to its owning repository and package or revision publication.
+- User-visible outcome: A clean `arxiv-int` checkout can install only the approved evaluation and
+provenance components without a sibling checkout or unrelated benchmark, model, and vector-store
+stacks.
+- Scope boundary: Change `loc-lm-bench` only where a cohesive package boundary or additional shared
+evaluation behavior is required; do not copy its implementation, import the full benchmark CLI, or
+publish an upstream release without authorization.
+- Data and artifact paths: `pyproject.toml`, `uv.lock`, `src/arxiv_int/adapters/`,
+`tests/dependencies/`, dependency and license inventories, and, when upstream work is required, the
+`loc-lm-bench` repository's `repo-plan.md`, interface contracts, packaging files, source, and tests.
+- Execution path: Inventory the pinned seam and its transitive/build costs; when installation or
+additional shared functionality requires an upstream change, create a focused `repo-plan.md` in the
+`loc-lm-bench` repository before changing it; when that change requires refactoring, define and
+review the reusable interface contracts before implementation; execute only the approved upstream
+work, then consume a release or immutable VCS revision through a narrow local adapter and record an
+integrate/defer decision.
+- Acceptance gates: The human approves the repository plan, interface contracts when applicable,
+and release or revision choice; a clean core and selected-extra install is portable and locked;
+behavioral fixtures and import-isolation checks pass; provenance, licence, and size/build records are
+complete. A documented deferral is a valid negative result and does not permit copy-paste.
+- Documentation target: `docs/impl/current/project-foundation.md`
 
 ### Corpus foundation -- `corpus-foundation`
 
 #### approve-representative-corpus-and-gold
 
 Select a legally usable, distribution-representative corpus slice and adjudicate the gold
-extraction, dedupe, Russian query, entity, fact, ontology, and report samples.
+extraction, classification, dedupe, Russian query, entity, fact, ontology, domain-artifact, and
+report samples.
 
 - Serves: `corpus-foundation` -- [Evaluation datasets](../design/spec.md#evaluation-datasets)
 - Agent status: BLOCKED BY HUMAN
 - Dependencies: Inventory summary from `implement-streaming-inventory`; draft fixture tooling from
 `create-evaluation-fixtures-and-metrics`.
 - User-visible outcome: Expensive model/store decisions are evaluated on the archive's real formats,
-languages, noise, and business questions rather than synthetic convenience data.
+languages, noise, and business questions rather than synthetic convenience data, and one approved
+read-only path is designated as `PROOF_ARCHIVE_DIR`.
 - Scope boundary: Human selects and reviews bounded samples and confirms permission to process them;
 no full-corpus authorization.
-- Data and artifact paths: Private approved archive slice, local review ledgers under
-`$RUNS_DIR/<run-id>/review/`, and frozen manifests without copied private text in Git.
+- Data and artifact paths: Private read-only `$PROOF_ARCHIVE_DIR`, approved representative slices,
+local review ledgers under `$RUNS_DIR/<run-id>/review/`, and frozen manifests without copied private
+text or machine-specific paths in Git.
 - Execution path: Produce stratified candidate manifests and draft labels; human reviews source
-spans, duplicate groups, queries, entities, facts, ontology constraints, equipment, and suppliers;
-seal tuning/final splits.
-- Acceptance gates: Coverage across major bytes/file types/languages and high-value questions is
-documented; reviewer decisions and disagreements are recorded; final split remains unopened for
-tuning.
+spans, file classes and exceptional outcomes, duplicate groups, queries, entities, facts, ontology
+constraints, design/BOM, equipment, suppliers, invoices, and payments; seal tuning/final splits.
+- Acceptance gates: Processing authorization and read-only proof path are explicit; coverage across
+major bytes/file types/languages and high-value questions is documented; reviewer decisions and
+disagreements are recorded; final split remains unopened for tuning.
 - Documentation target: `docs/impl/current/evaluation.md`
+
+### Archive classification -- `archive-classification`
+
+#### approve-classification-and-reorganization-policy
+
+Review the UDC-derived vocabulary, classification operating point, directory vocabulary, and one
+complete dry-run before any real archive reorganization.
+
+- Serves: `archive-classification` --
+[Hierarchical archive classification and optional reorganization](../design/spec.md#hierarchical-archive-classification-and-optional-reorganization)
+- Agent status: HUMAN-GATED
+- Dependencies: `prove-archive-classification-on-provided-archive`; final classification evaluation
+and current backup readiness.
+- User-visible outcome: The owner explicitly accepts which assignments may determine paths and can
+choose `apply`, revise thresholds/slugs, keep the mapping without moves, or stop.
+- Scope boundary: Approve one versioned policy and move plan; no automatic approval from confidence,
+no licence waiver, and no mutation of the archive during review.
+- Data and artifact paths: `configs/policy/classification.yaml`, vocabulary/licence manifest,
+classification evaluation, `$RUNS_DIR/<run-id>/archive-reorganization/move-plan.json`, dry-run diff,
+backup reference, and local decision ledger.
+- Execution path: Present class and ancestor errors, `unclassified`/`unreadable` samples, coverage,
+calibration, proposed ASCII paths, collisions/path lengths, move counts/bytes, source lookup,
+rollback drill, and UDC attribution; record the exact accepted fingerprints and decision.
+- Acceptance gates: Decision is `apply`, `mapping-only`, `revise`, or `stop`; `apply` names the exact
+classification and plan ids, archive root/device, backup, stop conditions, and responsible operator;
+stale or unapproved plans remain non-writable.
+- Documentation target: `docs/impl/current/archive-classification.md`
 
 ### Knowledge extraction -- `knowledge-extraction`
 
@@ -957,8 +1612,9 @@ how conflicts affect equipment and supplier reports.
 - Serves: `knowledge-extraction` --
 [Canonical object and fact model](../design/spec.md#canonical-object-and-fact-model)
 - Agent status: HUMAN-GATED
-- Dependencies: Per-type final metrics from `implement-provenance-bearing-fact-extraction` and
-conflict examples from `implement-fact-validation-conflict-and-review-overlays`.
+- Dependencies: `prove-knowledge-extraction-on-provided-archive`; per-type final metrics from
+`implement-provenance-bearing-fact-extraction` and conflict examples from
+`implement-fact-validation-conflict-and-review-overlays`.
 - User-visible outcome: Reports clearly distinguish evidence-backed accepted claims, uncertain
 proposals, conflicts, and exclusions according to an owner-approved risk policy.
 - Scope boundary: Human policy decision over measured types and thresholds; it does not alter source
@@ -981,8 +1637,9 @@ report meaning.
 - Serves: `identity-ontology-graph` --
 [Analysis, graph, and visualization behavior](../design/spec.md#analysis-graph-and-visualization-behavior)
 - Agent status: HUMAN-GATED
-- Dependencies: Held-out linkage curves from `implement-probabilistic-entity-resolution`; ontology
-review package from `establish-versioned-ontology-assets`.
+- Dependencies: `prove-identity-ontology-graph-on-provided-archive`; held-out linkage curves from
+`implement-probabilistic-entity-resolution`; ontology review package from
+`establish-versioned-ontology-assets`.
 - User-visible outcome: Auto-merge thresholds and ontology semantics reflect the owner's precision
 tolerance and domain meaning.
 - Scope boundary: Approve bounded policies and terms; no manual editing of source mentions or
@@ -996,18 +1653,47 @@ and ontology commits.
 draft; every accepted change has rollback/deprecation behavior.
 - Documentation target: `docs/impl/current/identity-ontology-graph.md`
 
+### Domain investigation artifacts -- `domain-investigation-artifacts`
+
+#### approve-domain-artifact-semantics-and-inclusion
+
+Review domain meanings and inclusion policies for relationship, BOM, supply-chain, invoice, and
+payment artifacts before they are presented as accepted investigation results.
+
+- Serves: `domain-investigation-artifacts` --
+[Domain investigation artifacts](../design/spec.md#domain-investigation-artifacts)
+- Agent status: HUMAN-GATED
+- Dependencies: `prove-domain-investigation-artifacts-on-provided-archive`; approved fact and
+identity/ontology policies; per-family final evaluation results.
+- User-visible outcome: Operators can distinguish evidence-backed `part-of`, supplier, invoiced,
+paid, partial, disputed, and unmatched states using domain-approved meanings.
+- Scope boundary: Approve measured semantics, inclusion states, and display language; do not repair
+source records, waive evidence requirements, or certify engineering, accounting, or legal truth.
+- Data and artifact paths: `configs/policy/domain-artifacts.yaml`, reviewed examples and metric
+bundles, `$RUNS_DIR/<run-id>/review/domain-artifacts/`, and local decision ledger.
+- Execution path: Present false relation examples, BOM quantity/unit conflicts, ambiguous party
+roles, invoice arithmetic, payment allocation candidates, coverage gaps, empty results, and graph
+labels; record per-family thresholds, allowed review states, warnings, and rollback.
+- Acceptance gates: Every enabled family has approved semantics and inclusion rules; weak families
+remain partial, review-only, or disabled; conflicts/unresolved links stay visible; policy version is
+present in each registry row and render.
+- Documentation target: `docs/impl/current/domain-investigation-artifacts.md`
+
 ### Discovery and visualization -- `discovery-visualization`
 
 #### accept-operator-discovery-workflows
 
 Validate that a domain operator can complete representative topic, search, object/fact, graph,
-equipment, and supplier workflows with understandable evidence and filters.
+equipment, supplier, BOM, supply-chain, and invoice/payment workflows with understandable evidence
+and filters.
 
 - Serves: `discovery-visualization` --
 [Analysis, graph, and visualization behavior](../design/spec.md#analysis-graph-and-visualization-behavior)
 - Agent status: HUMAN-GATED
 - Dependencies: `build-search-graph-and-report-interfaces`;
-`provision-local-dashboards-and-age-viewer`; approved fact and identity policies.
+`provision-local-dashboards-and-age-viewer`;
+`prove-discovery-and-visualization-on-provided-archive`; approved fact, identity, and
+domain-artifact policies.
 - User-visible outcome: The available interfaces answer the actual investigation questions without
 requiring knowledge of internal table layouts.
 - Scope boundary: Usability and domain correctness review on bounded tasks; not a public UI
@@ -1030,15 +1716,15 @@ archive and which optional profiles are included.
 - Serves: `evaluation-evidence` -- [Required acceptance gates](../design/spec.md#required-acceptance-gates)
 - Agent status: HUMAN-GATED
 - Dependencies: `run-representative-scale-pilots`; `implement-backup-restore-and-rebuild-runbook`;
-approved discovery, fact, identity, and ontology policies.
+approved discovery, classification, fact, identity, ontology, and domain-artifact policies.
 - User-visible outcome: The multi-terabyte run begins with an explicit disk/time/risk budget and
 selected lexical/vector/graph/model profiles, or is intentionally limited.
 - Scope boundary: Authorization only; it does not weaken safety margins or imply cloud/HA scope.
 - Data and artifact paths: Pilot capacity report, immutable profile ids, backup location,
 `$RUNS_DIR/<run-id>/authorization/decision.yaml`.
-- Execution path: Review forecast ranges, free space, expected duration, unsupported bytes,
-energy/review costs, recovery time, and negative-result alternatives; record authorize-next,
-resize/reconfigure, subset-only, or stop.
+- Execution path: Review forecast ranges, free space, expected duration, classification exceptions,
+unsupported bytes, domain-artifact coverage, energy/review costs, recovery time, and negative-result
+alternatives; record authorize-next, resize/reconfigure, subset-only, or stop.
 - Acceptance gates: Decision names exact profile/contract/code pins, paths, minimum free-space
 margin, stop conditions, backup, and responsible operator; an unapproved or stale pilot cannot
 launch full scope.
@@ -1056,15 +1742,15 @@ removable-disk procedures before treating the system as the archive's working kn
 - Agent status: HUMAN-GATED
 - Dependencies: `harden-local-security-and-no-egress-mode`;
 `implement-backup-restore-and-rebuild-runbook`; `test-failure-and-capacity-boundaries`.
-- User-visible outcome: The owner knows what is backed up, what is rebuildable, how long recovery
-takes, and which local risks remain accepted.
+- User-visible outcome: The owner knows what is backed up, what is rebuildable, how moved sources are
+located or restored, how long recovery takes, and which local risks remain accepted.
 - Scope boundary: Owner acceptance of the documented single-host posture; not a certification of
 high availability, enterprise support, or physical security.
 - Data and artifact paths: Recovery report, security checklist, backup inventory, retention policy,
 and local acceptance decision.
-- Execution path: Observe restore and sampled query parity; review ports, roles, mounts, secrets,
-model/image provenance, backup separation, retention, and emergency stop/restart commands; record
-residual risks.
+- Execution path: Observe restore, source lookup, artifact registry, and sampled query parity;
+review ports, roles, mounts, reorganization authorization, secrets, model/image provenance, backup
+separation, retention, and emergency stop/restart commands; record residual risks.
 - Acceptance gates: Restore evidence and residual-risk list are signed off or rejected; rejected
 items return to the owning capability; Community ParadeDB HA limitations remain explicit.
 - Documentation target: `docs/impl/current/operations.md`

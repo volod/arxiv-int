@@ -6,10 +6,12 @@
 Russian-language document archives. Its Python distribution and import package are both `arxiv-int`
 / `arxiv_int`. The system inventories and normalizes an immutable archive, builds reproducible
 lexical and selected semantic indexes, discovers topics, extracts and resolves entities and facts,
-projects a knowledge graph, and supports local search, analysis, and visualization without requiring
-document or prompt egress.
+classifies source files in a UDC-derived hierarchy, projects a knowledge graph and evidence-backed
+domain artifacts, and supports local search, analysis, and visualization without requiring document
+or prompt egress. An explicit, separately authorized maintenance command can reorganize physical
+archive paths after classification while preserving an auditable original-to-current path map.
 
-The target workstation has approximately 128 GB RAM and 16 GB GPU VRAM. Speed is secondary to
+The target workstation typically has about 128GB of RAM and 16GB of GPU VRAM. Speed is secondary to
 quality, but every expensive result must be resumable, attributable, and independently rebuildable.
 
 This specification is living. Product behavior, boundaries, and evaluation belong here. Remaining
@@ -32,6 +34,7 @@ still be refreshed and compatibility-tested before the first lock is committed.
 | [Apache AGE](https://github.com/apache/age/tree/0e30566226f017d53b7f52025803b38af3ad2b3f)                     | `0e30566`; README advertises AGE 1.8.0 and PostgreSQL 11-18 | AGE is feasible on the same PostgreSQL major, but the ParadeDB combination is not listed as an upstream-tested extension set and needs a project-owned image and compatibility gate.         |
 | [pgvector](https://github.com/pgvector/pgvector/tree/e48241b4dcc045b18902914f668d03d1d399dfbe)                | `e48241b`; README install pin `0.8.6`                       | Stable exact, HNSW, IVFFlat, half-vector, binary-quantization, and iterative-scan baseline; large HNSW builds remain memory and maintenance intensive.                                       |
 | [ODCS](https://github.com/bitol-io/open-data-contract-standard/tree/f5bfbb813fe2c0551e2c324913f330e7807885d8) | `f5bfbb8`; standard `3.1.0`                                 | ODCS is the human and machine-readable contract source of truth; its custom properties carry project generation hints that the standard does not define.                                     |
+| [UDC Consortium](https://udcc.org/index.php/site/page?view=about_structure) and [UDC overview](https://en.wikipedia.org/wiki/Universal_Decimal_Classification) | Web references inspected 2026-09-04                        | UDC supplies a faceted, syntactically expressive hierarchy; the project must pin an authorized vocabulary snapshot and keep local outcomes/extensions distinguishable from official notation. |
 
 Additional current upstream facts used by the decision:
 
@@ -67,6 +70,12 @@ Additional current upstream facts used by the decision:
   structured output. See [Linux service setup](https://docs.ollama.com/linux),
   [embeddings](https://docs.ollama.com/api/embed), and
   [structured outputs](https://docs.ollama.com/capabilities/structured-outputs).
+- UDC notation is hierarchical and faceted: longer simple notations express narrower concepts, and
+  auxiliaries or connecting signs represent language, form, place, time, and relationships. The
+  freely reusable UDC Summary contains about 2,600 classes under CC BY-SA 3.0; software use of the
+  complete Master Reference File requires the applicable UDC Consortium licence. See the
+  [UDC Summary](https://udcc.org/udcsummary/php/index.php?lang=en&tag=--) and
+  [UDC licence terms](https://udcc.org/index.php/site/page?view=licences).
 
 ## Design principles
 
@@ -98,6 +107,10 @@ The governing principles are:
 7. **Long runs are restartable.** Work is sharded, journaled, idempotent, and committed atomically.
 8. **Adopt on measured evidence.** Search, vector, graph, model, and extraction choices are promoted
    only when representative held-out evaluations justify their cost.
+9. **Source identity outlives location.** Content identity and captured evidence never depend on a
+   file remaining at one path; every authorized physical move is precomputed and recorded.
+10. **Usable stages prove themselves on archive data.** A stage group is not complete when only
+    fixtures pass; it must publish a validated proof bundle from the operator-provided test archive.
 
 ## Scope
 
@@ -107,15 +120,23 @@ The first production-shaped release includes:
   exact deduplication, and quarantines;
 - text and metadata extraction from common office, text, email, archive, image, and PDF formats,
   with OCR/layout lanes selected by policy;
+- versioned, multi-label hierarchical source classification derived from UDC, including explicit
+  `unclassified` and `unreadable` outcomes, plus a separately authorized archive-reorganization
+  command with a reversible path ledger;
 - normalized partitioned Parquet datasets and optional Avro object containers;
 - Russian-aware BM25 search, metadata filters, snippets, and hybrid retrieval;
 - selective multilingual embeddings, reranking, and local RAG;
 - topic discovery, entity mentions, entity resolution, provenance-bearing fact extraction, ontology
   assets, and graph projection;
+- registered relationship, bill-of-materials, supply-chain, and invoice/payment investigation
+  artifacts when the archive contains sufficient evidence;
 - PostgreSQL/ParadeDB as the canonical service; optional AGE, AGE Viewer, Grafana, and vLLM
   profiles;
 - a typed Python CLI, standardized Make targets, Docker Compose, `.env.example`, progress logs, run
   manifests, and operator reports;
+- content- and implementation-aware incremental updates, targeted invalidation, safe stale-artifact
+  pruning, full rebuild generations, and a pre-run time/storage/free-space forecast;
+- read-only proof runs over an operator-provided test archive after each usable pipeline stage group;
 - deterministic unit/contract/integration tests plus representative corpus evaluations.
 
 The initial release does not promise:
@@ -125,7 +146,10 @@ The initial release does not promise:
 - automatic acceptance of LLM-generated facts or ontology axioms as truth;
 - full Neo4j Graph Data Science parity, OpenSearch cluster parity, or Qdrant billion-vector parity;
 - automatic destructive schema migration;
+- unattended or confidence-only movement of source files;
 - lossless extraction from every proprietary, corrupt, encrypted, or handwriting-heavy document;
+- certification that generated bills of materials, supply chains, invoices, or payment links are
+  complete accounting, engineering, or legal truth;
 - remote model APIs, hosted telemetry, or cloud object storage.
 
 ## Architecture decision
@@ -274,6 +298,7 @@ Required or prominent variables:
 | Variable                                                | Purpose                                              | Default policy                                                 |
 | ------------------------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------- |
 | `ARCHIVE_DIR`                                           | Immutable input tree; bind-mounted read-only         | Required for corpus stages                                     |
+| `PROOF_ARCHIVE_DIR`                                     | Operator-provided read-only archive for proof runs   | Required only by provided-archive proof tasks                   |
 | `NORMALIZED_DIR`                                        | Parquet, Avro, extracted text, quarantine, manifests | Required; must not be inside source tree by accident           |
 | `PGDATA_DIR`                                            | PostgreSQL data directory on fast local SSD/NVMe     | Required for services                                          |
 | `RUNS_DIR`                                              | Run journals, logs, reports, checkpoints             | `${NORMALIZED_DIR}/runs`                                       |
@@ -291,6 +316,16 @@ Path preflight must resolve symlinks, prove source and destinations are distinct
 mount is readable, verify outputs are writable, record filesystem/device identifiers, estimate free
 space, and refuse dangerous roots such as `/`. Docker receives absolute bind-mount sources, even
 when `.env` contains paths relative to the project root.
+
+`PROOF_ARCHIVE_DIR` is never committed as a machine-specific value and may not overlap generated
+proof data. Proof tasks retain source manifests and hashes, not corpus contents, in repository
+documentation. A bounded disposable copy under the configured data root may be used for addition,
+modification, and removal drills; the provided archive itself remains read-only.
+
+`ARCHIVE_DIR` remains read-only for analysis. The archive-reorganization command is the sole
+exception: it takes an explicit archive root, runs outside the read-only service mounts, defaults to
+dry-run, and requires `--apply` plus the accepted classification and move-plan ids before requesting
+write access.
 
 ## Docker and local-service topology
 
@@ -394,9 +429,11 @@ normalized/
   documents/contract_version=.../bucket=ab/*.parquet
   spans/contract_version=.../bucket=ab/*.parquet
   chunks/chunker_id=.../bucket=ab/*.parquet
+  classifications/scheme_id=.../bucket=ab/*.parquet
   mentions/extractor_id=.../bucket=ab/*.parquet
   facts/extractor_id=.../bucket=ab/*.parquet
   embeddings/profile_id=.../bucket=ab/*.parquet
+  domain-artifacts/type=.../artifact_id=.../
   quarantine/reason=.../
   runs/<run-id>/
 ```
@@ -407,16 +444,21 @@ resolution or row transport is useful. Extracted large text can be stored as com
 large strings or content-addressed compressed blobs referenced from rows; the pilot decides which
 layout provides acceptable scan and repair behavior.
 
+Dataset manifests bind every partition to an output generation. Incremental updates may reuse
+unchanged content-addressed partitions, while replacements and from-scratch rebuilds are written to
+generation-specific staging/published paths and activated only after validation. A path shown above
+is therefore a logical dataset layout, not permission to overwrite a currently active partition.
+
 ### PostgreSQL schemas
 
-| Schema     | Canonical contents                                                                                   |
-| ---------- | ---------------------------------------------------------------------------------------------------- |
-| `ctl`      | Contract versions, migrations, runs, stages, shards, leases, checkpoints, errors, artifact manifests |
-| `corpus`   | Documents, editions, source paths, spans, chunks, language, quality, duplicate groups                |
-| `search`   | Search projection rows, embedding profiles, selected embeddings, topic assignments                   |
-| `kg`       | Canonical objects, aliases, mentions, facts, qualifiers, review state, source evidence               |
-| `ontology` | Terms, classes, predicates, mappings, axioms, ontology versions                                      |
-| `eval`     | Frozen gold items, query sets, labels, run metrics, paired comparisons                               |
+| Schema     | Canonical contents                                                                                      |
+| ---------- | ------------------------------------------------------------------------------------------------------- |
+| `ctl`      | Contracts, migrations, runs, forecasts, shards, leases, checkpoints, errors, artifact lineage/registry |
+| `corpus`   | Documents, editions, path events, spans, chunks, language, quality, duplicate and classification data   |
+| `search`   | Search projection rows, embedding profiles, selected embeddings, topic assignments                      |
+| `kg`       | Canonical objects, aliases, mentions, facts, qualifiers, review state, source evidence                  |
+| `ontology` | Terms, classes, predicates, mappings, axioms, ontology versions                                         |
+| `eval`     | Frozen gold items, query sets, labels, run metrics, paired comparisons                                  |
 
 Large tables are declaratively partitioned by a stable hash bucket and, where useful, corpus or
 contract version. Partitions must be large enough to avoid catalog explosion. Text and vector
@@ -489,6 +531,7 @@ orchestrator.
 | `normalize`    | UTF-8, Unicode normalization, boilerplate policy, language, metadata        | Canonical document records    |
 | `dedupe`       | Exact, normalized, lexical/MinHash, edition groups; no destructive deletion | Duplicate overlays            |
 | `chunk`        | Structure/table/sentence-aware chunks with overlap and source spans         | Chunk Parquet                 |
+| `classify`     | UDC-derived multi-label assignment, primary class, exceptional outcomes    | File-classification map       |
 | `load-lexical` | PostgreSQL bulk load and ParadeDB index build/refresh                       | Lexical search projection     |
 | `nlp`          | Russian morphology, NER, terminology, mention candidates                    | Mentions and term statistics  |
 | `embed`        | Selective embeddings and optional reranker candidates                       | Versioned embedding artifacts |
@@ -498,10 +541,73 @@ orchestrator.
 | `facts`        | Rule/model/LLM structured extraction, validation, conflicts                 | Proposed facts with evidence  |
 | `ontology`     | Vocabulary, class/predicate mappings, SHACL/OWL-compatible checks           | Versioned ontology assets     |
 | `graph`        | Build and validate AGE projection                                           | Active versioned graph        |
+| `domain-artifacts` | Relationship, BOM, supply-chain, and invoice/payment projections        | Registered investigation artifacts |
 | `evaluate`     | Retrieval, extraction, linkage, graph, cost, and resource metrics           | Immutable evaluation bundle   |
-| `report`       | Coverage, failures, topics, objects, facts, equipment/suppliers             | HTML/JSON/Parquet reports     |
+| `report`       | Coverage, failures, topics, objects, facts, registered domain artifacts     | HTML/JSON/Parquet reports     |
 
 The end-to-end command runs the dependency closure, not a hardcoded shell chain.
+
+## Hierarchical archive classification and optional reorganization
+
+Operators need a navigable subject view of source silos without losing ambiguous material or the
+path from a derived claim back to its original file. The `classify` stage assigns every inventoried
+physical file a versioned result from a hierarchy derived from Universal Decimal Classification
+(UDC). It is multi-label because UDC can express several subjects and facets, while one declared
+primary simple class and its ancestors determine a possible physical filing path. Compound UDC
+expressions, auxiliary facets, alternate candidates, captions, scores, evidence, classifier
+identity, vocabulary version, and review state remain in the mapping artifact rather than being
+encoded completely into directory names.
+
+The vocabulary source is explicit and checksummed. The CC BY-SA UDC Summary is the distributable
+baseline; an operator may configure a licensed MRF or authorized service snapshot for deeper
+coverage. Locally required subdivisions use a separate project namespace and parent link and never
+masquerade as official UDC codes. Two project outcomes are mandatory and are not UDC notations:
+
+- `unclassified`: usable content exists, but no supported class clears the acceptance threshold or
+  the material is random/non-substantive;
+- `unreadable`: no usable content could be obtained because the input is inaccessible, encrypted,
+  corrupt, unsupported, or an unknown/binary format for which extraction failed.
+
+Every file-classification row contains the stable inventory id, content/document id when readable,
+original relative path, primary and alternate class ids, ancestor chain, confidence and calibration
+profile, decisive source spans or failure reason, extraction/classifier/configuration fingerprints,
+and run id.
+Low-confidence cases remain `unclassified`; unreadability is determined from recorded inventory and
+extraction outcomes, not guessed from filename extensions. A valid negative result is a complete
+mapping with a high exceptional-outcome rate and a recommendation to improve extraction or labels;
+the pipeline must not force ordinary UDC assignments to improve coverage.
+
+`arxiv-int archive reorganize` is a separate maintenance command, not an ordinary pipeline stage.
+It consumes one accepted, complete classification artifact and produces a deterministic move plan.
+Dry-run is the default; `--apply --plan PLAN_ID` requires explicit operator authorization, a
+writable archive, and revalidation of every source path, available content hash, destination,
+free-space/device condition, and classification fingerprint. Entries lacking the permissions or
+strong hash needed for a safe move remain explicitly blocked. The normal pipeline and all containers
+continue to mount the archive read-only.
+
+Physical directories follow the primary class's ancestor path. Each segment combines a reversible
+safe class token with a short meaningful ASCII slug, is capped at a configured byte length, and is
+checked together with the full destination against filesystem component and path limits. Dedicated
+ASCII directories such as `_unclassified` and `_unreadable` hold exceptional outcomes that can be
+safely moved. Complex facets and secondary classes stay in metadata. The command never overwrites a
+destination, never follows a link outside the selected root, never moves virtual members
+independently of their container, and refuses stale, colliding, cross-device, overlong, or
+incompletely accounted plans.
+
+Before the first move, the command seals an append-only move ledger containing inventory and
+document/content ids, original and proposed destination relative paths, action order, available
+hashes, classification and plan ids, moved/blocked status, and rollback information. It journals
+each atomic same-filesystem rename and can resume or reverse only operations proven by that ledger.
+Original provenance is never rewritten to contain only the new path. The
+`arxiv-int archive locate DOCUMENT_ID` command resolves the initial, run-time, and current known
+locations through path events, so later knowledge artifacts continue to find their sources.
+
+Evaluation uses a frozen, stratified file set with expert primary/alternate labels and expected
+unclassified/unreadable outcomes. It reports exact and ancestor-aware precision/recall, hierarchical
+distance, calibration/selective coverage, exceptional-outcome confusion, reproducibility, and cost.
+Move fixtures prove byte-identical contents, one-to-one path accounting, collision refusal,
+interruption/resume, rollback, and source lookup. No real archive move is accepted without review of
+the mapping, thresholds, directory vocabulary, dry-run diff, and backup/recovery readiness.
 
 ## Russian-language and document analysis
 
@@ -559,10 +665,18 @@ arxiv-int doctor
 arxiv-int config show --redact
 arxiv-int contracts lint|generate|diff|check|test
 arxiv-int services status
+arxiv-int pipeline forecast --archive-dir PATH [--from STAGE] [--to STAGE]
 arxiv-int pipeline run --archive-dir PATH --normalized-dir PATH [--from STAGE] [--to STAGE]
+arxiv-int pipeline update --archive-dir PATH [--from STAGE] [--to STAGE]
+arxiv-int pipeline rebuild --archive-dir PATH [--from STAGE] [--to STAGE]
+arxiv-int pipeline invalidate STAGE [--document-id ID]
 arxiv-int stage STAGE --archive-dir PATH --normalized-dir PATH [stage options]
+arxiv-int artifacts prune --stale [--apply --plan PLAN_ID]
+arxiv-int archive reorganize --classification ID [--apply --plan PLAN_ID]
+arxiv-int archive locate DOCUMENT_ID
 arxiv-int run status RUN_ID
 arxiv-int run resume RUN_ID
+arxiv-int run artifacts RUN_ID
 arxiv-int search lexical|semantic|hybrid QUERY
 arxiv-int graph rebuild|check|query
 arxiv-int report build RUN_ID
@@ -574,7 +688,8 @@ Standard Make targets are thin, documented wrappers:
 make help                  make bootstrap             make doctor
 make config                make contracts             make contracts-gen
 make contracts-evolution  make services-up           make services-down
-make services-status      make logs                   make pipeline
+make services-status      make logs                   make forecast
+make pipeline              make update                 make proof CAPABILITY=...
 make stage STAGE=...       make resume RUN_ID=...     make search QUERY=...
 make graph-up              make ui-up                  make eval
 make test                  make integration-test      make ci
@@ -596,25 +711,60 @@ the run manifest. Make never embeds machine-specific absolute paths.
 
 ## Resumability, idempotency, and provenance
 
-A run id identifies an immutable requested configuration. Each stage is divided into stable shards
-derived from content hashes or partition buckets. `ctl.run`, `ctl.stage_run`, and `ctl.shard_run`
-record states such as `pending`, `running`, `succeeded`, `failed`, `quarantined`, and `superseded`.
+A run id identifies an immutable requested configuration and one output generation. Each stage is
+divided into stable shards derived from content hashes or partition buckets. `ctl.run`,
+`ctl.stage_run`, `ctl.shard_run`, and the artifact lineage graph record states such as `pending`,
+`running`, `succeeded`, `failed`, `quarantined`, `superseded`, `stale`, and `pruned`.
 
 A shard identity includes:
 
 - ordered input artifact hashes and upstream manifest ids;
-- contract, schema, code, tool, model, prompt, and configuration fingerprints;
+- contract, schema, stage-owned code, dependency, tool, model, prompt, and configuration
+  fingerprints;
 - stage name/version and deterministic parameters;
 - output manifest and row/file checksums.
 
-Successful identical shards are reused. Failed or expired leases are resumable. Outputs are written
-to temporary sibling paths, validated, then atomically renamed; database loads use staging tables
-and transactions. Retries are bounded and classify permanent versus transient failures. `--force`
-creates a new attempt but does not overwrite accepted evidence. `--invalidate STAGE` shows the
-downstream closure and requires confirmation before marking reusable artifacts stale.
+Before scheduling work, the planner resolves every requested output to its complete transitive input
+fingerprint. A successful shard from any compatible run is a cache hit only when that fingerprint
+matches, it is not stale or pruned, and its manifest, files, row counts, and checksums still validate.
+Cache hits are recorded without loading the heavy model or executing the stage. Concurrent requests
+for one reuse key share a lease rather than duplicating work. Failed or expired leases are resumable.
+Outputs are written to temporary sibling paths, validated, then atomically renamed; database loads
+use staging tables and transactions.
+Retries are bounded and classify permanent versus transient failures. `--force` creates a new
+attempt but does not overwrite accepted evidence.
 
-The archive is never modified. Duplicate resolution, suppression, entity merges, and fact review are
-overlays with audit trails and rollback.
+`pipeline update` inventories the current archive against the last selected source manifest and
+creates an explicit delta of added, content-changed, path-only-renamed, and removed files. New or
+changed content invalidates only its owning shards and their downstream lineage closure. A path-only
+rename updates path events without repeating content analysis. Removed content creates tombstones;
+active normalized datasets, indexes, entity/fact evidence sets, graphs, and reports retract rows or
+edges reachable only from removed/superseded inputs, while immutable audit and review events remain.
+Shared content and facts supported by other active evidence are retained.
+
+Implementation, dependency, contract, model, prompt, or configuration changes invalidate the
+smallest stage-owned fingerprint boundary and all downstream artifacts that consumed it. Unrelated
+repository or documentation changes do not invalidate results. `pipeline invalidate` prints the
+affected shards, descendants, bytes, and recomputation estimate before recording a logical stale
+transition. The next update builds replacements and switches active generation pointers only after
+validation.
+
+Physical removal is separate from logical invalidation. `artifacts prune --stale` defaults to a
+dry-run plan and may delete only superseded derived files and database partitions that have no active,
+pinned, review, rollback, or backup reference. `--apply --plan PLAN_ID` records a prune event and
+retains compact manifests, lineage, checksums, and tombstones. It never deletes source archive files,
+move ledgers, current outputs, or the sole recovery copy.
+
+`pipeline rebuild` creates a fresh generation without cache reuse for the selected dependency
+closure. It never clears the current generation first; the rebuilt generation becomes active only
+after contract, count, checksum, and query validation, after which the prior generation is eligible
+for the same explicit prune policy. This supplies a true from-scratch path without sacrificing
+rollback evidence.
+
+Pipeline stages never modify the archive. The separately authorized archive-reorganization command
+is the only exception and records every rename in the sealed move ledger before execution. Duplicate
+resolution, suppression, entity merges, and fact review remain overlays with audit trails and
+rollback.
 
 ## Logging, progress, and observability
 
@@ -658,12 +808,37 @@ Operational rules:
 - use one GPU-heavy process at a time on 16 GB VRAM; CPU workers remain memory-bounded;
 - keep at least one unindexed rebuild copy of normalized artifacts on an independent path or backup.
 
-No fixed multiplier is universally safe. The preflight estimator must calculate a corpus-specific
-budget for normalized data, PostgreSQL heap, ParadeDB covering index, vector index, AGE projection,
-WAL, temporary build space, and backup. The initial planning envelope is **2.5-4.0 times the
-normalized indexed subset in addition to the raw archive**, and a full run is refused until the
-pilot replaces that envelope with measured amplification and a safety margin. Concurrent index
-rebuild may temporarily require a second full index.
+### Pre-run forecast and resource refusal
+
+`arxiv-int pipeline forecast` is a read-only prerequisite for a new or materially changed run. It
+combines the current inventory/delta, cache-hit plan, format mix, configured stages and profiles,
+sample measurements, and comparable prior run telemetry. It prints and writes JSON containing, per
+stage and target filesystem:
+
+- input files/bytes and added, changed, renamed, removed, cached, and recomputed shard counts;
+- expected output bytes as a range for normalized data, database heap, indexes, vectors, graph,
+  registered artifacts, logs, and backups;
+- peak temporary, WAL, staging, rebuild, and rollback space, without double-counting paths on the
+  same filesystem device;
+- expected wall-clock time as a range, critical path, CPU/GPU/RAM assumptions, and heavy model loads;
+- currently accessible free bytes, configured reserve, required headroom, confidence, and the sample
+  or prior-run evidence behind every coefficient;
+- a per-stage decision of `ready`, `degraded`, `blocked`, or `unknown` with corrective actions.
+
+No fixed multiplier is universally safe. With no comparable evidence, the forecast uses conservative
+declared bounds and marks confidence low; it never invents a precise duration. The initial planning
+envelope is **2.5-4.0 times the normalized indexed subset in addition to the raw archive**, and a
+full run is refused until a pilot replaces that envelope with measured amplification and a safety
+margin. Concurrent index rebuild may temporarily require a second full index.
+
+The command resolves device ids and checks read/write accessibility plus actual free space for
+`NORMALIZED_DIR`, `PGDATA_DIR`, `RUNS_DIR`, `TMP_DIR`, model cache, backup, and any configured export
+path. It exits non-zero before work when a requested stage's upper-bound peak plus safety reserve does
+not fit. The orchestrator requires a current forecast fingerprint and rechecks free space immediately
+before every large materialization, bulk load, index build, embedding batch, graph build, render,
+backup, and rebuild switch. Falling below the hard reserve checkpoints cleanly and blocks the next
+allocation rather than waiting for an out-of-space failure. An `unknown` estimate for a large stage
+requires a bounded pilot or an explicitly smaller scope, not a silent override.
 
 The first scale gate uses at least a representative 0.1-1% or 50-200 GB slice, whichever captures
 the file-format and language distribution. A second gate uses a larger partition before full-corpus
@@ -695,6 +870,53 @@ Visualization uses:
 
 All graph/UI queries have result, depth, time, and text-size limits.
 
+## Domain investigation artifacts
+
+Generic objects and facts are not sufficient for an operator investigating technical design and
+commercial records. When supported evidence exists, the pipeline produces the following named,
+versioned artifact families from canonical objects and facts:
+
+- `relationship-map`: typed relationships among designs, documents, revisions, people,
+  organizations, equipment, materials, contracts, and events;
+- `bill-of-materials`: assembly/component/material hierarchies with part numbers, quantities,
+  units, alternatives, revision/effectivity, and unresolved references;
+- `supply-chain`: supplier, manufacturer, customer, location, order, shipment, invoice, and payment
+  relationships, including direction, time, and status where the source states them;
+- `invoice-payment`: invoice lines and totals, currencies, due dates, payment events, allocations,
+  and evidence-backed matched, partial, duplicate, disputed, or unmatched states.
+
+Each family has a contracted tabular/JSON representation and a bounded graphical representation.
+Bills of materials render assembly trees or part-of subgraphs; supply-chain and invoice/payment
+artifacts render directed networks or flows; the general relationship artifact renders a filtered
+evidence graph. Portable outputs include Parquet/JSON plus GraphML and self-contained HTML or SVG.
+The renderer selection follows the dependency policy and must not pull a GPU/ML or large browser/UI
+stack into the core installation merely to draw bounded graphs.
+
+These artifacts are derived investigation views, not new truth stores. Every node, edge, table row,
+amount, quantity, and reconciliation state resolves to canonical fact ids and exact source evidence,
+and displays confidence, review state, inclusion policy, and conflicts. Arithmetic checks preserve
+source currency and units; conversions require an explicit rate and source. A referenced component
+does not become a `part-of` fact, an invoice does not prove delivery, and an invoice/payment amount
+or date resemblance does not prove settlement. The system does not infer missing ownership,
+liability, sanctions status, engineering completeness, or accounting correctness.
+
+Every run that reaches the `domain-artifacts` stage writes an artifact registry in `ctl.artifact` and
+`$RUNS_DIR/<run-id>/artifacts/registry.{json,parquet}`. A registry row contains artifact id and type,
+schema/version, generator/configuration/policy fingerprints, input fact and identity snapshots,
+review-state inclusion rules, URI or relative path, media type, byte/count/checksum summaries,
+evidence-coverage statistics, creation status, and failure reason. Allowed creation statuses include
+`produced`, `partial`, `empty`, and `failed`; `empty` is the valid negative result when the run found
+no qualifying evidence. Registry publication is atomic, and a failed artifact never appears as a
+successful run result.
+
+Evaluation uses reviewed design, assembly, procurement, invoice, and payment fixtures. It measures
+typed relation and edge precision/recall, BOM parent/child and quantity/unit accuracy, invoice total
+arithmetic, payment-allocation accuracy, unresolved/conflict coverage, graph-to-table parity,
+evidence-link validity, deterministic rendering, and registry completeness. Acceptance is per
+artifact family; a weak family remains `partial` or disabled without blocking useful families.
+Human approval defines high-impact inclusion states and confirms that labels such as `paid`,
+`supplier`, and `part-of` match the archive's domain meaning.
+
 ## Reuse map
 
 | Source         | Reuse                                                                                                                                                                                                                             | Do not carry forward                                                                                               |
@@ -705,9 +927,25 @@ All graph/UI queries have result, depth, time, and text-size limits.
 | `loc-lm-bench` | Citation-preserving ingestion where applicable, conflict/dedup audit, Splink linkage seam, retrieval metrics and paired verdicts, local backend abstraction, model fit/VRAM telemetry, ontology/fact gates, immutable run bundles | Ukrainian-only defaults, robotics lanes, FAISS as production store, the full benchmark CLI inside the core package |
 | Upstream OSS   | Tika, Docling, OCRmyPDF/Tesseract, PyArrow, DuckDB, Data Contract CLI, ParadeDB, pgvector, AGE, rdflib/pySHACL, Ollama/vLLM                                                                                                       | Thin local rewrites of their core engines                                                                          |
 
-Reuse is by dependency or a small, attributed extraction at a stable seam. Copying an entire
-application into `arxiv_int` is not reuse. License notices and behavioral tests accompany copied MIT
-code.
+Reuse from `volod/*` and other repositories is dependency-first. Prefer a released package pinned by
+version; a commit-pinned VCS package is acceptable while a release is being established. Upstream
+repositories must expose cohesive importable modules and optional dependency groups so `arxiv-int`
+can install only the reused seam. Portable locks must not rely on sibling checkout paths.
+
+Before adding a dependency, record its license, maintainer/revision, reused API, transitive packages,
+wheel/download and installed sizes, native-build requirements, and the pipeline extras that activate
+it. PyTorch, CUDA toolchains, model runtimes, graph/UI stacks, and similarly heavy packages never
+enter the core dependency closure unless the core actually executes them. A heavy upstream package
+must first split or expose a lightweight subpackage/extra; otherwise the integration remains deferred.
+
+If a useful seam is not installable, first prepare the reasonable module boundary and packaging
+change in its owning repository, then consume it here. A narrow local adapter around a stable public
+API is preferred to copied implementation. Copying source is the last resort, limited to a small
+attributed extraction whose dependency form is technically or legally unavailable; copying an
+entire application or maintaining parallel implementations is not reuse. Lock, import-isolation,
+clean-install, size, license, and behavioral-equivalence tests evaluate every decision. A valid
+negative result is to defer reuse and keep an existing local seam when packaging it would introduce
+unused heavy dependencies or an unstable API.
 
 ## Evaluation and acceptance
 
@@ -716,6 +954,8 @@ code.
 Before store or model promotion, freeze a representative corpus manifest and reviewable gold sets:
 
 - file-format/extraction set with expected text, tables, page/offset anchors, and failures;
+- hierarchical file labels with primary/alternate paths and expected `unclassified`/`unreadable`
+  outcomes;
 - Russian lexical query set including inflection, identifiers, abbreviations, OCR noise, e/yo
   variants,
   keyboard-layout mistakes, and mixed-language queries;
@@ -724,10 +964,48 @@ Before store or model promotion, freeze a representative corpus manifest and rev
 - entity and relation/fact extraction set by high-value type;
 - ontology constraint and contradiction cases;
 - graph path/query answers checked against relational SQL;
-- equipment and supplier report cases with evidence and completeness review.
+- equipment and supplier report cases with evidence and completeness review;
+- design relationship, BOM, supply-chain, invoice, and payment cases with reviewed edges,
+  quantities, units, totals, allocations, conflicts, and valid empty results.
 
 Gold creation and threshold setting use separate tuning and final partitions. LLM-drafted items do
 not become scoring truth without review.
+
+### Provided-archive proof runs
+
+`PROOF_ARCHIVE_DIR` is the operator-provided file-silo archive used for integration proof. After the
+required implementation tasks for each artifact-producing capability group, a final `RUN NEEDED`
+task executes every then-usable stage in that group against this archive. A later behavior change
+that alters a stage or its inputs must regenerate the impacted proof before that change is complete;
+an older bundle remains historical evidence but is marked stale by fingerprint.
+
+| Capability group | Proof scope |
+| --- | --- |
+| `corpus-foundation` | `inventory`, `extract`, `normalize`, `dedupe`, and `chunk` artifacts |
+| `pipeline-control` | forecast, cache hit, resume, delta update, invalidation, rebuild, and prune planning |
+| `archive-classification` | classification mapping and archive-reorganization dry-run/lookup |
+| `lexical-retrieval` | lexical load, index manifest, queries, filters, and source citations |
+| `semantic-retrieval` | selected embeddings/vector load and paired verdict, when the branch is usable |
+| `russian-nlp` | language, morphology, terminology, and mention artifacts |
+| `knowledge-extraction` | proposed facts, validation, conflicts, and evidence links |
+| `identity-ontology-graph` | clusters, ontology validation, graph/fallback exports, and parity checks |
+| `domain-investigation-artifacts` | relationship, BOM, supply-chain, invoice/payment, and registry outputs |
+| `discovery-visualization` | topics, search/report scenarios, exports, and configured local views |
+| `evaluation-evidence` | `evaluate`, `report`, and an end-to-end proof index over all prior bundles |
+
+Each task first runs the forecast and refuses a blocked scope. It records a proof bundle under
+`$RUNS_DIR/proofs/<capability-id>/<proof-id>/` containing the redacted command/configuration,
+source-manifest hash, code/contract/dependency/model fingerprints, forecast, stage and shard ledger,
+artifact registry with checksums, validator results, errors/quarantines, resource/timing metrics, and
+an overall verdict. The proof reruns the unchanged scope and demonstrates that heavy stages are cache
+hits. Incremental-control proof uses a bounded disposable copy or overlay under the data root to test
+add/change/rename/remove cases and never mutates `PROOF_ARCHIVE_DIR`.
+
+A required usable stage passes only with validated artifacts or a contract-defined valid empty
+result. Failure, missing evidence, or resource refusal keeps its proof task open. An optional branch
+may record `not-selected` only with its measured negative verdict and working fallback. Repository
+current-state documentation records proof ids, fingerprints, artifact paths, validation summaries,
+and results, but never copies private source content or machine-specific archive paths into Git.
 
 ### Required acceptance gates
 
@@ -736,13 +1014,18 @@ not become scoring truth without review.
 | Fresh setup       | From a copied repo and edited `.env`, `make bootstrap`, `make doctor`, `make services-up`, a smoke pipeline, and `make ci` succeed without paths tied to the original disk.                      |
 | Contracts         | ODCS lint, generation drift, Avro round-trip/compatibility, evolution policy, migration status, and live Postgres schema tests pass.                                                             |
 | Idempotency       | Re-running an unchanged successful shard writes no duplicate canonical rows or artifacts and reports a cache hit; interrupted stages resume from completed shards.                               |
+| Incremental state | Added/changed/renamed/removed sources and stage-owned implementation changes invalidate only their lineage closure; active views retract stale outputs and retain audit evidence.                 |
+| Forecast          | Time/size ranges cite evidence, all target devices and peak scratch/rebuild needs are counted, and insufficient free space blocks before heavy allocation.                                        |
+| Proof bundles     | Every usable artifact-producing stage group has a current provided-archive proof whose outputs, checksums, validators, cache-hit rerun, and fingerprint are complete.                              |
 | Provenance        | Every sampled search result, mention, fact, topic assignment, graph edge, and report row resolves to source evidence and a complete transformation fingerprint.                                  |
 | Extraction        | Per-format text/table/anchor coverage and quarantine reasons meet thresholds declared before the full run.                                                                                       |
+| Classification    | Hierarchical accuracy, calibration, exceptional outcomes, reproducibility, and path-ledger safety gates pass; uncertain files are not forced into ordinary classes.                              |
 | Lexical retrieval | Russian BM25 recall@k, MRR, evidence intactness, p95 latency, and index amplification pass on the final query set.                                                                               |
 | Vector/hybrid     | Candidate must beat or complement lexical retrieval with a paired confidence interval and remain within build, storage, latency, and VRAM/RAM budgets; otherwise lexical-only is a valid result. |
 | Entity resolution | Precision at the proposed auto-merge threshold meets the predeclared high-precision target; uncertain pairs remain unmerged.                                                                     |
 | Facts             | Per-type precision/recall and citation-span validity meet declared thresholds; invalid structured output and ontology violations are accounted for.                                              |
 | Graph             | Counts reconcile with relational projection inputs; sampled SQL/Cypher paths agree; rebuild and backup/restore tests pass.                                                                       |
+| Domain artifacts  | BOM, relationship, supply-chain, and invoice/payment tables and graphs agree with reviewed facts, evidence links, arithmetic, and registry status.                                                |
 | Scale             | Two staged pilots complete within measured disk/RAM/VRAM envelopes with no unbounded queue, transaction, temp, or WAL growth.                                                                    |
 | Privacy           | Network-denied integration run succeeds after required images/models are present; logs and reports contain no secrets or unintended corpus content.                                              |
 
@@ -751,15 +1034,18 @@ and must not be hidden by choosing a convenient threshold.
 
 ## Operations, backup, and security
 
-The archive mount is read-only. Service ports bind to loopback. Database roles separate migration,
-pipeline writes, read-only UI, and backup. Secrets live in `.env` or operator-provided secret files,
-never generated artifacts or logs. Containers run non-root where upstream images permit, have
-bounded resources, and receive only required mounts.
+The archive mount is read-only for every service and pipeline stage. Only the explicit host-side
+archive-reorganization command may request write access, and it requires an accepted dry-run plan,
+sealed move ledger, and recoverable backup or equivalent snapshot. Service ports bind to loopback.
+Database roles separate migration, pipeline writes, read-only UI, and backup. Secrets live in `.env`
+or operator-provided secret files, never generated artifacts or logs. Containers run non-root where
+upstream images permit, have bounded resources, and receive only required mounts.
 
 Backups include:
 
 - ODCS contracts, migrations, configuration template, and code in version control;
 - normalized manifests and portable datasets through filesystem snapshots or another disk;
+- classification snapshots and archive move ledgers needed to locate or reverse moved sources;
 - PostgreSQL logical/physical backup appropriate to the pinned extension versions;
 - extension/image/model digests and a restore runbook;
 - restore verification that rebuilds or validates ParadeDB and AGE projections.
@@ -773,10 +1059,10 @@ based on tested backup plus projection rebuild, not an assumed replica.
 | --------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------------------- |
 | 0 - Foundation              | Personalized repo, portable paths, contracts, one database image | `project-foundation` through `canonical-store`           | Fresh-copy service and contract smoke passes                    |
 | 1 - Local evidence seams    | Local inference adapters and replayable evaluation fixtures      | `local-inference`, `evaluation-foundation`               | Provider and metric conformance tests pass                      |
-| 2 - Corpus substrate        | Rebuildable normalized lake and restartable stages               | `corpus-foundation`, `pipeline-control`                  | Representative extraction run resumes without duplication       |
-| 3 - Retrieval and NLP       | Russian lexical baseline, selected vectors, mentions             | `lexical-retrieval` through `russian-nlp`                | Held-out lexical and NLP baselines are readable                 |
-| 4 - Knowledge and discovery | Facts, identity, ontology, graph, topics, reports, UI            | `knowledge-extraction` through `discovery-visualization` | Evidence-bearing operator scenarios pass                        |
-| 5 - Evidence and operations | Comparative scale evidence and recovery                          | `evaluation-evidence`, `operational-recovery`            | Staged pilot and restore drill support an adopt/retain decision |
+| 2 - Corpus substrate        | Rebuildable lake, restartable stages, classification and path map | `corpus-foundation` through `archive-classification`     | Corpus/control/classification proof bundles pass                 |
+| 3 - Retrieval and NLP       | Russian lexical baseline, selected vectors, mentions             | `lexical-retrieval` through `russian-nlp`                | Retrieval and NLP proof bundles pass or retain a valid fallback |
+| 4 - Knowledge and discovery | Facts, identity, domain artifacts, graph, topics, reports, UI    | `knowledge-extraction` through `discovery-visualization` | Knowledge through discovery proof bundles pass                  |
+| 5 - Evidence and operations | Comparative scale evidence and recovery                          | `evaluation-evidence`, `operational-recovery`            | End-to-end proof, staged pilot, and restore drill support a verdict |
 
 The critical path is:
 
@@ -788,16 +1074,19 @@ project foundation
   -> local inference and evaluation foundation
   -> corpus foundation
   -> pipeline control
+  -> archive classification
   -> lexical retrieval
   -> Russian NLP
   -> knowledge extraction
   -> identity/ontology/graph
+  -> domain investigation artifacts
   -> discovery and visualization
   -> evaluation and operational recovery
 ```
 
-Semantic retrieval and vLLM are evaluated branches. They must not block a useful lexical, CPU-first
-system when their valid result is `retain baseline`.
+Semantic retrieval, vLLM, and physical archive reorganization are evaluated or authorized branches.
+They must not block a useful lexical, CPU-first system when their valid result is `retain baseline`
+or `do not move`.
 
 ## Capability Registry
 
@@ -814,14 +1103,16 @@ evidence exist. Registry order is the implementation line used by `plan.md`.
 | 6   | `evaluation-foundation`   | planned | Frozen fixtures, replayable metrics, split guards, and paired verdict utilities pass         | `plan.md#evaluation-foundation----evaluation-foundation`     |
 | 7   | `corpus-foundation`       | planned | Representative inventory, extraction, normalization, dedupe, and chunk gold sets pass        | `plan.md#corpus-foundation----corpus-foundation`             |
 | 8   | `pipeline-control`        | planned | Sharded stage, resume, retry, invalidation, idempotency, and progress tests pass             | `plan.md#pipeline-control----pipeline-control`               |
-| 9   | `lexical-retrieval`       | planned | Held-out Russian relevance, latency, index size, and rebuild gates pass                      | `plan.md#lexical-retrieval----lexical-retrieval`             |
-| 10  | `semantic-retrieval`      | planned | Selected-tier vector and hybrid candidates receive paired adopt/retain verdicts              | `plan.md#semantic-retrieval----semantic-retrieval`           |
-| 11  | `russian-nlp`             | planned | Language, morphology, terminology, and NER metrics pass per type                             | `plan.md#russian-nlp----russian-nlp`                         |
-| 12  | `knowledge-extraction`    | planned | Structured extraction, evidence, fact quality, and contradiction gates pass                  | `plan.md#knowledge-extraction----knowledge-extraction`       |
-| 13  | `identity-ontology-graph` | planned | Linkage, ontology, SQL/Cypher parity, rebuild, and bounded traversal gates pass              | `plan.md#identity-ontology-graph----identity-ontology-graph` |
-| 14  | `discovery-visualization` | planned | Topic stability plus operator completion of search, graph, equipment, and supplier scenarios | `plan.md#discovery-visualization----discovery-visualization` |
-| 15  | `evaluation-evidence`     | planned | Provenance audit and representative scale pilots produce readable, capacity-aware verdicts   | `plan.md#evaluation-evidence----evaluation-evidence`         |
-| 16  | `operational-recovery`    | planned | Security checks, backup/restore drill, disk exhaustion, interruption, and runbook tests pass | `plan.md#operational-recovery----operational-recovery`       |
+| 9   | `archive-classification`  | planned | Hierarchical gold labels, calibrated exceptions, path safety, resume, rollback, and lookup pass | `plan.md#archive-classification----archive-classification`   |
+| 10  | `lexical-retrieval`       | planned | Held-out Russian relevance, latency, index size, and rebuild gates pass                      | `plan.md#lexical-retrieval----lexical-retrieval`             |
+| 11  | `semantic-retrieval`      | planned | Selected-tier vector and hybrid candidates receive paired adopt/retain verdicts              | `plan.md#semantic-retrieval----semantic-retrieval`           |
+| 12  | `russian-nlp`             | planned | Language, morphology, terminology, and NER metrics pass per type                             | `plan.md#russian-nlp----russian-nlp`                         |
+| 13  | `knowledge-extraction`    | planned | Structured extraction, evidence, fact quality, and contradiction gates pass                  | `plan.md#knowledge-extraction----knowledge-extraction`       |
+| 14  | `identity-ontology-graph` | planned | Linkage, ontology, SQL/Cypher parity, rebuild, and bounded traversal gates pass              | `plan.md#identity-ontology-graph----identity-ontology-graph` |
+| 15  | `domain-investigation-artifacts` | planned | Reviewed BOM, relationship, supply-chain, invoice/payment, render, and registry gates pass | `plan.md#domain-investigation-artifacts----domain-investigation-artifacts` |
+| 16  | `discovery-visualization` | planned | Topic stability plus operator completion of search, graph, equipment, and supplier scenarios | `plan.md#discovery-visualization----discovery-visualization` |
+| 17  | `evaluation-evidence`     | planned | Provenance audit and representative scale pilots produce readable, capacity-aware verdicts   | `plan.md#evaluation-evidence----evaluation-evidence`         |
+| 18  | `operational-recovery`    | planned | Security checks, backup/restore drill, disk exhaustion, interruption, and runbook tests pass | `plan.md#operational-recovery----operational-recovery`       |
 
 ## Success criteria
 
@@ -830,5 +1121,11 @@ The project succeeds when an operator can copy the repository to any suitable di
 the selected local services, and run one stage or the complete pipeline with continuous progress and
 safe resume. Search, topics, objects, facts, ontologies, graphs, and equipment/supplier reports are
 useful on a representative Russian corpus, carry source evidence, and can be rebuilt from open,
-versioned contracts and normalized artifacts. The simpler PostgreSQL architecture remains in place
-only while measured quality, scale, and recovery evidence supports it.
+versioned contracts and normalized artifacts. Every source has a classified or explicit exceptional
+outcome, optional physical moves remain traceable to the initial path, and every available BOM,
+supply-chain, relationship, and invoice/payment view is registered with evidence and review state.
+Unchanged inputs reuse validated heavy results, archive and implementation deltas update only their
+lineage closure, stale derived data can be safely pruned or fully rebuilt, and forecasts refuse work
+that cannot fit available storage. Every usable stage group has a current proof bundle from the
+provided archive. The simpler PostgreSQL architecture remains in place only while measured quality,
+scale, and recovery evidence supports it.
