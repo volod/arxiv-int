@@ -149,7 +149,7 @@ operator roots.
 - Dependencies: `resolve-selfsuvis-reuse-integration`.
 - User-visible outcome: An operator configures three paths -- source silos, one results root, and one
 PostgreSQL data directory -- puts them on different disks, and every other location is a documented
-default inside them.
+default inside them that can be moved to the disk its storage class needs.
 - Scope boundary: Resolve and validate configuration and create the results-root skeleton; do not
 create corpus artifacts or start containers. `DATA_DIR` stays the repository developer-tooling root
 and never receives corpus output.
@@ -158,13 +158,18 @@ and never receives corpus output.
 - Execution path: Consume the `selfsuvis` seam in the form `resolve-selfsuvis-reuse-integration`
 recorded; implement project-specific CLI > environment > `.env` > default precedence through a narrow
 adapter; resolve the declared silo ids and roots, `RESULTS_DIR`, and `PGDATA_DIR`; derive `RUNS_DIR`,
-`MODEL_CACHE_DIR`, and `TMP_DIR` inside the results root unless overridden; create the documented
-results layout; add symlink, overlap, root-target, permissions, device-id, free-space, and read-only
-`PROOF_ARCHIVE_DIR` checks.
+`MODEL_CACHE_DIR`, `TMP_DIR`, `DEV_RESULTS_DIR`, and `SERVICE_STATE_DIR` inside the results root
+unless overridden; accept optional `PG_WAL_DIR` and `PG_TABLESPACE_<NAME>_DIR` roots; create the
+documented results layout; record filesystem type, device id, and rotational flag per root and
+classify each against its declared storage class; add symlink, overlap, root-target, permissions,
+device-id, free-space, and read-only `PROOF_ARCHIVE_DIR` checks.
 - Acceptance gates: Unit tests cover multiple current directories, two checkout roots, spaces,
 symlinks, separate device ids, silo/results/database non-overlap, derived-default overrides, results
 output refused inside the archive or the checkout, CLI overrides, redaction, missing values, and
-dangerous roots; no machine-specific path is committed.
+dangerous roots; storage-class fixtures prove a database root without exclusive real ownership is
+refused while rotational database, scratch, model, and non-owning service-state placements warn and
+name the variable to change; optional WAL and tablespace roots are accepted only at the class of
+`PGDATA_DIR`; no machine-specific path is committed.
 - Documentation target: `docs/impl/current/portable-runtime.md`
 
 #### define-compose-profiles-and-operator-wrappers
@@ -183,11 +188,15 @@ compatibility result belongs to the canonical-store task.
 - Data and artifact paths: `compose.yaml`, `docker/`, `Makefile`, `.env.example`,
 `scripts/shared/common.sh`, and `tests/compose/`.
 - Execution path: Pin images by immutable version/digest, bind service ports to loopback, mount the
-archive read-only, use absolute resolved host paths, add host-gateway handling for Ollama, and
-render `docker compose config` in CI without starting GPU services.
+archive read-only, mount `PGDATA_DIR` plus any configured WAL or tablespace root read-write into the
+database service only, mount per-service subdirectories of `SERVICE_STATE_DIR` read-write with
+dashboard and scrape definitions provisioned read-only from `docker/`, mount `RESULTS_DIR` read-only
+for services that only read pipeline output, use absolute resolved host paths, add host-gateway
+handling for Ollama, and render `docker compose config` in CI without starting GPU services.
 - Acceptance gates: Compose config validates for each profile and combined supported profiles;
-mounts resolve to configured SSD paths; healthchecks and stop behavior are defined; secrets are
-absent from rendered test output.
+mounts resolve to configured SSD paths and to the storage class each service requires; no service
+other than the database mounts the database roots; healthchecks and stop behavior are defined;
+secrets are absent from rendered test output.
 - Documentation target: `docs/impl/current/portable-runtime.md`
 
 #### add-fresh-copy-doctor
@@ -206,10 +215,13 @@ services, or create migrations.
 - Data and artifact paths: `src/arxiv_int/doctor/`, `tests/doctor/`, and `docs/guide/setup.md`.
 - Execution path: Check Python/uv/Docker/Compose, archive/proof/output paths and filesystems,
 RAM/GPU/disk, service health, extension versions, Ollama/vLLM APIs, contract state, migrations, and
-model availability; emit console and JSON reports. Capacity estimation remains the forecast
-command's responsibility.
-- Acceptance gates: Network-free fixtures cover pass, degraded, and fail states; secrets are masked;
-exit codes distinguish ready/degraded/blocked; checks have timeouts.
+model availability; report every configured root with its measured filesystem type, device, and
+rotational flag next to the storage class it must satisfy; emit console and JSON reports. Capacity
+estimation remains the forecast command's responsibility.
+- Acceptance gates: Network-free fixtures cover pass, degraded, and fail states, including a
+database root on an unsupported or non-owning filesystem as blocked and rotational database,
+scratch, model, or non-owning service-state roots as degraded with the variable to change; secrets
+are masked; exit codes distinguish ready/degraded/blocked; checks have timeouts.
 - Documentation target: `docs/impl/current/portable-runtime.md`
 
 ### Development loop -- `development-loop`
@@ -223,21 +235,23 @@ opt-in lane that may read a real archive.
 - Agent status: CLEAR
 - Dependencies: `implement-layered-configuration-and-path-safety`.
 - User-visible outcome: A contributor points `DEV_ARCHIVE_DIR` at a real archive once and then reaches
-it, the results root, and the most recent run through fixed paths that no command or test has to
-hardcode.
+it, the development results root, and the most recent run through fixed paths that no command or test
+has to hardcode, while bounded development output stays out of the published generations.
 - Scope boundary: Create and refresh symbolic aliases and the opt-in test lane; never copy corpus
 content, never write to the development archive, and never let the deterministic gate depend on a
 configured archive.
 - Data and artifact paths: `.env.example`, `.gitignore`, `src/arxiv_int/paths.py`,
 `src/arxiv_int/doctor/`, `Makefile`, `scripts/shared/common.sh`, `$DATA_DIR/dev/`, and
 `tests/config/`.
-- Execution path: Resolve `DEV_ARCHIVE_DIR` with its `PROOF_ARCHIVE_DIR` default; create
-`$DATA_DIR/dev/{archive,results,latest}` as symbolic links refreshed by `make dev-link`; maintain the
-`latest` link when a run directory is created and a `current` pointer when a dataset generation is
-published; add the opt-in pytest marker and `make dev-check` entry point that skip with the variable
-to set; report alias state in doctor output.
+- Execution path: Resolve `DEV_ARCHIVE_DIR` with its `PROOF_ARCHIVE_DIR` default and
+`DEV_RESULTS_DIR` with its `${RESULTS_DIR}/dev` default; create `$DATA_DIR/dev/{archive,results,latest}`
+as symbolic links refreshed by `make dev-link`; maintain the `latest` link when a run directory is
+created and a `current` pointer when a dataset generation is published; add the opt-in pytest marker
+and `make dev-check` entry point that skip with the variable to set; report alias state in doctor
+output.
 - Acceptance gates: Aliases resolve from two checkout locations and after the archive path changes;
-a missing, broken, or non-directory target reports the variable to set instead of guessing; the
+a missing, broken, or non-directory target reports the variable to set instead of guessing;
+development output resolves under `DEV_RESULTS_DIR` and never under `$RESULTS_DIR/normalized/`; the
 marked lane is excluded from `make ci` and proven to skip on a machine with no archive; no alias,
 corpus path, or sample content is committed.
 - Documentation target: `docs/impl/current/development-loop.md`
@@ -258,7 +272,8 @@ reasons, and the failure taxonomy for the artifact it wrote.
 inspector, mutate any artifact, publish a proof verdict, or treat a development summary as acceptance
 evidence.
 - Data and artifact paths: `src/arxiv_int/inspect/`, `$DATA_DIR/dev/latest`,
-`$RESULTS_DIR/normalized/`, `$RUNS_DIR/<run-id>/`, `Makefile`, and inspection fixtures.
+`$DEV_RESULTS_DIR/`, `$RESULTS_DIR/normalized/`, `$RUNS_DIR/<run-id>/`, `Makefile`, and inspection
+fixtures.
 - Execution path: Add `arxiv-int inspect` over a dataset, a run, or the `latest` alias using the
 contract for schema-aware output; add `make dev-stage STAGE=...` running one stage against the
 development archive over a bounded slice; render console and JSON summaries; redact corpus text to
@@ -1470,12 +1485,14 @@ and bounded graph views; AGE Viewer supports exploratory Cypher when enabled.
 - Scope boundary: Provision read-only local tools; no internet exposure, corpus-bearing telemetry
 export, or tool-owned source of truth.
 - Data and artifact paths: `docker/grafana/`, `docker/age-viewer/`, Compose profiles, read-only
-database role migrations, and screenshot/query smoke fixtures.
-- Execution path: Provision PostgreSQL datasource and dashboards as code; create read-only views;
-configure AGE Viewer; document loopback URLs and lifecycle; add health and bounded-query smoke
-tests.
+database role migrations, `$SERVICE_STATE_DIR/<service>/` for mutable service state, and
+screenshot/query smoke fixtures.
+- Execution path: Provision PostgreSQL datasource and dashboards as code from the repository, keep
+only mutable service state under `SERVICE_STATE_DIR`; create read-only views; configure AGE Viewer;
+document loopback URLs and lifecycle; add health and bounded-query smoke tests.
 - Acceptance gates: Fresh profile start needs no manual datasource setup; read-only roles cannot
-mutate canonical rows; dashboards load fixture data; graph profile absence degrades cleanly.
+mutate canonical rows; dashboards load fixture data; deleting `SERVICE_STATE_DIR` loses no
+provisioned definition; graph profile absence degrades cleanly.
 - Documentation target: `docs/impl/current/discovery-visualization.md`
 
 #### prove-discovery-and-visualization-on-provided-archive
@@ -1636,13 +1653,15 @@ replica claim.
 - Data and artifact paths: `scripts/backup/`, `scripts/restore/`, `Makefile` for `make backup` and
 `make restore-check`, backup manifests outside `$PGDATA_DIR`, `$RUNS_DIR/<run-id>/recovery/`, and
 `docs/guide/recovery.md`.
-- Execution path: Capture extension/image/model ids, migrations and logical/physical backup,
-normalized/classification manifests, archive move ledgers, artifact registries, checksums, and
-free-space requirements; restore into a new directory, run contract/live-store/source-lookup checks,
-and rebuild disposable projections.
+- Execution path: Capture extension/image/model ids, migrations and logical/physical backup covering
+`PGDATA_DIR` with any configured WAL and tablespace roots as one unit, normalized/classification
+manifests, archive move ledgers, artifact registries, checksums, and free-space requirements; restore
+into a new directory, run contract/live-store/source-lookup checks, and rebuild disposable
+projections.
 - Acceptance gates: Clean-target restore reproduces canonical counts/checksums and sampled queries;
-missing/corrupt backup parts fail before mutation; recovery time/space are recorded; original data
-remains untouched.
+a backup missing a configured WAL or tablespace root fails as incomplete rather than restoring a
+partial cluster; missing/corrupt backup parts fail before mutation; recovery time/space are recorded;
+original data remains untouched.
 - Documentation target: `docs/impl/current/operations.md`
 
 #### test-failure-and-capacity-boundaries

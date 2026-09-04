@@ -323,9 +323,11 @@ explicit CLI option > process environment > .env > documented safe default
 `.env.example` is committed and `.env` is ignored. Compose is always invoked with an explicit
 project directory and `--env-file`, so copying the checkout to another disk does not change path
 resolution. `make config` renders redacted application configuration and runs
-`docker compose config --environment`.
+`docker compose config --environment`. No committed file carries a machine-specific absolute path:
+`.env.example` describes each root by the storage class it needs and leaves every value to the
+operator's `.env`.
 
-Required or prominent variables:
+### Operator roots
 
 The operator configures three roots, one per job:
 
@@ -337,31 +339,90 @@ The operator configures three roots, one per job:
 
 Nothing else is required to start. The remaining variables are overrides with documented defaults
 inside those roots, so a working configuration is three paths, a database password, and a model
-profile.
+profile. Every derived default is a placement decision an operator may need to change when the three
+roots do not share one storage class, which is the normal case on a multi-disk workstation.
 
-| Variable                                                | Purpose                                              | Default policy                                                 |
-| ------------------------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------- |
-| `ARCHIVE_DIR`                                           | Declared immutable input silos; bind-mounted read-only | Required for corpus stages; one path, or several named roots |
-| `RESULTS_DIR`                                           | Single pipeline output root                          | Required for corpus stages; must not be inside the archive or the checkout |
-| `PGDATA_DIR`                                            | PostgreSQL data and index directory on fast local SSD/NVMe | Required for services                                     |
-| `PROOF_ARCHIVE_DIR`                                     | Operator-provided read-only archive silo for proof runs | Required only by provided-archive proof tasks                |
-| `DEV_ARCHIVE_DIR`                                       | Read-only archive used by the development loop       | `${PROOF_ARCHIVE_DIR}`; never read by `make ci`                |
-| `RUNS_DIR`                                              | Run journals, logs, reports, checkpoints             | `${RESULTS_DIR}/runs`                                          |
-| `MODEL_CACHE_DIR`                                       | Hugging Face/model cache                             | `${RESULTS_DIR}/models`                                        |
-| `TMP_DIR`                                               | Bounded extraction and sort scratch                  | `${RESULTS_DIR}/tmp`                                           |
-| `DATABASE_URL`                                          | Host-side application connection                     | Local-only default assembled from non-secret fields            |
-| `POSTGRES_PASSWORD`                                     | Database secret                                      | No committed value; doctor rejects placeholder in non-dev mode |
-| `OLLAMA_BASE_URL`                                       | Host Ollama endpoint                                 | `http://127.0.0.1:11434` for host CLI                          |
-| `INFERENCE_BACKEND`                                     | `ollama` or `vllm`                                   | `ollama`                                                       |
-| `EMBEDDING_MODEL`, `GENERATION_MODEL`, `RERANK_MODEL`   | Model identities                                     | Pinned by an evaluated profile, not silently floated           |
-| `DATA_DIR`                                              | Repository-local root for developer tooling only     | `.data`, resolved from the project root                        |
-| `LOG_LEVEL`, `LOG_FORMAT`, `PROGRESS_INTERVAL_SEC`      | Operator feedback                                    | `INFO`, console plus JSONL, 30 seconds                         |
-| `PIPELINE_WORKERS`, `BATCH_SIZE`, `GPU_MAX_CONCURRENCY` | Resource bounds                                      | Auto-detected conservative values; GPU concurrency `1`         |
+### Storage classes and device placement
+
+Roots are not differentiated by which kind of data they hold but by who owns the bytes, how the bytes
+are written, and what is lost when the device is lost. Six storage classes cover the system, and the
+preflight classifies every configured path against the class its consumer requires:
+
+| Class           | Written by            | Access pattern                          | Device and filesystem requirement                                              | Locations                                             |
+| --------------- | --------------------- | --------------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------- |
+| `source`        | Nobody; read-only     | Large sequential reads, one full pass per inventory | Any readable mount; rotational is acceptable                          | `ARCHIVE_DIR` silos, `PROOF_ARCHIVE_DIR`              |
+| `bulk`          | Pipeline stages       | Large sequential writes, occasional full scans | Capacity first; rotational and non-native filesystems are acceptable    | `RESULTS_DIR` and its `normalized`, `runs`, `proofs`, `exports`, `quarantine` trees |
+| `database`      | PostgreSQL only       | Small random reads and writes with ordered `fsync` | A filesystem PostgreSQL supports, real per-file ownership, exclusive use, SSD/NVMe strongly preferred | `PGDATA_DIR`, optional `PG_WAL_DIR`, optional tablespace roots |
+| `scratch`       | Pipeline workers      | High-churn random writes, deleted after the stage | Fast local SSD/NVMe, bounded free space, no durability requirement     | `TMP_DIR`                                             |
+| `model`         | Model runtimes        | Large random reads at load, then read-mostly | SSD/NVMe preferred; rotational multiplies model load latency               | `MODEL_CACHE_DIR`                                     |
+| `service-state` | Local services        | Small random writes with file locking   | POSIX filesystem with real ownership; small; disposable but not rebuildable from the archive | `SERVICE_STATE_DIR`                       |
+
+A class mismatch is a configuration finding, not a silent slowdown. `database` on a rotational device
+or on a filesystem PostgreSQL does not support, `scratch` or `model` on a rotational device, and
+`service-state` on a filesystem that cannot express ownership are each reported by name with the
+variable to change. Only a `database` root that cannot take real ownership or exclusive use is a
+refusal; the rest are warnings the operator may accept for a trial.
+
+### Why indexes, tables, and visualization artifacts do not get their own roots
+
+Splitting storage further is only correct where the split follows an ownership boundary that already
+exists:
+
+- **Lexical, vector, and graph indexes are not separable directories.** ParadeDB `pg_search`,
+  `pgvector`, and AGE are PostgreSQL extensions, so their indexes are cluster relations. The only
+  supported way to move them is a tablespace, and a tablespace is part of the cluster's backup and
+  recovery unit: a second root would be independently losable while still being required to recover.
+  One `PGDATA_DIR` is therefore the default and the documented safe answer.
+- **Tables and indexes may be split only onto a device of the same class.** `PG_WAL_DIR` and
+  `PG_TABLESPACE_<NAME>_DIR` exist as optional, unset-by-default overrides for an operator with a
+  second device of the `database` class. They are accepted only when the target matches the class of
+  `PGDATA_DIR`, are recorded in the run manifest, and are named in the backup runbook as part of the
+  same cluster. Placing a tablespace on a slower or non-native device to gain capacity is refused,
+  because it trades a durable cluster for space that `RESULTS_DIR` already provides.
+- **Visualization artifacts are pipeline output, not a store.** Rendered reports, HTML/SVG,
+  GraphML, JSON-LD, and portable exports are written under `RESULTS_DIR` in
+  `runs/<run-id>/reports/`, `runs/<run-id>/artifacts/`, and `exports/`, so the whole output tree
+  stays deletable and rebuildable in one place.
+- **Mutable service state is separable, and is the one root worth adding.** Grafana's own database
+  and plugins, a Prometheus TSDB, and AGE Viewer state are written by services rather than by the
+  pipeline, need real file ownership and locking, and are not rebuildable from the archive the way
+  `RESULTS_DIR` is. They live under `SERVICE_STATE_DIR`, which defaults to `${RESULTS_DIR}/services`
+  and must be pointed at a `service-state`-capable path when the results root cannot express
+  ownership. Dashboard and datasource definitions stay provisioned from `docker/grafana/` in the
+  repository, so this root holds runtime state only.
+
+### Variables
+
+| Variable                                                | Purpose                                              | Storage class   | Default policy                                                 |
+| ------------------------------------------------------- | ---------------------------------------------------- | --------------- | -------------------------------------------------------------- |
+| `ARCHIVE_DIR`                                           | Declared immutable input silos; bind-mounted read-only | `source`      | Required for corpus stages; one path, or several named roots |
+| `RESULTS_DIR`                                           | Single pipeline output root                          | `bulk`          | Required for corpus stages; must not be inside the archive or the checkout |
+| `PGDATA_DIR`                                            | PostgreSQL data and index directory on fast local SSD/NVMe | `database` | Required for services                                     |
+| `PROOF_ARCHIVE_DIR`                                     | Operator-provided read-only archive silo for proof runs | `source`     | Required only by provided-archive proof tasks                |
+| `DEV_ARCHIVE_DIR`                                       | Read-only archive used by the development loop       | `source`        | `${PROOF_ARCHIVE_DIR}`; never read by `make ci`                |
+| `DEV_RESULTS_DIR`                                       | Output root for bounded development-loop runs        | `bulk`          | `${RESULTS_DIR}/dev`; keeps development slices out of published generations |
+| `RUNS_DIR`                                              | Run journals, logs, reports, checkpoints             | `bulk`          | `${RESULTS_DIR}/runs`                                          |
+| `SERVICE_STATE_DIR`                                     | Grafana, Prometheus, and AGE Viewer runtime state    | `service-state` | `${RESULTS_DIR}/services`; must be moved when that path cannot express ownership |
+| `MODEL_CACHE_DIR`                                       | Hugging Face/model cache                             | `model`         | `${RESULTS_DIR}/models`                                        |
+| `TMP_DIR`                                               | Bounded extraction and sort scratch                  | `scratch`       | `${RESULTS_DIR}/tmp`                                           |
+| `PG_WAL_DIR`                                            | Write-ahead log on a second `database` device        | `database`      | Unset; the WAL stays inside `PGDATA_DIR`                       |
+| `PG_TABLESPACE_<NAME>_DIR`                              | Optional named tablespace on a second `database` device | `database`   | Unset; every relation stays inside `PGDATA_DIR`                |
+| `DATABASE_URL`                                          | Host-side application connection                     | --              | Local-only default assembled from non-secret fields            |
+| `POSTGRES_PASSWORD`                                     | Database secret                                      | --              | No committed value; doctor rejects placeholder in non-dev mode |
+| `OLLAMA_BASE_URL`                                       | Host Ollama endpoint                                 | --              | `http://127.0.0.1:11434` for host CLI                          |
+| `INFERENCE_BACKEND`                                     | `ollama` or `vllm`                                   | --              | `ollama`                                                       |
+| `EMBEDDING_MODEL`, `GENERATION_MODEL`, `RERANK_MODEL`   | Model identities                                     | --              | Pinned by an evaluated profile, not silently floated           |
+| `DATA_DIR`                                              | Repository-local root for developer tooling only     | --              | `.data`, resolved from the project root                        |
+| `LOG_LEVEL`, `LOG_FORMAT`, `PROGRESS_INTERVAL_SEC`      | Operator feedback                                    | --              | `INFO`, console plus JSONL, 30 seconds                         |
+| `PIPELINE_WORKERS`, `BATCH_SIZE`, `GPU_MAX_CONCURRENCY` | Resource bounds                                      | --              | Auto-detected conservative values; GPU concurrency `1`         |
 
 Path preflight must resolve symlinks, prove source and destinations are distinct, verify the archive
-mount is readable, verify outputs are writable, record filesystem/device identifiers, estimate free
-space, and refuse dangerous roots such as `/`. Docker receives absolute bind-mount sources, even
-when `.env` contains paths relative to the project root.
+mount is readable, verify outputs are writable, record filesystem type, device identifier, and
+rotational flag, classify each path against its required storage class, estimate free space, and
+refuse dangerous roots such as `/`. Docker receives absolute bind-mount sources, even when `.env`
+contains paths relative to the project root. The recorded filesystem type, device id, rotational
+flag, and storage class of every root enter the run manifest, so a slow or unsafe placement is
+visible in the evidence rather than inferred later from timings.
 
 ### Source silos
 
@@ -388,16 +449,24 @@ $RESULTS_DIR/
   quarantine/   inputs that could not be processed, by reason
   runs/         one directory per run: journal, logs, manifests, telemetry, evaluation, reports
   proofs/       provided-archive proof bundles, by capability and proof id
-  exports/      operator-requested portable outputs
+  exports/      operator-requested portable outputs, including rendered graphs and reports
+  dev/          bounded development-loop output, unless DEV_RESULTS_DIR points elsewhere
+  services/     local service runtime state, unless SERVICE_STATE_DIR points elsewhere
   models/       model cache, unless MODEL_CACHE_DIR points elsewhere
   tmp/          bounded scratch, unless TMP_DIR points elsewhere
 ```
 
 Everything under `RESULTS_DIR` is rebuildable from the archive plus contracts and code, given enough
-time; nothing under it is the only copy of an operator's file. `PGDATA_DIR` is separate because
-PostgreSQL owns that directory exclusively and its failure and backup semantics differ from a lake of
-files. Keeping indexes inside `PGDATA_DIR` rather than in a fourth root is deliberate: ParadeDB,
-pgvector, and AGE are all PostgreSQL extensions, so their storage is part of the database.
+time; nothing under it is the only copy of an operator's file. The four subtrees with their own
+variables are the ones whose storage class differs from `bulk`: scratch and model cache want a fast
+device, service state wants real ownership, and development output wants separation from published
+generations. Pointing them elsewhere is the expected configuration on a workstation whose results
+disk is large and slow.
+
+`PGDATA_DIR` is separate because PostgreSQL owns that directory exclusively and its failure and
+backup semantics differ from a lake of files. Keeping indexes inside `PGDATA_DIR` rather than in a
+fourth root is deliberate: ParadeDB, pgvector, and AGE are all PostgreSQL extensions, so their
+storage is part of the database.
 
 `DATA_DIR` is not part of this model. It is the repository's own convention for developer tooling --
 linter, type-checker, and test caches, and local records produced by repository tasks -- and it
@@ -417,6 +486,27 @@ ids before requesting write access. Its `copy` mode needs no write access to the
 reads the silo read-only and writes into an explicit target root that must not overlap the archive,
 the results root, or the database directory.
 
+### Development workstation configuration
+
+A development workstation configures the same variables as an operator installation; there is no
+second path model and no development-only default that a production run would not also use. What
+differs is placement, because a development machine usually has one fast disk holding the archive and
+one large slow disk for output:
+
+- point `ARCHIVE_DIR` and `PROOF_ARCHIVE_DIR` at the real archive silo and leave `DEV_ARCHIVE_DIR` to
+  its default, so the development loop, forecasts, and proof runs read one declared read-only source;
+- point `RESULTS_DIR` at the bulk output disk and let `RUNS_DIR`, `exports/`, `proofs/`, and
+  `DEV_RESULTS_DIR` derive from it, so every run result of either kind lands in one deletable tree;
+- point `PGDATA_DIR`, `TMP_DIR`, and `MODEL_CACHE_DIR` at the fast disk when the results disk is
+  rotational or not a PostgreSQL-supported filesystem, and point `SERVICE_STATE_DIR` there too when
+  the results disk cannot express file ownership;
+- keep `DATA_DIR` at its `.data` default inside the checkout; it is developer tooling state, never a
+  corpus or results location.
+
+The preflight reports each of these placements with its measured device and filesystem, so the
+difference between a deliberate trial on a slow disk and an accidental one is visible before a long
+run starts.
+
 ## Docker and local-service topology
 
 Compose profiles keep optional services out of the default footprint:
@@ -433,6 +523,15 @@ Ollama is deliberately not in Compose. It is installed and managed as the host s
 Linux container reaches it through a documented host-gateway alias only when a containerized worker
 needs inference. The host CLI uses loopback directly. The default does not expose Ollama or
 PostgreSQL beyond localhost.
+
+Every service mount follows the storage classes above. The database service bind-mounts `PGDATA_DIR`
+read-write and nothing else; when `PG_WAL_DIR` or a named tablespace root is configured, each is a
+separate bind mount that the service refuses to start without. Grafana, Prometheus, and AGE Viewer
+bind-mount only their own subdirectory of `SERVICE_STATE_DIR` read-write, with dashboard, datasource,
+and scrape definitions provisioned read-only from `docker/`. Services that read pipeline output mount
+`RESULTS_DIR` read-only; the vLLM profile mounts `MODEL_CACHE_DIR`; the archive silos are mounted
+read-only or not at all. Compose receives absolute host paths resolved by the same preflight the CLI
+uses, and a container whose mount fails its storage-class check does not start.
 
 The Postgres derivative image must:
 
@@ -837,11 +936,14 @@ machine while the machine-specific path stays in `.env`:
 | Alias                     | Points at                                     | Answers                                    |
 | ------------------------- | --------------------------------------------- | ------------------------------------------ |
 | `$DATA_DIR/dev/archive`   | `DEV_ARCHIVE_DIR`, read-only                  | where is the real archive on this machine  |
-| `$DATA_DIR/dev/results`   | `RESULTS_DIR`                                 | where did the output go                    |
+| `$DATA_DIR/dev/results`   | `DEV_RESULTS_DIR`                             | where did the output go                    |
 | `$DATA_DIR/dev/latest`    | the most recent run directory under `RUNS_DIR` | what did the step I just ran produce       |
 
 `DEV_ARCHIVE_DIR` defaults to `PROOF_ARCHIVE_DIR`, so one configured read-only archive serves both the
-development loop and proof runs while remaining separately overridable. Every published dataset under
+development loop and proof runs while remaining separately overridable. `DEV_RESULTS_DIR` defaults to
+`${RESULTS_DIR}/dev`, so bounded development slices stay on the operator's configured output disk and
+out of the published generations under `$RESULTS_DIR/normalized/`, and deleting the development tree
+never touches a proof bundle or an accepted generation. Every published dataset under
 `$RESULTS_DIR/normalized/` additionally exposes a `current` pointer to its active generation, so a
 reader never has to know the newest generation id. A broken or missing alias reports the variable to
 set rather than falling back to a guessed path.
@@ -984,8 +1086,12 @@ full run is refused until a pilot replaces that envelope with measured amplifica
 margin. Concurrent index rebuild may temporarily require a second full index.
 
 The command resolves device ids and checks read/write accessibility plus actual free space for
-`RESULTS_DIR`, `PGDATA_DIR`, `RUNS_DIR`, `TMP_DIR`, model cache, backup, any configured export path,
-and any archive-reorganization copy target. It exits non-zero before work when a requested stage's
+`RESULTS_DIR`, `PGDATA_DIR`, `RUNS_DIR`, `TMP_DIR`, `SERVICE_STATE_DIR`, model cache, backup, any
+configured WAL or tablespace root, any configured export path, and any archive-reorganization copy
+target. Roots that share one device are budgeted once and reported together, and the storage class
+measured for each root is carried into the forecast, so a `database` or `scratch` root on a
+rotational device widens the time range and lowers confidence instead of being estimated as if it
+were fast. It exits non-zero before work when a requested stage's
 upper-bound peak plus safety reserve does not fit. The orchestrator requires a current forecast
 fingerprint and rechecks free space immediately before every large materialization, bulk load, index
 build, embedding batch, graph build, render, backup, and rebuild switch. Falling below the hard
@@ -1216,7 +1322,10 @@ Backups include:
 - ODCS contracts, migrations, configuration template, and code in version control;
 - normalized manifests and portable datasets through filesystem snapshots or another disk;
 - classification snapshots and archive move ledgers needed to locate or reverse moved sources;
-- PostgreSQL logical/physical backup appropriate to the pinned extension versions;
+- PostgreSQL logical/physical backup appropriate to the pinned extension versions, covering
+  `PGDATA_DIR` together with any configured `PG_WAL_DIR` and named tablespace roots as one unit,
+  because a cluster is not recoverable from a subset of them;
+- `SERVICE_STATE_DIR` only where a service holds state the repository does not provision;
 - extension/image/model digests and a restore runbook;
 - restore verification that rebuilds or validates ParadeDB and AGE projections.
 

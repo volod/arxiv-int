@@ -29,3 +29,12 @@ asserting the repository passes. `make quality-report` reports source and shell 
 results use `$DATA_DIR/<method>/<run-id>/`; Ruff, mypy, pytest, and complexipy caches stay below the
 same root. `.gitignore` excludes runtime artifacts, local environments, secrets, caches, and root
 build outputs without hiding same-named source subpackages.
+
+`.env.example` also documents the operator roots the pipeline capabilities will resolve --
+`ARCHIVE_DIR`, `RESULTS_DIR`, `PGDATA_DIR`, their derived defaults, and the optional second database
+device -- as commented placeholders annotated with the storage class each one needs. Only `DATA_DIR`
+and `LOG_LEVEL` carry values, so no machine-specific path is committed. The resolution and
+validation behavior behind those variables is specified in
+[Configuration and multi-SSD paths](../../design/spec.md#configuration-and-multi-ssd-paths) and is
+not implemented yet; today `scripts/shared/common.sh` exports only `DATA_DIR` and the tool caches
+derived from it.
