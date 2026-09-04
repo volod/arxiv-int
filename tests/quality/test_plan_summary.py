@@ -10,11 +10,11 @@ def test_repository_plan_reports_the_next_foundation_task() -> None:
     lines = summary_lines(PROJECT_ROOT)
 
     assert lines == [
-        "tasks: 70",
-        "agent lane: 61",
+        "tasks: 69",
+        "agent lane: 60",
         "human lane: 9",
-        "statuses: BLOCKED BY HUMAN=1, CLEAR=26, HUMAN-GATED=8, RUN NEEDED=35",
-        "next agent: resolve-fl-op-reuse-integration [project-foundation]",
+        "statuses: BLOCKED BY HUMAN=1, CLEAR=25, HUMAN-GATED=8, RUN NEEDED=35",
+        "next agent: resolve-loc-lm-bench-reuse-integration [project-foundation]",
         "next human: authorize-upstream-repository-changes [project-foundation]",
     ]
 

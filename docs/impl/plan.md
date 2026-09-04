@@ -10,45 +10,6 @@ ordering, and lifecycle rules belong in the
 
 ### Project foundation -- `project-foundation`
 
-#### resolve-fl-op-reuse-integration
-
-Measure the `fl-op` ODCS registry, canonical-model, generator, fingerprint, and evolution-baseline
-seam and resolve it as a small attributed extraction, an installable dependency, or a recorded
-deferral.
-
-- Serves: `project-foundation` -- [Reuse decision rule](../design/spec.md#reuse-decision-rule)
-- Agent status: CLEAR
-- Research: yes
-- Dependencies: Feature groups and domain interfaces described in
-[Project foundation](current/project-foundation.md#dependency-seams-and-feature-groups);
-read access to the pinned `fl-op` revision.
-- User-visible outcome: A clean `arxiv-int` checkout loads and generates contracts through the
-reused registry, canonical model, and semantic fingerprints without a sibling checkout and without
-fleet-domain or solver dependencies.
-- Scope boundary: Decide, prove, and record the reuse form for this seam; do not modify the `fl-op`
-repository, publish an upstream release, or carry forward its fleet domain, optimization solver, or
-Elasticsearch generator target.
-- Data and artifact paths: `pyproject.toml`, `uv.lock`, `src/arxiv_int/contracts/`,
-`THIRD_PARTY.md`, `NOTICE`, matching tests under `tests/contracts/`, and the measurement and decision
-record under `$DATA_DIR/reuse/fl-op/`.
-- Execution path: Inventory the pinned seam; measure reused source lines, module cohesion,
-transitive packages, wheel and installed size, native build needs, and licence; apply the
-specification's reuse decision rule; either copy each small behavior into its owning functional
-package with attribution docstrings and project typing or pin a release or immutable revision behind
-a narrow adapter; never create a source-named package or mixed provenance test module; run
-clean-install, import-isolation, size, licence, and behavioral-equivalence checks beside each owning
-module. When the seam is reachable only through a change to the `fl-op` repository, write that
-change request --
-module boundary, interface contract, packaging change, and required tests -- under
-`$DATA_DIR/reuse/fl-op/change-request/` for `authorize-upstream-repository-changes`, and continue
-here with the extracted or deferred form.
-- Acceptance gates: The recorded decision names measured size, transitive cost, licence, and chosen
-form; a clean core and selected-extra install is portable and locked; core import pulls no optional
-heavy package; every copied file names its source repository, revision, and licence in its docstring
-and `THIRD_PARTY.md`; functional test modules cover the reused behavior in whichever form was
-chosen. A documented deferral with a working local seam is a valid negative result.
-- Documentation target: `docs/impl/current/project-foundation.md`
-
 #### resolve-loc-lm-bench-reuse-integration
 
 Measure the `loc-lm-bench` evaluation-metric, provenance, retrieval-comparison, linkage, and
@@ -249,8 +210,8 @@ mappings for the first pipeline entities.
 - Serves: `contract-governance` --
 [Contract-first data governance](../design/spec.md#contract-first-data-governance)
 - Agent status: CLEAR
-- Dependencies: `resolve-fl-op-reuse-integration`; personalized package and CLI identity documented
-in [Project foundation](current/project-foundation.md#project-identity).
+- Dependencies: The resolved `fl-op` seam and personalized package/CLI identity documented in
+[Project foundation](current/project-foundation.md).
 - User-visible outcome: Documents, spans, chunks, objects, mentions, facts, topics, ontology terms,
 embeddings, and evaluation items have one reviewable schema source of truth.
 - Scope boundary: Define contracts and semantic bindings; do not create live database tables or
@@ -1542,8 +1503,9 @@ architectural claim published in reports and current-state docs.
 - Serves: `evaluation-evidence` -- [Reuse map](../design/spec.md#reuse-map)
 - Agent status: CLEAR
 - Dependencies: `create-evaluation-fixtures-and-metrics`; `resolve-selfsuvis-reuse-integration`;
-`resolve-fl-op-reuse-integration`; `resolve-loc-lm-bench-reuse-integration`; every task that copies
-source, adds a dependency, or publishes an evaluated artifact.
+`resolve-loc-lm-bench-reuse-integration`; the resolved `fl-op` seam documented in
+[Project foundation](current/project-foundation.md#fl-op-contract-governance-reuse); every task that
+copies source, adds a dependency, or publishes an evaluated artifact.
 - User-visible outcome: Reuse is legally and technically traceable, and a stale run cannot continue
 to support a changed published claim.
 - Scope boundary: Audit repository and generated evidence; do not invent missing benchmarks or
@@ -1655,8 +1617,8 @@ released so a reused seam can become an installable dependency.
 
 - Serves: `project-foundation` -- [Reuse decision rule](../design/spec.md#reuse-decision-rule)
 - Agent status: HUMAN-GATED
-- Dependencies: `resolve-selfsuvis-reuse-integration`; `resolve-fl-op-reuse-integration`;
-`resolve-loc-lm-bench-reuse-integration`; each prepared change-request artifact those tasks produced.
+- Dependencies: `resolve-selfsuvis-reuse-integration`; `resolve-loc-lm-bench-reuse-integration`;
+each prepared change-request artifact those tasks produced.
 - User-visible outcome: The owner decides, per external repository, whether `arxiv-int` waits for an
 upstream package boundary or keeps the extracted or deferred form already working here.
 - Scope boundary: Authorize or decline work in the owning repository and its release; do not use this

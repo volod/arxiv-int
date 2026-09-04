@@ -1,6 +1,8 @@
-arxiv-int includes an adapted extraction from selfsuvis
+arxiv-int includes adapted extractions from selfsuvis
 (https://github.com/volod/selfsuvis), revision
-bd0f4447bf20a72e9421c93f208ce1f52f1c622b, under the MIT License:
+bd0f4447bf20a72e9421c93f208ce1f52f1c622b, and fl-op
+(https://github.com/volod/fl-op), revision
+1f452ecaeded92c6bbbd4a86de9ded1ea7444e60. Both are under the MIT License:
 
 Copyright (c) 2026 vola
 

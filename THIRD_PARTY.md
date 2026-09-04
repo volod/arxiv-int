@@ -20,3 +20,24 @@ The extraction intentionally excludes the video and IoT pipelines, Qdrant, LangG
 model implementations, service clients, and upstream compatibility aliases. The code lives in its
 owning functional packages, is maintained as a project-owned fork, and is refreshed only by a
 deliberate re-extraction and repeat measurement.
+
+## fl-op contract-governance extraction
+
+- Source: <https://github.com/volod/fl-op>
+- Revision: `1f452ecaeded92c6bbbd4a86de9ded1ea7444e60`
+- Licence: MIT; the licence text is reproduced in `NOTICE`.
+- Form: attributed functional extraction, adapted to project typing and contract boundaries.
+
+| Local file | Upstream basis | Local changes |
+| --- | --- | --- |
+| `src/arxiv_int/contracts/_yaml.py` | `fl_op/contracts/odcs_loader.py`, `registry.py` | Isolate typed mapping loading behind the contracts extra. |
+| `src/arxiv_int/contracts/canonical.py` | `fl_op/contracts/canonical_model.py` | Replace fleet constants and Pydantic models with explicit-root immutable project types. |
+| `src/arxiv_int/contracts/registry.py` | `fl_op/contracts/registry.py` | Retain portable ODCS/mapping lookup and metadata-drift checks; remove profiles, plugins, domains, and generated-format coupling. |
+| `src/arxiv_int/contracts/fingerprint.py` | `fl_op/contracts/fingerprint.py` | Retain normalized semantic hashing without the native FastAvro dependency. |
+| `src/arxiv_int/contracts/generate.py` | `fl_op/contracts/schema_gen.py`, `gen/base.py` | Retain explicit registered dispatch as a protocol; defer project generators to contract governance. |
+| `src/arxiv_int/contracts/evolution.py` | `fl_op/contracts/evolution.py` | Retain physical snapshots, change classes, version gates, and deterministic history writes without fleet mappings. |
+
+The extraction intentionally excludes fleet-domain contracts and profiles, optimization metadata,
+solver and planning models, plugins, Protobuf compilation, Elasticsearch generation, and all
+upstream runtime dependencies other than the PyYAML capability already selected by the local
+`contracts` extra.

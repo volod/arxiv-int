@@ -88,6 +88,39 @@ reproduces the licence. The measurement and decision evidence is stored under
 `$DATA_DIR/reuse/selfsuvis/decision.json`; no upstream change is required, so there is no change
 request.
 
+## fl-op contract-governance reuse
+
+The registry, canonical-model, generator-dispatch, semantic-fingerprint, and baseline-policy seam is
+an attributed functional extraction from `fl-op` revision
+`1f452ecaeded92c6bbbd4a86de9ded1ea7444e60`. The inspected contract package has 4,089 Python lines
+and 152,515 source bytes; the cohesive registry/generator/fingerprint/evolution slice has 2,638
+lines and 96,830 bytes. The complete upstream wheel is 427,017 bytes and 1,299,085 bytes unpacked.
+Its 15 direct runtime requirements resolve to 64 installed distributions and 610,157,079 bytes on
+the measured Linux/Python 3.11 environment before installing the upstream wheel itself.
+
+The upstream wheel is pure Python and builds with Hatchling, but its mandatory closure includes
+OR-Tools, NumPy, SciPy, scikit-learn, FastAvro, PyArrow, Pydantic Core, PyProj, Shapely,
+Cryptography, CFFI, Greenlet, and Pandas wheels containing native code. It also carries solver,
+serving, experiment-tracking, and geospatial behavior that the contract seam does not use. The
+chosen form is therefore a 484-line, 17,516-byte extraction with PyYAML as its only runtime import;
+PyYAML was already in the locked `contracts` extra, and the extraction adds only PyYAML type stubs
+to the development extra.
+
+`arxiv_int.contracts` now provides an explicit-root file registry, immutable canonical semantic
+model, the upstream-compatible semantic metadata hash, a narrow generator protocol and registered
+dispatch, and pure schema snapshot/change/version/baseline primitives. The registry rejects paths
+outside its root and detects drift from a reviewed semantic hash. It never discovers a sibling
+checkout and imports no fleet, solver, model, serving, Arrow, Elasticsearch, or upstream package.
+The later contract-governance tasks own project ODCS documents, `x-arxiv-int` adapters, concrete
+physical generators, full adjacent-history policy, migrations, and live-store checks.
+
+Each extracted module records the source, immutable revision, and MIT licence. `THIRD_PARTY.md`
+maps the upstream basis and local changes, while `NOTICE` carries the licence. Functional tests
+cover upstream-equivalent fingerprint and change classification, canonical loading, registry path
+safety and drift detection, generator dispatch, deterministic baselines, and import isolation. The
+measurement record is `$DATA_DIR/reuse/fl-op/decision.json`. Extraction needs no upstream change,
+so no change request exists.
+
 Output-sensitive tooling is pinned exactly: `complexipy`, `mypy`, `pymarkdownlnt`, `radon`, `ruff`,
 and `shellcheck-py`. Formatting, typing, complexity, and Markdown findings therefore do not move
 with a resolver update. `make bootstrap` still installs only the core plus the `dev` extra.

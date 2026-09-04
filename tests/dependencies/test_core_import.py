@@ -37,4 +37,5 @@ def test_core_import_pulls_no_optional_module() -> None:
     assert "arxiv_int.interfaces" in loaded
     assert optional_modules().isdisjoint(loaded)
     assert not any(name == "selfsuvis" or name.startswith("selfsuvis.") for name in loaded)
+    assert not any(name == "fl_op" or name.startswith("fl_op.") for name in loaded)
     assert {"torch", "dotenv", "qdrant_client"}.isdisjoint(loaded)
