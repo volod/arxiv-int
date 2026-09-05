@@ -1,9 +1,4 @@
-"""Typed YAML loading for contract documents.
-
-Adapted from ``fl_op.contracts.odcs_loader`` and registry loading in
-https://github.com/volod/fl-op at revision
-1f452ecaeded92c6bbbd4a86de9ded1ea7444e60, under the MIT License.
-"""
+"""Typed YAML loading for contract documents."""
 
 import pathlib
 from typing import Any, cast

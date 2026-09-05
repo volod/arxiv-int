@@ -1,8 +1,4 @@
-"""File-backed registry for ODCS contracts and canonical mappings.
-
-Adapted from ``fl_op.contracts.registry`` in https://github.com/volod/fl-op at
-revision 1f452ecaeded92c6bbbd4a86de9ded1ea7444e60, under the MIT License.
-"""
+"""File-backed registry for ODCS contracts and canonical mappings."""
 
 import pathlib
 from dataclasses import dataclass

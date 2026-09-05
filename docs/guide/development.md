@@ -15,7 +15,7 @@ include the resulting `uv.lock` change.
 
 ## Feature groups
 
-The core install carries no runtime dependency. Optional stacks are installed by name:
+Optional stacks are installed by feature-group name:
 
 ```bash
 uv pip install 'arxiv-int[lake]'

@@ -21,25 +21,20 @@ This specification is living. Product behavior, boundaries, and evaluation belon
 implementation work belongs in `plan.md`; delivered behavior must eventually move to focused pages
 under `docs/impl/current/`.
 
-## Research basis and source snapshot
+## Technical references
 
-The design was reviewed on 2026-09-04 against the following upstream and reference repositories.
-Commit pins record what was actually inspected; version pins used by the future implementation must
-still be refreshed and compatibility-tested before the first lock is committed.
+The following external systems constrain the implementation. Version pins used by the implementation
+must be compatibility-tested before they enter the lock or deployment image.
 
 | Source                                                                                                        | Inspected revision                                          | Design consequence                                                                                                                                                                           |
 | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [ParadeDB](https://github.com/paradedb/paradedb/tree/c74bcde7bf6f6e44516d81f18350f2725d14fd5f)                | `c74bcde` (`0.25.6` workspace version)                      | ParadeDB is now a Postgres custom index for BM25, vector, hybrid, filters, aggregates, and joins, not merely an OpenSearch-like sidecar. Native vector indexing is still documented as beta. |
-| [fl-op contracts](https://github.com/volod/fl-op/tree/1f452ecaeded92c6bbbd4a86de9ded1ea7444e60/contracts)     | `1f452ec`                                                   | Reuse the ODCS registry, canonical-model, generator, fingerprint, reviewed baseline, and semantic-evolution patterns.                                                                        |
-| [selfsuvis](https://github.com/volod/selfsuvis/tree/bd0f4447bf20a72e9421c93f208ce1f52f1c622b)                 | `bd0f444`                                                   | Reuse layered environment/path resolution, preflight checks, serialized concurrent logging, per-step timings, GPU-aware model scheduling, and partial-result preservation.                   |
-| [loc-lm-bench](https://github.com/volod/loc-lm-bench/tree/23519f7f0255c8b5ccfe4d2a4c9a5e4adf24e1a3)           | `23519f7`                                                   | Reuse the evidence discipline for ingestion, corpus hygiene, probabilistic linkage, retrieval comparison, local model serving, answer evaluation, and provenance.                            |
-| [agent-py](https://github.com/volod/agent-py/tree/d7c3467b6f6b3816c2c1aad34eb3871f5da8ef22)                   | `d7c3467`                                                   | Use the repository template, Python 3.12+, `uv`, Make entrypoints, typed `src` layout, CI gates, capability registry, and forward-only planning lifecycle.                                   |
 | [Apache AGE](https://github.com/apache/age/tree/0e30566226f017d53b7f52025803b38af3ad2b3f)                     | `0e30566`; README advertises AGE 1.8.0 and PostgreSQL 11-18 | AGE is feasible on the same PostgreSQL major, but the ParadeDB combination is not listed as an upstream-tested extension set and needs a project-owned image and compatibility gate.         |
 | [pgvector](https://github.com/pgvector/pgvector/tree/e48241b4dcc045b18902914f668d03d1d399dfbe)                | `e48241b`; README install pin `0.8.6`                       | Stable exact, HNSW, IVFFlat, half-vector, binary-quantization, and iterative-scan baseline; large HNSW builds remain memory and maintenance intensive.                                       |
 | [ODCS](https://github.com/bitol-io/open-data-contract-standard/tree/f5bfbb813fe2c0551e2c324913f330e7807885d8) | `f5bfbb8`; standard `3.1.0`                                 | ODCS is the human and machine-readable contract source of truth; its custom properties carry project generation hints that the standard does not define.                                     |
 | [UDC Consortium](https://udcc.org/index.php/site/page?view=about_structure) and [UDC overview](https://en.wikipedia.org/wiki/Universal_Decimal_Classification) | Web references inspected 2026-09-04                        | UDC supplies a faceted, syntactically expressive hierarchy; the project must pin an authorized vocabulary snapshot and keep local outcomes/extensions distinguishable from official notation. |
 
-Additional current upstream facts used by the decision:
+Relevant implementation constraints:
 
 - ParadeDB documents a covering LSM-based inverted/columnar index, Russian Snowball stemming,
   Russian stopwords, Unicode and ICU tokenization, concurrent reindexing, and single-node production
@@ -240,9 +235,8 @@ independent root, written only by that authorized command.
 
 ## Repository and package structure
 
-The repository foundation was adapted from the pinned `agent-py` source above. Behavior that exists
-today is indexed by [current implementation](../impl/current.md); the target layout the capabilities
-below build toward is:
+Behavior that exists today is indexed by [current implementation](../impl/current.md); the target
+layout the capabilities below build toward is:
 
 ```text
 arxiv-int/
@@ -304,10 +298,9 @@ arxiv-int/
 ```
 
 `configs/` holds versioned operator profiles and policies; `ontology/` holds Turtle and SHACL assets.
-Copied upstream code lives in the same functional package as project-owned code for that concept;
-source repository, revision, and licence stay visible in the module docstring and `THIRD_PARTY.md`.
-No production package is organized by source repository. Every directory arrives with the capability
-that needs it, not in advance.
+Production code lives in the functional package that owns its behavior. No package is organized by
+implementation history, and directories arrive with the capability that needs them rather than in
+advance.
 
 Custom Python is orchestration and domain policy, not reimplementation of Tika, Docling, OCR,
 ParadeDB, pgvector, AGE, DuckDB, PyArrow, or model runtimes. Production modules remain typed and
@@ -573,8 +566,8 @@ these concepts without changing pipeline code.
 ### Generation
 
 Prefer Data Contract CLI for ODCS linting, generic SQL/Avro/JSON Schema export, changelogs, breaking
-checks, and live Postgres tests. Adapt the small MIT-licensed `fl-op` generator/evolution seams only
-for gaps that generic tooling cannot express:
+checks, and live Postgres tests. Keep project generator/evolution helpers focused on gaps that
+generic tooling cannot express:
 
 - PostgreSQL partition, constraint, index, and extension DDL;
 - ParadeDB index/tokenizer definitions;
@@ -1178,53 +1171,13 @@ artifact family; a weak family remains `partial` or disabled without blocking us
 Human approval defines high-impact inclusion states and confirms that labels such as `paid`,
 `supplier`, and `part-of` match the archive's domain meaning.
 
-## Reuse map
+## Implementation boundaries
 
-| Source         | Reuse                                                                                                                                                                                                                             | Do not carry forward                                                                                               |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `agent-py`     | Template structure, project rename, Python/uv/Make gates, typed CLI seam, doc-link and spec-plan integrity, AGENTS policy                                                                                                         | Starter identity and example-only behavior                                                                         |
-| `fl-op`        | ODCS registry, canonical model, namespaced generation hints, deterministic multi-format generators, fingerprints, semantic mapping, reviewed evolution baselines, compatibility tests                                             | Fleet domain, optimization solver, ES generator as an active target                                                |
-| `selfsuvis`    | Layered env/path helper, cross-filesystem cache handling, preflight/resource checks, queued logging, step timing, partial results, GPU/model lifecycle patterns                                                                   | Video/IoT pipeline, Qdrant production dependency, monolithic 35-step orchestration                                 |
-| `loc-lm-bench` | Citation-preserving ingestion where applicable, conflict/dedup audit, Splink linkage seam, retrieval metrics and paired verdicts, local backend abstraction, model fit/VRAM telemetry, ontology/fact gates, immutable run bundles | Ukrainian-only defaults, robotics lanes, FAISS as production store, the full benchmark CLI inside the core package |
-| Upstream OSS   | Tika, Docling, OCRmyPDF/Tesseract, PyArrow, DuckDB, Data Contract CLI, ParadeDB, pgvector, AGE, rdflib/pySHACL, Ollama/vLLM                                                                                                       | Thin local rewrites of their core engines                                                                          |
-
-### Reuse decision rule
-
-Reuse from `volod/*` and other repositories is smallest-footprint-first, not dependency-first. A new
-distribution dependency is a permanent installation, resolution, and upgrade cost, so it must be
-earned by the size of the reused surface rather than assumed. The reused seam is measured first, then
-one of two forms is chosen:
-
-| Reused surface                                                                                                                                          | Form                                                                                                                                                     |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Small and self-contained: at most about 400 source lines across a few cohesive modules, adding no transitive package, and not expected to track upstream | **Extract it.** Copy each behavior into its owning functional package, adapt it to project typing and style, and record source repository, revision, licence, and local changes in its module docstring and `THIRD_PARTY.md`. |
-| Large, or dependent on the upstream's own packages, or valuable mainly because it keeps receiving upstream fixes                                         | **Depend on it.** Prefer a released package pinned by version; a commit-pinned VCS revision is acceptable while a release is being established.          |
-
-A copied extraction is a fork by intent: it carries the upstream licence and revision, is covered by
-tests beside each functional area, and is refreshed only by a deliberate re-extraction. Provenance
-does not define package or test structure: do not create a source-named package, a source-named
-adapter over unrelated behaviors, or one mixed test module merely because code shares an origin. It
-is never a silent divergence or unattributed copy. Copying an entire application, copying an engine
-that upstream maintains as a product (Tika, ParadeDB, Splink, rdflib and similar), or maintaining a
-parallel implementation of behavior the project already owns is not reuse in either form.
-
-When the dependency form is chosen, upstream repositories must expose cohesive importable modules and
-optional dependency groups so `arxiv-int` installs only the reused seam, and portable locks must not
-rely on sibling checkout paths. Before adding a dependency, record its licence, maintainer/revision,
-reused API, transitive packages, wheel/download and installed sizes, native-build requirements, and
-the pipeline extras that activate it. PyTorch, CUDA toolchains, model runtimes, graph/UI stacks, and
-similarly heavy packages never enter the core dependency closure unless the core actually executes
-them. A heavy upstream package must first split or expose a lightweight subpackage/extra; otherwise
-the integration is resolved by a small functional extraction or by deferral.
-
-Deciding, measuring, and testing this belongs to the implementing agent: it inventories the seam,
-measures size and transitive cost, and proves the choice with lock, import-isolation, clean-install,
-size, licence, and behavioral-equivalence tests. Only a change to a repository the project does not
-own requires human authorization. In that case the agent produces the change request as a reviewable
-artifact for the owning repository -- the module boundary, the interface contract, the packaging
-change, and the tests it needs -- and continues here with the extracted or deferred form until that
-request is authorized and released. Waiting on an external repository never blocks this project's
-critical path. A valid negative result is to defer reuse and keep an existing local seam.
+Project modules own orchestration, contracts, policy, metrics, and backend-neutral interfaces.
+Maintained engines such as Tika, Docling, OCRmyPDF/Tesseract, PyArrow, DuckDB, Data Contract CLI,
+ParadeDB, pgvector, AGE, rdflib/pySHACL, Splink, Ollama, and vLLM are integrated through narrow
+adapters rather than reimplemented. Optional stacks remain in the feature group that activates
+them, and runtime artifacts never depend on a sibling source checkout.
 
 ## Evaluation and acceptance
 
@@ -1379,7 +1332,7 @@ evidence exist. Registry order is the implementation line used by `plan.md`.
 
 | #   | Capability                | Status  | How it is evaluated                                                                          | Implementation                                               |
 | --- | ------------------------- | ------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| 1   | `project-foundation`      | planned | Fresh copy, rename, locked bootstrap, CLI identity, docs integrity, and CI pass              | `plan.md#project-foundation----project-foundation`           |
+| 1   | `project-foundation`      | shipped | Fresh copy, rename, locked bootstrap, CLI identity, docs integrity, and CI pass              | [Project foundation](../impl/current/project-foundation.md)  |
 | 2   | `portable-runtime`        | planned | Multi-SSD path and Compose profile smoke tests pass from two checkout locations              | `plan.md#portable-runtime----portable-runtime`               |
 | 3   | `development-loop`        | planned | Stable aliases resolve from two checkouts and an opt-in real-archive stage lane runs outside the deterministic gate | `plan.md#development-loop----development-loop`               |
 | 4   | `contract-governance`     | planned | ODCS lint/generation/evolution/Avro/migration/live-store gates pass                          | `plan.md#contract-governance----contract-governance`         |
@@ -1396,7 +1349,7 @@ evidence exist. Registry order is the implementation line used by `plan.md`.
 | 15  | `identity-ontology-graph` | planned | Linkage, ontology, SQL/Cypher parity, rebuild, and bounded traversal gates pass              | `plan.md#identity-ontology-graph----identity-ontology-graph` |
 | 16  | `domain-investigation-artifacts` | planned | Reviewed BOM, relationship, supply-chain, invoice/payment, render, and registry gates pass | `plan.md#domain-investigation-artifacts----domain-investigation-artifacts` |
 | 17  | `discovery-visualization` | planned | Topic stability plus operator completion of search, graph, equipment, and supplier scenarios | `plan.md#discovery-visualization----discovery-visualization` |
-| 18  | `evaluation-evidence`     | planned | Provenance audit and representative scale pilots produce readable, capacity-aware verdicts   | `plan.md#evaluation-evidence----evaluation-evidence`         |
+| 18  | `evaluation-evidence`     | planned | Artifact-lineage checks and representative scale pilots produce readable, capacity-aware verdicts | `plan.md#evaluation-evidence----evaluation-evidence`      |
 | 19  | `operational-recovery`    | planned | Security checks, backup/restore drill, disk exhaustion, interruption, and runbook tests pass | `plan.md#operational-recovery----operational-recovery`       |
 
 ## Success criteria

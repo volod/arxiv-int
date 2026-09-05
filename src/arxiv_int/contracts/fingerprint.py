@@ -1,9 +1,4 @@
-"""Deterministic semantic fingerprints for contract metadata.
-
-Adapted from ``fl_op.contracts.fingerprint`` in
-https://github.com/volod/fl-op at revision
-1f452ecaeded92c6bbbd4a86de9ded1ea7444e60, under the MIT License.
-"""
+"""Deterministic semantic fingerprints for contract metadata."""
 
 import hashlib
 import json

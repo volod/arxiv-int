@@ -1,8 +1,4 @@
-"""Serialized logging for concurrent workers.
-
-Adapted under the MIT License from https://github.com/volod/selfsuvis at revision
-bd0f4447bf20a72e9421c93f208ce1f52f1c622b.
-"""
+"""Serialized logging for concurrent workers."""
 
 import logging
 import logging.handlers

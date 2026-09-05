@@ -1,4 +1,4 @@
-"""Semantic fingerprint behavior inherited from the fl-op seam."""
+"""Semantic fingerprint behavior."""
 
 import copy
 
@@ -20,7 +20,7 @@ _MAPPING = {
 }
 
 
-def test_hash_matches_pinned_upstream_algorithm() -> None:
+def test_hash_is_stable_for_known_metadata() -> None:
     assert semantic_metadata_hash(_MAPPING) == (
         "06516e17c50933e9305b3e3fafb54c991ec66ed1817390badd8184535ce1f8e9"
     )

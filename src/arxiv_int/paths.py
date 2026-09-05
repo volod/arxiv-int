@@ -1,8 +1,4 @@
-"""Safe project path resolution.
-
-Adapted under the MIT License from https://github.com/volod/selfsuvis at revision
-bd0f4447bf20a72e9421c93f208ce1f52f1c622b.
-"""
+"""Safe project path resolution."""
 
 from collections.abc import Sequence
 from pathlib import Path

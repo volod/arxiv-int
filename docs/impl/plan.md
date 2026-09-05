@@ -8,48 +8,6 @@ ordering, and lifecycle rules belong in the
 
 ## Agent Implementation Tasks
 
-### Project foundation -- `project-foundation`
-
-#### resolve-loc-lm-bench-reuse-integration
-
-Measure the `loc-lm-bench` evaluation-metric, provenance, retrieval-comparison, linkage, and
-local-backend seam and resolve it as a small attributed extraction, an installable dependency, or a
-recorded deferral.
-
-- Serves: `project-foundation` -- [Reuse decision rule](../design/spec.md#reuse-decision-rule)
-- Agent status: CLEAR
-- Research: yes
-- Dependencies: Feature groups and domain interfaces described in
-[Project foundation](current/project-foundation.md#dependency-seams-and-feature-groups);
-read access to the pinned `loc-lm-bench` revision.
-- User-visible outcome: A clean `arxiv-int` checkout computes retrieval and extraction metrics,
-paired verdicts, linkage comparisons, and immutable run bundles without a sibling checkout and
-without the full benchmark CLI, FAISS, or robotics dependencies.
-- Scope boundary: Decide, prove, and record the reuse form for this seam; do not modify the
-`loc-lm-bench` repository, publish an upstream release, or carry forward its Ukrainian-only
-defaults, robotics lanes, FAISS production store, or full benchmark CLI.
-- Data and artifact paths: `pyproject.toml`, `uv.lock`, `src/arxiv_int/evaluation/`,
-`src/arxiv_int/retrieval/`, `src/arxiv_int/inference/`, `THIRD_PARTY.md`, `NOTICE`, matching
-functional test packages, and the measurement and decision record under
-`$DATA_DIR/reuse/loc-lm-bench/`.
-- Execution path: Inventory the pinned seam; measure reused source lines, module cohesion,
-transitive packages, wheel and installed size, native build needs, and licence; apply the
-specification's reuse decision rule; either copy each small behavior into its owning functional
-package with attribution docstrings and project typing or pin a release or immutable revision behind
-a narrow adapter; never create a source-named package or mixed provenance test module; run
-clean-install, import-isolation, size, licence, and behavioral-equivalence checks beside each owning
-module. When the seam is reachable only through a change to the `loc-lm-bench` repository, write that
-change
-request -- module boundary, interface contract, packaging change, and required tests -- under
-`$DATA_DIR/reuse/loc-lm-bench/change-request/` for `authorize-upstream-repository-changes`, and
-continue here with the extracted or deferred form.
-- Acceptance gates: The recorded decision names measured size, transitive cost, licence, and chosen
-form; a clean core and selected-extra install is portable and locked; core import pulls no optional
-heavy package; every copied file names its source repository, revision, and licence in its docstring
-and `THIRD_PARTY.md`; functional test modules cover the reused behavior in whichever form was
-chosen. A documented deferral with a working local seam is a valid negative result.
-- Documentation target: `docs/impl/current/project-foundation.md`
-
 ### Portable runtime -- `portable-runtime`
 
 #### implement-layered-configuration-and-path-safety
@@ -60,7 +18,8 @@ operator roots.
 - Serves: `portable-runtime` --
 [Configuration and multi-SSD paths](../design/spec.md#configuration-and-multi-ssd-paths)
 - Agent status: CLEAR
-- Dependencies: `resolve-selfsuvis-reuse-integration`.
+- Dependencies: Current configuration and path primitives documented in
+[Project foundation](current/project-foundation.md#runtime-primitives).
 - User-visible outcome: An operator configures three paths -- source silos, one results root, and one
 PostgreSQL data directory -- puts them on different disks, and every other location is a documented
 default inside them that can be moved to the disk its storage class needs.
@@ -69,9 +28,9 @@ create corpus artifacts or start containers. `DATA_DIR` stays the repository dev
 and never receives corpus output.
 - Data and artifact paths: `.env.example`, `.gitignore`, `src/arxiv_int/config.py`,
 `src/arxiv_int/paths.py`, `scripts/shared/common.sh`, and `tests/config/`.
-- Execution path: Consume the `selfsuvis` seam in the form `resolve-selfsuvis-reuse-integration`
-recorded; implement project-specific CLI > environment > `.env` > default precedence through a narrow
-adapter; resolve the declared silo ids and roots, `RESULTS_DIR`, and `PGDATA_DIR`; derive `RUNS_DIR`,
+- Execution path: Implement CLI > environment > `.env` > default precedence through the existing
+configuration interface; resolve the declared silo ids and roots, `RESULTS_DIR`, and `PGDATA_DIR`;
+derive `RUNS_DIR`,
 `MODEL_CACHE_DIR`, `TMP_DIR`, `DEV_RESULTS_DIR`, and `SERVICE_STATE_DIR` inside the results root
 unless overridden; accept optional `PG_WAL_DIR` and `PG_TABLESPACE_<NAME>_DIR` roots; create the
 documented results layout; record filesystem type, device id, and rotational flag per root and
@@ -210,18 +169,17 @@ mappings for the first pipeline entities.
 - Serves: `contract-governance` --
 [Contract-first data governance](../design/spec.md#contract-first-data-governance)
 - Agent status: CLEAR
-- Dependencies: The resolved `fl-op` seam and personalized package/CLI identity documented in
-[Project foundation](current/project-foundation.md).
+- Dependencies: The contract primitives and package/CLI identity documented in
+[Project foundation](current/project-foundation.md#contract-primitives).
 - User-visible outcome: Documents, spans, chunks, objects, mentions, facts, topics, ontology terms,
 embeddings, and evaluation items have one reviewable schema source of truth.
 - Scope boundary: Define contracts and semantic bindings; do not create live database tables or
 infer domain-specific ontology terms from the corpus.
 - Data and artifact paths: `contracts/registry.yaml`, `contracts/canonical/`, `contracts/datasets/`,
 `contracts/mappings/`, and `src/arxiv_int/contracts/`.
-- Execution path: Consume the `fl-op` registry/canonical-model seam in the form
-`resolve-fl-op-reuse-integration` recorded; add only project-specific ODCS 3.1 adapters; namespace
-project hints under `x-arxiv-int`; add Data Contract CLI validation and Pydantic loaders that
-preserve unknown metadata.
+- Execution path: Extend the existing registry and canonical-model interfaces with project-specific
+ODCS 3.1 adapters; namespace project hints under `x-arxiv-int`; add Data Contract CLI validation and
+Pydantic loaders that preserve unknown metadata.
 - Acceptance gates: Official ODCS JSON Schema and Data Contract CLI lint pass; ids, versions,
 references, canonical bindings, relationship targets, and required identities are unique and
 complete.
@@ -262,9 +220,9 @@ schema change can reach data.
 table-rewriting changes.
 - Data and artifact paths: `contracts/evolution/`, `db/migrations/`, `db/schema.sql`,
 `src/arxiv_int/contracts/evolution.py`, and `tests/contracts/evolution/`.
-- Execution path: Consume the resolved `fl-op` adjacent-history and semantic-fingerprint seam;
-invoke Avro reader/writer compatibility and Data Contract CLI breaking checks; integrate dbmate;
-compare generated baseline, migration dump, and live information schema.
+- Execution path: Extend the existing adjacent-history and semantic-fingerprint primitives; invoke
+Avro reader/writer compatibility and Data Contract CLI breaking checks; integrate dbmate; compare
+generated baseline, migration dump, and live information schema.
 - Acceptance gates: Fixtures prove identical, additive, breaking, tokenizer/reindex,
 vector-dimension, semantic-retarget, and graph-projection cases; version rules fail closed;
 out-of-order migrations and drift fail CI.
@@ -352,7 +310,7 @@ embeddings, health, model identity, timeout, and cancellation.
 - Serves: `local-inference` -- [Local inference](../design/spec.md#local-inference)
 - Agent status: CLEAR
 - Dependencies: Feature groups and domain interfaces described in
-[Project foundation](current/project-foundation.md#dependency-seams-and-feature-groups);
+[Project foundation](current/project-foundation.md#feature-groups);
 `implement-layered-configuration-and-path-safety`.
 - User-visible outcome: The same extraction/retrieval code can use the Ollama system service or an
 optional vLLM container through explicit configuration.
@@ -400,7 +358,8 @@ graph, domain-artifact, and reporting fixtures plus paired evaluation utilities.
 
 - Serves: `evaluation-foundation` -- [Evaluation and acceptance](../design/spec.md#evaluation-and-acceptance)
 - Agent status: CLEAR
-- Dependencies: `establish-canonical-contract-registry`; `resolve-loc-lm-bench-reuse-integration`.
+- Dependencies: `establish-canonical-contract-registry`; the evaluation and retrieval primitives
+documented in [Project foundation](current/project-foundation.md#evaluation-and-retrieval-primitives).
 - User-visible outcome: Every store/model/pipeline recommendation names the exact frozen items,
 metrics, thresholds, and run artifacts that support it, and every usable stage can publish the same
 proof-bundle shape.
@@ -409,9 +368,9 @@ human lane.
 - Data and artifact paths: `tests/fixtures/`, `eval.*`, `src/arxiv_int/evaluation/`,
 `configs/evaluation/`, `configs/proofs/`, `Makefile`, `$RUNS_DIR/<run-id>/evaluation/`, and
 `$RUNS_DIR/proofs/`.
-- Execution path: Consume the resolved `loc-lm-bench` seam for recall@k, MRR, evidence
-intactness, p95, paired bootstrap, extraction/span, hierarchical classification, linkage, domain
-artifact, graph parity, resource cost, and adopt/retain/inconclusive verdicts; register the
+- Execution path: Extend the existing metrics for recall@k, MRR, evidence intactness, p95, paired
+bootstrap, extraction/span, hierarchical classification, linkage, domain artifact, graph parity,
+resource cost, and adopt/retain/inconclusive verdicts; register the
 `evaluate` stage body that writes the immutable evaluation bundle; add a typed proof manifest,
 stage-to-validator registry, redaction, fingerprint freshness, proof summary helpers, and a shared
 `make proof CAPABILITY=...` dispatcher.
@@ -609,9 +568,9 @@ ETA, errors, and resource pressure without garbled concurrent output.
 unbounded ids in logs/metric labels.
 - Data and artifact paths: `src/arxiv_int/observability/`, `$RUNS_DIR/<run-id>/logs/`,
 `ctl.stage_run`, Grafana provisioning, and logging tests.
-- Execution path: Consume the resolved `selfsuvis` logging/timing seam; add
-time/count-throttled progress, heartbeats, psutil/NVML/disk/Postgres metrics, redaction filters,
-JSONL schema, and final manifests.
+- Execution path: Extend the existing logging and timing interfaces with time/count-throttled
+progress, heartbeats, psutil/NVML/disk/Postgres metrics, redaction filters, JSONL schema, and final
+manifests.
 - Acceptance gates: Concurrent-log tests produce intact lines; redaction fixtures remove secrets and
 corpus text; stalled worker and ETA states are distinguishable; metric labels have bounded
 cardinality.
@@ -1144,9 +1103,9 @@ transliterations resolve to canonical objects with match evidence and uncertaint
 auto-merge below the approved precision threshold.
 - Data and artifact paths: `kg.object`, `kg.alias`, `kg.resolution_edge`, `kg.cluster_version`,
 `$RESULTS_DIR/normalized/linkage/`, and `src/arxiv_int/identity/`.
-- Execution path: Consume the resolved `loc-lm-bench` Splink 4/DuckDB seam; define blocking and
-comparison specs; train/calibrate from reviewer labels; persist the model, thresholds, pair
-probabilities, and cluster algorithm.
+- Execution path: Use maintained Splink 4 directly behind the local seam with DuckDB; define
+blocking and comparison specs; train/calibrate from reviewer labels; persist the model, thresholds,
+pair probabilities, and cluster algorithm.
 - Acceptance gates: Held-out pair and cluster metrics pass the predeclared auto-merge precision
 floor; replay does not refit; uncertain/rejected pairs remain separate; rollback restores the
 prior cluster view.
@@ -1495,31 +1454,24 @@ uncertainty and concurrent-rebuild space; every failure and excluded format is c
 ends in authorize-next, resize/reconfigure, retain-subset, or stop.
 - Documentation target: `docs/impl/current/evaluation.md`
 
-#### audit-reuse-provenance-and-published-claims
+#### audit-published-claims-and-artifact-lineage
 
-Verify dependency and copied-extraction provenance, artifact lineage, and every number or
-architectural claim published in reports and current-state docs.
+Verify artifact lineage and every number or architectural claim published in reports and
+current-state docs.
 
-- Serves: `evaluation-evidence` -- [Reuse map](../design/spec.md#reuse-map)
+- Serves: `evaluation-evidence` --
+[Implementation boundaries](../design/spec.md#implementation-boundaries)
 - Agent status: CLEAR
-- Dependencies: `create-evaluation-fixtures-and-metrics`; `resolve-selfsuvis-reuse-integration`;
-`resolve-loc-lm-bench-reuse-integration`; the resolved `fl-op` seam documented in
-[Project foundation](current/project-foundation.md#fl-op-contract-governance-reuse); every task that
-copies source, adds a dependency, or publishes an evaluated artifact.
-- User-visible outcome: Reuse is legally and technically traceable, and a stale run cannot continue
-to support a changed published claim.
-- Scope boundary: Audit repository and generated evidence; do not invent missing benchmarks or
-license interpretations.
-- Data and artifact paths: `NOTICE`, `THIRD_PARTY.md`, dependency lock, attribution docstrings in
-functional `src/arxiv_int/` modules, `ctl.artifact`, run manifests, and docs claim registry.
-- Execution path: Recheck dependency revisions, licences, transitive size/build inventories, and every
-copied extraction's source repository, revision, licence, and recorded size decision; link published
-metrics to run fields and content pins; list invalidations caused by dependency, contract, model,
-profile, classification, or artifact changes.
-- Acceptance gates: License scanner, clean-install/import-isolation checks, size budget, and manual
-notice checklist pass; every copied file resolves to an attributed source revision and a recorded
-decision under the reuse rule; no heavy core dependency and no unattributed copy remains; every
-published number resolves to one immutable artifact field; orphan or stale claims fail CI.
+- Dependencies: `create-evaluation-fixtures-and-metrics`; every task that publishes an evaluated
+artifact or current-state measurement.
+- User-visible outcome: A stale run cannot continue to support a changed published claim.
+- Scope boundary: Audit generated evidence and published claims; do not invent missing benchmarks.
+- Data and artifact paths: `ctl.artifact`, run manifests, current-state measurements, and the docs
+claim registry.
+- Execution path: Link published metrics to run fields and content pins; list invalidations caused
+by contract, model, profile, classification, or artifact changes.
+- Acceptance gates: Every published number resolves to one immutable artifact field; implementation
+boundaries remain explicit; orphan or stale claims fail CI.
 - Documentation target: `docs/impl/current/evaluation.md`
 
 ### Operational recovery -- `operational-recovery`
@@ -1607,34 +1559,6 @@ refuse before the configured safety margin is consumed; stale cleanup never remo
 - Documentation target: `docs/impl/current/operations.md`
 
 ## Human-Assisted Tasks
-
-### Project foundation -- `project-foundation`
-
-#### authorize-upstream-repository-changes
-
-Decide which prepared change requests to repositories this project does not own may be executed and
-released so a reused seam can become an installable dependency.
-
-- Serves: `project-foundation` -- [Reuse decision rule](../design/spec.md#reuse-decision-rule)
-- Agent status: HUMAN-GATED
-- Dependencies: `resolve-selfsuvis-reuse-integration`; `resolve-loc-lm-bench-reuse-integration`;
-each prepared change-request artifact those tasks produced.
-- User-visible outcome: The owner decides, per external repository, whether `arxiv-int` waits for an
-upstream package boundary or keeps the extracted or deferred form already working here.
-- Scope boundary: Authorize or decline work in the owning repository and its release; do not use this
-gate to approve local extraction, which the reuse decision rule already delegates to the agent, and do
-not let an unauthorized request block work in this repository.
-- Data and artifact paths: Prepared change requests under
-`$DATA_DIR/reuse/<source>/change-request/`, `THIRD_PARTY.md`, dependency and licence inventories, and
-the local decision ledger.
-- Execution path: Review each request's module boundary, interface contract, packaging change,
-required tests, licence effect, and the measured cost of the extracted alternative; record
-`authorize`, `defer`, or `decline` per repository with the exact revision the decision applies to.
-- Acceptance gates: Every open request has one recorded decision naming the repository, revision, and
-consequence for this project; an `authorize` names who executes the upstream work and which
-`arxiv-int` reuse form replaces the current one; `defer` and `decline` leave a working extracted or
-local seam in place. No outstanding request is a valid closing result.
-- Documentation target: `docs/impl/current/project-foundation.md`
 
 ### Corpus foundation -- `corpus-foundation`
 

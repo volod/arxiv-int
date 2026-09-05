@@ -6,16 +6,16 @@ from tests.quality._plan_fixture import plan_with, task_block, write_project
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
-def test_repository_plan_reports_the_next_foundation_task() -> None:
+def test_repository_plan_reports_the_next_open_tasks() -> None:
     lines = summary_lines(PROJECT_ROOT)
 
     assert lines == [
-        "tasks: 69",
-        "agent lane: 60",
-        "human lane: 9",
-        "statuses: BLOCKED BY HUMAN=1, CLEAR=25, HUMAN-GATED=8, RUN NEEDED=35",
-        "next agent: resolve-loc-lm-bench-reuse-integration [project-foundation]",
-        "next human: authorize-upstream-repository-changes [project-foundation]",
+        "tasks: 67",
+        "agent lane: 59",
+        "human lane: 8",
+        "statuses: BLOCKED BY HUMAN=1, CLEAR=24, HUMAN-GATED=7, RUN NEEDED=35",
+        "next agent: implement-layered-configuration-and-path-safety [portable-runtime]",
+        "next human: approve-representative-corpus-and-gold [corpus-foundation]",
     ]
 
 

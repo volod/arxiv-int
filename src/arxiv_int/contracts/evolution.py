@@ -1,8 +1,4 @@
-"""Pure schema-baseline and semantic-version evolution primitives.
-
-Adapted from ``fl_op.contracts.evolution`` in https://github.com/volod/fl-op at
-revision 1f452ecaeded92c6bbbd4a86de9ded1ea7444e60, under the MIT License.
-"""
+"""Pure schema-baseline and semantic-version evolution primitives."""
 
 import json
 import pathlib

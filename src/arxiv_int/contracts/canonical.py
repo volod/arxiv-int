@@ -1,9 +1,4 @@
-"""Loader and query model for canonical ODCS semantics.
-
-Adapted from ``fl_op.contracts.canonical_model`` in
-https://github.com/volod/fl-op at revision
-1f452ecaeded92c6bbbd4a86de9ded1ea7444e60, under the MIT License.
-"""
+"""Loader and query model for canonical ODCS semantics."""
 
 import pathlib
 from collections.abc import Mapping

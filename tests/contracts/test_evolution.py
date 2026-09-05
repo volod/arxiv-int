@@ -1,4 +1,4 @@
-"""Schema evolution primitives inherited from the fl-op seam."""
+"""Schema evolution behavior."""
 
 import json
 
@@ -16,7 +16,7 @@ _FIELD = {"logicalType": "string", "physicalType": "string", "required": True}
 _OPTIONAL = {"logicalType": "string", "physicalType": "string", "required": False}
 
 
-def test_change_classification_matches_pinned_upstream() -> None:
+def test_change_classification_distinguishes_compatible_changes() -> None:
     assert classify_change({"id": _FIELD}, {"id": _FIELD}).change_class == CHANGE_IDENTICAL
     assert (
         classify_change({"id": _FIELD}, {"id": _FIELD, "title": _OPTIONAL}).change_class

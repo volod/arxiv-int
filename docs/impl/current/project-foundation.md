@@ -20,11 +20,11 @@ make run
 The separate `arxiv-int-plan` entrypoint supports `make plan-status`. Repository quality modules
 remain under `src/arxiv_int/quality/`, and shared shell functions use the `arxiv_int_` prefix.
 
-## Dependency seams and feature groups
+## Feature groups
 
-The core install declares no runtime dependency. Installing `arxiv-int` gives the CLI, the feature
-catalog, and the domain interfaces; every heavy extraction, NLP, embedding, graph, dashboard,
-evaluation, and GPU stack stays behind a named optional group.
+The feature catalog and domain interfaces are available with the base package. Backend stacks for
+contracts, storage, extraction, NLP, embeddings, graph, inference, evaluation, and the UI are
+organized as named optional groups.
 
 `src/arxiv_int/features/catalog.py` is the single source of truth for group identity: summary,
 owning capability, declared distributions with import name, SPDX licence and purpose, system
@@ -47,9 +47,7 @@ in agreement in both directions.
 | `ui` | reserved for `discovery-visualization` | none yet |
 
 A reserved group carries its summary, system dependencies, and owning capability but no extra in
-`pyproject.toml`, because the specification leaves those component choices to the evaluation of the
-capability that needs them. That capability adds members to the group it already has instead of
-adding a dependency to the core.
+`pyproject.toml` until the owning capability selects its implementation.
 
 `arxiv-int features [--stage STAGE]`, wrapped by `make features [STAGE=...]`, prints every group
 with its status -- `installed`, `missing`, or `reserved` -- the stages that activate it, its install
@@ -61,65 +59,35 @@ needs. That output is the dependency licence inventory.
 module that no group declares raises `LookupError`, so an optional import cannot reach production
 code without a catalog entry.
 
-## selfsuvis runtime-policy reuse
+## Runtime primitives
 
-The configuration, path-safety, preflight, queued-logging, timing, partial-result, and model-lifecycle
-seam is an attributed functional extraction from `selfsuvis` revision
-`bd0f4447bf20a72e9421c93f208ce1f52f1c622b`. The pinned upstream candidates total 1,495 lines across
-eight coupled modules. Its built wheel is 1,081,837 bytes and 3,391,073 bytes unpacked; its 30 direct
-requirements resolve to 136 distributions on Python 3.12, including Torch/CUDA, web, database,
-vector-store, and model-client packages. The upstream source distribution needs setuptools and
-wheel; several dependencies contain native code, while its optional vision lane includes CUDA JIT
-components.
+`arxiv_int.config`, `arxiv_int.paths`, `arxiv_int.doctor.report`,
+`arxiv_int.pipeline.steps`, `arxiv_int.observability.logging`, and
+`arxiv_int.inference.scheduling` provide mapping-based configuration precedence, fail-closed
+real-path containment, accumulated readiness findings, monotonic step timing with partial-result
+preservation, queue-serialized logging, GPU-budget placement, and guaranteed model release.
 
-The chosen form is a 296-line, 9,439-byte standard-library-only extraction organized by project
-function:
-`arxiv_int.config`, `arxiv_int.paths`, `arxiv_int.doctor.report`, `arxiv_int.pipeline.steps`,
-`arxiv_int.observability.logging`, and `arxiv_int.inference.scheduling`. Together they provide
-mapping-based configuration precedence, fail-closed real-path containment, accumulated readiness
-findings, monotonic step timing with earlier results preserved after failure, queue-serialized
-logging, GPU-budget placement, and guaranteed model release. There is no source-named production
-package or adapter. The modules neither import the upstream package nor expose video, IoT, Qdrant,
-LangGraph, Torch, or service-client behavior.
+## Contract primitives
 
-Each functional module docstring records the origin, immutable revision, and MIT licence.
-`THIRD_PARTY.md` maps those modules to their upstream basis and local changes, and `NOTICE`
-reproduces the licence. The measurement and decision evidence is stored under
-`$DATA_DIR/reuse/selfsuvis/decision.json`; no upstream change is required, so there is no change
-request.
+`arxiv_int.contracts` provides an explicit-root file registry, an immutable canonical semantic
+model, deterministic semantic metadata hashes, registered generator dispatch, and schema
+snapshot/change/version/baseline primitives. The registry rejects paths outside its root and
+detects drift from a reviewed semantic hash. Later contract-governance work owns project ODCS
+documents, `x-arxiv-int` adapters, concrete physical generators, adjacent-history policy,
+migrations, and live-store checks.
 
-## fl-op contract-governance reuse
+## Evaluation and retrieval primitives
 
-The registry, canonical-model, generator-dispatch, semantic-fingerprint, and baseline-policy seam is
-an attributed functional extraction from `fl-op` revision
-`1f452ecaeded92c6bbbd4a86de9ded1ea7444e60`. The inspected contract package has 4,089 Python lines
-and 152,515 source bytes; the cohesive registry/generator/fingerprint/evolution slice has 2,638
-lines and 96,830 bytes. The complete upstream wheel is 427,017 bytes and 1,299,085 bytes unpacked.
-Its 15 direct runtime requirements resolve to 64 installed distributions and 610,157,079 bytes on
-the measured Linux/Python 3.11 environment before installing the upstream wheel itself.
+`arxiv_int.evaluation` provides normalized text and multiset extraction precision/recall/F1,
+labelled linkage-pair metrics, seeded paired bootstrap intervals with exact sign tests, three-way
+comparison verdicts, and atomic checksum-verified run bundles. Published bundles cannot overwrite
+an existing run, reject path traversal, and fail verification on corruption or unregistered files.
 
-The upstream wheel is pure Python and builds with Hatchling, but its mandatory closure includes
-OR-Tools, NumPy, SciPy, scikit-learn, FastAvro, PyArrow, Pydantic Core, PyProj, Shapely,
-Cryptography, CFFI, Greenlet, and Pandas wheels containing native code. It also carries solver,
-serving, experiment-tracking, and geospatial behavior that the contract seam does not use. The
-chosen form is therefore a 484-line, 17,516-byte extraction with PyYAML as its only runtime import;
-PyYAML was already in the locked `contracts` extra, and the extraction adds only PyYAML type stubs
-to the development extra.
-
-`arxiv_int.contracts` now provides an explicit-root file registry, immutable canonical semantic
-model, the upstream-compatible semantic metadata hash, a narrow generator protocol and registered
-dispatch, and pure schema snapshot/change/version/baseline primitives. The registry rejects paths
-outside its root and detects drift from a reviewed semantic hash. It never discovers a sibling
-checkout and imports no fleet, solver, model, serving, Arrow, Elasticsearch, or upstream package.
-The later contract-governance tasks own project ODCS documents, `x-arxiv-int` adapters, concrete
-physical generators, full adjacent-history policy, migrations, and live-store checks.
-
-Each extracted module records the source, immutable revision, and MIT licence. `THIRD_PARTY.md`
-maps the upstream basis and local changes, while `NOTICE` carries the licence. Functional tests
-cover upstream-equivalent fingerprint and change classification, canonical loading, registry path
-safety and drift detection, generator dispatch, deterministic baselines, and import isolation. The
-measurement record is `$DATA_DIR/reuse/fl-op/decision.json`. Extraction needs no upstream change,
-so no change request exists.
+`arxiv_int.retrieval` provides source-span recall, MRR, character coverage, intactness, duplicate
+source occurrences, and served-character cost. `InferenceProvider` records normalized timeout,
+backend-error, and unsupported-architecture outcomes together with prompt/completion token counts,
+latency, and successful completion throughput. Probabilistic model fitting remains behind the
+identity capability's Splink integration.
 
 Output-sensitive tooling is pinned exactly: `complexipy`, `mypy`, `pymarkdownlnt`, `radon`, `ruff`,
 and `shellcheck-py`. Formatting, typing, complexity, and Markdown findings therefore do not move
@@ -156,12 +124,10 @@ guide, current-state pages, tests, Make workflows, and `uv.lock` use the same ac
 `tests/quality/` exercise the quality package and verify the repository plan summary.
 `tests/features/` covers catalog lookup, stage mapping, install-status reporting, and the missing
 and undeclared import messages. `tests/interfaces/` proves fake backends satisfy each protocol.
-`tests/dependencies/` keep the extras and the catalog in agreement, require an exact pin for every
-output-sensitive tool, and import the package in a subprocess to prove that no declared optional
-module reaches the core import graph. Focused tests live beside their corresponding functional areas
-and cover layer precedence, symlink escape rejection, accumulated preflight results, partial-result
-preservation, concurrent log serialization, model placement and cleanup, and import isolation from
-the upstream and heavy stacks.
+`tests/dependencies/` keep extras and the feature catalog in agreement and require exact pins for
+output-sensitive tools. Focused tests cover layer precedence, symlink escape rejection, accumulated
+preflight results, partial-result preservation, concurrent log serialization, model placement and
+cleanup, contract behavior, evaluation metrics and verdicts, run bundles, and source-span retrieval.
 
 The locked bootstrap and import doctor pass, and `make run` reports
 `arxiv-int 0.1.0 (arxiv_int)`. The required `make ci` gate covers formatting, linting, typing,

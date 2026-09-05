@@ -137,3 +137,25 @@ def test_embedding_profile_identifies_comparable_vectors() -> None:
 
     assert embedder.profile.dimensions == 2
     assert len(embedder.embed(["one", "two"])) == 2
+
+
+def test_generation_result_reports_only_successful_timed_throughput() -> None:
+    success = GenerationResult(
+        text="ok",
+        status="ok",
+        model_id="model",
+        model_digest="sha256:model",
+        completion_tokens=20,
+        latency_seconds=2.0,
+    )
+    failed = GenerationResult(
+        text="",
+        status="timeout",
+        model_id="model",
+        model_digest="sha256:model",
+        completion_tokens=20,
+        latency_seconds=2.0,
+    )
+
+    assert success.tokens_per_second == 10.0
+    assert failed.tokens_per_second == 0.0

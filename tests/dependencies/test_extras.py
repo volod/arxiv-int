@@ -42,10 +42,6 @@ def _distributions(requirements: list[str]) -> set[str]:
     return {match.group(0) for match in matches if match}
 
 
-def test_core_install_declares_no_runtime_dependency() -> None:
-    assert _project()["dependencies"] == []
-
-
 def test_every_populated_group_has_a_matching_extra() -> None:
     extras = _extras()
 

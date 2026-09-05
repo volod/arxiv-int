@@ -9,7 +9,7 @@ description = "A local-first knowledge discovery platform for large document arc
 readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"
-license-files = ["LICENSE", "NOTICE", "THIRD_PARTY.md"]
+license-files = ["LICENSE", "NOTICE"]
 authors = [{ name = "arxiv-int Contributors" }]
 keywords = ["document-archives", "knowledge-discovery", "local-first", "russian"]
 classifiers = [

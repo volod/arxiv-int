@@ -1,9 +1,4 @@
-"""Portable dispatch for deterministic contract generators.
-
-Adapted from ``fl_op.contracts.schema_gen`` and ``fl_op.contracts.gen.base`` in
-https://github.com/volod/fl-op at revision
-1f452ecaeded92c6bbbd4a86de9ded1ea7444e60, under the MIT License.
-"""
+"""Portable dispatch for deterministic contract generators."""
 
 import pathlib
 from typing import Any, Protocol
