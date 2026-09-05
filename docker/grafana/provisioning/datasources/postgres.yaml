@@ -1,0 +1,16 @@
+apiVersion: 1
+
+datasources:
+  - name: arxiv-int PostgreSQL
+    uid: arxiv-int-postgres
+    type: postgres
+    access: proxy
+    url: database:5432
+    user: ${POSTGRES_USER}
+    secureJsonData:
+      password: ${POSTGRES_PASSWORD}
+    jsonData:
+      database: ${POSTGRES_DB}
+      sslmode: disable
+      postgresVersion: 1700
+    editable: false

@@ -10,34 +10,6 @@ ordering, and lifecycle rules belong in the
 
 ### Portable runtime -- `portable-runtime`
 
-#### define-compose-profiles-and-operator-wrappers
-
-Create the pinned Compose topology and Make wrappers for core, graph, UI, observability, and vLLM
-profiles.
-
-- Serves: `portable-runtime` --
-[Docker and local-service topology](../design/spec.md#docker-and-local-service-topology)
-- Agent status: CLEAR
-- Dependencies: Runtime roots and storage evidence documented in
-[Portable runtime](current/portable-runtime.md).
-- User-visible outcome: `make services-up`, `make services-status`, `make logs`, and
-`make services-down` behave consistently from a copied checkout.
-- Scope boundary: Define services, healthchecks, mounts, networks, profiles, and wrappers; the AGE
-compatibility result belongs to the canonical-store task.
-- Data and artifact paths: `compose.yaml`, `docker/`, `Makefile`, `.env.example`,
-`scripts/shared/common.sh`, and `tests/compose/`.
-- Execution path: Pin images by immutable version/digest, bind service ports to loopback, mount the
-archive read-only, mount `PGDATA_DIR` plus any configured WAL or tablespace root read-write into the
-database service only, mount per-service subdirectories of `SERVICE_STATE_DIR` read-write with
-dashboard and scrape definitions provisioned read-only from `docker/`, mount `RESULTS_DIR` read-only
-for services that only read pipeline output, use absolute resolved host paths, add host-gateway
-handling for Ollama, and render `docker compose config` in CI without starting GPU services.
-- Acceptance gates: Compose config validates for each profile and combined supported profiles;
-mounts resolve to configured SSD paths and to the storage class each service requires; no service
-other than the database mounts the database roots; healthchecks and stop behavior are defined;
-secrets are absent from rendered test output.
-- Documentation target: `docs/impl/current/portable-runtime.md`
-
 #### add-fresh-copy-doctor
 
 Implement a preflight command that turns configuration, tool, device, model endpoint, extension, and
@@ -46,7 +18,8 @@ free-space failures into one readiness report.
 - Serves: `portable-runtime` --
 [Configuration and multi-SSD paths](../design/spec.md#configuration-and-multi-ssd-paths)
 - Agent status: CLEAR
-- Dependencies: `define-compose-profiles-and-operator-wrappers`.
+- Dependencies: Compose profiles and operator wrappers documented in
+[Portable runtime](current/portable-runtime.md).
 - User-visible outcome: Before a long run, the operator sees exactly what is ready, degraded,
 missing, or unsafe and the command needed next.
 - Scope boundary: Read-only diagnostics only; doctor does not install packages, pull models, mutate
@@ -204,7 +177,8 @@ pgvector, and Apache AGE.
 - Serves: `canonical-store` -- [Architecture decision](../design/spec.md#architecture-decision)
 - Agent status: RUN NEEDED
 - Research: yes
-- Dependencies: `define-compose-profiles-and-operator-wrappers`.
+- Dependencies: Compose profiles and operator wrappers documented in
+[Portable runtime](current/portable-runtime.md).
 - User-visible outcome: The core database starts from a reproducible image and reports exact
 extension/build identities; graph mode is enabled only when its compatibility suite passes.
 - Scope boundary: Test extension coexistence, licensing, initialization, upgrade seam, and basic
@@ -1318,8 +1292,8 @@ store.
 - Serves: `discovery-visualization` --
 [Analysis, graph, and visualization behavior](../design/spec.md#analysis-graph-and-visualization-behavior)
 - Agent status: RUN NEEDED
-- Dependencies: `build-search-graph-and-report-interfaces`;
-`define-compose-profiles-and-operator-wrappers`.
+- Dependencies: `build-search-graph-and-report-interfaces`; Compose profiles documented in
+[Portable runtime](current/portable-runtime.md).
 - User-visible outcome: Local dashboards show pipeline progress, topics, entities, facts, conflicts,
 and bounded graph views; AGE Viewer supports exploratory Cypher when enabled.
 - Scope boundary: Provision read-only local tools; no internet exposure, corpus-bearing telemetry
@@ -1450,7 +1424,7 @@ container mounts, and a network-denied run mode.
 - Serves: `operational-recovery` --
 [Operations, backup, and security](../design/spec.md#operations-backup-and-security)
 - Agent status: RUN NEEDED
-- Dependencies: `define-compose-profiles-and-operator-wrappers`;
+- Dependencies: Compose profiles documented in [Portable runtime](current/portable-runtime.md);
 `create-canonical-relational-schema`; `implement-local-inference-adapters`;
 `implement-audited-archive-reorganization`.
 - User-visible outcome: The local stack can process prepared inputs without unintended network

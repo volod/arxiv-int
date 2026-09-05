@@ -8,9 +8,11 @@ from pathlib import Path
 from arxiv_int.features import inventory_lines
 from arxiv_int.metadata import project_info
 from arxiv_int.runtime import (
+    ComposeConfigurationError,
     ConfigurationError,
     create_results_layout,
     load_runtime_config,
+    run_compose,
     validate_runtime_paths,
 )
 
@@ -34,6 +36,18 @@ def build_parser() -> argparse.ArgumentParser:
     show.add_argument("--pgdata-dir", default=None)
     for option in ("runs", "dev-results", "service-state", "model-cache", "tmp", "pg-wal"):
         show.add_argument(f"--{option}-dir", default=None)
+    services = subcommands.add_parser("services", help="operate the validated local services")
+    service_commands = services.add_subparsers(dest="services_command", required=True)
+    for action in ("config", "up", "status", "down"):
+        service = service_commands.add_parser(action, help=f"{action} the selected services")
+        service.add_argument("--profiles", default="core")
+        service.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
+    logs = service_commands.add_parser("logs", help="show bounded service logs")
+    logs.add_argument("--profiles", default="core")
+    logs.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
+    logs.add_argument("--services", default="", help="comma- or whitespace-separated services")
+    logs.add_argument("--follow", action="store_true")
+    logs.add_argument("--tail", type=int, default=200)
     return parser
 
 
@@ -94,6 +108,25 @@ def _run_config(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_services(args: argparse.Namespace) -> int:
+    try:
+        config = load_runtime_config(project_root=args.project_root)
+        service_names = tuple(
+            name for name in getattr(args, "services", "").replace(",", " ").split() if name
+        )
+        return run_compose(
+            config,
+            args.services_command,
+            args.profiles,
+            services=service_names,
+            follow=getattr(args, "follow", False),
+            tail=getattr(args, "tail", 200),
+        )
+    except (ComposeConfigurationError, ConfigurationError, OSError, RuntimeError) as error:
+        _LOG.error("%s", error)
+        return 1
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     """Run the selected command and return a process status."""
     logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -102,6 +135,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_features(args.stage)
     if args.command == "config":
         return _run_config(args)
+    if args.command == "services":
+        return _run_services(args)
     return _run_info()
 
 

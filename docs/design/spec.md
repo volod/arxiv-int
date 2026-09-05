@@ -242,7 +242,7 @@ layout the capabilities below build toward is:
 arxiv-int/
   AGENTS.md
   Makefile
-  compose.yaml
+  docker/compose.yaml
   .env.example
   pyproject.toml
   uv.lock
@@ -412,6 +412,9 @@ exists:
 | `OLLAMA_BASE_URL`                                       | Host Ollama endpoint                                 | --              | `http://127.0.0.1:11434` for host CLI                          |
 | `INFERENCE_BACKEND`                                     | `ollama` or `vllm`                                   | --              | `ollama`                                                       |
 | `EMBEDDING_MODEL`, `GENERATION_MODEL`, `RERANK_MODEL`   | Model identities                                     | --              | Pinned by an evaluated profile, not silently floated           |
+| `GENERATION_MODEL_REVISION`                             | Immutable Hugging Face generation-model revision    | --              | Revision paired with `GENERATION_MODEL`                        |
+| `VLLM_TENSOR_PARALLEL_SIZE`, `VLLM_CPU_OFFLOAD_GB`     | vLLM multi-GPU and host-RAM allocation               | --              | Evaluated CUDA-host profile                                    |
+| `VLLM_GPU_MEMORY_UTILIZATION`, `VLLM_MAX_MODEL_LEN`     | vLLM memory and context bounds                       | --              | Evaluated CUDA-host profile                                    |
 | `DATA_DIR`                                              | Repository-local root for developer tooling only     | --              | `.data`, resolved from the project root                        |
 | `LOG_LEVEL`, `LOG_FORMAT`, `PROGRESS_INTERVAL_SEC`      | Operator feedback                                    | --              | `INFO`, console plus JSONL, 30 seconds                         |
 | `PIPELINE_WORKERS`, `BATCH_SIZE`, `GPU_MAX_CONCURRENCY` | Resource bounds                                      | --              | Auto-detected conservative values; GPU concurrency `1`         |
@@ -518,7 +521,7 @@ Compose profiles keep optional services out of the default footprint:
 | `graph`         | core image with AGE enabled, AGE Viewer       | Same PostgreSQL service; AGE projection remains disposable                              |
 | `ui`            | Grafana and provisioned PostgreSQL datasource | Dashboards, pipeline progress, topic/entity/fact tables, node graph panels              |
 | `observability` | Prometheus exporter and optional cAdvisor     | No corpus content in labels or metrics                                                  |
-| `vllm`          | pinned `vllm/vllm-openai` image               | Optional NVIDIA runtime; model cache bind mount; sequential with other GPU-heavy stages |
+| `vllm`          | pinned `vllm/vllm-openai` image               | Optional all-device NVIDIA runtime; model cache bind mount; sequential with other GPU-heavy stages |
 
 Ollama is deliberately not in Compose. It is installed and managed as the host system service. A
 Linux container reaches it through a documented host-gateway alias only when a containerized worker
@@ -533,6 +536,10 @@ and scrape definitions provisioned read-only from `docker/`. Services that read 
 `RESULTS_DIR` read-only; the vLLM profile mounts `MODEL_CACHE_DIR`; the archive silos are mounted
 read-only or not at all. Compose receives absolute host paths resolved by the same preflight the CLI
 uses, and a container whose mount fails its storage-class check does not start.
+
+The vLLM service exposes all NVIDIA devices on the CUDA host. Its evaluated model profile pins both
+the model identity and repository revision, declares tensor parallelism, and bounds GPU utilization,
+CPU offload, and context length. Containers without CUDA-capable work do not request GPU devices.
 
 The Postgres derivative image must:
 

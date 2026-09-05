@@ -5,6 +5,10 @@ VENV := $(PROJECT_ROOT)/.venv
 PY := $(VENV)/bin/python
 PYTHON_VERSION ?= 3.12
 DATA_DIR ?= .data
+SERVICE_PROFILES ?= core
+LOG_SERVICES ?=
+LOG_TAIL ?= 200
+LOG_FOLLOW ?= 0
 DATA_ROOT := $(if $(filter /%,$(DATA_DIR)),$(DATA_DIR),$(PROJECT_ROOT)/$(DATA_DIR))
 PYTEST_CACHE := -o cache_dir=$(DATA_ROOT)/cache/pytest
 
@@ -13,7 +17,8 @@ export MYPY_CACHE_DIR := $(DATA_ROOT)/cache/mypy
 
 .DEFAULT_GOAL := help
 
-.PHONY: help bootstrap venv lock run features config doctor format format-check lint typecheck test \
+.PHONY: help bootstrap venv lock run features config doctor services-config services-up \
+	services-status services-down logs graph-up ui-up format format-check lint typecheck test \
 	coverage complexity-gate shell-lint-gate lint-md lint-doc-links lint-spec-plan plan-status \
 	ci-checks ci ci-github build quality code-quality quality-report
 
@@ -49,6 +54,34 @@ doctor: ## Verify required tools, files, and the installed package
 	@test -f pyproject.toml -a -f uv.lock -a -f AGENTS.md
 	@test -x "$(PY)" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
 	@"$(PY)" -c 'import arxiv_int; print(arxiv_int.project_info().distribution)'
+
+services-config: ## Validate Compose for SERVICE_PROFILES without starting containers
+	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_load_env; \
+		arxiv_int_services config --profiles "$(SERVICE_PROFILES)"
+
+services-up: ## Start and wait for healthy SERVICE_PROFILES (default: core)
+	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_load_env; \
+		arxiv_int_services up --profiles "$(SERVICE_PROFILES)"
+
+services-status: ## Show local service and health status
+	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_load_env; \
+		arxiv_int_services status --profiles "$(SERVICE_PROFILES)"
+
+services-down: ## Stop the local service project cleanly
+	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_load_env; \
+		arxiv_int_services down --profiles "$(SERVICE_PROFILES)"
+
+logs: ## Show bounded logs (LOG_SERVICES=..., LOG_TAIL=..., LOG_FOLLOW=1)
+	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_load_env; \
+		arxiv_int_services logs --profiles "$(SERVICE_PROFILES)" \
+		--services "$(LOG_SERVICES)" --tail "$(LOG_TAIL)" \
+		$(if $(filter 1,$(LOG_FOLLOW)),--follow,)
+
+graph-up: SERVICE_PROFILES := graph
+graph-up: services-up ## Start the graph profile
+
+ui-up: SERVICE_PROFILES := ui
+ui-up: services-up ## Start the UI profile
 
 format: ## Format production code and tests with Ruff
 	@"$(VENV)/bin/ruff" format src tests

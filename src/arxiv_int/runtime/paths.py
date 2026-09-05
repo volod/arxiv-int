@@ -229,11 +229,13 @@ def create_results_layout(config: RuntimeConfig, validation: PathValidation) -> 
         config.service_state_dir,
         config.model_cache_dir,
         config.tmp_dir,
-        config.pgdata_dir,
     ]
-    if config.pg_wal_dir is not None:
-        directories.append(config.pg_wal_dir)
-    directories.extend(path for _, path in config.pg_tablespaces)
     for directory in directories:
         directory.mkdir(parents=True, exist_ok=True)
-    return tuple(directories)
+    database_directories = [config.pgdata_dir]
+    if config.pg_wal_dir is not None:
+        database_directories.append(config.pg_wal_dir)
+    database_directories.extend(path for _, path in config.pg_tablespaces)
+    for directory in database_directories:
+        directory.mkdir(mode=0o700, parents=True, exist_ok=True)
+    return tuple((*directories, *database_directories))

@@ -87,3 +87,11 @@ arxiv_int_load_env() {
   arxiv_int_export_tool_caches
   arxiv_int_export_uv_link_mode
 }
+
+arxiv_int_services() {
+  if [ ! -x "$PROJECT_ROOT/.venv/bin/arxiv-int" ]; then
+    printf '%s\n' "ERROR: run 'make bootstrap' first" >&2
+    return 1
+  fi
+  "$PROJECT_ROOT/.venv/bin/arxiv-int" services "$@"
+}
