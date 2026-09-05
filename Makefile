@@ -5,10 +5,12 @@ VENV := $(PROJECT_ROOT)/.venv
 PY := $(VENV)/bin/python
 PYTHON_VERSION ?= 3.12
 DATA_DIR ?= .data
-SERVICE_PROFILES ?= core
+SERVICE_PROFILES ?= pipeline
 LOG_SERVICES ?=
 LOG_TAIL ?= 200
 LOG_FOLLOW ?= 0
+READINESS_ALLOW_DEGRADED ?= 0
+APPLY ?= 0
 DATA_ROOT := $(if $(filter /%,$(DATA_DIR)),$(DATA_DIR),$(PROJECT_ROOT)/$(DATA_DIR))
 PYTEST_CACHE := -o cache_dir=$(DATA_ROOT)/cache/pytest
 
@@ -17,25 +19,31 @@ export MYPY_CACHE_DIR := $(DATA_ROOT)/cache/mypy
 
 .DEFAULT_GOAL := help
 
-.PHONY: help bootstrap venv lock run features config doctor services-config services-up \
-	services-status services-down logs graph-up ui-up format format-check lint typecheck test \
+.PHONY: help bootstrap venv lock package-check features config readiness services-config services-up \
+	services-status services-down services-reset logs graph-up ui-up format format-check lint typecheck test \
 	coverage complexity-gate shell-lint-gate lint-md lint-doc-links lint-spec-plan plan-status \
 	ci-checks ci ci-github build quality code-quality quality-report
 
 help: ## List available targets
 	@awk 'BEGIN {FS = ":.*## "; print "Usage: make <target>\n"} /^[a-zA-Z0-9_.-]+:.*## / {printf "  %-20s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-bootstrap: ## Create/update .venv from uv.lock with development tools
+bootstrap: ## Sync .env and .venv, then audit readiness
+	@printf '\n=== Environment and dependencies ===\n'
 	@command -v uv >/dev/null 2>&1 || { echo "ERROR: uv is required"; exit 1; }
-	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_load_env; \
+	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_sync_dotenv; \
+		arxiv_int_load_env; \
 		uv sync --locked --extra dev --python "$(PYTHON_VERSION)"
+	@printf '\n=== Package identity ===\n'
+	@$(MAKE) --no-print-directory package-check
+	@printf '\n=== Workstation readiness ===\n'
+	@$(MAKE) --no-print-directory readiness READINESS_ALLOW_DEGRADED=1
 
 venv: bootstrap ## Alias for bootstrap
 
 lock: ## Refresh uv.lock after dependency changes
 	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_load_env; uv lock
 
-run: ## Run the arxiv-int identity command
+package-check: ## Verify the installed package identity
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
 	@"$(VENV)/bin/arxiv-int" info
 
@@ -47,19 +55,18 @@ config: ## Resolve, validate, and redact runtime configuration
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
 	@"$(VENV)/bin/arxiv-int" config show --redact
 
-doctor: ## Verify required tools, files, and the installed package
-	@command -v git >/dev/null
-	@command -v uv >/dev/null
-	@command -v make >/dev/null
-	@test -f pyproject.toml -a -f uv.lock -a -f AGENTS.md
-	@test -x "$(PY)" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
-	@"$(PY)" -c 'import arxiv_int; print(arxiv_int.project_info().distribution)'
+readiness: ## Audit configuration, storage, tools, services, models, and system readiness
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_load_env; \
+		status=0; "$(VENV)/bin/arxiv-int" readiness --profiles "$(SERVICE_PROFILES)" || status=$$?; \
+		if [ "$$status" -eq 2 ] && [ "$(READINESS_ALLOW_DEGRADED)" -eq 1 ]; then exit 0; fi; \
+		exit "$$status"
 
 services-config: ## Validate Compose for SERVICE_PROFILES without starting containers
 	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_load_env; \
 		arxiv_int_services config --profiles "$(SERVICE_PROFILES)"
 
-services-up: ## Start and wait for healthy SERVICE_PROFILES (default: core)
+services-up: ## Start and wait for healthy SERVICE_PROFILES (default: pipeline)
 	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_load_env; \
 		arxiv_int_services up --profiles "$(SERVICE_PROFILES)"
 
@@ -67,9 +74,14 @@ services-status: ## Show local service and health status
 	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_load_env; \
 		arxiv_int_services status --profiles "$(SERVICE_PROFILES)"
 
-services-down: ## Stop the local service project cleanly
+services-down: ## Stop the local service project; preserve bind-mounted data
 	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_load_env; \
 		arxiv_int_services down --profiles "$(SERVICE_PROFILES)"
+
+services-reset: ## Stop services; erase service data only when APPLY=1
+	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_load_env; \
+		arxiv_int_services reset --profiles "$(SERVICE_PROFILES)" \
+		$(if $(filter 1,$(APPLY)),--apply,)
 
 logs: ## Show bounded logs (LOG_SERVICES=..., LOG_TAIL=..., LOG_FOLLOW=1)
 	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_load_env; \

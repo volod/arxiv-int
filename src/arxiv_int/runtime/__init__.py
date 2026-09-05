@@ -1,6 +1,7 @@
 """Portable runtime configuration and path safety."""
 
 from arxiv_int.runtime.compose import (
+    PROFILE_ALIASES,
     SUPPORTED_PROFILES,
     ComposeConfigurationError,
     compose_command,
@@ -18,8 +19,10 @@ from arxiv_int.runtime.paths import (
     resolve_allowed_path,
     validate_runtime_paths,
 )
+from arxiv_int.runtime.service_reset import ServiceResetError, reset_service_data, service_data_targets
 
 __all__ = [
+    "PROFILE_ALIASES",
     "SUPPORTED_PROFILES",
     "ArchiveSilo",
     "ComposeConfigurationError",
@@ -28,6 +31,7 @@ __all__ = [
     "PathValidation",
     "RootPlacement",
     "RuntimeConfig",
+    "ServiceResetError",
     "compose_command",
     "compose_environment",
     "create_results_layout",
@@ -36,7 +40,9 @@ __all__ = [
     "merge_config_layers",
     "parse_profiles",
     "prepare_service_layout",
+    "reset_service_data",
     "resolve_allowed_path",
     "run_compose",
+    "service_data_targets",
     "validate_runtime_paths",
 ]

@@ -42,6 +42,8 @@ def test_runtime_config_uses_cli_then_environment_then_dotenv(tmp_path: Path) ->
     assert config.pgdata_dir == root / "cli/pg"
     assert config.runs_dir == config.results_dir / "runs"
     assert config.data_dir == root / ".data"
+    assert dict(config.values)["INFERENCE_BACKEND"] == "ollama"
+    assert dict(config.values)["GENERATION_MODEL"] == "qwen3.8:27b"
 
 
 def test_paths_resolve_from_each_checkout_not_the_current_directory(
@@ -66,6 +68,25 @@ def test_paths_resolve_from_each_checkout_not_the_current_directory(
     assert second_config.results_dir == second / "results"
 
 
+@pytest.mark.parametrize(
+    ("overrides", "expected"),
+    [
+        ({"GENERATION_MODEL": "operator:tag"}, "operator:tag"),
+        ({"INFERENCE_BACKEND": "vllm"}, "Qwen/Qwen3.8-27B-FP8"),
+        ({"INFERENCE_BACKEND": "vllm", "VLLM_MODEL": "operator/model"}, "operator/model"),
+    ],
+)
+def test_generation_model_follows_backend_and_operator_override(
+    tmp_path: Path, overrides: dict[str, str], expected: str
+) -> None:
+    root = _checkout(
+        tmp_path / "checkout", "ARCHIVE_DIR=archive\nRESULTS_DIR=results\nPGDATA_DIR=pg\n"
+    )
+    config = load_runtime_config(project_root=root, environment=overrides)
+
+    assert dict(config.values)["GENERATION_MODEL"] == expected
+
+
 def test_named_silos_derived_overrides_and_database_roots(tmp_path: Path) -> None:
     root = _checkout(tmp_path / "checkout")
     config = load_runtime_config(
@@ -85,7 +106,6 @@ def test_named_silos_derived_overrides_and_database_roots(tmp_path: Path) -> Non
     assert [silo.silo_id for silo in config.archive_silos] == ["drawings", "manuals"]
     assert config.archive_silos[0].root == root / "source drawings"
     assert config.runs_dir == root / "journal disk/runs"
-    assert config.dev_results_dir == root / "bulk results/dev"
     assert config.pg_tablespaces == (("cold", root / "fast/cold tables"),)
 
 
@@ -145,3 +165,62 @@ def test_shell_bootstrap_preserves_process_environment_over_dotenv(tmp_path: Pat
     )
 
     assert completed.stdout.splitlines() == ["process-results", str(root / "dotenv-data")]
+
+
+def _sync_dotenv(root: Path) -> subprocess.CompletedProcess[str]:
+    script = Path(__file__).parents[2] / "scripts/shared/common.sh"
+    return subprocess.run(
+        ["bash", "-c", 'source "$1"; arxiv_int_sync_dotenv', "bash", str(script)],
+        check=True,
+        capture_output=True,
+        text=True,
+        env={"PATH": "/usr/bin:/bin", "PROJECT_ROOT": str(root)},
+    )
+
+
+def test_shell_bootstrap_creates_dotenv_from_template(tmp_path: Path) -> None:
+    root = tmp_path / "checkout"
+    root.mkdir()
+    example = "ARCHIVE_DIR=/archive\n# POSTGRES_PASSWORD=\nDATA_DIR=.data\n"
+    (root / ".env.example").write_text(example, encoding="utf-8")
+
+    completed = _sync_dotenv(root)
+
+    assert completed.stdout == "Created .env from .env.example\n"
+    assert (root / ".env").read_text(encoding="utf-8") == example
+
+
+def test_shell_bootstrap_appends_only_missing_dotenv_declarations(tmp_path: Path) -> None:
+    root = tmp_path / "checkout"
+    root.mkdir()
+    (root / ".env.example").write_text(
+        "KEEP=template\nNEW=active\n# SECRET=\n# OPTIONAL=\n", encoding="utf-8"
+    )
+    (root / ".env").write_text("KEEP=operator\n# SECRET=\n", encoding="utf-8")
+
+    first = _sync_dotenv(root)
+    second = _sync_dotenv(root)
+    result = (root / ".env").read_text(encoding="utf-8")
+
+    assert first.stdout == "Added 2 missing variable declaration(s) to .env\n"
+    assert second.stdout == ""
+    assert "KEEP=operator" in result
+    assert "KEEP=template" not in result
+    assert result.count("NEW=active") == 1
+    assert result.count("# OPTIONAL=") == 1
+
+
+def test_make_bootstrap_finishes_through_the_readiness_target() -> None:
+    root = Path(__file__).parents[2]
+
+    completed = subprocess.run(
+        ["make", "--no-print-directory", "--dry-run", "bootstrap"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert "arxiv_int_sync_dotenv" in completed.stdout
+    assert "package-check" in completed.stdout
+    assert "readiness READINESS_ALLOW_DEGRADED=1" in completed.stdout

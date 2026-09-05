@@ -2,11 +2,14 @@
 
 import argparse
 import logging
+import os
+import sys
 from collections.abc import Sequence
 from pathlib import Path
 
 from arxiv_int.features import inventory_lines
 from arxiv_int.metadata import project_info
+from arxiv_int.readiness.run import run_readiness
 from arxiv_int.runtime import (
     ComposeConfigurationError,
     ConfigurationError,
@@ -34,16 +37,46 @@ def build_parser() -> argparse.ArgumentParser:
     show.add_argument("--archive-dir", default=None)
     show.add_argument("--results-dir", default=None)
     show.add_argument("--pgdata-dir", default=None)
-    for option in ("runs", "dev-results", "service-state", "model-cache", "tmp", "pg-wal"):
+    for option in ("runs", "service-state", "model-cache", "tmp", "pg-wal"):
         show.add_argument(f"--{option}-dir", default=None)
+    readiness = subcommands.add_parser("readiness", help="report workstation readiness")
+    readiness.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
+    readiness.add_argument(
+        "--profiles", default="pipeline", help="Compose profiles or alias to inspect"
+    )
+    readiness.add_argument(
+        "--timeout", type=float, default=3.0, help="per-check timeout in seconds"
+    )
+    readiness.add_argument(
+        "--json-report",
+        type=Path,
+        default=None,
+        help="report path under RESULTS_DIR (default: reports/readiness.json)",
+    )
+    readiness.add_argument(
+        "--no-json-report",
+        action="store_true",
+        help="do not persist the default JSON report",
+    )
     services = subcommands.add_parser("services", help="operate the validated local services")
     service_commands = services.add_subparsers(dest="services_command", required=True)
     for action in ("config", "up", "status", "down"):
         service = service_commands.add_parser(action, help=f"{action} the selected services")
-        service.add_argument("--profiles", default="core")
+        service.add_argument("--profiles", default="pipeline")
         service.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
+    reset = service_commands.add_parser(
+        "reset",
+        help="stop services and erase service data roots (dry-run unless --apply)",
+    )
+    reset.add_argument("--profiles", default="pipeline")
+    reset.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
+    reset.add_argument(
+        "--apply",
+        action="store_true",
+        help="erase PGDATA, service-state, model-cache, and optional WAL/tablespace roots",
+    )
     logs = service_commands.add_parser("logs", help="show bounded service logs")
-    logs.add_argument("--profiles", default="core")
+    logs.add_argument("--profiles", default="pipeline")
     logs.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
     logs.add_argument("--services", default="", help="comma- or whitespace-separated services")
     logs.add_argument("--follow", action="store_true")
@@ -74,7 +107,6 @@ def _run_config(args: argparse.Namespace) -> int:
         "results",
         "pgdata",
         "runs",
-        "dev_results",
         "service_state",
         "model_cache",
         "tmp",
@@ -121,10 +153,36 @@ def _run_services(args: argparse.Namespace) -> int:
             services=service_names,
             follow=getattr(args, "follow", False),
             tail=getattr(args, "tail", 200),
+            apply=getattr(args, "apply", False),
         )
     except (ComposeConfigurationError, ConfigurationError, OSError, RuntimeError) as error:
         _LOG.error("%s", error)
         return 1
+
+
+def _run_readiness(args: argparse.Namespace) -> int:
+    try:
+        result = run_readiness(
+            project_root=args.project_root,
+            profiles=args.profiles,
+            timeout=args.timeout,
+            report_path=args.json_report,
+            persist=not args.no_json_report,
+        )
+    except ValueError as error:
+        _LOG.error("%s", error)
+        return 1
+    color = sys.stderr.isatty() and "NO_COLOR" not in os.environ
+    for line in result.report.console_lines(color=color):
+        if "[BLOCKED]" in line:
+            _LOG.error("%s", line)
+        elif "[DEGRADED]" in line:
+            _LOG.warning("%s", line)
+        else:
+            _LOG.info("%s", line)
+    if result.report_path is not None:
+        _LOG.info("JSON report: %s", result.report_path)
+    return result.report.exit_code
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -135,6 +193,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_features(args.stage)
     if args.command == "config":
         return _run_config(args)
+    if args.command == "readiness":
+        return _run_readiness(args)
     if args.command == "services":
         return _run_services(args)
     return _run_info()

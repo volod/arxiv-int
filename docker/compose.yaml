@@ -17,6 +17,7 @@ services:
   database:
     <<: *service-defaults
     image: paradedb/paradedb:0.25.6-pg17@sha256:044b8cc5b40159714e88e3f546fc74de11cf215c030190cc82c6627015d728ea
+    user: "${RUNTIME_UID:-1000}:${RUNTIME_GID:-1000}"
     profiles: [core, graph, ui, observability]
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-arxiv_int}
@@ -129,11 +130,11 @@ services:
     profiles: [observability]
     depends_on: *database-dependency
     environment:
-      DATA_SOURCE_NAME: >-
-        postgresql://${POSTGRES_USER:-arxiv_int}:${POSTGRES_PASSWORD:-compose-validation-only}
-        @database:5432/${POSTGRES_DB:-arxiv_int}?sslmode=disable
+      # Keep the DSN on one line: YAML folded scalars insert a space at the break.
+      DATA_SOURCE_NAME: postgresql://${POSTGRES_USER:-arxiv_int}:${POSTGRES_PASSWORD:-compose-validation-only}@database:5432/${POSTGRES_DB:-arxiv_int}?sslmode=disable
     healthcheck:
-      test: [CMD-SHELL, "wget -q -O /dev/null http://127.0.0.1:9187/health || exit 1"]
+      # postgres-exporter has no /health route; /metrics returns 200 while the process is up.
+      test: [CMD-SHELL, "wget -q -O /dev/null http://127.0.0.1:9187/metrics || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 12
@@ -172,6 +173,7 @@ services:
   vllm:
     <<: *service-defaults
     image: vllm/vllm-openai:v0.26.0@sha256:ffb2d59b1c059a5bd8d781320c9f5189de8293693b7d95da54befddaa54abf52
+    user: "${RUNTIME_UID:-1000}:${RUNTIME_GID:-1000}"
     profiles: [vllm]
     gpus: all
     ipc: host
@@ -179,9 +181,9 @@ services:
       HF_HOME: /models/huggingface
     command:
       - --model
-      - ${GENERATION_MODEL:-Qwen/Qwen3.8-27B-FP8}
+      - ${VLLM_MODEL:?VLLM_MODEL must be resolved by the operator wrapper}
       - --revision
-      - ${GENERATION_MODEL_REVISION:-017b9c7af6b5689d5dd426a76e0bc077eb5ca20a}
+      - ${VLLM_MODEL_REVISION:?VLLM_MODEL_REVISION must be resolved by the operator wrapper}
       - --tensor-parallel-size
       - ${VLLM_TENSOR_PARALLEL_SIZE:-1}
       - --cpu-offload-gb

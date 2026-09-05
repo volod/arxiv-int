@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
-from arxiv_int.doctor import PreflightReport
+from arxiv_int.readiness.report import PreflightReport
 from arxiv_int.runtime.config_model import RuntimeConfig
 from arxiv_int.runtime.filesystem import FilesystemEvidence
 
@@ -39,7 +39,6 @@ def runtime_placements(config: RuntimeConfig) -> tuple[RootPlacement, ...]:
         RootPlacement("RESULTS_DIR", config.results_dir, "bulk", True),
         RootPlacement("PGDATA_DIR", config.pgdata_dir, "database", True),
         RootPlacement("RUNS_DIR", config.runs_dir, "bulk", True),
-        RootPlacement("DEV_RESULTS_DIR", config.dev_results_dir, "bulk", True),
         RootPlacement("SERVICE_STATE_DIR", config.service_state_dir, "service-state", True),
         RootPlacement("MODEL_CACHE_DIR", config.model_cache_dir, "model", True),
         RootPlacement("TMP_DIR", config.tmp_dir, "scratch", True),

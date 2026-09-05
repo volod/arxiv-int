@@ -116,35 +116,74 @@ def test_rendered_topology_has_pins_health_stop_and_mount_isolation(tmp_path: Pa
         assert str(config.pgdata_dir) not in sources
     assert services["grafana"]["volumes"][1]["read_only"] is True
     assert services["prometheus"]["volumes"][1]["read_only"] is True
-
-
-def test_make_exposes_the_operator_wrappers() -> None:
-    completed = subprocess.run(
-        ["make", "--no-print-directory", "-n", "services-up", "SERVICE_PROFILES=core ui"],
-        cwd=PROJECT_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-
-    assert 'arxiv_int_services up --profiles "core ui"' in completed.stdout
-    help_text = subprocess.run(
-        ["make", "--no-print-directory", "help"],
-        cwd=PROJECT_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    ).stdout
-    assert all(
-        name in help_text for name in ("services-up", "services-status", "services-down", "logs")
-    )
+    expected_user = f"{os.getuid()}:{os.getgid()}"
+    for name in ("database", "age-viewer", "grafana", "prometheus", "vllm"):
+        assert services[name]["user"] == expected_user
+    assert "user" not in services["cadvisor"]
 
 
 def test_profile_parser_is_ordered_deduplicated_and_rejects_unknown() -> None:
     assert parse_profiles("ui, core ui vllm") == ("core", "ui", "vllm")
-    assert parse_profiles(()) == ("core",)
+    assert parse_profiles("pipeline") == ("core", "ui", "observability")
+    assert parse_profiles("pipeline vllm") == ("core", "ui", "observability", "vllm")
+    assert parse_profiles("pipeline graph") == (
+        "core",
+        "graph",
+        "ui",
+        "observability",
+    )
+    assert parse_profiles(()) == ("core", "ui", "observability")
     with pytest.raises(ComposeConfigurationError, match=r"unknown Compose profile.*remote"):
         parse_profiles("core remote")
+
+
+@pytest.mark.parametrize("backend", ["ollama", "vllm"])
+def test_generation_override_only_reaches_vllm_when_selected(tmp_path: Path, backend: str) -> None:
+    config = _runtime_config(
+        tmp_path,
+        INFERENCE_BACKEND=backend,
+        GENERATION_MODEL="operator/model",
+        GENERATION_MODEL_REVISION="operator-revision",
+    )
+    services = _render_config(config, ("vllm",))["services"]
+    assert isinstance(services, dict)
+    expected_model = "operator/model" if backend == "vllm" else "Qwen/Qwen3.8-27B-FP8"
+    assert expected_model in services["vllm"]["command"]
+    assert ("operator-revision" in services["vllm"]["command"]) == (backend == "vllm")
+
+
+def test_pipeline_service_start_waits_for_every_required_service(tmp_path: Path) -> None:
+    config = _runtime_config(tmp_path)
+    observed: list[tuple[str, ...]] = []
+
+    assert (
+        run_compose(
+            config,
+            "up",
+            "pipeline",
+            runner=lambda command, _cwd, _environment: observed.append(command) or 0,
+        )
+        == 0
+    )
+
+    command = observed[0]
+    selected = tuple(
+        command[index + 1] for index, item in enumerate(command) if item == "--profile"
+    )
+    assert selected == ("core", "ui", "observability")
+    assert "--wait" in command
+
+    services = _render_config(config, selected)["services"]
+    assert isinstance(services, dict)
+    assert set(services) == {"database", "grafana", "postgres-exporter", "prometheus"}
+    assert all(service["healthcheck"] for service in services.values())
+    exporter = services["postgres-exporter"]
+    data_source = exporter["environment"]["DATA_SOURCE_NAME"]
+    assert " @" not in data_source
+    assert "@database:5432/" in data_source
+    health_test = " ".join(exporter["healthcheck"]["test"])
+    assert "/metrics" in health_test
+    assert "/health" not in health_test
 
 
 def test_operator_run_resolves_mounts_and_keeps_database_roots_private(

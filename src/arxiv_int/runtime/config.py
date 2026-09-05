@@ -7,16 +7,18 @@ from pathlib import Path
 
 from arxiv_int.runtime.config_model import ArchiveSilo, RuntimeConfig
 from arxiv_int.runtime.dotenv import DotenvError, read_dotenv
+from arxiv_int.runtime.inference_config import resolve_inference_defaults
 
 _DEFAULTS = {
     "DATA_DIR": ".data",
     "INFERENCE_BACKEND": "ollama",
     "LOG_LEVEL": "INFO",
     "OLLAMA_BASE_URL": "http://127.0.0.1:11434",
+    "POSTGRES_DB": "arxiv_int",
+    "POSTGRES_USER": "arxiv_int",
 }
 _DERIVED_PATHS = {
     "RUNS_DIR": "runs",
-    "DEV_RESULTS_DIR": "dev",
     "SERVICE_STATE_DIR": "services",
     "MODEL_CACHE_DIR": "models",
     "TMP_DIR": "tmp",
@@ -26,19 +28,22 @@ _PATH_NAMES = {
     "RESULTS_DIR",
     "PGDATA_DIR",
     "PROOF_ARCHIVE_DIR",
-    "DEV_ARCHIVE_DIR",
     "PG_WAL_DIR",
     "DATA_DIR",
     *_DERIVED_PATHS,
 }
 _SCALAR_NAMES = {
     "DATABASE_URL",
+    "POSTGRES_DB",
     "POSTGRES_PASSWORD",
+    "POSTGRES_USER",
     "OLLAMA_BASE_URL",
     "INFERENCE_BACKEND",
     "EMBEDDING_MODEL",
     "GENERATION_MODEL",
     "GENERATION_MODEL_REVISION",
+    "VLLM_MODEL",
+    "VLLM_MODEL_REVISION",
     "RERANK_MODEL",
     "LOG_LEVEL",
     "LOG_FORMAT",
@@ -179,6 +184,7 @@ def load_runtime_config(
     environment_values = _selected(os.environ if environment is None else environment)
     values = merge_config_layers(_DEFAULTS, dotenv, environment_values, cli or {})
     values = _selected(values)
+    resolve_inference_defaults(values)
 
     named_silos = _require_operator_roots(values)
     results = _resolve_path(values["RESULTS_DIR"], values, "RESULTS_DIR", root)
@@ -197,28 +203,23 @@ def load_runtime_config(
         resolved_values[silo.variable] = str(silo.root)
     for name, path in path_values.items():
         resolved_values[name] = str(path)
-    for name in ("PROOF_ARCHIVE_DIR", "DEV_ARCHIVE_DIR", "PG_WAL_DIR", "DATA_DIR"):
+    for name in ("PROOF_ARCHIVE_DIR", "PG_WAL_DIR", "DATA_DIR"):
         optional = _optional_path(values, name, root)
         if optional is not None:
             resolved_values[name] = str(optional)
     for name, path in tablespaces:
         resolved_values[f"PG_TABLESPACE_{name.upper()}_DIR"] = str(path)
     proof_archive = _optional_path(values, "PROOF_ARCHIVE_DIR", root)
-    dev_archive = _optional_path(values, "DEV_ARCHIVE_DIR", root, fallback=proof_archive)
-    if dev_archive is not None:
-        resolved_values["DEV_ARCHIVE_DIR"] = str(dev_archive)
     return RuntimeConfig(
         project_root=root,
         archive_silos=tuple(silos),
         results_dir=path_values["RESULTS_DIR"],
         pgdata_dir=path_values["PGDATA_DIR"],
         runs_dir=path_values["RUNS_DIR"],
-        dev_results_dir=path_values["DEV_RESULTS_DIR"],
         service_state_dir=path_values["SERVICE_STATE_DIR"],
         model_cache_dir=path_values["MODEL_CACHE_DIR"],
         tmp_dir=path_values["TMP_DIR"],
         proof_archive_dir=proof_archive,
-        dev_archive_dir=dev_archive,
         pg_wal_dir=_optional_path(values, "PG_WAL_DIR", root),
         pg_tablespaces=tablespaces,
         data_dir=_resolve_path(values["DATA_DIR"], values, "DATA_DIR", root),

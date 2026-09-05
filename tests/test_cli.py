@@ -5,6 +5,8 @@ from pathlib import Path
 import pytest
 
 from arxiv_int.cli import build_parser, main
+from arxiv_int.readiness.report import PreflightReport
+from arxiv_int.readiness.run import ReadinessResult
 
 
 def test_parser_selects_the_info_command() -> None:
@@ -24,6 +26,67 @@ def test_parser_accepts_a_stage_filter_for_features() -> None:
 
     assert arguments.command == "features"
     assert arguments.stage == "embed"
+
+
+def test_parser_accepts_readiness_profile_timeout_and_console_only_mode() -> None:
+    arguments = build_parser().parse_args(
+        ["readiness", "--profiles", "core ui", "--timeout", "1.5", "--no-json-report"]
+    )
+
+    assert arguments.command == "readiness"
+    assert arguments.profiles == "core ui"
+    assert arguments.timeout == 1.5
+    assert arguments.no_json_report is True
+
+
+def test_readiness_and_services_default_to_pipeline_profiles() -> None:
+    parser = build_parser()
+
+    assert parser.parse_args(["readiness"]).profiles == "pipeline"
+    assert parser.parse_args(["services", "up"]).profiles == "pipeline"
+
+
+def test_services_reset_defaults_to_dry_run_and_accepts_apply() -> None:
+    parser = build_parser()
+    dry_run = parser.parse_args(["services", "reset"])
+    applied = parser.parse_args(["services", "reset", "--apply", "--profiles", "core"])
+
+    assert dry_run.services_command == "reset"
+    assert dry_run.apply is False
+    assert applied.apply is True
+    assert applied.profiles == "core"
+
+
+def test_readiness_command_renders_findings_and_preserves_exit_code(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    report = PreflightReport("fixture")
+    report.add("disk", "degraded", "slow", action="change TMP_DIR")
+    destination = tmp_path / "readiness.json"
+    monkeypatch.setattr(
+        "arxiv_int.cli.run_readiness",
+        lambda **kwargs: ReadinessResult(report=report, report_path=destination),
+    )
+    caplog.set_level(logging.INFO)
+
+    assert main(["readiness"]) == 2
+    assert "[DEGRADED] disk: slow" in caplog.text
+    assert "next: change TMP_DIR" in caplog.text
+    assert str(destination) in caplog.text
+
+
+def test_readiness_command_reports_invalid_options(monkeypatch: pytest.MonkeyPatch, caplog) -> None:  # type: ignore[no-untyped-def]
+    def invalid(**kwargs: object) -> ReadinessResult:
+        del kwargs
+        raise ValueError("invalid readiness fixture")
+
+    monkeypatch.setattr("arxiv_int.cli.run_readiness", invalid)
+    caplog.set_level(logging.INFO)
+
+    assert main(["readiness"]) == 1
+    assert "invalid readiness fixture" in caplog.text
 
 
 def test_features_command_logs_groups_with_install_commands(caplog) -> None:  # type: ignore[no-untyped-def]
@@ -53,7 +116,7 @@ def test_config_show_applies_cli_roots_redacts_and_creates_layout(
     results = tmp_path / "runtime results"
     pgdata = tmp_path / "database"
     for name in tuple(os.environ):
-        if name in {"PROOF_ARCHIVE_DIR", "DEV_ARCHIVE_DIR", "PG_WAL_DIR"} or name.startswith(
+        if name in {"PROOF_ARCHIVE_DIR", "PG_WAL_DIR"} or name.startswith(
             ("ARCHIVE_SILO_", "PG_TABLESPACE_")
         ):
             monkeypatch.delenv(name)
@@ -75,8 +138,6 @@ def test_config_show_applies_cli_roots_redacts_and_creates_layout(
             str(pgdata),
             "--runs-dir",
             str(results / "runs"),
-            "--dev-results-dir",
-            str(results / "dev"),
             "--service-state-dir",
             str(results / "services"),
             "--model-cache-dir",

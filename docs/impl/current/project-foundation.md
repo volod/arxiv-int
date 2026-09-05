@@ -14,8 +14,11 @@ store, or application framework.
 Run it through the stable Make entrypoint:
 
 ```bash
-make run
+make package-check
 ```
+
+`make bootstrap` invokes this check after installing the locked environment, so a successful
+bootstrap already proves the package entrypoint and identity.
 
 The separate `arxiv-int-plan` entrypoint supports `make plan-status`. Repository quality modules
 remain under `src/arxiv_int/quality/`, and shared shell functions use the `arxiv_int_` prefix.
@@ -61,8 +64,8 @@ code without a catalog entry.
 
 ## Runtime primitives
 
-`arxiv_int.doctor.report`, `arxiv_int.pipeline.steps`, `arxiv_int.observability.logging`, and
-`arxiv_int.inference.scheduling` provide accumulated readiness findings, monotonic step timing with
+`arxiv_int.pipeline.steps`, `arxiv_int.observability.logging`, and
+`arxiv_int.inference.scheduling` provide monotonic step timing with
 partial-result preservation, queue-serialized logging, GPU-budget placement, and guaranteed model
 release. The foundational configuration merge and containment helpers have grown into the
 [portable runtime](portable-runtime.md).
@@ -131,7 +134,7 @@ preservation, concurrent log serialization, model placement and cleanup, contrac
 evaluation metrics and verdicts, run bundles, and source-span retrieval. Configuration and path
 coverage is documented in [Portable runtime](portable-runtime.md#tests-and-verification).
 
-The locked bootstrap and import doctor pass, and `make run` reports
+The locked bootstrap and package identity checks pass, and `make package-check` reports
 `arxiv-int 0.1.0 (arxiv_int)`. The required `make ci` gate covers formatting, linting, typing,
 complexity, shell, documentation-link, specification-plan, and deterministic tests. `make build`
 produces `dist/arxiv_int-0.1.0.tar.gz` and `dist/arxiv_int-0.1.0-py3-none-any.whl`.

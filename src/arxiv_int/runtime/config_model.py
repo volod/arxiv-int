@@ -25,12 +25,10 @@ class RuntimeConfig:
     results_dir: Path
     pgdata_dir: Path
     runs_dir: Path
-    dev_results_dir: Path
     service_state_dir: Path
     model_cache_dir: Path
     tmp_dir: Path
     proof_archive_dir: Path | None
-    dev_archive_dir: Path | None
     pg_wal_dir: Path | None
     pg_tablespaces: tuple[tuple[str, Path], ...]
     data_dir: Path

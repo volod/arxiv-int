@@ -3,8 +3,9 @@
 ## Purpose
 
 `arxiv-int` is a local-first Knowledge Discovery Platform for multi-terabyte, mostly
-Russian-language document archives. Its input is one or more read-only directory silos of ordinary
-files; its output is evidence-backed knowledge: canonical objects, provenance-bearing facts, and the
+Russian-language document archives. Its input is one or more readable directory silos of ordinary
+files that the pipeline treats as immutable; its output is evidence-backed knowledge: canonical
+objects, provenance-bearing facts, and the
 search, graph, and investigation views built from them. Its Python distribution and import package
 are both `arxiv-int` / `arxiv_int`. The system inventories and normalizes an immutable archive,
 builds reproducible lexical and selected semantic indexes, discovers topics, extracts and resolves
@@ -201,7 +202,7 @@ feature parity.
 ## Logical architecture
 
 ```text
-SSD A: ARCHIVE_DIR (read-only)         SSD B: RESULTS_DIR
+Disk A: ARCHIVE_DIR (pipeline read-only) Disk B: RESULTS_DIR
           |                                      |
           v                                      v
  inventory -> extract -> normalize -> dedupe -> partitioned Parquet/Avro
@@ -209,7 +210,7 @@ SSD A: ARCHIVE_DIR (read-only)         SSD B: RESULTS_DIR
                           +---- run manifests ----+
                                       |
                                       v
-SSD C: PGDATA_DIR          ParadeDB / PostgreSQL (tables and indexes)
+Disk C: PGDATA_DIR         ParadeDB / PostgreSQL (tables and indexes)
                     +-------------------------------+
                     | ctl: runs, shards, contracts  |
                     | corpus: docs, spans, chunks   |
@@ -276,7 +277,7 @@ arxiv-int/
     interfaces/
     adapters/
     contracts/
-    doctor/
+    readiness/
     pipeline/
     stores/
     inference/
@@ -320,10 +321,15 @@ Configuration precedence is:
 explicit CLI option > process environment > .env > documented safe default
 ```
 
-`.env.example` is committed and `.env` is ignored. Compose is always invoked with an explicit
-project directory and `--env-file`, so copying the checkout to another disk does not change path
-resolution. `make config` renders redacted application configuration and runs
-`docker compose config --environment`. No committed file carries a machine-specific absolute path:
+`.env.example` is committed and `.env` is ignored. `make bootstrap` copies the template when `.env`
+does not exist and otherwise appends declarations newly introduced by the template without changing
+or duplicating existing active or commented declarations. It installs the locked environment and
+then verifies package identity and runs readiness; a degraded result remains usable while a blocked
+result fails the bootstrap.
+Compose is always invoked with an explicit project directory and `--env-file`, so copying the
+checkout to another disk does not change path resolution. `make config` renders redacted
+application configuration and runs `docker compose config --environment`. No committed file carries
+a machine-specific absolute path:
 `.env.example` describes each root by the storage class it needs and leaves every value to the
 operator's `.env`.
 
@@ -333,9 +339,9 @@ The operator configures three roots, one per job:
 
 | Root            | Holds                                                                              | Access             |
 | --------------- | ---------------------------------------------------------------------------------- | ------------------ |
-| `ARCHIVE_DIR`   | The source silos: the operator's own files, untouched                              | Read-only          |
+| `ARCHIVE_DIR`   | The source silos: the operator's own files, untouched                              | Pipeline read-only |
 | `RESULTS_DIR`   | Everything the pipeline produces: normalized datasets, runs, logs, reports, proofs  | Read-write         |
-| `PGDATA_DIR`    | The one PostgreSQL data directory: canonical tables and every lexical, vector, and graph index | Postgres-owned |
+| `PGDATA_DIR`    | The one PostgreSQL data directory: canonical tables and every lexical, vector, and graph index | Operator UID (`RUNTIME_UID`); exclusive to the database process |
 
 Nothing else is required to start. The remaining variables are overrides with documented defaults
 inside those roots, so a working configuration is three paths, a database password, and a model
@@ -350,18 +356,18 @@ preflight classifies every configured path against the class its consumer requir
 
 | Class           | Written by            | Access pattern                          | Device and filesystem requirement                                              | Locations                                             |
 | --------------- | --------------------- | --------------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------- |
-| `source`        | Nobody; read-only     | Large sequential reads, one full pass per inventory | Any readable mount; rotational is acceptable                          | `ARCHIVE_DIR` silos, `PROOF_ARCHIVE_DIR`              |
+| `source`        | Not by the pipeline   | Large sequential reads, one full pass per inventory | Any readable directory; host write permission and rotational storage are acceptable | `ARCHIVE_DIR` silos, `PROOF_ARCHIVE_DIR` |
 | `bulk`          | Pipeline stages       | Large sequential writes, occasional full scans | Capacity first; rotational and non-native filesystems are acceptable    | `RESULTS_DIR` and its `normalized`, `runs`, `proofs`, `exports`, `quarantine` trees |
-| `database`      | PostgreSQL only       | Small random reads and writes with ordered `fsync` | A filesystem PostgreSQL supports, real per-file ownership, exclusive use, SSD/NVMe strongly preferred | `PGDATA_DIR`, optional `PG_WAL_DIR`, optional tablespace roots |
-| `scratch`       | Pipeline workers      | High-churn random writes, deleted after the stage | Fast local SSD/NVMe, bounded free space, no durability requirement     | `TMP_DIR`                                             |
-| `model`         | Model runtimes        | Large random reads at load, then read-mostly | SSD/NVMe preferred; rotational multiplies model load latency               | `MODEL_CACHE_DIR`                                     |
+| `database`      | PostgreSQL only       | Small random reads and writes with ordered `fsync` | PostgreSQL-supported filesystem, real per-file ownership, exclusive use; rotational disks acceptable | `PGDATA_DIR`, optional `PG_WAL_DIR`, optional tablespace roots |
+| `scratch`       | Pipeline workers      | High-churn random writes, deleted after the stage | Writable storage with bounded free space; rotational disks acceptable | `TMP_DIR` |
+| `model`         | Model runtimes        | Large random reads at load, then read-mostly | Sufficient capacity and access permissions; rotational disks acceptable | `MODEL_CACHE_DIR` |
 | `service-state` | Local services        | Small random writes with file locking   | POSIX filesystem with real ownership; small; disposable but not rebuildable from the archive | `SERVICE_STATE_DIR`                       |
 
-A class mismatch is a configuration finding, not a silent slowdown. `database` on a rotational device
-or on a filesystem PostgreSQL does not support, `scratch` or `model` on a rotational device, and
-`service-state` on a filesystem that cannot express ownership are each reported by name with the
-variable to change. Only a `database` root that cannot take real ownership or exclusive use is a
-refusal; the rest are warnings the operator may accept for a trial.
+Rotational disks are accepted for every storage class, including database, model cache, and scratch.
+Their rotational flag remains recorded as performance evidence and does not degrade readiness.
+Unsupported database filesystems or missing ownership/exclusive-use semantics remain blocking;
+service state without filesystem ownership remains degraded. Permission and free-space checks still
+apply independently of device type.
 
 ### Why indexes, tables, and visualization artifacts do not get their own roots
 
@@ -395,12 +401,10 @@ exists:
 
 | Variable                                                | Purpose                                              | Storage class   | Default policy                                                 |
 | ------------------------------------------------------- | ---------------------------------------------------- | --------------- | -------------------------------------------------------------- |
-| `ARCHIVE_DIR`                                           | Declared immutable input silos; bind-mounted read-only | `source`      | Required for corpus stages; one path, or several named roots |
+| `ARCHIVE_DIR`                                           | Input silos opened or mounted read-only by the pipeline | `source`    | Required for corpus stages; host write permission is acceptable |
 | `RESULTS_DIR`                                           | Single pipeline output root                          | `bulk`          | Required for corpus stages; must not be inside the archive or the checkout |
-| `PGDATA_DIR`                                            | PostgreSQL data and index directory on fast local SSD/NVMe | `database` | Required for services                                     |
-| `PROOF_ARCHIVE_DIR`                                     | Operator-provided read-only archive silo for proof runs | `source`     | Required only by provided-archive proof tasks                |
-| `DEV_ARCHIVE_DIR`                                       | Read-only archive used by the development loop       | `source`        | `${PROOF_ARCHIVE_DIR}`; never read by `make ci`                |
-| `DEV_RESULTS_DIR`                                       | Output root for bounded development-loop runs        | `bulk`          | `${RESULTS_DIR}/dev`; keeps development slices out of published generations |
+| `PGDATA_DIR`                                            | PostgreSQL data and index directory; rotational disks acceptable | `database` | Required for services                                     |
+| `PROOF_ARCHIVE_DIR`                                     | Operator archive used without modification by proof runs | `source`   | Required only by provided-archive proof tasks                |
 | `RUNS_DIR`                                              | Run journals, logs, reports, checkpoints             | `bulk`          | `${RESULTS_DIR}/runs`                                          |
 | `SERVICE_STATE_DIR`                                     | Grafana, Prometheus, and AGE Viewer runtime state    | `service-state` | `${RESULTS_DIR}/services`; must be moved when that path cannot express ownership |
 | `MODEL_CACHE_DIR`                                       | Hugging Face/model cache                             | `model`         | `${RESULTS_DIR}/models`                                        |
@@ -408,20 +412,22 @@ exists:
 | `PG_WAL_DIR`                                            | Write-ahead log on a second `database` device        | `database`      | Unset; the WAL stays inside `PGDATA_DIR`                       |
 | `PG_TABLESPACE_<NAME>_DIR`                              | Optional named tablespace on a second `database` device | `database`   | Unset; every relation stays inside `PGDATA_DIR`                |
 | `DATABASE_URL`                                          | Host-side application connection                     | --              | Local-only default assembled from non-secret fields            |
-| `POSTGRES_PASSWORD`                                     | Database secret                                      | --              | No committed value; doctor rejects placeholder in non-dev mode |
+| `POSTGRES_PASSWORD`                                     | Database secret                                      | --              | No committed value; readiness rejects placeholder in non-dev mode |
 | `OLLAMA_BASE_URL`                                       | Host Ollama endpoint                                 | --              | `http://127.0.0.1:11434` for host CLI                          |
 | `INFERENCE_BACKEND`                                     | `ollama` or `vllm`                                   | --              | `ollama`                                                       |
-| `EMBEDDING_MODEL`, `GENERATION_MODEL`, `RERANK_MODEL`   | Model identities                                     | --              | Pinned by an evaluated profile, not silently floated           |
+| `EMBEDDING_MODEL`, `GENERATION_MODEL`, `RERANK_MODEL`   | Model identities for the selected backend             | --              | Generation defaults to `qwen3.8:27b` on Ollama, or `VLLM_MODEL` on vLLM; other roles require explicit selection |
 | `GENERATION_MODEL_REVISION`                             | Immutable Hugging Face generation-model revision    | --              | Revision paired with `GENERATION_MODEL`                        |
+| `VLLM_MODEL`, `VLLM_MODEL_REVISION`                     | Alternate vLLM service model and revision            | --              | Pinned Qwen3.8 27B FP8 repository and revision; independent of the Ollama model tag |
 | `VLLM_TENSOR_PARALLEL_SIZE`, `VLLM_CPU_OFFLOAD_GB`     | vLLM multi-GPU and host-RAM allocation               | --              | Evaluated CUDA-host profile                                    |
 | `VLLM_GPU_MEMORY_UTILIZATION`, `VLLM_MAX_MODEL_LEN`     | vLLM memory and context bounds                       | --              | Evaluated CUDA-host profile                                    |
 | `DATA_DIR`                                              | Repository-local root for developer tooling only     | --              | `.data`, resolved from the project root                        |
 | `LOG_LEVEL`, `LOG_FORMAT`, `PROGRESS_INTERVAL_SEC`      | Operator feedback                                    | --              | `INFO`, console plus JSONL, 30 seconds                         |
 | `PIPELINE_WORKERS`, `BATCH_SIZE`, `GPU_MAX_CONCURRENCY` | Resource bounds                                      | --              | Auto-detected conservative values; GPU concurrency `1`         |
 
-Path preflight must resolve symlinks, prove source and destinations are distinct, verify the archive
-mount is readable, verify outputs are writable, record filesystem type, device identifier, and
-rotational flag, classify each path against its required storage class, estimate free space, and
+Path preflight must resolve symlinks, prove source and destinations are distinct, verify each
+archive is a readable directory, verify outputs are writable, record filesystem type, device
+identifier, and rotational flag, classify each path against its required storage class, estimate
+free space, and
 refuse dangerous roots such as `/`. Docker receives absolute bind-mount sources, even when `.env`
 contains paths relative to the project root. The recorded filesystem type, device id, rotational
 flag, and storage class of every root enter the run manifest, so a slow or unsafe placement is
@@ -429,8 +435,10 @@ visible in the evidence rather than inferred later from timings.
 
 ### Source silos
 
-The archive input is a declared set of one or more read-only source roots. `ARCHIVE_DIR` is the
-one-silo case and carries the `default` id; `ARCHIVE_SILO_<ID>_DIR` declares each additional or
+The archive input is a declared set of one or more source roots that the pipeline opens without
+modification. Host filesystem write permission is allowed and is not a readiness failure.
+`ARCHIVE_DIR` is the one-silo case and carries the `default` id;
+`ARCHIVE_SILO_<ID>_DIR` declares each additional or
 alternative root, with underscores normalized to hyphens in the stable lowercase id. The silo id is
 part of source identity: every inventory row, document, path
 event, quarantine record, classification row, and move-ledger entry stores its silo id together with
@@ -454,18 +462,16 @@ $RESULTS_DIR/
   runs/         one directory per run: journal, logs, manifests, telemetry, evaluation, reports
   proofs/       provided-archive proof bundles, by capability and proof id
   exports/      operator-requested portable outputs, including rendered graphs and reports
-  dev/          bounded development-loop output, unless DEV_RESULTS_DIR points elsewhere
   services/     local service runtime state, unless SERVICE_STATE_DIR points elsewhere
   models/       model cache, unless MODEL_CACHE_DIR points elsewhere
   tmp/          bounded scratch, unless TMP_DIR points elsewhere
 ```
 
 Everything under `RESULTS_DIR` is rebuildable from the archive plus contracts and code, given enough
-time; nothing under it is the only copy of an operator's file. The four subtrees with their own
-variables are the ones whose storage class differs from `bulk`: scratch and model cache want a fast
-device, service state wants real ownership, and development output wants separation from published
-generations. Pointing them elsewhere is the expected configuration on a workstation whose results
-disk is large and slow.
+time; nothing under it is the only copy of an operator's file. The three subtrees with their own
+variables allow independent capacity and access placement: scratch and model cache can use either
+rotational or solid-state storage, while service state needs real ownership. Separate disks are
+optional; suitable derived paths under the results root are accepted.
 
 `PGDATA_DIR` is separate because PostgreSQL owns that directory exclusively and its failure and
 backup semantics differ from a lake of files. Keeping indexes inside `PGDATA_DIR` rather than in a
@@ -497,13 +503,13 @@ second path model and no development-only default that a production run would no
 differs is placement, because a development machine usually has one fast disk holding the archive and
 one large slow disk for output:
 
-- point `ARCHIVE_DIR` and `PROOF_ARCHIVE_DIR` at the real archive silo and leave `DEV_ARCHIVE_DIR` to
-  its default, so the development loop, forecasts, and proof runs read one declared read-only source;
-- point `RESULTS_DIR` at the bulk output disk and let `RUNS_DIR`, `exports/`, `proofs/`, and
-  `DEV_RESULTS_DIR` derive from it, so every run result of either kind lands in one deletable tree;
-- point `PGDATA_DIR`, `TMP_DIR`, and `MODEL_CACHE_DIR` at the fast disk when the results disk is
-  rotational or not a PostgreSQL-supported filesystem, and point `SERVICE_STATE_DIR` there too when
-  the results disk cannot express file ownership;
+- point `ARCHIVE_DIR` and `PROOF_ARCHIVE_DIR` at the real archive silo, so ordinary pipeline,
+  forecast, and proof commands read one source without modifying it;
+- point `RESULTS_DIR` at the bulk output disk and let `RUNS_DIR`, `exports/`, and `proofs/` derive
+  from it, so every pipeline result lands in one deletable tree;
+- choose `PGDATA_DIR`, `TMP_DIR`, and `MODEL_CACHE_DIR` for sufficient capacity; rotational disks
+  are acceptable. PostgreSQL still requires its supported filesystem and ownership semantics, and
+  `SERVICE_STATE_DIR` needs filesystem ownership;
 - keep `DATA_DIR` at its `.data` default inside the checkout; it is developer tooling state, never a
   corpus or results location.
 
@@ -513,29 +519,46 @@ run starts.
 
 ## Docker and local-service topology
 
-Compose profiles keep optional services out of the default footprint:
+Compose profiles allow bounded service selections:
 
 | Profile         | Services                                      | Notes                                                                                   |
 | --------------- | --------------------------------------------- | --------------------------------------------------------------------------------------- |
 | `core`          | project-derived ParadeDB/PostgreSQL           | Pinned image, healthcheck, persistent bind mount, localhost port only                   |
 | `graph`         | core image with AGE enabled, AGE Viewer       | Same PostgreSQL service; AGE projection remains disposable                              |
 | `ui`            | Grafana and provisioned PostgreSQL datasource | Dashboards, pipeline progress, topic/entity/fact tables, node graph panels              |
-| `observability` | Prometheus exporter and optional cAdvisor     | No corpus content in labels or metrics                                                  |
+| `observability` | Prometheus and its PostgreSQL exporter        | No corpus content in labels or metrics                                                  |
 | `vllm`          | pinned `vllm/vllm-openai` image               | Optional all-device NVIDIA runtime; model cache bind mount; sequential with other GPU-heavy stages |
+| `cadvisor`      | cAdvisor                                      | Privileged host-container metrics remain an explicit opt-in                             |
+
+The operator alias `pipeline` expands to `core ui observability`. It is the default selection for
+readiness and service commands. Inference uses the host Ollama service by default when it is running.
+vLLM is an alternate only when the operator explicitly includes the `vllm` profile and selects the
+`vllm` inference backend. `graph`, `vllm`, and the privileged `cadvisor` profile are not part of
+`pipeline`.
+
+Ollama generation defaults to `qwen3.8:27b`. An explicit `GENERATION_MODEL` overrides the selected
+backend's default. The alternate vLLM service uses its own Hugging Face model and revision defaults;
+an Ollama tag must not enter its Compose command. Selecting vLLM makes its defaults the active
+generation model, with explicit generation overrides also applied to that service. Readiness checks
+the selected backend's model availability; an absent model is degraded with the next operator action.
+Choosing a default does not pull a model or assert evaluated model quality.
 
 Ollama is deliberately not in Compose. It is installed and managed as the host system service. A
 Linux container reaches it through a documented host-gateway alias only when a containerized worker
 needs inference. The host CLI uses loopback directly. The default does not expose Ollama or
 PostgreSQL beyond localhost.
 
-Every service mount follows the storage classes above. The database service bind-mounts `PGDATA_DIR`
+Every service mount follows the storage classes above. Artifact-writing services run as the
+operator's `RUNTIME_UID`:`RUNTIME_GID` so bind-mounted directories stay host-writable by the same
+account that runs `make services-up`. The database service bind-mounts `PGDATA_DIR`
 read-write and nothing else; when `PG_WAL_DIR` or a named tablespace root is configured, each is a
 separate bind mount that the service refuses to start without. Grafana, Prometheus, and AGE Viewer
 bind-mount only their own subdirectory of `SERVICE_STATE_DIR` read-write, with dashboard, datasource,
 and scrape definitions provisioned read-only from `docker/`. Services that read pipeline output mount
-`RESULTS_DIR` read-only; the vLLM profile mounts `MODEL_CACHE_DIR`; the archive silos are mounted
-read-only or not at all. Compose receives absolute host paths resolved by the same preflight the CLI
-uses, and a container whose mount fails its storage-class check does not start.
+`RESULTS_DIR` read-only; the vLLM profile mounts `MODEL_CACHE_DIR` and also runs as that operator
+UID; the archive silos are mounted read-only or not at all. Compose receives absolute host paths
+resolved by the same preflight the CLI uses, and a container whose mount fails its storage-class
+check does not start.
 
 The vLLM service exposes all NVIDIA devices on the CUDA host. Its evaluated model profile pins both
 the model identity and repository revision, declares tensor parallelism, and bounds GPU utilization,
@@ -880,7 +903,7 @@ model id/digest, sampling settings, and output schema version are part of proven
 The installed command is `arxiv-int`. Representative commands are:
 
 ```text
-arxiv-int doctor
+arxiv-int readiness
 arxiv-int features [--stage STAGE]
 arxiv-int config show --redact
 arxiv-int contracts lint|generate|diff|check|test
@@ -906,16 +929,16 @@ arxiv-int report build RUN_ID
 Standard Make targets are thin, documented wrappers:
 
 ```text
-make help                  make bootstrap             make doctor
-make config                make contracts             make contracts-gen
-make contracts-evolution  make services-up           make services-down
-make services-status      make logs                   make forecast
-make dev-link              make dev-stage STAGE=...    make dev-check
-make pipeline              make update                 make proof CAPABILITY=...
-make stage STAGE=...       make resume RUN_ID=...     make search QUERY=...
-make graph-up              make ui-up                  make eval
-make test                  make integration-test      make ci
-make backup                make restore-check
+make help                  make bootstrap             make package-check
+make readiness             make config                make contracts
+make contracts-gen         make contracts-evolution  make services-up
+make services-down         make services-reset       make services-status
+make logs
+make forecast              make pipeline              make update
+make proof CAPABILITY=...  make stage STAGE=...       make resume RUN_ID=...
+make search QUERY=...      make graph-up              make ui-up
+make eval                  make test                  make integration-test
+make ci                    make backup                make restore-check
 ```
 
 The primary path contract works in both forms:
@@ -931,46 +954,15 @@ arxiv-int pipeline run \
 Command-line values override `.env`; resolved non-secret values and path device ids are written into
 the run manifest. Make never embeds machine-specific absolute paths.
 
-## Development loop
+Every stage becomes available through the standard `arxiv-int stage STAGE` and
+`make stage STAGE=...` interfaces in the same task that implements it. The implementation task runs
+that command against the configured archive immediately and inspects the resulting normal run
+artifacts; there are no development-only path aliases, stage wrappers, or output trees. The complete
+`make pipeline` command uses the same registered stage implementations and artifacts.
 
-A pipeline stage is built against fixtures but proven against files. The formats, encodings,
-truncations, and failures that decide whether a stage is correct live in the operator's own archive,
-so the moment a stage becomes runnable it must be runnable against real data and its output must be
-readable without knowing a run id. This is a build-time convenience, not an acceptance path.
-
-Three aliases are created from configuration and refreshed by `make dev-link`. They live under the
-repository's `DATA_DIR`, which is already ignored by Git, so a stable name is available on every
-machine while the machine-specific path stays in `.env`:
-
-| Alias                     | Points at                                     | Answers                                    |
-| ------------------------- | --------------------------------------------- | ------------------------------------------ |
-| `$DATA_DIR/dev/archive`   | `DEV_ARCHIVE_DIR`, read-only                  | where is the real archive on this machine  |
-| `$DATA_DIR/dev/results`   | `DEV_RESULTS_DIR`                             | where did the output go                    |
-| `$DATA_DIR/dev/latest`    | the most recent run directory under `RUNS_DIR` | what did the step I just ran produce       |
-
-`DEV_ARCHIVE_DIR` defaults to `PROOF_ARCHIVE_DIR`, so one configured read-only archive serves both the
-development loop and proof runs while remaining separately overridable. `DEV_RESULTS_DIR` defaults to
-`${RESULTS_DIR}/dev`, so bounded development slices stay on the operator's configured output disk and
-out of the published generations under `$RESULTS_DIR/normalized/`, and deleting the development tree
-never touches a proof bundle or an accepted generation. Every published dataset under
-`$RESULTS_DIR/normalized/` additionally exposes a `current` pointer to its active generation, so a
-reader never has to know the newest generation id. A broken or missing alias reports the variable to
-set rather than falling back to a guessed path.
-
-`make dev-stage STAGE=...` runs one stage against the development archive over a bounded slice, so the
-loop costs seconds to minutes rather than a full pass, and then prints the artifact summary:
-row and byte counts, contract conformance, partitions written, sampled rows with their source anchors,
-quarantine reasons, and the failure taxonomy. `arxiv-int inspect` prints the same summary for any
-dataset, run, or the `latest` alias without recomputing anything, and `make dev-check` runs the
-opt-in real-archive lane for every stage that already exists.
-
-The real-archive lane is deliberately outside the deterministic gate. `make ci` never reads the
-archive, never depends on a configured `DEV_ARCHIVE_DIR`, and stays reproducible on a machine that has
-no corpus; when no development archive is configured, the lane skips with an actionable message and
-reports that as its result. Development-loop output is local evidence only: it is not a proof bundle,
-it does not satisfy a provided-archive proof task, no stage is complete because its development run
-looked reasonable, and no corpus content, sample row, or machine-specific path from this loop enters
-Git. The loop never writes to the development archive.
+Deterministic CI remains fixture-based and never reads the configured archive. A real-data run is an
+implementation feedback signal, not acceptance evidence: it does not replace the capability's
+evaluation or proof bundle, and no corpus content or machine-specific path enters Git.
 
 ## Resumability, idempotency, and provenance
 
@@ -1257,7 +1249,7 @@ and results, but never copies private source content or machine-specific archive
 
 | Area              | Gate                                                                                                                                                                                             |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Fresh setup       | From a copied repo and edited `.env`, `make bootstrap`, `make doctor`, `make services-up`, a smoke pipeline, and `make ci` succeed without paths tied to the original disk.                      |
+| Fresh setup       | From a copied repo, `make bootstrap` creates or extends `.env`, reports missing configuration, and after operator edits, `make readiness`, `make services-up`, a smoke pipeline, and `make ci` succeed without paths tied to the original disk. |
 | Contracts         | ODCS lint, generation drift, Avro round-trip/compatibility, evolution policy, migration status, and live Postgres schema tests pass.                                                             |
 | Idempotency       | Re-running an unchanged successful shard writes no duplicate canonical rows or artifacts and reports a cache hit; interrupted stages resume from completed shards.                               |
 | Incremental state | Added/changed/renamed/removed sources and stage-owned implementation changes invalidate only their lineage closure; active views retract stale outputs and retain audit evidence.                 |
@@ -1280,8 +1272,9 @@ and must not be hidden by choosing a convenient threshold.
 
 ## Operations, backup, and security
 
-The archive mount is read-only for every service and pipeline stage. Only the explicit host-side
-archive-reorganization command may request write access, only in `move` mode, and only with an
+Every service bind-mounts the archive read-only, and every ordinary pipeline stage opens it only for
+reading. The host directory itself may remain writable. Only the explicit host-side
+archive-reorganization command may modify it, only in `move` mode, and only with an
 accepted dry-run plan, a sealed ledger, and a recoverable backup or equivalent snapshot; its `copy`
 mode writes solely into the declared target root. Service ports bind to loopback.
 Database roles separate migration, pipeline writes, read-only UI, and backup. Secrets live in `.env`
@@ -1307,7 +1300,7 @@ based on tested backup plus projection rebuild, not an assumed replica.
 
 | Phase                       | Outcome                                                          | Capability span                                          | Exit signal                                                     |
 | --------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------------------- |
-| 0 - Foundation              | Personalized repo, portable paths, development loop, contracts, one database image | `project-foundation` through `canonical-store` | Fresh-copy service and contract smoke passes            |
+| 0 - Foundation              | Personalized repo, portable paths, contracts, one database image | `project-foundation` through `canonical-store` | Fresh-copy service and contract smoke passes            |
 | 1 - Local evidence seams    | Local inference adapters and replayable evaluation fixtures      | `local-inference`, `evaluation-foundation`               | Provider and metric conformance tests pass                      |
 | 2 - Corpus substrate        | Rebuildable lake, restartable stages, classification and path map | `corpus-foundation` through `archive-classification`     | Corpus/control/classification proof bundles pass                 |
 | 3 - Retrieval and NLP       | Russian lexical baseline, selected vectors, mentions             | `lexical-retrieval` through `russian-nlp`                | Retrieval and NLP proof bundles pass or retain a valid fallback |
@@ -1319,7 +1312,6 @@ The critical path is:
 ```text
 project foundation
   -> portable runtime
-  -> development loop
   -> contract governance
   -> canonical store
   -> local inference and evaluation foundation
@@ -1347,29 +1339,28 @@ evidence exist. Registry order is the implementation line used by `plan.md`.
 | #   | Capability                | Status  | How it is evaluated                                                                          | Implementation                                               |
 | --- | ------------------------- | ------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
 | 1   | `project-foundation`      | shipped | Fresh copy, rename, locked bootstrap, CLI identity, docs integrity, and CI pass              | [Project foundation](../impl/current/project-foundation.md)  |
-| 2   | `portable-runtime`        | planned | Multi-SSD path and Compose profile smoke tests pass from two checkout locations              | `plan.md#portable-runtime----portable-runtime`               |
-| 3   | `development-loop`        | planned | Stable aliases resolve from two checkouts and an opt-in real-archive stage lane runs outside the deterministic gate | `plan.md#development-loop----development-loop`               |
-| 4   | `contract-governance`     | planned | ODCS lint/generation/evolution/Avro/migration/live-store gates pass                          | `plan.md#contract-governance----contract-governance`         |
-| 5   | `canonical-store`         | planned | ParadeDB/pgvector/AGE compatibility, schema, backup, restore, and projection checks pass     | `plan.md#canonical-store----canonical-store`                 |
-| 6   | `local-inference`         | planned | Ollama/vLLM conformance, structured outputs, model-fit, and local-only endpoint gates pass   | `plan.md#local-inference----local-inference`                 |
-| 7   | `evaluation-foundation`   | planned | Frozen fixtures, replayable metrics, split guards, and paired verdict utilities pass         | `plan.md#evaluation-foundation----evaluation-foundation`     |
-| 8   | `corpus-foundation`       | planned | Representative inventory, extraction, normalization, dedupe, and chunk gold sets pass        | `plan.md#corpus-foundation----corpus-foundation`             |
-| 9   | `pipeline-control`        | planned | Sharded stage, resume, retry, invalidation, idempotency, and progress tests pass             | `plan.md#pipeline-control----pipeline-control`               |
-| 10  | `archive-classification`  | planned | Hierarchical gold labels, calibrated exceptions, path safety, resume, rollback, and lookup pass | `plan.md#archive-classification----archive-classification`   |
-| 11  | `lexical-retrieval`       | planned | Held-out Russian relevance, latency, index size, and rebuild gates pass                      | `plan.md#lexical-retrieval----lexical-retrieval`             |
-| 12  | `semantic-retrieval`      | planned | Selected-tier vector and hybrid candidates receive paired adopt/retain verdicts              | `plan.md#semantic-retrieval----semantic-retrieval`           |
-| 13  | `russian-nlp`             | planned | Language, morphology, terminology, and NER metrics pass per type                             | `plan.md#russian-nlp----russian-nlp`                         |
-| 14  | `knowledge-extraction`    | planned | Structured extraction, evidence, fact quality, and contradiction gates pass                  | `plan.md#knowledge-extraction----knowledge-extraction`       |
-| 15  | `identity-ontology-graph` | planned | Linkage, ontology, SQL/Cypher parity, rebuild, and bounded traversal gates pass              | `plan.md#identity-ontology-graph----identity-ontology-graph` |
-| 16  | `domain-investigation-artifacts` | planned | Reviewed BOM, relationship, supply-chain, invoice/payment, render, and registry gates pass | `plan.md#domain-investigation-artifacts----domain-investigation-artifacts` |
-| 17  | `discovery-visualization` | planned | Topic stability plus operator completion of search, graph, equipment, and supplier scenarios | `plan.md#discovery-visualization----discovery-visualization` |
-| 18  | `evaluation-evidence`     | planned | Artifact-lineage checks and representative scale pilots produce readable, capacity-aware verdicts | `plan.md#evaluation-evidence----evaluation-evidence`      |
-| 19  | `operational-recovery`    | planned | Security checks, backup/restore drill, disk exhaustion, interruption, and runbook tests pass | `plan.md#operational-recovery----operational-recovery`       |
+| 2   | `portable-runtime`        | shipped | Multi-SSD path and Compose profile smoke tests pass from two checkout locations              | [Portable runtime](../impl/current/portable-runtime.md)      |
+| 3   | `contract-governance`     | planned | ODCS lint/generation/evolution/Avro/migration/live-store gates pass                          | `plan.md#contract-governance----contract-governance`         |
+| 4   | `canonical-store`         | planned | ParadeDB/pgvector/AGE compatibility, schema, backup, restore, and projection checks pass     | `plan.md#canonical-store----canonical-store`                 |
+| 5   | `local-inference`         | planned | Ollama/vLLM conformance, structured outputs, model-fit, and local-only endpoint gates pass   | `plan.md#local-inference----local-inference`                 |
+| 6   | `evaluation-foundation`   | planned | Frozen fixtures, replayable metrics, split guards, and paired verdict utilities pass         | `plan.md#evaluation-foundation----evaluation-foundation`     |
+| 7   | `corpus-foundation`       | planned | Representative inventory, extraction, normalization, dedupe, and chunk gold sets pass        | `plan.md#corpus-foundation----corpus-foundation`             |
+| 8   | `pipeline-control`        | planned | Sharded stage, resume, retry, invalidation, idempotency, and progress tests pass             | `plan.md#pipeline-control----pipeline-control`               |
+| 9   | `archive-classification`  | planned | Hierarchical gold labels, calibrated exceptions, path safety, resume, rollback, and lookup pass | `plan.md#archive-classification----archive-classification`   |
+| 10  | `lexical-retrieval`       | planned | Held-out Russian relevance, latency, index size, and rebuild gates pass                      | `plan.md#lexical-retrieval----lexical-retrieval`             |
+| 11  | `semantic-retrieval`      | planned | Selected-tier vector and hybrid candidates receive paired adopt/retain verdicts              | `plan.md#semantic-retrieval----semantic-retrieval`           |
+| 12  | `russian-nlp`             | planned | Language, morphology, terminology, and NER metrics pass per type                             | `plan.md#russian-nlp----russian-nlp`                         |
+| 13  | `knowledge-extraction`    | planned | Structured extraction, evidence, fact quality, and contradiction gates pass                  | `plan.md#knowledge-extraction----knowledge-extraction`       |
+| 14  | `identity-ontology-graph` | planned | Linkage, ontology, SQL/Cypher parity, rebuild, and bounded traversal gates pass              | `plan.md#identity-ontology-graph----identity-ontology-graph` |
+| 15  | `domain-investigation-artifacts` | planned | Reviewed BOM, relationship, supply-chain, invoice/payment, render, and registry gates pass | `plan.md#domain-investigation-artifacts----domain-investigation-artifacts` |
+| 16  | `discovery-visualization` | planned | Topic stability plus operator completion of search, graph, equipment, and supplier scenarios | `plan.md#discovery-visualization----discovery-visualization` |
+| 17  | `evaluation-evidence`     | planned | Artifact-lineage checks and representative scale pilots produce readable, capacity-aware verdicts | `plan.md#evaluation-evidence----evaluation-evidence`      |
+| 18  | `operational-recovery`    | planned | Security checks, backup/restore drill, disk exhaustion, interruption, and runbook tests pass | `plan.md#operational-recovery----operational-recovery`       |
 
 ## Success criteria
 
-The project succeeds when an operator can copy the repository to any suitable disk, copy
-`.env.example` to `.env`, point it at separate archive, results, and PostgreSQL disks, start
+The project succeeds when an operator can copy the repository to any suitable disk, bootstrap and
+point `.env` at separate archive, results, and PostgreSQL disks, start
 the selected local services, and run one stage or the complete pipeline with continuous progress and
 safe resume. Search, topics, objects, facts, ontologies, graphs, and equipment/supplier reports are
 useful on a representative Russian corpus, carry source evidence, and can be rebuilt from open,

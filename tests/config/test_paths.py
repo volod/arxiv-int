@@ -88,7 +88,6 @@ def test_valid_paths_create_the_documented_layout_and_record_devices(tmp_path: P
         "proofs",
         "exports",
         "runs",
-        "dev",
         "services",
         "models",
         "scratch disk",
@@ -167,12 +166,17 @@ def test_storage_mismatches_distinguish_refusals_from_warnings(tmp_path: Path) -
     assert blocked.report.status == "blocked"
     assert any("change PGDATA_DIR" in finding.detail for finding in blocked.report.findings)
 
-    def slow_or_non_owning(path: Path) -> FilesystemEvidence:
+    rotational = validate_runtime_paths(
+        config, inspector=lambda path: _evidence(path, rotational=True)
+    )
+    assert rotational.report.status == "ready"
+
+    def non_owning(path: Path) -> FilesystemEvidence:
         if path == config.service_state_dir:
             return _evidence(path, filesystem="nfs", ownership=False)
         return _evidence(path, rotational=True)
 
-    degraded = validate_runtime_paths(config, inspector=slow_or_non_owning)
+    degraded = validate_runtime_paths(config, inspector=non_owning)
     details = "\n".join(finding.detail for finding in degraded.report.findings)
     assert degraded.report.status == "degraded"
     assert all(name in details for name in ("PGDATA_DIR", "TMP_DIR", "MODEL_CACHE_DIR"))
@@ -231,16 +235,13 @@ def test_unreadable_sources_and_unwritable_output_parents_are_blocked(tmp_path: 
     assert any("not writable" in item.detail for item in unwritable.report.findings)
 
 
-def test_permissions_free_space_and_read_only_proof_are_checked(tmp_path: Path) -> None:
+def test_writable_proof_is_accepted_and_output_free_space_is_checked(tmp_path: Path) -> None:
     proof = tmp_path / "proof"
     proof.mkdir()
     config = _runtime_config(tmp_path, PROOF_ARCHIVE_DIR=str(proof))
 
     writable_proof = validate_runtime_paths(config, inspector=_evidence)
-    assert writable_proof.report.status == "blocked"
-    assert any("read-only" in finding.detail for finding in writable_proof.report.findings)
-
-    proof.chmod(0o555)
+    assert writable_proof.report.status == "ready"
 
     def no_space(path: Path) -> FilesystemEvidence:
         return _evidence(path, free_bytes=0 if path == config.results_dir else 1_000_000)

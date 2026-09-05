@@ -8,96 +8,6 @@ ordering, and lifecycle rules belong in the
 
 ## Agent Implementation Tasks
 
-### Portable runtime -- `portable-runtime`
-
-#### add-fresh-copy-doctor
-
-Implement a preflight command that turns configuration, tool, device, model endpoint, extension, and
-free-space failures into one readiness report.
-
-- Serves: `portable-runtime` --
-[Configuration and multi-SSD paths](../design/spec.md#configuration-and-multi-ssd-paths)
-- Agent status: CLEAR
-- Dependencies: Compose profiles and operator wrappers documented in
-[Portable runtime](current/portable-runtime.md).
-- User-visible outcome: Before a long run, the operator sees exactly what is ready, degraded,
-missing, or unsafe and the command needed next.
-- Scope boundary: Read-only diagnostics only; doctor does not install packages, pull models, mutate
-services, or create migrations.
-- Data and artifact paths: `src/arxiv_int/doctor/`, `tests/doctor/`, and `docs/guide/setup.md`.
-- Execution path: Check Python/uv/Docker/Compose, archive/proof/output paths and filesystems,
-RAM/GPU/disk, service health, extension versions, Ollama/vLLM APIs, contract state, migrations, and
-model availability; report every configured root with its measured filesystem type, device, and
-rotational flag next to the storage class it must satisfy; emit console and JSON reports. Capacity
-estimation remains the forecast command's responsibility.
-- Acceptance gates: Network-free fixtures cover pass, degraded, and fail states, including a
-database root on an unsupported or non-owning filesystem as blocked and rotational database,
-scratch, model, or non-owning service-state roots as degraded with the variable to change; secrets
-are masked; exit codes distinguish ready/degraded/blocked; checks have timeouts.
-- Documentation target: `docs/impl/current/portable-runtime.md`
-
-### Development loop -- `development-loop`
-
-#### establish-development-archive-aliases
-
-Give the archive, the results root, and the newest run stable names on any machine, and define the
-opt-in lane that may read a real archive.
-
-- Serves: `development-loop` -- [Development loop](../design/spec.md#development-loop)
-- Agent status: CLEAR
-- Dependencies: Runtime roots documented in [Portable runtime](current/portable-runtime.md).
-- User-visible outcome: A contributor points `DEV_ARCHIVE_DIR` at a real archive once and then reaches
-it, the development results root, and the most recent run through fixed paths that no command or test
-has to hardcode, while bounded development output stays out of the published generations.
-- Scope boundary: Create and refresh symbolic aliases and the opt-in test lane; never copy corpus
-content, never write to the development archive, and never let the deterministic gate depend on a
-configured archive.
-- Data and artifact paths: `.env.example`, `.gitignore`, `src/arxiv_int/runtime/paths.py`,
-`src/arxiv_int/doctor/`, `Makefile`, `scripts/shared/common.sh`, `$DATA_DIR/dev/`, and
-`tests/config/`.
-- Execution path: Resolve `DEV_ARCHIVE_DIR` with its `PROOF_ARCHIVE_DIR` default and
-`DEV_RESULTS_DIR` with its `${RESULTS_DIR}/dev` default; create `$DATA_DIR/dev/{archive,results,latest}`
-as symbolic links refreshed by `make dev-link`; maintain the `latest` link when a run directory is
-created and a `current` pointer when a dataset generation is published; add the opt-in pytest marker
-and `make dev-check` entry point that skip with the variable to set; report alias state in doctor
-output.
-- Acceptance gates: Aliases resolve from two checkout locations and after the archive path changes;
-a missing, broken, or non-directory target reports the variable to set instead of guessing;
-development output resolves under `DEV_RESULTS_DIR` and never under `$RESULTS_DIR/normalized/`; the
-marked lane is excluded from `make ci` and proven to skip on a machine with no archive; no alias,
-corpus path, or sample content is committed.
-- Documentation target: `docs/impl/current/development-loop.md`
-
-#### add-stage-artifact-inspection
-
-Report what a stage just produced -- counts, contract conformance, samples with source anchors, and
-failures -- without recomputing it or knowing a run id.
-
-- Serves: `development-loop` -- [Development loop](../design/spec.md#development-loop)
-- Agent status: RUN NEEDED
-- Dependencies: `establish-development-archive-aliases`; `implement-streaming-inventory`;
-`implement-stage-dag-cli-and-make-targets` for the bounded `make dev-stage` wrapper.
-- User-visible outcome: Immediately after a stage runs on real files, the contributor sees row and
-byte counts, partitions, schema conformance, sampled rows with their source anchors, quarantine
-reasons, and the failure taxonomy for the artifact it wrote.
-- Scope boundary: Read published artifacts and summarize them; do not re-run stages from the
-inspector, mutate any artifact, publish a proof verdict, or treat a development summary as acceptance
-evidence.
-- Data and artifact paths: `src/arxiv_int/inspect/`, `$DATA_DIR/dev/latest`,
-`$DEV_RESULTS_DIR/`, `$RESULTS_DIR/normalized/`, `$RUNS_DIR/<run-id>/`, `Makefile`, and inspection
-fixtures.
-- Execution path: Add `arxiv-int inspect` over a dataset, a run, or the `latest` alias using the
-contract for schema-aware output; add `make dev-stage STAGE=...` running one stage against the
-development archive over a bounded slice; render console and JSON summaries; redact corpus text to
-bounded samples and mask secrets; execute the declared run against the development archive for the
-stages that exist.
-- Acceptance gates: Fixture datasets produce stable summaries for empty, partial, quarantined, and
-schema-drifted inputs; the declared real-archive run reports counts, conformance, and failures for
-each existing stage; the inspector opens no writable handle and leaves checksums unchanged; a bounded
-slice keeps the loop within its declared time budget; summaries carry no secrets and no unbounded
-corpus text.
-- Documentation target: `docs/impl/current/development-loop.md`
-
 ### Contract governance -- `contract-governance`
 
 #### establish-canonical-contract-registry
@@ -328,22 +238,25 @@ Build a content-addressed, restartable archive inventory with format, encoding, 
 metadata.
 
 - Serves: `corpus-foundation` -- [Pipeline](../design/spec.md#pipeline)
-- Agent status: CLEAR
+- Agent status: RUN NEEDED
 - Dependencies: Runtime roots documented in [Portable runtime](current/portable-runtime.md);
 `establish-canonical-contract-registry`.
 - User-visible outcome: The operator can inventory one or more multi-terabyte silos without loading
 them into RAM and can see per-silo coverage, bytes, duplicates, and unsupported/encrypted inputs.
 - Scope boundary: Read files and archive-member metadata only; no text extraction and no
 modification of source files.
-- Data and artifact paths: Declared read-only source roots from `$ARCHIVE_DIR`;
+- Data and artifact paths: Declared source roots from `$ARCHIVE_DIR`, used without modification;
 `$RESULTS_DIR/normalized/inventory/`; `$RUNS_DIR/<run-id>/`; `src/arxiv_int/pipeline/inventory/`.
 - Execution path: Resolve the declared silo ids and roots; stream directory entries, carry silo id
 with root-relative path metadata, detect MIME/encoding, compute configurable quick and strong hashes
-once, enforce archive-bomb limits, shard by stable id, and write atomic Parquet manifests.
+once, enforce archive-bomb limits, shard by stable id, and write atomic Parquet manifests; register
+the stage and expose `arxiv-int stage inventory` plus `make stage STAGE=inventory` in the same change,
+then run that normal command against the configured archive and inspect its artifacts.
 - Acceptance gates: Network-free fixtures cover large/sparse files, links, permission errors,
 renamed duplicates, nested archives, encrypted files, interruption, and resume; two silos sharing one
 root-relative path stay distinct while identical bytes resolve to one content identity; memory is
-bounded independently of file count.
+bounded independently of file count; the configured-archive run and artifact summary are recorded in
+current-state documentation without private content or machine-specific paths.
 - Documentation target: `docs/impl/current/corpus-foundation.md`
 
 #### integrate-tiered-text-extraction
@@ -362,10 +275,13 @@ promise every proprietary format.
 `$RESULTS_DIR/quarantine/`, `src/arxiv_int/extraction/`, and representative format fixtures.
 - Execution path: Run Tika as breadth baseline; route layout/table PDFs to Docling and scanned PDFs
 to OCR; preserve tool versions, coordinates, raw hashes, and extraction quality; bound temp files,
-child processes, timeouts, and decompression.
+child processes, timeouts, and decompression; register `extract` with the normal stage interface and
+run it immediately against the configured archive after deterministic checks pass.
 - Acceptance gates: The reviewed extraction fixture reports per-format text, table, and anchor
 coverage; corrupt/encrypted/oversized inputs fail safely; repeated content hashes reuse outputs;
-source files remain unchanged.
+source files remain unchanged; the normal `make stage STAGE=extract` run produces inspectable
+artifacts on the configured archive, and its redacted result is recorded in current-state
+documentation.
 - Documentation target: `docs/impl/current/corpus-foundation.md`
 
 #### implement-normalization-dedupe-and-chunking
@@ -384,10 +300,12 @@ source/extracted records.
 `src/arxiv_int/pipeline/normalize/`, and `src/arxiv_int/pipeline/chunk/`.
 - Execution path: Preserve original text; create NFC/casefold/search views; map
 original-to-normalized offsets; detect language; run exact, normalized, MinHash/lexical, and
-edition grouping; implement bounded structure/table/sentence chunkers with source breadcrumbs.
+edition grouping; implement bounded structure/table/sentence chunkers with source breadcrumbs;
+register the normal stage commands and run them immediately against the configured archive.
 - Acceptance gates: Golden offsets and table headers survive chunking; unchanged input yields stable
 ids; dedupe precision is measured on labels; no suppression occurs without an overlay; out-of-core
-memory and shard-resume tests pass.
+memory and shard-resume tests pass; the configured-archive commands produce inspectable artifacts
+whose redacted results are recorded in current-state documentation.
 - Documentation target: `docs/impl/current/corpus-foundation.md`
 
 #### prove-corpus-foundation-on-provided-archive
@@ -405,7 +323,7 @@ current proof bundle.
 normalization, duplicate, and chunk artifacts backed by one reproducible proof id.
 - Scope boundary: Read `PROOF_ARCHIVE_DIR` without mutation and stop after `chunk`; do not infer
 downstream classification, retrieval, or knowledge quality from this proof.
-- Data and artifact paths: Read-only `$PROOF_ARCHIVE_DIR`, `$RESULTS_DIR`, and
+- Data and artifact paths: `$PROOF_ARCHIVE_DIR` used without modification, `$RESULTS_DIR`, and
 `$RUNS_DIR/proofs/corpus-foundation/<proof-id>/`; only redacted summaries enter current docs.
 - Execution path: Run a passing forecast; execute `inventory` through `chunk`; validate contracts,
 counts, spans, offsets, quarantine reasons, and checksums; rerun the identical closure and capture
@@ -443,7 +361,7 @@ a new attempt without overwriting evidence.
 
 #### implement-stage-dag-cli-and-make-targets
 
-Build the dependency-aware stage registry, independent stage command, end-to-end and incremental
+Complete the dependency-aware stage registry, independent stage command, end-to-end and incremental
 runners, resume, status, invalidate, rebuild, and stale-prune planning interfaces.
 
 - Serves: `pipeline-control` -- [CLI and Make interface](../design/spec.md#cli-and-make-interface)
@@ -456,12 +374,35 @@ closure, inspect invalidation, start a fresh generation, and resume by run id th
 Celery, Redis, or Kubernetes.
 - Data and artifact paths: `src/arxiv_int/cli.py`, `src/arxiv_int/pipeline/registry.py`, `Makefile`,
 and `tests/pipeline/orchestration/`.
-- Execution path: Register typed stages and dependencies; resolve parameters; validate required
+- Execution path: Extend the typed stage registry introduced with inventory; register dependencies;
+resolve parameters; validate required
 upstream manifests; add run/update/stage/status/resume/invalidate/rebuild and prune-plan commands;
 keep Make wrappers thin and destructive application separately confirmed.
 - Acceptance gates: DAG, range, skip, invalid dependency, update, resume, targeted invalidate,
 fresh-generation rebuild, prune dry-run, force, and signal-handling tests pass; CLI help lists
 defaults and precedence; end-to-end smoke produces the same manifests as independent stages.
+- Documentation target: `docs/impl/current/pipeline-control.md`
+
+#### add-stage-artifact-inspection
+
+Report what a normal pipeline stage produced without recomputing it.
+
+- Serves: `pipeline-control` -- [CLI and Make interface](../design/spec.md#cli-and-make-interface)
+- Agent status: RUN NEEDED
+- Dependencies: `implement-stage-dag-cli-and-make-targets`.
+- User-visible outcome: After any stage or complete pipeline run, the operator can inspect row and
+byte counts, partitions, contract conformance, bounded source anchors, quarantines, and failures by
+run id.
+- Scope boundary: Read and summarize normal run artifacts; do not introduce development-only paths
+or commands, rerun stages, mutate artifacts, or treat an inspection as proof acceptance.
+- Data and artifact paths: `src/arxiv_int/inspect/`, `$RESULTS_DIR/normalized/`,
+`$RUNS_DIR/<run-id>/`, `src/arxiv_int/cli.py`, `Makefile`, and inspection fixtures.
+- Execution path: Add `arxiv-int inspect RUN_ID` and the matching run-artifact lookup using the
+pipeline registry and contracts; render console and JSON summaries with bounded samples and masked
+secrets; inspect the real run produced after each available stage implementation.
+- Acceptance gates: Normal empty, partial, quarantined, and schema-drifted run artifacts produce
+stable summaries; inspection leaves checksums unchanged; summaries contain no secrets, unbounded
+corpus text, development alias, or machine-specific path.
 - Documentation target: `docs/impl/current/pipeline-control.md`
 
 #### implement-incremental-reconciliation-and-stale-pruning
@@ -528,7 +469,7 @@ free-space safety before a pipeline run.
 `add-progress-logging-and-resource-telemetry`; `implement-streaming-inventory`; runtime storage
 evidence documented in [Portable runtime](current/portable-runtime.md).
 - User-visible outcome: Before starting, an operator sees stage-by-stage cache hits, changed work,
-time and data-size ranges, peak scratch/rebuild needs, accessible SSD free space, confidence, and a
+time and data-size ranges, peak scratch/rebuild needs, accessible disk free space, confidence, and a
 clear ready/degraded/blocked decision.
 - Scope boundary: Perform inventory, sampling, manifest, telemetry, and filesystem checks only; do
 not load heavy models, materialize production artifacts, invent precise estimates, or bypass hard
@@ -559,9 +500,9 @@ planning with the supplied archive and publish the pipeline-control proof bundle
 - User-visible outcome: The supplied archive demonstrates that unchanged inputs skip heavy work,
 deltas update only affected artifacts, stale data retracts safely, insufficient space blocks early,
 and a clean generation can be rebuilt.
-- Scope boundary: Keep `PROOF_ARCHIVE_DIR` read-only; perform add/change/rename/remove and prune-apply
+- Scope boundary: Do not modify `PROOF_ARCHIVE_DIR`; perform add/change/rename/remove and prune-apply
 drills only on a bounded disposable proof copy; do not prune the sole proof or recovery generation.
-- Data and artifact paths: Read-only `$PROOF_ARCHIVE_DIR`, disposable
+- Data and artifact paths: `$PROOF_ARCHIVE_DIR` used without modification, disposable
 `$RESULTS_DIR/proof-work/pipeline-control/<proof-id>/`, and
 `$RUNS_DIR/proofs/pipeline-control/<proof-id>/`.
 - Execution path: Forecast and run the corpus closure; rerun unchanged; create controlled source
@@ -685,7 +626,7 @@ the operator can inspect deterministic ASCII destinations, per-mode space requir
 initial/current source lookup before authorizing any placement.
 - Scope boundary: Run classification, mapping validation, reorganize dry-run for both modes, and
 locate only; never apply a placement to `PROOF_ARCHIVE_DIR`.
-- Data and artifact paths: Read-only `$PROOF_ARCHIVE_DIR`,
+- Data and artifact paths: `$PROOF_ARCHIVE_DIR` used without modification,
 `$RESULTS_DIR/normalized/classifications/`, and
 `$RUNS_DIR/proofs/archive-classification/<proof-id>/`.
 - Execution path: Forecast the closure; run classification; validate coverage, hierarchy, evidence,
@@ -793,7 +734,7 @@ Build and query the lexical projection for the supplied archive and publish its 
 profile, with filters, snippets, identifiers, and citations that resolve to source evidence.
 - Scope boundary: Prove lexical load/query behavior and declared evaluation queries; do not claim
 semantic retrieval or full-archive relevance from this test archive.
-- Data and artifact paths: Read-only `$PROOF_ARCHIVE_DIR`, lexical tables/indexes, and
+- Data and artifact paths: `$PROOF_ARCHIVE_DIR` used without modification, lexical tables/indexes, and
 `$RUNS_DIR/proofs/lexical-retrieval/<proof-id>/`.
 - Execution path: Forecast; load/build the selected lexical projection; reconcile counts/checksums;
 run archive-appropriate smoke and held-out queries; validate citations and limits; rerun unchanged
@@ -866,7 +807,8 @@ measured not-selected verdict.
 resource cost, and citations, or see why the branch remains disabled with lexical fallback working.
 - Scope boundary: Use only the forecast-approved selected tier and configured local models; do not
 embed the complete supplied archive or treat an unavailable/failed branch as successful proof.
-- Data and artifact paths: Read-only `$PROOF_ARCHIVE_DIR`, selected embedding/vector artifacts, and
+- Data and artifact paths: `$PROOF_ARCHIVE_DIR` used without modification, embedding/vector
+artifacts, and
 `$RUNS_DIR/proofs/semantic-retrieval/<proof-id>/`.
 - Execution path: Forecast model and index resources; run selected embedding/load/query profiles;
 validate vector identities, counts, paired retrieval evidence, and fallback; rerun unchanged and
@@ -941,7 +883,8 @@ their proof bundle.
 language/noise results, mentions, source offsets, model identities, and measured failure classes.
 - Scope boundary: Prove configured NLP profiles on available archive languages/types; do not treat
 unreviewed mentions as canonical objects or infer quality for absent strata.
-- Data and artifact paths: Read-only `$PROOF_ARCHIVE_DIR`, `$RESULTS_DIR/normalized/nlp/`, mention tables,
+- Data and artifact paths: `$PROOF_ARCHIVE_DIR` used without modification,
+`$RESULTS_DIR/normalized/nlp/`, mention tables,
 and `$RUNS_DIR/proofs/russian-nlp/<proof-id>/`.
 - Execution path: Forecast; run NLP and mention extraction; validate schemas, language coverage,
 offset/source mapping, per-type summaries, and model fingerprints; rerun unchanged and record
@@ -1015,7 +958,8 @@ proof bundle.
 inspectable with exact evidence, validation findings, conflicts, and extractor/model provenance.
 - Scope boundary: Exercise only forecast-approved deterministic and local-model lanes; do not
 auto-accept facts or claim correctness for unreviewed domain assertions.
-- Data and artifact paths: Read-only `$PROOF_ARCHIVE_DIR`, `$RESULTS_DIR/normalized/facts/`, knowledge
+- Data and artifact paths: `$PROOF_ARCHIVE_DIR` used without modification,
+`$RESULTS_DIR/normalized/facts/`, knowledge
 tables, and `$RUNS_DIR/proofs/knowledge-extraction/<proof-id>/`.
 - Execution path: Forecast; run configured fact lanes and validators; reconcile input/output/failure
 counts; sample evidence-span resolution and conflict grouping; rerun unchanged and capture rule/model
@@ -1112,7 +1056,8 @@ supplied-archive proof bundle.
 bounded graph paths are inspectable with reversible decisions and source evidence.
 - Scope boundary: Use approved or explicitly proposed review states; do not silently merge uncertain
 entities, publish disputed ontology changes, or require AGE when the declared fallback is active.
-- Data and artifact paths: Read-only `$PROOF_ARCHIVE_DIR`, identity/ontology/graph stores and
+- Data and artifact paths: `$PROOF_ARCHIVE_DIR` used without modification,
+identity/ontology/graph stores and
 exports, and `$RUNS_DIR/proofs/identity-ontology-graph/<proof-id>/`.
 - Execution path: Forecast; run entity resolution and ontology validation; build the active AGE or
 relational/open-export graph; reconcile counts and sampled SQL/path parity; resolve edge evidence;
@@ -1221,7 +1166,7 @@ the supplied archive and publish its proof bundle.
 view, its table/graph files, evidence coverage, conflicts, review policy, and production status.
 - Scope boundary: Generate only evidence-supported bounded views; accept contract-valid `empty` or
 `partial` families and never manufacture relations to make a graphical artifact non-empty.
-- Data and artifact paths: Read-only `$PROOF_ARCHIVE_DIR`,
+- Data and artifact paths: `$PROOF_ARCHIVE_DIR` used without modification,
 `$RESULTS_DIR/normalized/domain-artifacts/`, and
 `$RUNS_DIR/proofs/domain-investigation-artifacts/<proof-id>/`.
 - Execution path: Forecast; build all configured artifact families; validate arithmetic,
@@ -1325,7 +1270,8 @@ graphs, and domain reports through bounded interfaces whose displayed evidence c
 - Scope boundary: Prove local read-only scenarios and available profiles; do not expose services
 publicly, require an optional UI/AGE profile with a valid fallback, or claim usability acceptance for
 scenarios not executed.
-- Data and artifact paths: Read-only `$PROOF_ARCHIVE_DIR`, topic/query/report/export artifacts, and
+- Data and artifact paths: `$PROOF_ARCHIVE_DIR` used without modification,
+topic/query/report/export artifacts, and
 `$RUNS_DIR/proofs/discovery-visualization/<proof-id>/`.
 - Execution path: Forecast; run topics and report generation; execute scripted lexical and available
 hybrid, object/fact, graph, BOM, supply-chain, and invoice/payment scenarios; validate citations,
@@ -1354,7 +1300,7 @@ supplied file silos, which artifacts they produced, which optional branches were
 how every result resolves to evidence.
 - Scope boundary: Evaluate and index bounded proof outputs; do not substitute this test archive for
 representative-scale authorization or conceal failed, stale, blocked, or absent stages.
-- Data and artifact paths: Read-only `$PROOF_ARCHIVE_DIR`, prior capability proof bundles, and
+- Data and artifact paths: `$PROOF_ARCHIVE_DIR` used without modification, prior proof bundles, and
 `$RUNS_DIR/proofs/evaluation-evidence/<proof-id>/` containing evaluation/report outputs and the
 end-to-end proof index.
 - Execution path: Require a passing forecast; verify prior proof fingerprints; run `evaluate` and
@@ -1514,16 +1460,16 @@ report samples.
 `create-evaluation-fixtures-and-metrics`.
 - User-visible outcome: Expensive model/store decisions are evaluated on the archive's real formats,
 languages, noise, and business questions rather than synthetic convenience data, and one approved
-read-only path is designated as `PROOF_ARCHIVE_DIR`.
+readable path is designated as `PROOF_ARCHIVE_DIR`.
 - Scope boundary: Human selects and reviews bounded samples and confirms permission to process them;
 no full-corpus authorization.
-- Data and artifact paths: Private read-only `$PROOF_ARCHIVE_DIR`, approved representative slices,
+- Data and artifact paths: Private `$PROOF_ARCHIVE_DIR` used without modification, approved slices,
 local review ledgers under `$RUNS_DIR/<run-id>/review/`, and frozen manifests without copied private
 text or machine-specific paths in Git.
 - Execution path: Produce stratified candidate manifests and draft labels; human reviews source
 spans, file classes and exceptional outcomes, duplicate groups, queries, entities, facts, ontology
 constraints, design/BOM, equipment, suppliers, invoices, and payments; seal tuning/final splits.
-- Acceptance gates: Processing authorization and read-only proof path are explicit; coverage across
+- Acceptance gates: Processing authorization and the readable proof path are explicit; coverage across
 major bytes/file types/languages and high-value questions is documented; reviewer decisions and
 disagreements are recorded; final split remains unopened for tuning.
 - Documentation target: `docs/impl/current/evaluation.md`

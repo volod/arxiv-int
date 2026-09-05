@@ -1,6 +1,7 @@
 """Validated Docker Compose orchestration for operator services."""
 
 import json
+import logging
 import os
 import subprocess
 import tempfile
@@ -11,13 +12,16 @@ from typing import Literal
 
 from arxiv_int.runtime.config_model import RuntimeConfig
 from arxiv_int.runtime.paths import create_results_layout, validate_runtime_paths
+from arxiv_int.runtime.service_reset import ServiceResetError, reset_service_data
 
-ComposeAction = Literal["config", "down", "logs", "status", "up"]
+ComposeAction = Literal["config", "down", "logs", "reset", "status", "up"]
 ComposeRunner = Callable[[tuple[str, ...], Path, Mapping[str, str]], int]
 
 SUPPORTED_PROFILES = ("core", "graph", "ui", "observability", "vllm", "cadvisor")
+PROFILE_ALIASES = {"pipeline": ("core", "ui", "observability")}
 _STATE_SERVICES = ("age-viewer", "grafana", "prometheus")
 _DATABASE_PROFILES = frozenset(("core", "graph", "ui", "observability"))
+_LOG = logging.getLogger(__name__)
 
 
 class ComposeConfigurationError(ValueError):
@@ -29,10 +33,13 @@ def parse_profiles(value: str | Sequence[str]) -> tuple[str, ...]:
     raw = value.split() if isinstance(value, str) else value
     requested = {profile for item in raw for profile in item.replace(",", " ").split() if profile}
     if not requested:
-        requested = {"core"}
-    unknown = sorted(requested.difference(SUPPORTED_PROFILES))
+        requested = {"pipeline"}
+    unknown = sorted(requested.difference((*SUPPORTED_PROFILES, *PROFILE_ALIASES)))
     if unknown:
         raise ComposeConfigurationError("unknown Compose profile(s): " + ", ".join(unknown))
+    for alias in requested.intersection(PROFILE_ALIASES):
+        requested.update(PROFILE_ALIASES[alias])
+        requested.remove(alias)
     return tuple(profile for profile in SUPPORTED_PROFILES if profile in requested)
 
 
@@ -42,6 +49,9 @@ def compose_environment(
     """Build an in-memory Compose environment with absolute validated host paths."""
     environment = dict(os.environ if base is None else base)
     environment.update(config.values)
+    if environment["INFERENCE_BACKEND"].lower() == "vllm":
+        environment["VLLM_MODEL"] = environment["GENERATION_MODEL"]
+        environment["VLLM_MODEL_REVISION"] = environment["GENERATION_MODEL_REVISION"]
     environment.update(
         {
             "PROJECT_ROOT": str(config.project_root),
@@ -163,6 +173,7 @@ def run_compose(
     services: Sequence[str] = (),
     follow: bool = False,
     tail: int = 200,
+    apply: bool = False,
     runner: ComposeRunner = _subprocess_runner,
 ) -> int:
     """Preflight mutating requests and run Docker Compose with secrets only in memory."""
@@ -172,6 +183,24 @@ def run_compose(
         raise ComposeConfigurationError(
             "set POSTGRES_PASSWORD in .env before starting the database"
         )
+    if action == "reset":
+        down_status = runner(
+            compose_command(config, "down", selected),
+            config.project_root,
+            compose_environment(config),
+        )
+        if down_status != 0:
+            return down_status
+        try:
+            targets = reset_service_data(config, apply=apply)
+        except ServiceResetError as error:
+            raise ComposeConfigurationError(str(error)) from error
+        _LOG.info(
+            "services reset %s for %d data root(s)",
+            "applied" if apply else "planned",
+            len(targets),
+        )
+        return 0
     needs_layout = action in {"config", "up"}
     if needs_layout:
         prepare_service_layout(config)

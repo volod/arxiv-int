@@ -17,7 +17,7 @@ class DatasetRef:
 
 @dataclass(frozen=True, slots=True)
 class StoreStatus:
-    """Reachability report a preflight or doctor check can render directly."""
+    """Reachability report a preflight or readiness check can render directly."""
 
     available: bool
     detail: str

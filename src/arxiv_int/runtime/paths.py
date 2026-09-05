@@ -5,7 +5,7 @@ from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import Literal
 
-from arxiv_int.doctor import CheckStatus, PreflightReport
+from arxiv_int.readiness.report import CheckStatus, PreflightReport
 from arxiv_int.runtime.config_model import RuntimeConfig
 from arxiv_int.runtime.filesystem import (
     DATABASE_FILESYSTEMS,
@@ -20,7 +20,6 @@ PathKind = Literal["any", "file", "directory"]
 _RESULTS_CHILDREN = ("normalized", "quarantine", "proofs", "exports")
 _DERIVED_VARIABLES = {
     "RUNS_DIR",
-    "DEV_RESULTS_DIR",
     "SERVICE_STATE_DIR",
     "MODEL_CACHE_DIR",
     "TMP_DIR",
@@ -153,15 +152,11 @@ def _output_permission_finding(
 
 
 def _source_permission_finding(
-    placement: RootPlacement, evidence: FilesystemEvidence
+    placement: RootPlacement,
 ) -> tuple[CheckStatus, str] | None:
     path = placement.path
     if not path.is_dir() or not os.access(path, os.R_OK | os.X_OK):
         return "blocked", f"{placement.variable} must be a readable directory"
-    if placement.variable == "PROOF_ARCHIVE_DIR":
-        writable_bits = path.stat().st_mode & 0o222
-        if writable_bits and not evidence.read_only:
-            return "blocked", "PROOF_ARCHIVE_DIR must be read-only; permissions allow writes"
     return None
 
 
@@ -170,28 +165,19 @@ def _permission_finding(
 ) -> tuple[CheckStatus, str] | None:
     if placement.output:
         return _output_permission_finding(placement, evidence)
-    return _source_permission_finding(placement, evidence)
+    return _source_permission_finding(placement)
 
 
 def _storage_finding(
     placement: RootPlacement, evidence: FilesystemEvidence
 ) -> tuple[CheckStatus, str]:
     variable = placement.variable
-    if placement.storage_class == "database":
-        if not evidence.ownership_capable or evidence.filesystem not in DATABASE_FILESYSTEMS:
-            return (
-                "blocked",
-                f"{variable} is not on an ownership-capable PostgreSQL filesystem; change {variable}",
-            )
-        if evidence.rotational:
-            return (
-                "degraded",
-                f"{variable} is on rotational storage; change {variable} for database performance",
-            )
-    if placement.storage_class in {"scratch", "model"} and evidence.rotational:
+    if placement.storage_class == "database" and (
+        not evidence.ownership_capable or evidence.filesystem not in DATABASE_FILESYSTEMS
+    ):
         return (
-            "degraded",
-            f"{variable} is on rotational storage; change {variable} to a fast local SSD",
+            "blocked",
+            f"{variable} is not on an ownership-capable PostgreSQL filesystem; change {variable}",
         )
     if placement.storage_class == "service-state" and not evidence.ownership_capable:
         return "degraded", f"{variable} cannot express real ownership; change {variable}"
@@ -225,7 +211,6 @@ def create_results_layout(config: RuntimeConfig, validation: PathValidation) -> 
     directories = [
         *(config.results_dir / name for name in _RESULTS_CHILDREN),
         config.runs_dir,
-        config.dev_results_dir,
         config.service_state_dir,
         config.model_cache_dir,
         config.tmp_dir,

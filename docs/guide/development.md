@@ -2,12 +2,12 @@
 
 ## Setup
 
-Install Git, Make, and uv, then run:
+Follow [Workstation setup and readiness](setup.md) for system prerequisites, `.env` roots, storage
+requirements, and readiness remediation. The normal contributor bootstrap is:
 
 ```bash
 make bootstrap
-make doctor
-make run
+make readiness
 ```
 
 The lockfile is committed. After changing dependencies in `pyproject.toml`, run `make lock` and
@@ -65,6 +65,63 @@ warnings.
 
 ## Runtime artifacts
 
-Write generated data under `$DATA_DIR/<method>/<run-id>/`. Use a stable method name and a unique run
-id. Keep fixtures under `tests/` only when they are small, deterministic, safe to publish, and
-required for CI.
+Developer-tool output belongs under `$DATA_DIR/<method>/<run-id>/`. Use a stable method name and a
+unique run id. Product runtime output belongs under the operator roots configured in `.env`; the
+readiness audit writes `$RESULTS_DIR/reports/readiness.json`. Keep fixtures under `tests/` only when
+they are small, deterministic, safe to publish, and required for CI.
+
+## Daily commands
+
+| Command | Purpose |
+| --- | --- |
+| `make help` | List supported workflows |
+| `make bootstrap` | Append-sync `.env`, update the locked environment, and audit readiness |
+| `make readiness` | Emit console and JSON workstation readiness reports |
+| `make services-up` | Start and health-check the default `pipeline` service set |
+| `make services-down` | Stop containers; preserve bind-mounted service data |
+| `make services-reset` | Stop containers; list erasable roots (add `APPLY=1` to erase) |
+| `make package-check` | Verify the installed package identity; bootstrap runs it automatically |
+| `make features` | List optional feature groups, licences, and install commands |
+| `make test` | Run the deterministic unit test suite |
+| `make coverage` | Run tests with the coverage gate |
+| `make format` | Apply Ruff formatting |
+| `make ci` | Run required local and CI checks |
+| `make quality` | Run CI checks, coverage, Markdown lint, and package build |
+| `make plan-status` | Count tasks and show the next agent and human work |
+| `make lint-spec-plan` | Check the capability registry against the plan |
+| `make lint-doc-links` | Check relative Markdown files and anchors |
+| `make quality-report` | Report files over the soft size limit |
+
+Use Make targets for repeatable workflows. Before direct uv debugging, source
+`scripts/shared/common.sh` and run `arxiv_int_load_env` so cache and link behavior follows `.env`.
+
+## Documentation model
+
+```text
+docs/design/spec.md        product behavior, boundaries, and capability evaluations
+          |
+          v
+docs/impl/plan.md          only work that remains, ordered by capability
+          |
+          v
+docs/impl/current.md       index of behavior available now
+```
+
+The specification is living. New product behavior is specified and evaluated before it enters the
+plan or production package. When work becomes available, its implementation detail moves out of the
+plan and into the narrowest current-state page.
+
+## Repository layout
+
+```text
+src/arxiv_int/             production package and repository quality checks
+src/arxiv_int/features/    optional dependency groups, licences, and install guards
+src/arxiv_int/interfaces/  typed seams for extractors, embedders, providers, stores, stages
+tests/                     mirrored unit and governance tests
+docs/design/               product specification
+docs/impl/plan.md          forward-only work
+docs/impl/current/         available implementation
+docs/guide/                contributor workflows
+scripts/shared/            shared shell environment helpers
+.github/workflows/         required CI
+```
