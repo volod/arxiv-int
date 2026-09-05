@@ -265,8 +265,14 @@ arxiv-int/
   ontology/
   src/arxiv_int/
     cli.py
-    config.py
-    paths.py
+    metadata.py
+    runtime/
+      config.py
+      config_model.py
+      dotenv.py
+      filesystem.py
+      path_model.py
+      paths.py
     interfaces/
     adapters/
     contracts/
@@ -420,9 +426,10 @@ visible in the evidence rather than inferred later from timings.
 
 ### Source silos
 
-The archive input is a declared set of one or more read-only source roots. Each root has a stable,
-operator-declared silo id and an absolute path; a single configured path is the one-silo case and
-carries a default id. The silo id is part of source identity: every inventory row, document, path
+The archive input is a declared set of one or more read-only source roots. `ARCHIVE_DIR` is the
+one-silo case and carries the `default` id; `ARCHIVE_SILO_<ID>_DIR` declares each additional or
+alternative root, with underscores normalized to hyphens in the stable lowercase id. The silo id is
+part of source identity: every inventory row, document, path
 event, quarantine record, classification row, and move-ledger entry stores its silo id together with
 the root-relative path, so two silos may hold the same relative path without colliding and any
 derived fact can name the silo it came from. Content identity remains the content hash, so the same

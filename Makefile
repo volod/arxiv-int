@@ -13,7 +13,7 @@ export MYPY_CACHE_DIR := $(DATA_ROOT)/cache/mypy
 
 .DEFAULT_GOAL := help
 
-.PHONY: help bootstrap venv lock run features doctor format format-check lint typecheck test \
+.PHONY: help bootstrap venv lock run features config doctor format format-check lint typecheck test \
 	coverage complexity-gate shell-lint-gate lint-md lint-doc-links lint-spec-plan plan-status \
 	ci-checks ci ci-github build quality code-quality quality-report
 
@@ -37,6 +37,10 @@ run: ## Run the arxiv-int identity command
 features: ## List optional feature groups, licences, and install commands (STAGE=... to filter)
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
 	@"$(VENV)/bin/arxiv-int" features $(if $(STAGE),--stage $(STAGE),)
+
+config: ## Resolve, validate, and redact runtime configuration
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@"$(VENV)/bin/arxiv-int" config show --redact
 
 doctor: ## Verify required tools, files, and the installed package
 	@command -v git >/dev/null

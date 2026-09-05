@@ -1,4 +1,8 @@
 import logging
+import os
+from pathlib import Path
+
+import pytest
 
 from arxiv_int.cli import build_parser, main
 
@@ -36,3 +40,55 @@ def test_features_command_reports_an_unknown_stage(caplog) -> None:  # type: ign
 
     assert main(["features", "--stage", "no-such-stage"]) == 1
     assert "unknown stage" in caplog.text
+
+
+def test_config_show_applies_cli_roots_redacts_and_creates_layout(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    checkout = tmp_path / "copied checkout"
+    checkout.mkdir()
+    (checkout / "pyproject.toml").write_text("[project]\nname='fixture'\n", encoding="utf-8")
+    archive = tmp_path / "source files"
+    archive.mkdir()
+    results = tmp_path / "runtime results"
+    pgdata = tmp_path / "database"
+    for name in tuple(os.environ):
+        if name in {"PROOF_ARCHIVE_DIR", "DEV_ARCHIVE_DIR", "PG_WAL_DIR"} or name.startswith(
+            ("ARCHIVE_SILO_", "PG_TABLESPACE_")
+        ):
+            monkeypatch.delenv(name)
+    monkeypatch.setenv("POSTGRES_PASSWORD", "must-not-appear")
+    caplog.set_level(logging.INFO)
+
+    status = main(
+        [
+            "config",
+            "show",
+            "--redact",
+            "--project-root",
+            str(checkout),
+            "--archive-dir",
+            str(archive),
+            "--results-dir",
+            str(results),
+            "--pgdata-dir",
+            str(pgdata),
+            "--runs-dir",
+            str(results / "runs"),
+            "--dev-results-dir",
+            str(results / "dev"),
+            "--service-state-dir",
+            str(results / "services"),
+            "--model-cache-dir",
+            str(results / "models"),
+            "--tmp-dir",
+            str(results / "tmp"),
+        ]
+    )
+
+    assert status == 0
+    assert "must-not-appear" not in caplog.text
+    assert "POSTGRES_PASSWORD=<redacted>" in caplog.text
+    assert "filesystem=" in caplog.text
+    assert (results / "normalized").is_dir()
+    assert pgdata.is_dir()

@@ -10,41 +10,6 @@ ordering, and lifecycle rules belong in the
 
 ### Portable runtime -- `portable-runtime`
 
-#### implement-layered-configuration-and-path-safety
-
-Implement the `.env` and CLI precedence model plus safe resolution of the three checkout-independent
-operator roots.
-
-- Serves: `portable-runtime` --
-[Configuration and multi-SSD paths](../design/spec.md#configuration-and-multi-ssd-paths)
-- Agent status: CLEAR
-- Dependencies: Current configuration and path primitives documented in
-[Project foundation](current/project-foundation.md#runtime-primitives).
-- User-visible outcome: An operator configures three paths -- source silos, one results root, and one
-PostgreSQL data directory -- puts them on different disks, and every other location is a documented
-default inside them that can be moved to the disk its storage class needs.
-- Scope boundary: Resolve and validate configuration and create the results-root skeleton; do not
-create corpus artifacts or start containers. `DATA_DIR` stays the repository developer-tooling root
-and never receives corpus output.
-- Data and artifact paths: `.env.example`, `.gitignore`, `src/arxiv_int/config.py`,
-`src/arxiv_int/paths.py`, `scripts/shared/common.sh`, and `tests/config/`.
-- Execution path: Implement CLI > environment > `.env` > default precedence through the existing
-configuration interface; resolve the declared silo ids and roots, `RESULTS_DIR`, and `PGDATA_DIR`;
-derive `RUNS_DIR`,
-`MODEL_CACHE_DIR`, `TMP_DIR`, `DEV_RESULTS_DIR`, and `SERVICE_STATE_DIR` inside the results root
-unless overridden; accept optional `PG_WAL_DIR` and `PG_TABLESPACE_<NAME>_DIR` roots; create the
-documented results layout; record filesystem type, device id, and rotational flag per root and
-classify each against its declared storage class; add symlink, overlap, root-target, permissions,
-device-id, free-space, and read-only `PROOF_ARCHIVE_DIR` checks.
-- Acceptance gates: Unit tests cover multiple current directories, two checkout roots, spaces,
-symlinks, separate device ids, silo/results/database non-overlap, derived-default overrides, results
-output refused inside the archive or the checkout, CLI overrides, redaction, missing values, and
-dangerous roots; storage-class fixtures prove a database root without exclusive real ownership is
-refused while rotational database, scratch, model, and non-owning service-state placements warn and
-name the variable to change; optional WAL and tablespace roots are accepted only at the class of
-`PGDATA_DIR`; no machine-specific path is committed.
-- Documentation target: `docs/impl/current/portable-runtime.md`
-
 #### define-compose-profiles-and-operator-wrappers
 
 Create the pinned Compose topology and Make wrappers for core, graph, UI, observability, and vLLM
@@ -53,7 +18,8 @@ profiles.
 - Serves: `portable-runtime` --
 [Docker and local-service topology](../design/spec.md#docker-and-local-service-topology)
 - Agent status: CLEAR
-- Dependencies: `implement-layered-configuration-and-path-safety`.
+- Dependencies: Runtime roots and storage evidence documented in
+[Portable runtime](current/portable-runtime.md).
 - User-visible outcome: `make services-up`, `make services-status`, `make logs`, and
 `make services-down` behave consistently from a copied checkout.
 - Scope boundary: Define services, healthchecks, mounts, networks, profiles, and wrappers; the AGE
@@ -106,14 +72,14 @@ opt-in lane that may read a real archive.
 
 - Serves: `development-loop` -- [Development loop](../design/spec.md#development-loop)
 - Agent status: CLEAR
-- Dependencies: `implement-layered-configuration-and-path-safety`.
+- Dependencies: Runtime roots documented in [Portable runtime](current/portable-runtime.md).
 - User-visible outcome: A contributor points `DEV_ARCHIVE_DIR` at a real archive once and then reaches
 it, the development results root, and the most recent run through fixed paths that no command or test
 has to hardcode, while bounded development output stays out of the published generations.
 - Scope boundary: Create and refresh symbolic aliases and the opt-in test lane; never copy corpus
 content, never write to the development archive, and never let the deterministic gate depend on a
 configured archive.
-- Data and artifact paths: `.env.example`, `.gitignore`, `src/arxiv_int/paths.py`,
+- Data and artifact paths: `.env.example`, `.gitignore`, `src/arxiv_int/runtime/paths.py`,
 `src/arxiv_int/doctor/`, `Makefile`, `scripts/shared/common.sh`, `$DATA_DIR/dev/`, and
 `tests/config/`.
 - Execution path: Resolve `DEV_ARCHIVE_DIR` with its `PROOF_ARCHIVE_DIR` default and
@@ -310,8 +276,8 @@ embeddings, health, model identity, timeout, and cancellation.
 - Serves: `local-inference` -- [Local inference](../design/spec.md#local-inference)
 - Agent status: CLEAR
 - Dependencies: Feature groups and domain interfaces described in
-[Project foundation](current/project-foundation.md#feature-groups);
-`implement-layered-configuration-and-path-safety`.
+[Project foundation](current/project-foundation.md#feature-groups); runtime roots documented in
+[Portable runtime](current/portable-runtime.md).
 - User-visible outcome: The same extraction/retrieval code can use the Ollama system service or an
 optional vLLM container through explicit configuration.
 - Scope boundary: Local endpoints only; no hosted fallback, implicit model pull, or systemd
@@ -389,7 +355,7 @@ metadata.
 
 - Serves: `corpus-foundation` -- [Pipeline](../design/spec.md#pipeline)
 - Agent status: CLEAR
-- Dependencies: `implement-layered-configuration-and-path-safety`;
+- Dependencies: Runtime roots documented in [Portable runtime](current/portable-runtime.md);
 `establish-canonical-contract-registry`.
 - User-visible outcome: The operator can inventory one or more multi-terabyte silos without loading
 them into RAM and can see per-silo coverage, bytes, duplicates, and unsupported/encrypted inputs.
@@ -585,8 +551,8 @@ free-space safety before a pipeline run.
 [Pre-run forecast and resource refusal](../design/spec.md#pre-run-forecast-and-resource-refusal)
 - Agent status: CLEAR
 - Dependencies: `implement-incremental-reconciliation-and-stale-pruning`;
-`add-progress-logging-and-resource-telemetry`; `implement-streaming-inventory`;
-`implement-layered-configuration-and-path-safety`.
+`add-progress-logging-and-resource-telemetry`; `implement-streaming-inventory`; runtime storage
+evidence documented in [Portable runtime](current/portable-runtime.md).
 - User-visible outcome: Before starting, an operator sees stage-by-stage cache hits, changed work,
 time and data-size ranges, peak scratch/rebuild needs, accessible SSD free space, confidence, and a
 clear ready/degraded/blocked decision.

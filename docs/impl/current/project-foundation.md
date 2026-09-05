@@ -61,11 +61,11 @@ code without a catalog entry.
 
 ## Runtime primitives
 
-`arxiv_int.config`, `arxiv_int.paths`, `arxiv_int.doctor.report`,
-`arxiv_int.pipeline.steps`, `arxiv_int.observability.logging`, and
-`arxiv_int.inference.scheduling` provide mapping-based configuration precedence, fail-closed
-real-path containment, accumulated readiness findings, monotonic step timing with partial-result
-preservation, queue-serialized logging, GPU-budget placement, and guaranteed model release.
+`arxiv_int.doctor.report`, `arxiv_int.pipeline.steps`, `arxiv_int.observability.logging`, and
+`arxiv_int.inference.scheduling` provide accumulated readiness findings, monotonic step timing with
+partial-result preservation, queue-serialized logging, GPU-budget placement, and guaranteed model
+release. The foundational configuration merge and containment helpers have grown into the
+[portable runtime](portable-runtime.md).
 
 ## Contract primitives
 
@@ -121,13 +121,15 @@ guide, current-state pages, tests, Make workflows, and `uv.lock` use the same ac
 
 `tests/test_metadata.py` covers installed-version lookup and the source-checkout fallback.
 `tests/test_cli.py` covers parsing, logged identity, and the feature inventory command. Tests under
-`tests/quality/` exercise the quality package and verify the repository plan summary.
+`tests/quality/` exercise the quality package with isolated plan fixtures; they verify summary
+selection and invalid-plan handling without pinning the live repository's task counts.
 `tests/features/` covers catalog lookup, stage mapping, install-status reporting, and the missing
 and undeclared import messages. `tests/interfaces/` proves fake backends satisfy each protocol.
 `tests/dependencies/` keep extras and the feature catalog in agreement and require exact pins for
-output-sensitive tools. Focused tests cover layer precedence, symlink escape rejection, accumulated
-preflight results, partial-result preservation, concurrent log serialization, model placement and
-cleanup, contract behavior, evaluation metrics and verdicts, run bundles, and source-span retrieval.
+output-sensitive tools. Focused tests cover accumulated preflight results, partial-result
+preservation, concurrent log serialization, model placement and cleanup, contract behavior,
+evaluation metrics and verdicts, run bundles, and source-span retrieval. Configuration and path
+coverage is documented in [Portable runtime](portable-runtime.md#tests-and-verification).
 
 The locked bootstrap and import doctor pass, and `make run` reports
 `arxiv-int 0.1.0 (arxiv_int)`. The required `make ci` gate covers formatting, linting, typing,
