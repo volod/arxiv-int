@@ -134,7 +134,17 @@ preservation, concurrent log serialization, model placement and cleanup, contrac
 evaluation metrics and verdicts, run bundles, and source-span retrieval. Configuration and path
 coverage is documented in [Portable runtime](portable-runtime.md#tests-and-verification).
 
+`tests/compose/test_profiles.py` renders the Compose topology once per module through the
+`rendered_topology` fixture and asserts one invariant family per test: image pinning with health
+and stop policy, loopback-only published ports, the vLLM GPU/model/revision pins, database-root
+mount isolation, and read-only config mounts with dropped privileges. Rendering stays a
+`docker compose config` call, so no service starts.
+
 The locked bootstrap and package identity checks pass, and `make package-check` reports
 `arxiv-int 0.1.0 (arxiv_int)`. The required `make ci` gate covers formatting, linting, typing,
-complexity, shell, documentation-link, specification-plan, and deterministic tests. `make build`
-produces `dist/arxiv_int-0.1.0.tar.gz` and `dist/arxiv_int-0.1.0-py3-none-any.whl`.
+complexity, shell, documentation-link, specification-plan, and deterministic tests, and it passes
+at 172 tests; the complexity gate rejects Radon D-or-worse and cognitive complexity above 15, so
+both subchecks now run to completion. `make quality` adds coverage (90.14%, above the 90.0%
+floor), Markdown lint, and the build. `make build` produces `dist/arxiv_int-0.1.0.tar.gz` and
+`dist/arxiv_int-0.1.0-py3-none-any.whl`. Repair evidence:
+[quality baseline repair](../records/restore-quality-gate-baseline.md).

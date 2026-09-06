@@ -9,10 +9,11 @@
 
 Full user request, with only line wrapping added:
 
-> you have updated AGENTS.md with ## Small-task execution and audit handoff and file grows
-> significanly. Please analyse AGENTS.md and relates instruction, estimate if weker reasoning
-> budget or old model can follow the isntruction, make them as laconic as possible because the
-> context window of old model are small so we will not have context for code task
+> You have updated AGENTS.md with ## Small-task execution and audit handoff, and the file grows
+> significantly. Please analyze AGENTS.md and related instructions, and estimate whether the 
+> weaker reasoning budget or old model can follow the instructions. Make them as laconic as 
+> possible because the > context window of the old model is small, so we will not have context
+> for the code task
 
 Amendments: none. The subsequent `continue` resumes this scope.
 
@@ -68,10 +69,11 @@ does not establish that a future agent will follow them or that record enforceme
 | `make plan-status DATA_DIR=.data` and plan snapshot comparison | 93 tasks before/after, 82 agent and 11 human; plan bytes unchanged this turn; no capability moved |
 | `git diff --check` and final scope review | Whitespace/ASCII checked; no source, test, dependency or runtime changes |
 
-The CI blockers remain owned by
-[restore-quality-gate-baseline](../plan.md#restore-quality-gate-baseline); the Radon failure prevents
-the following cognitive-complexity subcheck. No failed or unrun gate is treated as passed. Full
-`make quality` and model/CUDA/service runs were not performed. No process or service remains from
+The CI blockers were owned by the
+[quality baseline repair](restore-quality-gate-baseline.md), which has since resolved them; at the
+time of this record the Radon failure prevented the following cognitive-complexity subcheck.
+No failed or unrun gate is treated as passed. Full `make quality` and model/CUDA/service runs
+were not performed. No process or service remains from
 this change. No new repair task or capability was needed; this record is not removed from the plan.
 
 Current result: [Governance](../current/governance.md#one-rules-source). Audit notes: none identified

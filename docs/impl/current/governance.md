@@ -14,8 +14,10 @@ until its trigger applies. These are whitespace word counts, not model-specific 
 No older-model compliance benchmark was run; the improvement is reduced context and branching.
 
 The plan remains unchanged at 93 tasks (82 agent, 11 human); no capability moved. Documentation
-checks and 168 tests pass; full CI retains the existing formatting/import and Compose-complexity
-failures owned by `restore-quality-gate-baseline`. Instruction reduction does not waive those gates.
+checks and 168 tests pass; the formatting/import and Compose-complexity failures that full CI
+still carried at that point were repaired later by the
+[quality baseline repair](../records/restore-quality-gate-baseline.md). Instruction reduction
+does not waive those gates.
 
 ## Product state transition
 
@@ -126,10 +128,13 @@ The configured tooling volume was read-only; the operator's environment file was
 
 `make lint-md`, documentation links, spec-plan integrity, plan status, typing, shell lint, and
 `git diff --check` pass. `make -k ci DATA_DIR=.data` runs the remaining checks after failures and
-reports **168 tests passed**. Full CI remains failing on pre-existing source formatting/import
-ordering in `src/arxiv_int/runtime/__init__.py` and Radon complexity D (23) in
-`tests/compose/test_profiles.py::test_rendered_topology_has_pins_health_stop_and_mount_isolation`.
-Both files match HEAD and remain unchanged; the complexity target stops at Radon, so its subsequent
-cognitive-complexity check is not established by this run. These baseline findings do not become
-new product capabilities or deferred audit tasks. Runtime/CUDA and provided-archive proofs remain
-forward tasks. No services, model processes, ports, or external resources were started by this audit.
+reports **168 tests passed**. At audit time full CI was failing on pre-existing source
+formatting/import ordering in `src/arxiv_int/runtime/__init__.py` and Radon complexity D (23) in
+`tests/compose/test_profiles.py::test_rendered_topology_has_pins_health_stop_and_mount_isolation`,
+and the complexity target stopped at Radon, so its subsequent cognitive-complexity check was
+not established by that run. The
+[quality baseline repair](../records/restore-quality-gate-baseline.md) has since fixed both;
+`make ci` and `make quality` now pass and both complexity subchecks run. These baseline
+findings do not become new product capabilities or deferred audit tasks. Runtime/CUDA and
+provided-archive proofs remain forward tasks. No services, model processes, ports, or external
+resources were started by this audit.

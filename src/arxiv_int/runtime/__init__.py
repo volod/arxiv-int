@@ -19,7 +19,11 @@ from arxiv_int.runtime.paths import (
     resolve_allowed_path,
     validate_runtime_paths,
 )
-from arxiv_int.runtime.service_reset import ServiceResetError, reset_service_data, service_data_targets
+from arxiv_int.runtime.service_reset import (
+    ServiceResetError,
+    reset_service_data,
+    service_data_targets,
+)
 
 __all__ = [
     "PROFILE_ALIASES",

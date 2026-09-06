@@ -10,28 +10,6 @@ ordering, and lifecycle rules belong in the
 
 ### Project foundation -- `project-foundation`
 
-#### restore-quality-gate-baseline
-
-Restore a passing baseline before expanding the implementation.
-
-- Serves: `project-foundation` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
-- Agent status: CLEAR
-- Task kind: refactor
-- Audit inputs: [AUD-codebase-10](records/codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: Existing quality workflows in [Developer tooling](current/developer-tooling.md).
-- User-visible outcome: The required CI gate is green and future failures can be attributed
-to the next change.
-- Scope boundary: Only repair source formatting/import order and decompose the complex
-Compose topology test; preserve its assertions and public behavior. Do not weaken checks or skip tests.
-- Data and artifact paths: `src/arxiv_int/runtime/__init__.py`, `tests/compose/test_profiles.py`, and
-`$DATA_DIR/quality-baseline/<run-id>/`.
-- Execution path: Capture current failures; run make format; split the combined topology assertions into
-focused parametrized cases or cohesive helpers; review the diff for unrelated formatting changes.
-- Acceptance gates: The same profile/mount/pin/health invariants are checked, deterministic tests
-pass, and make ci and make quality pass with an explicit writable tooling root.
-- Documentation target: `docs/impl/current/project-foundation.md`
-- Review checkpoint: `review-foundation-and-store-boundaries`.
-
 #### enforce-task-record-and-checkpoint-integrity
 
 Make task handoff records and review dependencies verifiable instead of relying on summaries.
@@ -40,7 +18,8 @@ Make task handoff records and review dependencies verifiable instead of relying 
 - Agent status: CLEAR
 - Task kind: implementation
 - Audit inputs: [AUD-codebase-09](records/codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: `restore-quality-gate-baseline`; [Task records](records/README.md).
+- Dependencies: [Quality baseline repair](records/restore-quality-gate-baseline.md);
+[Task records](records/README.md).
 - User-visible outcome: Task requirements survive plan removal; missing evidence, unresolved review
 blockers and dangling dependency ids cannot be mistaken for completed prerequisites.
 - Scope boundary: Extend the existing plan parser/checker and summary; no task database, Git rewrite,
@@ -172,7 +151,8 @@ Prevent escaped canonical references and ambiguous field identities in existing 
 - Agent status: CLEAR
 - Task kind: refactor
 - Audit inputs: [AUD-codebase-06, AUD-codebase-07](records/codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: `restore-quality-gate-baseline`; existing [Contract primitives](current/project-foundation.md#contract-primitives).
+- Dependencies: [Quality baseline repair](records/restore-quality-gate-baseline.md); existing
+[Contract primitives](current/project-foundation.md#contract-primitives).
 - User-visible outcome: Every canonical file reference stays within its declared contract root, and distinct
 schema-qualified fields cannot overwrite each other in compatibility snapshots.
 - Scope boundary: Refactor current loaders/snapshots only; full ODCS adapters and schema generation remain
@@ -491,7 +471,8 @@ Make existing evidence-bundle validation honor the claimed immutable local artif
 - Agent status: CLEAR
 - Task kind: refactor
 - Audit inputs: [AUD-codebase-05](records/codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: `restore-quality-gate-baseline`; [Evaluation primitives](current/project-foundation.md#evaluation-and-retrieval-primitives).
+- Dependencies: [Quality baseline repair](records/restore-quality-gate-baseline.md);
+[Evaluation primitives](current/project-foundation.md#evaluation-and-retrieval-primitives).
 - User-visible outcome: A bundle cannot pass verification by reading a matching file outside its own
 tree, and
 malformed manifest identities produce typed failures before reuse.

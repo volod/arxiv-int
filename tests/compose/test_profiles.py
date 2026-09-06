@@ -84,25 +84,56 @@ def test_combined_profiles_validate_without_rendering_secrets(tmp_path: Path) ->
     assert _run_quiet_config(config, PROFILES) == 0
 
 
-def test_rendered_topology_has_pins_health_stop_and_mount_isolation(tmp_path: Path) -> None:
-    config = _runtime_config(tmp_path)
-    rendered = _render_config(config, PROFILES)
-    services = rendered["services"]
+@pytest.fixture(scope="module")
+def rendered_topology(
+    tmp_path_factory: pytest.TempPathFactory,
+) -> tuple[RuntimeConfig, dict[str, object]]:
+    config = _runtime_config(tmp_path_factory.mktemp("topology"))
+    services = _render_config(config, PROFILES)["services"]
     assert isinstance(services, dict)
+    return config, services
+
+
+def test_rendered_services_pin_images_and_declare_health_and_stop(
+    rendered_topology: tuple[RuntimeConfig, dict[str, object]],
+) -> None:
+    _, services = rendered_topology
+
     for name, service in services.items():
         assert "latest" not in service["image"]
         if name != "age-viewer":
             assert "@sha256:" in service["image"]
         assert service["healthcheck"]["test"]
         assert service["stop_grace_period"]
+
+
+def test_rendered_services_publish_ports_on_loopback_only(
+    rendered_topology: tuple[RuntimeConfig, dict[str, object]],
+) -> None:
+    _, services = rendered_topology
+
+    for service in services.values():
         for port in service.get("ports", ()):  # not every service publishes a port
             assert port["host_ip"] == "127.0.0.1"
+
+
+def test_rendered_vllm_service_pins_gpu_model_and_revision(
+    rendered_topology: tuple[RuntimeConfig, dict[str, object]],
+) -> None:
+    _, services = rendered_topology
     vllm = services["vllm"]
+
     assert vllm["gpus"] == [{"count": -1}]
     assert "Qwen/Qwen3.8-27B-FP8" in vllm["command"]
     assert "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a" in vllm["command"]
-    database_mounts = services["database"]["volumes"]
-    assert database_mounts == [
+
+
+def test_rendered_database_root_is_mounted_only_by_the_database(
+    rendered_topology: tuple[RuntimeConfig, dict[str, object]],
+) -> None:
+    config, services = rendered_topology
+
+    assert services["database"]["volumes"] == [
         {
             "type": "bind",
             "source": str(config.pgdata_dir),
@@ -114,6 +145,13 @@ def test_rendered_topology_has_pins_health_stop_and_mount_isolation(tmp_path: Pa
             continue
         sources = {mount["source"] for mount in service.get("volumes", ())}
         assert str(config.pgdata_dir) not in sources
+
+
+def test_rendered_services_drop_privileges_and_keep_configs_read_only(
+    rendered_topology: tuple[RuntimeConfig, dict[str, object]],
+) -> None:
+    _, services = rendered_topology
+
     assert services["grafana"]["volumes"][1]["read_only"] is True
     assert services["prometheus"]["volumes"][1]["read_only"] is True
     expected_user = f"{os.getuid()}:{os.getgid()}"
