@@ -81,9 +81,8 @@ with partition and provenance constraints.
 queryable tables independent of search and graph projections.
 - Scope boundary: Create schema, roles, partitions, staging/load adapters, and indexes required for
 correctness; dbt owns derived relations, and corpus-scale tuning belongs to evaluation.
-- Data and artifact paths: `src/arxiv_int/migrations/versions/`, `db/schema.sql`,
-`src/arxiv_int/stores/postgres/`, legacy adoption fixtures under `db/migrations/`, and
-`tests/integration/postgres/`.
+- Data and artifact paths: `src/arxiv_int/migrations/versions/`, `$DATA_DIR/migrations/<run-id>/`,
+`src/arxiv_int/stores/postgres/`, and `tests/integration/postgres/`.
 - Execution path: Generate reviewed Alembic Python revisions from ODCS-derived SQLAlchemy metadata;
 apply them on the pinned disposable store and inspect actual catalog definitions, including schema,
 types, defaults, precision, keys, checks, partitions and extension objects. Define typed literal

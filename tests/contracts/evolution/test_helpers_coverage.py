@@ -17,7 +17,6 @@ from arxiv_int.contracts.evolution.check import check_evolution_policy
 from arxiv_int.contracts.evolution.core import ChangeReport, freeze_baseline
 from arxiv_int.contracts.evolution.datacontract_break import breaking_findings
 from arxiv_int.contracts.evolution.migrations import (
-    legacy_evidence_findings,
     migration_policy_findings,
 )
 from arxiv_int.contracts.evolution.policy import merge_change_reports
@@ -74,10 +73,6 @@ def test_empty_registry_evolution_check_passes(tmp_path: Path) -> None:
     assert report.ok
 
 
-def test_missing_legacy_evidence_is_reported(tmp_path: Path) -> None:
-    assert legacy_evidence_findings(tmp_path)
-
-
 def test_catalog_diff_reports_previously_owned_table() -> None:
     column = {"id": CatalogColumn("TEXT", False, True)}
     findings = catalog_findings(
@@ -126,7 +121,6 @@ def test_missing_evolution_dir_and_migrations_dir(tmp_path: Path) -> None:
         contracts, project_root=tmp_path, include_migrations=True, include_live_sql=False
     )
     assert any("evolution directory is missing" in item for item in report.findings)
-    assert any("legacy migration evidence is missing" in item for item in report.findings)
 
 
 def test_freeze_contract_baseline_writes_history() -> None:

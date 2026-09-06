@@ -87,6 +87,8 @@ they are small, deterministic, safe to publish, and required for CI.
 | `make package-check` | Verify the installed package identity; bootstrap runs it automatically |
 | `make features` | List optional feature groups, licences, and install commands |
 | `make contracts-gen` | Generate committed physical schemas, quality catalogs, and dbt YAML |
+| `make db-revision` | Write a candidate Alembic revision from contract metadata (`MESSAGE=...`) |
+| `make db-check` | Revision graph, checksums, and pending contract changes (part of `make ci`) |
 | `make data-quality` | Validate `DATASET` contents for `RUN_ID` (`INPUT=...` required) |
 | `make test` | Run the deterministic unit test suite |
 | `make coverage` | Run tests with the coverage gate |

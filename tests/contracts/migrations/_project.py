@@ -24,6 +24,4 @@ def disposable_project(destination: Path, *, contracts: bool = True) -> Path:
     versions = versions_dir(destination)
     versions.mkdir(parents=True, exist_ok=True)
     shutil.copy2(versions_dir(product_root()) / "__init__.py", versions / "__init__.py")
-    (destination / "db" / "migrations").mkdir(parents=True, exist_ok=True)
-    (destination / "db" / "schema.sql").write_text("-- disposable\n", encoding="utf-8")
     return destination

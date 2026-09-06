@@ -6,10 +6,7 @@ import pytest
 
 from arxiv_int.contracts.migrations import commands
 from arxiv_int.contracts.migrations.adoption import (
-    LegacyInventory,
     adoption_findings,
-    inventory_legacy_sql,
-    legacy_binding_findings,
     require_safe_adoption,
 )
 from arxiv_int.contracts.migrations.errors import UnsafeAdoptionError
@@ -85,28 +82,6 @@ def test_owned_object_filter_excludes_foreign_relations() -> None:
     assert not include(_Relation("derived"), "fct_documents", "table", True, None)
     assert not include(_Relation("corpus"), "scratch", "table", True, None)
     assert include(_Relation("corpus"), "document_id", "column", True, None)
-
-
-def test_product_legacy_sql_is_inventoried() -> None:
-    inventory = inventory_legacy_sql(product_root())
-    assert inventory.files
-    assert inventory.schema_export is not None
-    assert "documents" in inventory.declared_tables
-
-
-def test_unqualified_legacy_table_ambiguity_is_refused() -> None:
-    model = load_schema_model_from_root(_contracts())
-    inventory = LegacyInventory(files=(), declared_tables=("items",), schema_export=None)
-    findings = legacy_binding_findings(inventory, model)
-    assert findings == ["legacy table 'items' has no contract binding"]
-
-
-def test_unknown_qualified_legacy_table_is_refused() -> None:
-    model = load_schema_model_from_root(_contracts())
-    inventory = LegacyInventory(files=(), declared_tables=("public.legacy",), schema_export=None)
-    assert legacy_binding_findings(inventory, model) == [
-        "legacy table 'public.legacy' has no contract binding"
-    ]
 
 
 def test_adoption_without_live_evidence_is_refused() -> None:

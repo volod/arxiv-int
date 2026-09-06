@@ -3,7 +3,7 @@
 import logging
 from pathlib import Path
 
-from arxiv_int.contracts.migrations.adoption import adoption_findings, inventory_legacy_sql
+from arxiv_int.contracts.migrations.adoption import adoption_findings
 from arxiv_int.contracts.migrations.authoring import generate_revision
 from arxiv_int.contracts.migrations.check import check_migrations
 from arxiv_int.contracts.migrations.paths import migration_artifact_dir
@@ -85,13 +85,6 @@ def run_apply(project_root: Path, contracts_root: Path, action: str, revision: s
 def run_adopt(project_root: Path, contracts_root: Path) -> int:
     """Report why an existing database may or may not be stamped at a baseline."""
     model = load_schema_model_from_root(contracts_root)
-    inventory = inventory_legacy_sql(project_root)
-    _LOG.info(
-        "legacy evidence: %d SQL file(s), %d declared table(s), schema export %s",
-        len(inventory.files),
-        len(inventory.declared_tables),
-        "present" if inventory.schema_export else "absent",
-    )
     findings = adoption_findings(project_root, model)
     for finding in findings:
         _LOG.error("%s", finding)

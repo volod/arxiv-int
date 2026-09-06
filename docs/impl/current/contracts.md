@@ -83,7 +83,8 @@ schema state the history produces. `src/arxiv_int/contracts/migrations/` impleme
 - `arxiv-int db status|upgrade|downgrade` / `make db-status|db-upgrade|db-downgrade` act only on the
   database named by `ARXIV_INT_MIGRATION_DATABASE_URL`. Credentials are redacted in every message.
 - `arxiv-int db upgrade --sql` writes offline review SQL under `$DATA_DIR/migrations/<run-id>/`.
-- `arxiv-int db adopt` / `make db-adopt` inventories legacy SQL and reports why adoption is refused.
+- `arxiv-int db adopt` / `make db-adopt` reports why stamping stays refused until live catalog
+  equivalence is proved.
 
 Generated revisions are deterministic and frozen: a historical revision never imports today's
 contracts, and editing one after review fails the checksum gate. A revision that drops an owned table
@@ -94,16 +95,13 @@ owned tables; previously owned names are retained so deletions are not hidden by
 Autogeneration against a live database uses the same owned-object filter through the Alembic
 environment.
 
-`db/migrations/` and `db/schema.sql` remain retained legacy dbmate-shaped adoption evidence. Every
-legacy table name must map to exactly one contract binding; ambiguous unqualified names and unknown
-tables refuse adoption. Adoption also refuses whenever live catalog equivalence has not been proved,
-which is the current state: no database has been stamped, and offline success makes no claim about an
-applied or conformant live store.
+`arxiv-int db adopt` / `make db-adopt` refuses stamping until live catalog equivalence is proved.
+No database has been stamped; offline success makes no claim about an applied or conformant live
+store. Live review SQL stays under `$DATA_DIR/migrations/<run-id>/`.
 
 `make contracts-evolution` / `arxiv-int contracts evolution` checks baselines against current
-contracts, Avro self-compatibility, the migration report, retained legacy evidence, and the
-disposable Postgres apply of `baseline.sql`. Fixtures under `tests/contracts/evolution/` prove each
-consequence class.
+contracts, Avro self-compatibility, the migration report, and the disposable Postgres apply of
+`baseline.sql`. Fixtures under `tests/contracts/evolution/` prove each consequence class.
 
 These checks do not execute an upgrade against the pinned product image, do not verify
 previous-release-to-head upgrades, and do not compare a migrated operator database. Missing live
@@ -115,7 +113,9 @@ selected design; the
 [migration refactor record](../records/0017-contract-gov-refactor-contract-schema-and-migration-tooling.md)
 records SQLAlchemy/Alembic ownership; the
 [data-quality record](../records/0019-contract-gov-implement-contract-data-quality-checks.md)
-records dataset checks.
+records dataset checks; the
+[duplicate SQL retirement](../records/0020-contract-gov-retire-duplicate-dbmate-sql.md)
+removes the leftover `db/` tree and SQL-dump inventory.
 
 ## Dataset quality checks
 

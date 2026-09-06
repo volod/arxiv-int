@@ -15,7 +15,6 @@ from arxiv_int.contracts.evolution.baseline import (
 )
 from arxiv_int.contracts.evolution.core import CHANGE_IDENTICAL, version_policy_errors
 from arxiv_int.contracts.evolution.migrations import (
-    legacy_evidence_findings,
     migration_policy_findings,
 )
 from arxiv_int.contracts.evolution.policy import classify_contract_evolution
@@ -91,7 +90,6 @@ def check_evolution_policy(
     root = project_root or contracts_root.parent
     if include_migrations:
         findings.extend(migration_policy_findings(root, contracts_root))
-        findings.extend(legacy_evidence_findings(root))
     if include_live_sql:
         baseline = contracts_root / "generated" / BASELINE_DDL_RELATIVE
         if baseline.is_file():

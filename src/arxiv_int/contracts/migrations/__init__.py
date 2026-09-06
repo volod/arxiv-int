@@ -1,9 +1,7 @@
 """Contract-derived Alembic revision authoring, checks, and apply wrappers."""
 
 from arxiv_int.contracts.migrations.adoption import (
-    LegacyInventory,
     adoption_findings,
-    inventory_legacy_sql,
     require_safe_adoption,
 )
 from arxiv_int.contracts.migrations.authoring import RevisionCandidate, generate_revision
@@ -33,7 +31,6 @@ __all__ = [
     "STATUS_NOT_RUN",
     "STATUS_OK",
     "IrreversibleRevisionError",
-    "LegacyInventory",
     "MigrationCheckReport",
     "MigrationRunnerUnavailableError",
     "RevisionCandidate",
@@ -47,7 +44,6 @@ __all__ = [
     "diff_states",
     "downgrade",
     "generate_revision",
-    "inventory_legacy_sql",
     "redact_url",
     "require_safe_adoption",
     "runner_available",

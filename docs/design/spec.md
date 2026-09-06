@@ -276,9 +276,6 @@ arxiv-int/
     mappings/
     evolution/
     generated/
-  db/
-    migrations/                 # Legacy SQL retained as migration adoption evidence
-    schema.sql
   transformations/
     dbt_project.yml
     models/                     # staging/, intermediate/, marts/; SQL and descriptive YAML
@@ -689,8 +686,9 @@ tested in both required directions. Alembic owns the revision graph, applied ver
 upgrade/downgrade execution. Use immutable Python revisions under
 `src/arxiv_int/migrations/versions/` with typed SQLAlchemy/Alembic operations and pinned contract
 fingerprints. Historical revisions carry frozen definitions; they never import today's contracts
-to decide what an old upgrade creates. `db/schema.sql` is a reproducible review export from a
-migrated disposable database, not an execution engine. Generated DDL never auto-migrates a store.
+to decide what an old upgrade creates. Generated DDL never auto-migrates a store. Offline review
+SQL from `arxiv-int db upgrade --sql` lands under `$DATA_DIR/migrations/<run-id>/` and is not
+committed.
 
 Autogeneration compares contract-derived metadata to an explicitly selected disposable database
 and produces candidate Python operations for review. Restrict comparison to owned canonical
@@ -710,11 +708,9 @@ table-rewriting changes still require the explicit approved plan, backup, free-s
 rollback/rebuild path. A comment marker alone does not supply that evidence. Large data backfills
 are resumable transformation jobs with a separate activation step, not long schema transactions.
 
-Legacy dbmate-shaped SQL remains evidence during adoption. Inventory actual database revisions and
-schema-qualified definitions; explicitly map legacy unqualified tables to contract bindings and
-prove row preservation. Only verified equivalent databases may be stamped at a baseline revision.
-Unknown, partial, or drifted databases refuse adoption with a diagnostic and repair plan; do not
-blindly stamp, replay CREATE statements over existing data, or rewrite applied history.
+Only verified equivalent databases may be stamped at a baseline revision. Unknown, partial, or
+drifted databases refuse adoption with a diagnostic and repair plan; do not blindly stamp, replay
+CREATE statements over existing data, or rewrite applied history.
 
 ### Data transformations and quality
 

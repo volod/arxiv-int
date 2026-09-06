@@ -1,4 +1,4 @@
-"""Product evolution policy, legacy adoption evidence, and revision-graph checks."""
+"""Product evolution policy and revision-graph checks."""
 
 from pathlib import Path
 
@@ -8,9 +8,6 @@ from arxiv_int.contracts.datacontract_lint import datacontract_command
 from arxiv_int.contracts.evolution import check_evolution_policy, migration_policy_findings
 from arxiv_int.contracts.evolution.avro_compat import generated_avro_self_compatibility
 from arxiv_int.contracts.evolution.datacontract_break import breaking_findings
-from arxiv_int.contracts.evolution.migrations import legacy_evidence_findings
-from arxiv_int.contracts.migrations.adoption import inventory_legacy_sql, legacy_binding_findings
-from arxiv_int.contracts.sqlalchemy.model import load_schema_model_from_root
 from arxiv_int.quality.project_root import discover_project_root
 
 
@@ -30,19 +27,6 @@ def test_product_evolution_policy_passes() -> None:
 
 def test_product_migration_policy_passes() -> None:
     assert migration_policy_findings(_root(), _root() / "contracts") == []
-
-
-def test_legacy_sql_is_retained_as_adoption_evidence() -> None:
-    inventory = inventory_legacy_sql(_root())
-    assert inventory.present
-    assert inventory.declared_tables
-    assert legacy_evidence_findings(_root()) == []
-
-
-def test_legacy_tables_map_to_contract_bindings() -> None:
-    model = load_schema_model_from_root(_root() / "contracts")
-    inventory = inventory_legacy_sql(_root())
-    assert legacy_binding_findings(inventory, model) == []
 
 
 def test_generated_avro_self_compatibility() -> None:

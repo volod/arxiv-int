@@ -12,8 +12,6 @@ SCRIPT_PACKAGE = "arxiv_int/migrations"
 VERSIONS_DIRNAME = "versions"
 HEAD_STATE_FILENAME = "head_state.json"
 REVISION_MANIFEST_FILENAME = "revision_manifest.json"
-LEGACY_MIGRATIONS = "db/migrations"
-LEGACY_SCHEMA_SQL = "db/schema.sql"
 
 
 def script_location(project_root: Path) -> Path:
@@ -34,16 +32,6 @@ def head_state_path(project_root: Path) -> Path:
 def revision_manifest_path(project_root: Path) -> Path:
     """Return the revision checksum manifest that keeps applied revisions immutable."""
     return script_location(project_root) / REVISION_MANIFEST_FILENAME
-
-
-def legacy_migrations_dir(project_root: Path) -> Path:
-    """Return the retained legacy SQL directory kept as adoption evidence."""
-    return project_root / LEGACY_MIGRATIONS
-
-
-def legacy_schema_sql(project_root: Path) -> Path:
-    """Return the retained legacy schema export kept as adoption evidence."""
-    return project_root / LEGACY_SCHEMA_SQL
 
 
 def data_root(project_root: Path) -> Path:

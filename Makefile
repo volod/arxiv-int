@@ -116,7 +116,7 @@ db-downgrade: ## Downgrade the selected migration database to DOWN_REVISION
 	@source "$(COMMON_SH)"; arxiv_int_load_env; \
 		"$(VENV)/bin/arxiv-int" db downgrade --revision "$(DOWN_REVISION)"
 
-db-adopt: ## Inventory legacy SQL and report why adoption is refused
+db-adopt: ## Report why stamping an existing database is refused
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
 	@source "$(COMMON_SH)"; arxiv_int_load_env; \
 		"$(VENV)/bin/arxiv-int" db adopt

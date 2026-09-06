@@ -28,7 +28,7 @@ DB_COMMAND_HELP = {
     "status": "report the applied revision of an explicitly selected database",
     "upgrade": "apply revisions to an explicitly selected database",
     "downgrade": "reverse revisions on an explicitly selected database",
-    "adopt": "inventory legacy SQL and report why adoption is refused",
+    "adopt": "report why stamping an existing database is refused",
 }
 
 
