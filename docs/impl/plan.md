@@ -10,32 +10,6 @@ ordering, and lifecycle rules belong in the
 
 ### Portable runtime -- `portable-runtime`
 
-#### refactor-runtime-configuration-parity
-
-Resolve the same configuration through Make, direct CLI and readiness without precedence drift.
-
-- Serves: `portable-runtime` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
-- Agent status: CLEAR
-- Task kind: refactor
-- Audit inputs: [AUD-codebase-08](records/codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: [Safe runtime root boundaries](records/refactor-safe-runtime-root-boundaries.md).
-- User-visible outcome: Operator overrides, referenced roots and selected model/port values agree
-across entry
-points, including roots containing spaces and an alternate checkout.
-- Scope boundary: Consolidate configuration ownership and the supported dotenv subset; preserve documented
-precedence, append-sync behavior and local path rules. Do not rewrite the operator environment.
-- Data and artifact paths: `src/arxiv_int/runtime/{config,dotenv,inference_config}.py`, shared root discovery,
-`scripts/shared/common.sh`, Make cache setup, and `tests/config/`.
-- Execution path: Add a paired shell/Python regression for an overridden RESULTS_DIR referenced by RUNS_DIR;
-resolve references after precedence, reject cyclic/missing references, document unsupported syntax,
-and centralize applicable port/backend settings and project-root discovery without parallel parsers.
-- Acceptance gates: Paired fixtures agree for defaults, overrides, nested references, quotes/spaces,
-explicit
-empty values, invalid inputs and foreign working directories; no environment/file mutation occurs
-during reads; cache placement follows the selected DATA_DIR; make ci passes.
-- Documentation target: `docs/impl/current/portable-runtime.md`
-- Review checkpoint: `review-foundation-and-store-boundaries`.
-
 #### refactor-profile-aware-service-planning
 
 Separate service request planning from filesystem preparation and reuse one profile definition.
@@ -44,7 +18,7 @@ Separate service request planning from filesystem preparation and reuse one prof
 - Agent status: CLEAR
 - Task kind: refactor
 - Audit inputs: [AUD-codebase-11](records/codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: `refactor-runtime-configuration-parity`.
+- Dependencies: [Runtime configuration parity](records/refactor-runtime-configuration-parity.md).
 - User-visible outcome: A core or vLLM-only request checks and prepares the selected services and reports
 the same
 selection in Compose, readiness and CLI help.
@@ -328,7 +302,8 @@ Review the integrated milestone before pipeline control and corpus adapters.
 - Serves: `canonical-store` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
 - Agent status: CLEAR
 - Task kind: checkpoint
-- Audit inputs: [AUD-safe-runtime-root-boundaries-1](records/refactor-safe-runtime-root-boundaries.md#audit-handoff).
+- Audit inputs: [AUD-safe-runtime-root-boundaries-1](records/refactor-safe-runtime-root-boundaries.md#audit-handoff);
+[AUD-runtime-configuration-parity-1, AUD-runtime-configuration-parity-2](records/refactor-runtime-configuration-parity.md#audit-handoff).
 - Dependencies: `implement-rebuildable-search-and-graph-projections`; `refactor-readiness-probe-safety`;
 `refactor-contract-identity-and-reference-validation`; `enforce-task-record-and-checkpoint-integrity`.
 - User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,

@@ -19,9 +19,12 @@ from arxiv_int.runtime.containment import (
     report_protected_roots,
     resolve_allowed_path,
 )
+from arxiv_int.runtime.dotenv import DotenvError, expand_references, read_dotenv
 from arxiv_int.runtime.filesystem import FilesystemEvidence, inspect_filesystem
+from arxiv_int.runtime.inference_config import inference_base_url, selected_backend
 from arxiv_int.runtime.path_model import PathValidation, RootPlacement
 from arxiv_int.runtime.paths import create_results_layout, validate_runtime_paths
+from arxiv_int.runtime.project_root import ProjectRootError, find_project_root
 from arxiv_int.runtime.service_reset import (
     ServiceResetError,
     reset_service_data,
@@ -35,8 +38,10 @@ __all__ = [
     "ArchiveSilo",
     "ComposeConfigurationError",
     "ConfigurationError",
+    "DotenvError",
     "FilesystemEvidence",
     "PathValidation",
+    "ProjectRootError",
     "ProtectedRoot",
     "RootPlacement",
     "RuntimeConfig",
@@ -46,15 +51,20 @@ __all__ = [
     "containment_violation",
     "create_results_layout",
     "erase_protected_roots",
+    "expand_references",
+    "find_project_root",
+    "inference_base_url",
     "inspect_filesystem",
     "load_runtime_config",
     "merge_config_layers",
     "parse_profiles",
     "prepare_service_layout",
+    "read_dotenv",
     "report_protected_roots",
     "reset_service_data",
     "resolve_allowed_path",
     "run_compose",
+    "selected_backend",
     "service_data_targets",
     "validate_runtime_paths",
     "validate_service_reset",

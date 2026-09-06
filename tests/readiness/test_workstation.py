@@ -323,3 +323,34 @@ def test_vllm_profile_blocks_without_an_nvidia_runtime(tmp_path: Path) -> None:
     gpu = next(item for item in result.report.findings if item.name == "resource.gpu")
     assert gpu.status == "blocked"
     assert "NVIDIA" in gpu.detail
+
+
+class RecordingProbe(FixtureProbe):
+    def __init__(self) -> None:
+        super().__init__()
+        self.urls: list[str] = []
+
+    def get_json(self, url: str, *, timeout: float) -> HttpResult:
+        self.urls.append(url)
+        return HttpResult(200, {"data": [{"id": "fixture-model"}]})
+
+
+def test_inference_probe_follows_the_configured_backend_and_port(tmp_path: Path) -> None:
+    root, environment = _project(tmp_path)
+    environment["INFERENCE_BACKEND"] = "vllm"
+    environment["VLLM_PORT"] = "8100"
+    environment["GENERATION_MODEL"] = "fixture-model"
+    probe = RecordingProbe()
+
+    result = run_readiness(
+        project_root=root,
+        environment=environment,
+        persist=False,
+        probe=probe,
+        inspector=_evidence,
+    )
+
+    assert "http://127.0.0.1:8100/v1/models" in probe.urls
+    assert not any(url.startswith("http://127.0.0.1:8000") for url in probe.urls)
+    endpoint = next(item for item in result.report.findings if item.name == "inference.endpoint")
+    assert endpoint.status == "ready"

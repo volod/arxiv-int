@@ -11,8 +11,31 @@ checkout `.env`, and documented defaults in descending precedence. It discovers 
 explicit project root, resolves relative paths and `${VARIABLE}` references from that checkout, and
 returns a typed immutable `RuntimeConfig`. Missing operator roots identify every variable the
 operator must set. Rendering is stable and masks passwords, tokens, secrets, and database URLs.
-`arxiv_int.runtime.config_model` owns the immutable values, while `arxiv_int.runtime.dotenv` keeps
-file parsing dependency-free.
+`arxiv_int.runtime.config_model` owns the immutable values, `arxiv_int.runtime.config_schema` owns
+the documented variable registry -- names, defaults, the service ports and the value rules -- and
+`arxiv_int.runtime.dotenv` owns the file grammar and reference expansion, dependency-free.
+
+Resolution order is fixed: precedence, then documented defaults, then reference expansion, then
+path resolution. Because references expand last, overriding `RESULTS_DIR` from the process
+environment also moves every root that references it, and the same override produces the same roots
+through Make, a direct CLI call and readiness. An explicitly empty value selects the documented
+default; a required operator root left empty is reported as missing. References expand in `*_DIR`
+variables only, so a `$` in a password or URL stays literal. They may nest, and a cycle, an
+undefined name or an empty referenced value is refused by variable name. `.env.example` documents
+the supported subset and the shell syntax that is deliberately not supported.
+
+`arxiv_int.runtime.project_root` owns the one checkout discovery every entry point uses: an
+explicit option, then `PROJECT_ROOT`, then the module's own checkout, then the working directory.
+A declared root that is not a checkout is refused rather than silently replaced, so an alternate
+checkout invoked from a foreign working directory keeps its own roots. Readiness reports a
+non-checkout root as a blocked `config.root` finding instead of failing. `arxiv_int.quality`
+reuses the same ancestor walk with its stricter repository markers.
+
+`arxiv_int.runtime.inference_config` owns the backend selection and the local endpoint, so the
+readiness probe follows the configured `VLLM_PORT` instead of a fixed one. Service ports resolve
+once with the defaults `docker/compose.yaml` declares (`POSTGRES_PORT` 5432, `GRAFANA_PORT` 3000,
+`AGE_VIEWER_PORT` 3001, `PROMETHEUS_PORT` 9090, `CADVISOR_PORT` 8080, `VLLM_PORT` 8000); a
+non-numeric or out-of-range port is refused before any command runs.
 
 The three required operator placements are one or more archive silos, `RESULTS_DIR`, and
 `PGDATA_DIR`. `ARCHIVE_DIR` is the one-silo form with id `default`; additional or alternative silos
@@ -23,9 +46,20 @@ overridden. Optional `PG_WAL_DIR` and `PG_TABLESPACE_<NAME>_DIR` roots remain un
 are no development-only archive aliases or result roots; stage implementations use the normal
 operator paths immediately.
 
-`scripts/shared/common.sh` loads the same checkout `.env` without replacing variables already in
-the process environment. This preserves Make and shell overrides while retaining the adaptive uv
-link mode and repository-local tool-cache behavior.
+`scripts/shared/dotenv.sh`, sourced by `scripts/shared/common.sh`, implements the same documented
+grammar and the same precedence, defaults and reference order in dependency-free bash, because the
+bootstrap runs before the virtual environment exists. It parses the file instead of executing it,
+so a value is never run as shell, and it exports the resolved absolute `*_DIR` values the Python
+entry points then re-resolve identically. Paired fixtures in `tests/config/test_parity.py` hold the
+two implementations to one result for defaults, overrides, nested references, quotes and spaces,
+explicit empty values, invalid input and foreign working directories. Reading resolves without
+mutating the process environment or the checkout; `make bootstrap` remains the only step that
+appends to `.env`.
+
+`make` derives its tool-cache root from the same resolved `DATA_DIR` through
+`arxiv_int_data_root`, so linter, type-checker, test and complexity caches follow the operator's
+selected location instead of a separate checkout-relative default. `DATA_DIR=` on the command line
+still overrides both.
 
 ## Path safety and storage evidence
 
@@ -183,8 +217,9 @@ combined profiles use `SERVICE_PROFILES="core ui observability"`.
 
 ## Tests and verification
 
-Tests under `tests/config/` cover layer precedence, shell precedence, checkout and current-directory
-independence, paths containing spaces, named silos, derived overrides, variable references,
+Tests under `tests/config/` cover layer precedence, paired shell/Python resolution and refusal,
+project-root selection, service-port defaults and validation, shell precedence, checkout and
+current-directory independence, paths containing spaces, named silos, derived overrides, variable references,
 redaction, missing values, root and symlink hazards, all root-overlap boundaries, derived-root
 aliasing, readable source permissions, writable proof-directory acceptance, free space, distinct
 device evidence, results layout creation, and storage-class refusal versus warning fixtures. Tests

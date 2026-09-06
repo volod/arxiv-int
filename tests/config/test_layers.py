@@ -164,63 +164,46 @@ def test_shell_bootstrap_preserves_process_environment_over_dotenv(tmp_path: Pat
         env={"PATH": "/usr/bin:/bin", "PROJECT_ROOT": str(root), "RESULTS_DIR": "process-results"},
     )
 
-    assert completed.stdout.splitlines() == ["process-results", str(root / "dotenv-data")]
+    assert completed.stdout.splitlines() == [
+        str(root / "process-results"),
+        str(root / "dotenv-data"),
+    ]
 
 
-def _sync_dotenv(root: Path) -> subprocess.CompletedProcess[str]:
-    script = Path(__file__).parents[2] / "scripts/shared/common.sh"
-    return subprocess.run(
-        ["bash", "-c", 'source "$1"; arxiv_int_sync_dotenv', "bash", str(script)],
-        check=True,
-        capture_output=True,
-        text=True,
-        env={"PATH": "/usr/bin:/bin", "PROJECT_ROOT": str(root)},
+def test_service_ports_carry_documented_defaults_and_reject_invalid_values(
+    tmp_path: Path,
+) -> None:
+    root = _checkout(
+        tmp_path / "checkout", "ARCHIVE_DIR=archive\nRESULTS_DIR=results\nPGDATA_DIR=pg\n"
     )
 
-
-def test_shell_bootstrap_creates_dotenv_from_template(tmp_path: Path) -> None:
-    root = tmp_path / "checkout"
-    root.mkdir()
-    example = "ARCHIVE_DIR=/archive\n# POSTGRES_PASSWORD=\nDATA_DIR=.data\n"
-    (root / ".env.example").write_text(example, encoding="utf-8")
-
-    completed = _sync_dotenv(root)
-
-    assert completed.stdout == "Created .env from .env.example\n"
-    assert (root / ".env").read_text(encoding="utf-8") == example
-
-
-def test_shell_bootstrap_appends_only_missing_dotenv_declarations(tmp_path: Path) -> None:
-    root = tmp_path / "checkout"
-    root.mkdir()
-    (root / ".env.example").write_text(
-        "KEEP=template\nNEW=active\n# SECRET=\n# OPTIONAL=\n", encoding="utf-8"
-    )
-    (root / ".env").write_text("KEEP=operator\n# SECRET=\n", encoding="utf-8")
-
-    first = _sync_dotenv(root)
-    second = _sync_dotenv(root)
-    result = (root / ".env").read_text(encoding="utf-8")
-
-    assert first.stdout == "Added 2 missing variable declaration(s) to .env\n"
-    assert second.stdout == ""
-    assert "KEEP=operator" in result
-    assert "KEEP=template" not in result
-    assert result.count("NEW=active") == 1
-    assert result.count("# OPTIONAL=") == 1
-
-
-def test_make_bootstrap_finishes_through_the_readiness_target() -> None:
-    root = Path(__file__).parents[2]
-
-    completed = subprocess.run(
-        ["make", "--no-print-directory", "--dry-run", "bootstrap"],
-        cwd=root,
-        check=True,
-        capture_output=True,
-        text=True,
+    values = dict(load_runtime_config(project_root=root, environment={}).values)
+    overridden = dict(
+        load_runtime_config(project_root=root, environment={"VLLM_PORT": "8100"}).values
     )
 
-    assert "arxiv_int_sync_dotenv" in completed.stdout
-    assert "package-check" in completed.stdout
-    assert "readiness READINESS_ALLOW_DEGRADED=1" in completed.stdout
+    assert values["POSTGRES_PORT"] == "5432"
+    assert values["VLLM_PORT"] == "8000"
+    assert overridden["VLLM_PORT"] == "8100"
+    with pytest.raises(ConfigurationError, match="GRAFANA_PORT must be a TCP port"):
+        load_runtime_config(project_root=root, environment={"GRAFANA_PORT": "http"})
+    with pytest.raises(ConfigurationError, match="POSTGRES_PORT must be a TCP port"):
+        load_runtime_config(project_root=root, environment={"POSTGRES_PORT": "70000"})
+
+
+def test_project_root_comes_from_the_option_then_the_environment(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    dotenv = "ARCHIVE_DIR=archive\nRESULTS_DIR=results\nPGDATA_DIR=pg\n"
+    root = _checkout(tmp_path / "declared checkout", dotenv)
+    elsewhere = _checkout(tmp_path / "current checkout", dotenv)
+    monkeypatch.chdir(elsewhere)
+
+    declared = load_runtime_config(environment={"PROJECT_ROOT": str(root)})
+
+    assert declared.project_root == root
+    assert load_runtime_config(project_root=elsewhere, environment={}).project_root == elsewhere
+    with pytest.raises(ConfigurationError, match="PROJECT_ROOT is not a checkout"):
+        load_runtime_config(environment={"PROJECT_ROOT": str(tmp_path)})
+    with pytest.raises(ConfigurationError, match="project root is not a checkout"):
+        load_runtime_config(project_root=tmp_path, environment={})

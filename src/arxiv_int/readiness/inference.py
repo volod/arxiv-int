@@ -5,6 +5,7 @@ from urllib.parse import urljoin, urlparse
 from arxiv_int.readiness.probes import Probe
 from arxiv_int.readiness.report import PreflightReport
 from arxiv_int.runtime.config_model import RuntimeConfig
+from arxiv_int.runtime.inference_config import inference_base_url, selected_backend
 
 
 def check_contracts(report: PreflightReport, config: RuntimeConfig) -> None:
@@ -47,10 +48,10 @@ def check_inference(
 ) -> None:
     """Inspect the configured local inference API and requested model identities."""
     values = dict(config.values)
-    backend = values.get("INFERENCE_BACKEND", "ollama").lower()
+    backend = selected_backend(values)
+    base_url = inference_base_url(values)
     if backend == "ollama":
-        base_url = values.get("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
-        local_base = _local_base(base_url)
+        local_base = _local_base(base_url or "")
         if local_base is None:
             report.add(
                 "inference.endpoint",
@@ -63,7 +64,7 @@ def check_inference(
         models = _ollama_models(result.payload)
         action = "ollama serve"
     elif backend == "vllm":
-        result = probe.get_json("http://127.0.0.1:8000/v1/models", timeout=timeout)
+        result = probe.get_json(urljoin(f"{base_url}/", "v1/models"), timeout=timeout)
         models = _openai_models(result.payload)
         action = "make services-up SERVICE_PROFILES=vllm"
     else:

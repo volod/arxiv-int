@@ -4,14 +4,15 @@ PROJECT_ROOT := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 VENV := $(PROJECT_ROOT)/.venv
 PY := $(VENV)/bin/python
 PYTHON_VERSION ?= 3.12
-DATA_DIR ?= .data
+DATA_DIR ?=
 SERVICE_PROFILES ?= pipeline
 LOG_SERVICES ?=
 LOG_TAIL ?= 200
 LOG_FOLLOW ?= 0
 READINESS_ALLOW_DEGRADED ?= 0
 APPLY ?= 0
-DATA_ROOT := $(if $(filter /%,$(DATA_DIR)),$(DATA_DIR),$(PROJECT_ROOT)/$(DATA_DIR))
+COMMON_SH := $(PROJECT_ROOT)/scripts/shared/common.sh
+DATA_ROOT := $(shell $(if $(DATA_DIR),DATA_DIR='$(DATA_DIR)') bash -c '. "$$0"; arxiv_int_data_root' '$(COMMON_SH)')
 PYTEST_CACHE := -o cache_dir=$(DATA_ROOT)/cache/pytest
 
 export RUFF_CACHE_DIR := $(DATA_ROOT)/cache/ruff
@@ -30,7 +31,7 @@ help: ## List available targets
 bootstrap: ## Sync .env and .venv, then audit readiness
 	@printf '\n=== Environment and dependencies ===\n'
 	@command -v uv >/dev/null 2>&1 || { echo "ERROR: uv is required"; exit 1; }
-	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_sync_dotenv; \
+	@source "$(COMMON_SH)"; arxiv_int_sync_dotenv; \
 		arxiv_int_load_env; \
 		uv sync --locked --extra dev --python "$(PYTHON_VERSION)"
 	@printf '\n=== Package identity ===\n'
@@ -41,7 +42,7 @@ bootstrap: ## Sync .env and .venv, then audit readiness
 venv: bootstrap ## Alias for bootstrap
 
 lock: ## Refresh uv.lock after dependency changes
-	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_load_env; uv lock
+	@source "$(COMMON_SH)"; arxiv_int_load_env; uv lock
 
 package-check: ## Verify the installed package identity
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
@@ -57,34 +58,34 @@ config: ## Resolve, validate, and redact runtime configuration
 
 readiness: ## Audit configuration, storage, tools, services, models, and system readiness
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
-	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_load_env; \
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
 		status=0; "$(VENV)/bin/arxiv-int" readiness --profiles "$(SERVICE_PROFILES)" || status=$$?; \
 		if [ "$$status" -eq 2 ] && [ "$(READINESS_ALLOW_DEGRADED)" -eq 1 ]; then exit 0; fi; \
 		exit "$$status"
 
 services-config: ## Validate Compose for SERVICE_PROFILES without starting containers
-	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_load_env; \
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
 		arxiv_int_services config --profiles "$(SERVICE_PROFILES)"
 
 services-up: ## Start and wait for healthy SERVICE_PROFILES (default: pipeline)
-	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_load_env; \
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
 		arxiv_int_services up --profiles "$(SERVICE_PROFILES)"
 
 services-status: ## Show local service and health status
-	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_load_env; \
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
 		arxiv_int_services status --profiles "$(SERVICE_PROFILES)"
 
 services-down: ## Stop the local service project; preserve bind-mounted data
-	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_load_env; \
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
 		arxiv_int_services down --profiles "$(SERVICE_PROFILES)"
 
 services-reset: ## Stop services; erase service data only when APPLY=1
-	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_load_env; \
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
 		arxiv_int_services reset --profiles "$(SERVICE_PROFILES)" \
 		$(if $(filter 1,$(APPLY)),--apply,)
 
 logs: ## Show bounded logs (LOG_SERVICES=..., LOG_TAIL=..., LOG_FOLLOW=1)
-	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_load_env; \
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
 		arxiv_int_services logs --profiles "$(SERVICE_PROFILES)" \
 		--services "$(LOG_SERVICES)" --tail "$(LOG_TAIL)" \
 		$(if $(filter 1,$(LOG_FOLLOW)),--follow,)
@@ -148,7 +149,7 @@ ci: ci-checks test ## Run the required local and GitHub CI gate
 ci-github: ci ## Explicit GitHub Actions entrypoint
 
 build: ## Build source and wheel distributions
-	@source "$(PROJECT_ROOT)/scripts/shared/common.sh"; arxiv_int_load_env; uv build
+	@source "$(COMMON_SH)"; arxiv_int_load_env; uv build
 
 quality: ci-checks coverage lint-md build ## Run the full local quality suite
 
