@@ -2,8 +2,9 @@
 
 from arxiv_int.readiness.probes import Probe
 from arxiv_int.readiness.report import PreflightReport
-from arxiv_int.runtime.compose import compose_command, compose_environment
+from arxiv_int.runtime.compose import compose_base_command, compose_environment
 from arxiv_int.runtime.config_model import RuntimeConfig
+from arxiv_int.runtime.service_plan import plan_services
 
 _DEFAULT_DB_ROLE = "arxiv_int"
 _EXTENSION_QUERY = (
@@ -22,6 +23,9 @@ def check_database(
     database_healthy: bool,
 ) -> None:
     """Inspect installed extension versions and current migration applicability."""
+    plan = plan_services(profiles)
+    if not plan.database:
+        return
     migrations = config.project_root / "db" / "migrations"
     if migrations.is_dir():
         report.add(
@@ -44,7 +48,7 @@ def check_database(
     user = values.get("POSTGRES_USER", "").strip() or _DEFAULT_DB_ROLE
     database = values.get("POSTGRES_DB", "").strip() or _DEFAULT_DB_ROLE
     password = values.get("POSTGRES_PASSWORD", "")
-    base = compose_command(config, "status", profiles)[:-2]
+    base = compose_base_command(config, plan.profiles)
     # The database container runs as RUNTIME_UID, so peer auth as that OS id fails.
     # Pass the configured role explicitly and inject the password only into the exec env.
     command = (
@@ -87,9 +91,7 @@ def check_database(
         for line in result.stdout.splitlines()
         if "=" in line
     }
-    required = {"pg_search", "vector"}
-    if "graph" in profiles:
-        required.add("age")
+    required = plan.extensions
     missing = sorted(required - versions.keys())
     if missing:
         report.add(

@@ -9,20 +9,13 @@ from arxiv_int.readiness.probes import CommandResult, Probe
 from arxiv_int.readiness.report import CheckStatus, PreflightReport
 from arxiv_int.runtime.compose import PROFILE_ALIASES, compose_command, compose_environment
 from arxiv_int.runtime.config_model import RuntimeConfig
+from arxiv_int.runtime.service_plan import plan_services
 
 _GIB = 1024**3
 _MINIMUM_PYTHON = (3, 12)
 _PLACEHOLDER_PASSWORDS = frozenset(
     {"changeme", "compose-validation-only", "password", "postgres", "replace-me"}
 )
-_PROFILE_SERVICES = {
-    "core": ("database",),
-    "graph": ("database", "age-viewer"),
-    "ui": ("database", "grafana"),
-    "observability": ("database", "postgres-exporter", "prometheus"),
-    "vllm": ("vllm",),
-    "cadvisor": ("cadvisor",),
-}
 
 
 def check_tools(report: PreflightReport, probe: Probe, root: Path, timeout: float) -> None:
@@ -134,9 +127,8 @@ def check_services(
         report.add("services", "degraded", detail, action="start Docker, then run make readiness")
         return False
     states = _service_states(result.stdout)
-    expected = tuple(
-        dict.fromkeys(name for profile in profiles for name in _PROFILE_SERVICES[profile])
-    )
+    plan = plan_services(profiles)
+    expected = plan.services
     profile_value = " ".join(profiles)
     start_action = (
         "make services-up"
@@ -153,7 +145,7 @@ def check_services(
             action=None if ready else start_action,
         )
     database = states.get("database", ("", ""))
-    return database[0].lower() == "running" and database[1].lower() == "healthy"
+    return plan.database and database[0].lower() == "running" and database[1].lower() == "healthy"
 
 
 def _command_finding(

@@ -175,6 +175,7 @@ def validate_runtime_paths(
     config: RuntimeConfig,
     *,
     inspector: Callable[[Path], FilesystemEvidence] = inspect_filesystem,
+    variables: frozenset[str] | None = None,
 ) -> PathValidation:
     """Resolve every root and accumulate safety and storage-class findings."""
     report = PreflightReport("runtime paths")
@@ -182,6 +183,8 @@ def validate_runtime_paths(
     _check_dangerous_and_overlapping(config, placements, report)
     inspected: list[tuple[RootPlacement, FilesystemEvidence]] = []
     for placement in placements:
+        if variables is not None and placement.variable not in variables:
+            continue
         evidence = inspector(placement.path)
         inspected.append((placement, evidence))
         permission = _permission_finding(placement, evidence)
@@ -192,22 +195,20 @@ def validate_runtime_paths(
     return PathValidation(tuple(inspected), report)
 
 
-def create_results_layout(config: RuntimeConfig, validation: PathValidation) -> tuple[Path, ...]:
+def create_results_layout(
+    config: RuntimeConfig, validation: PathValidation, *, variables: frozenset[str] | None = None
+) -> tuple[Path, ...]:
     """Create only the documented output skeleton after all path checks pass."""
     validation.report.require_ready()
-    directories = [
-        *(config.results_dir / name for name in _RESULTS_CHILDREN),
-        config.runs_dir,
-        config.service_state_dir,
-        config.model_cache_dir,
-        config.tmp_dir,
-    ]
+    directories = [config.results_dir / name for name in _RESULTS_CHILDREN]
     for directory in directories:
         directory.mkdir(parents=True, exist_ok=True)
-    database_directories = [config.pgdata_dir]
-    if config.pg_wal_dir is not None:
-        database_directories.append(config.pg_wal_dir)
-    database_directories.extend(path for _, path in config.pg_tablespaces)
-    for directory in database_directories:
-        directory.mkdir(mode=0o700, parents=True, exist_ok=True)
-    return tuple((*directories, *database_directories))
+    for placement in runtime_placements(config):
+        if not placement.output or placement.variable == "RESULTS_DIR":
+            continue
+        if variables is not None and placement.variable not in variables:
+            continue
+        mode = 0o700 if placement.storage_class == "database" else 0o777
+        placement.path.mkdir(mode=mode, parents=True, exist_ok=True)
+        directories.append(placement.path)
+    return tuple(directories)

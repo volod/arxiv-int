@@ -43,11 +43,32 @@ def check_contracts(report: PreflightReport, config: RuntimeConfig) -> None:
         )
 
 
+def _vllm_values(values: dict[str, str]) -> dict[str, str]:
+    """Use the model identity actually passed to the selected Compose service."""
+    model = (
+        values["GENERATION_MODEL"] if selected_backend(values) == "vllm" else values["VLLM_MODEL"]
+    )
+    return dict(
+        values,
+        INFERENCE_BACKEND="vllm",
+        GENERATION_MODEL=model,
+        EMBEDDING_MODEL="",
+        RERANK_MODEL="",
+    )
+
+
 def check_inference(
-    report: PreflightReport, config: RuntimeConfig, probe: Probe, timeout: float
+    report: PreflightReport,
+    config: RuntimeConfig,
+    probe: Probe,
+    timeout: float,
+    *,
+    vllm_service: bool = False,
 ) -> None:
     """Inspect the configured local inference API and requested model identities."""
     values = dict(config.values)
+    if vllm_service:
+        values = _vllm_values(values)
     backend = selected_backend(values)
     base_url = inference_base_url(values)
     if backend == "ollama":

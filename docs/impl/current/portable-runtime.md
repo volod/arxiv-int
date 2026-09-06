@@ -104,7 +104,8 @@ logs configured secrets.
 
 `arxiv-int readiness`, wrapped by `make readiness`, accumulates configuration, tool, RAM/GPU, path,
 filesystem, free-space, Compose health, database extension, migration, contract, local inference API,
-and configured-model checks into one report. Every configured root is represented once with its
+and configured-model checks into one report for the default `pipeline` selection. Every configured
+root in that full audit is represented once with its
 resolved path, required storage class, filesystem type, device id, rotational flag, accessible free
 bytes, and combined placement status. The path check reuses the same validation as runtime startup,
 so an unsupported or non-owning database filesystem is blocked and non-owning service state is
@@ -149,9 +150,28 @@ tensor parallelism; services without CUDA work remain CPU-only.
 
 The operator alias `pipeline` expands to `core ui observability`. It is the default for readiness and
 service Make/CLI commands. The normal inference check targets a running host Ollama service. vLLM is
-an alternate only when `vllm` is explicitly included in `SERVICE_PROFILES` and
-`INFERENCE_BACKEND=vllm` is configured. `graph`, `vllm`, and privileged `cadvisor` remain explicit
-opt-ins.
+explicitly checked when `vllm` is included in `SERVICE_PROFILES`, using the model identity
+passed to Compose even when the pipeline backend remains Ollama. `graph`, `vllm`, and privileged
+`cadvisor` remain explicit opt-ins.
+
+`runtime/service_plan.py` owns the typed service plan, profile map, alias expansion, extension
+requirements and CLI profile help. Rendered Compose fixtures verify that every profile selects the
+same services. Explicit profile arguments override ambient `COMPOSE_PROFILES` values. Empty profile
+requests retain the `pipeline` default; omitting a profile disables its service-specific checks.
+Core-only readiness checks the database without archive, UI or inference availability checks.
+vLLM-only readiness checks its cache, GPU, endpoint and served generation model without requiring a
+database password, database disks or extensions. Combined requests take the union; the full
+`pipeline` topology retains the existing archive, contract and configured-backend audit. All roots
+must still resolve in configuration, and all configured containment boundaries remain enforced.
+
+Compose command construction is pure, with an explicit base builder reused by database probing.
+`config` and `up` retain the common results skeleton, runs and temporary directories, but prepare
+only selected database, model-cache and per-service state directories. Unselected archive mounts
+need not be available. `status`, `down` and `logs` perform no disk inspection or layout preparation.
+Log service arguments must name services in the selected plan; invalid names and negative tails
+are refused before preparation. Reset keeps its existing project-wide root policy. See the
+[accepted service-planning record](../records/refactor-profile-aware-service-planning.md) for
+regressions and verification limits.
 
 `runtime/inference_config.py` resolves generation defaults after configuration precedence:
 `qwen3.8:27b` for Ollama, or `VLLM_MODEL` and `VLLM_MODEL_REVISION` for vLLM. Explicit

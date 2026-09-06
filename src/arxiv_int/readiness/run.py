@@ -15,7 +15,6 @@ from arxiv_int.readiness.database import check_database
 from arxiv_int.readiness.inference import check_contracts, check_inference
 from arxiv_int.readiness.probes import LocalProbe, Probe
 from arxiv_int.readiness.report import CheckStatus, PreflightFinding, PreflightReport
-from arxiv_int.runtime.compose import parse_profiles
 from arxiv_int.runtime.config import ConfigurationError, load_runtime_config
 from arxiv_int.runtime.config_model import RuntimeConfig
 from arxiv_int.runtime.containment import (
@@ -26,6 +25,7 @@ from arxiv_int.runtime.containment import (
 from arxiv_int.runtime.filesystem import FilesystemEvidence, existing_ancestor, inspect_filesystem
 from arxiv_int.runtime.paths import validate_runtime_paths
 from arxiv_int.runtime.project_root import ProjectRootError, find_project_root
+from arxiv_int.runtime.service_plan import ServicePlan, plan_services
 
 DEFAULT_REPORT_NAME = "readiness.json"
 
@@ -66,7 +66,7 @@ def run_readiness(
         return ReadinessResult(report, None)
     check_tools(report, active_probe, root, timeout)
     try:
-        selected_profiles = parse_profiles(profiles)
+        plan = plan_services(profiles)
     except ValueError as error:
         report.add(
             "config.profiles",
@@ -74,13 +74,13 @@ def run_readiness(
             str(error),
             action="set SERVICE_PROFILES to documented profile names",
         )
-        selected_profiles = parse_profiles("pipeline")
+        plan = plan_services("pipeline")
     check_resources(
         report,
         active_probe,
         root,
         timeout,
-        require_gpu="vllm" in selected_profiles,
+        require_gpu="vllm" in plan.services,
     )
     try:
         config = load_runtime_config(project_root=root, environment=environment)
@@ -93,19 +93,22 @@ def run_readiness(
         )
         return ReadinessResult(report, None)
     report.add("config.runtime", "ready", "runtime configuration resolved; secrets are masked")
-    check_password(report, config)
-    _check_paths(report, config, inspector)
-    database_healthy = check_services(report, config, selected_profiles, active_probe, timeout)
+    if plan.database:
+        check_password(report, config)
+    _check_paths(report, config, inspector, plan)
+    database_healthy = check_services(report, config, plan.profiles, active_probe, timeout)
     check_database(
         report,
         config,
-        selected_profiles,
+        plan.profiles,
         active_probe,
         timeout,
         database_healthy=database_healthy,
     )
-    check_contracts(report, config)
-    check_inference(report, config, active_probe, timeout)
+    if plan.pipeline:
+        check_contracts(report, config)
+    if plan.inference:
+        check_inference(report, config, active_probe, timeout, vllm_service="vllm" in plan.services)
     destination = report_path or config.results_dir / "reports" / DEFAULT_REPORT_NAME
     persisted = _persist_report(report, config, destination) if persist else None
     return ReadinessResult(report, persisted)
@@ -115,9 +118,12 @@ def _check_paths(
     report: PreflightReport,
     config: RuntimeConfig,
     inspector: Callable[[Path], FilesystemEvidence],
+    plan: ServicePlan,
 ) -> None:
     try:
-        validation = validate_runtime_paths(config, inspector=inspector)
+        validation = validate_runtime_paths(
+            config, inspector=inspector, variables=plan.path_variables(config, readiness=True)
+        )
     except OSError as error:
         report.add(
             "paths",

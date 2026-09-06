@@ -10,33 +10,6 @@ ordering, and lifecycle rules belong in the
 
 ### Portable runtime -- `portable-runtime`
 
-#### refactor-profile-aware-service-planning
-
-Separate service request planning from filesystem preparation and reuse one profile definition.
-
-- Serves: `portable-runtime` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
-- Agent status: CLEAR
-- Task kind: refactor
-- Audit inputs: [AUD-codebase-11](records/codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: [Runtime configuration parity](records/refactor-runtime-configuration-parity.md).
-- User-visible outcome: A core or vLLM-only request checks and prepares the selected services and reports
-the same
-selection in Compose, readiness and CLI help.
-- Scope boundary: Keep existing operator commands and documented config/layout effects unless a specified
-defect requires a regression fix; no service startup or data reset against operator roots.
-- Data and artifact paths: `src/arxiv_int/runtime/compose.py`, `src/arxiv_int/readiness/{checks,run,database}.py`,
-`src/arxiv_int/cli.py`, `docker/compose.yaml`, and `tests/compose/`.
-- Execution path: Extract a typed service plan and shared profile/service map; derive
-applicable path, password,
-model and extension checks from it; separate pure command construction from layout creation;
-replace positional command slicing in database probing with an explicit Compose base builder.
-- Acceptance gates: Fixture cases cover core, vLLM-only, combined and disabled profiles,
-non-default ports,
-missing unselected archives/services, unavailable disks during status/down, and bounded command
-arguments; parity with rendered Compose and existing valid commands is preserved; make ci passes.
-- Documentation target: `docs/impl/current/portable-runtime.md`
-- Review checkpoint: `review-foundation-and-store-boundaries`.
-
 #### refactor-readiness-probe-safety
 
 Harden local readiness transport and distinguish installed extensions from available packages.
@@ -45,7 +18,7 @@ Harden local readiness transport and distinguish installed extensions from avail
 - Agent status: CLEAR
 - Task kind: refactor
 - Audit inputs: [AUD-codebase-03, AUD-codebase-04, AUD-codebase-12](records/codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: `refactor-profile-aware-service-planning`.
+- Dependencies: [Profile-aware service planning](records/refactor-profile-aware-service-planning.md).
 - User-visible outcome: Readiness keeps credentials out of process arguments and cannot report
 absent extension
 installation as ready or silently follow an inference probe away from the host.
