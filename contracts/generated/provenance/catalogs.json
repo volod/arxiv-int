@@ -4,8 +4,8 @@
     "avro/catalogs.avsc": "7791e662a6a7a9eb9993a34f05c34e5507df1575402eb6842c03184f173a4ed2",
     "jsonschema/catalogs.schema.json": "0539157f8b4df6ba1991f9eb2db0376f5a1a75ca271991cf060253b35d530f3a",
     "parquet/catalogs.parquet.json": "e53f2ac761cea5a98ab6235d43459de1dba8f8a3498bbcd83052b6858327e81d",
-    "postgres/catalogs.sql": "842057ea00d8fff419aa1647495c1ab6fe01b994bf51c760a503e0fbef2f5c3a",
-    "postgres/extensions/catalogs.sql": "3a6c500efbdbd237d851fb4569611edac885d3ee1430ae4c85680ee32bfbcf6c",
+    "postgres/catalogs.sql": "5f5e155270741caff57731c89f93af43e1434429aeadbef34c9de2d3d4061ae2",
+    "postgres/extensions/catalogs.sql": "b91d556ec98e4a6923c86f6e4a71a717a29391b59e5d1b76a57544c41c5a8563",
     "pydantic/catalogs.py": "d0c3731273603890d6714386042b529345b074f1f235055d4fbc0bba7ca49c67"
   },
   "canonicalEntity": null,

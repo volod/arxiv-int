@@ -4,8 +4,8 @@
     "avro/chunks.avsc": "14c1313a787977857c3cbe9dd2c827e4ea9441d6b2ae2056ef7da9dfa0687789",
     "jsonschema/chunks.schema.json": "79752e6a05811939575bdef81b7a61b600aa60cf70dce3b158002128a518b4c6",
     "parquet/chunks.parquet.json": "5b6f6eccc43adecdddba88acfb25fa8c201a7607a2ba557741ef73ea16753d7d",
-    "postgres/chunks.sql": "e7686ac1eb5fc58bf26f0e0116686ce2fd6265aae19f758f9c731c5c1eee1fa2",
-    "postgres/extensions/chunks.sql": "9948fb56adda0d013f1e0b3dbf77f98d23aefde0e96467425d14492004ca10ee",
+    "postgres/chunks.sql": "94f4e4aabee040e6f8440a1a0548270acdba3b52e37b2a7875b5bc0f9beec2c6",
+    "postgres/extensions/chunks.sql": "a301e9f11307d2ad5757fe41389b3debbfd2641fa7d22c905454a65d4e52afc1",
     "pydantic/chunks.py": "e2405d724ecfccb703d64cb3049dc93d83bcc98d9a7cb3702d13fc77ecef9002",
     "search/chunks.sql": "b6d1a4758cffd37ae47e6f8862bf1fb97f3c030d912ee3805056c018e2834b7d"
   },

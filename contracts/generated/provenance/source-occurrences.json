@@ -4,8 +4,8 @@
     "avro/source-occurrences.avsc": "d28255ef4e366ac163463820fc1f5f41698e74aa448f1900169ce8ca841dd448",
     "jsonschema/source-occurrences.schema.json": "9976c43e6ff0788c28dd6c32f4f7919a1be42c3db3087573fbce817a179a8e2c",
     "parquet/source-occurrences.parquet.json": "b3a6985b5861a00eb6c51561a13ca054536c55996add6c32bf2d8945d5ea423e",
-    "postgres/extensions/source-occurrences.sql": "37a1599c1a059fbeb71d6355594a20411aee9852b7580048bce2870b4a710214",
-    "postgres/source-occurrences.sql": "eb220caa1f598244b0ac214f602798aab2388ccf38705e671540d29e54366ec5",
+    "postgres/extensions/source-occurrences.sql": "9fea52bdf113f259029d8c3e2a4923d9f876942f50f4a24af1aaa72cc935cd48",
+    "postgres/source-occurrences.sql": "b9e72f338ec7c65c85d1301881d79daaf9d5ef5ee121806e8fe1460549a90d63",
     "pydantic/source-occurrences.py": "33e3fdf18d3528e24f2bcc0c76578aa908d5c0b3d98a679ee3fe5158bfc74e88"
   },
   "canonicalEntity": null,

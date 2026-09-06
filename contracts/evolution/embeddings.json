@@ -50,8 +50,8 @@
   },
   "fingerprints": {
     "avroSha256": "f197d3d683597b82573db07b77d902d76ee3ca3848dced532f8a0a71686ca491",
-    "generatorVersion": "1.0.0",
-    "postgresSha256": "e7b8348dbd7a1ec1d6c13c85bdc650a53df425f1e88f4d7c9222c5672544baf8",
+    "generatorVersion": "2.0.0",
+    "postgresSha256": "09990024792a8dec525b9a1e6daece068cd2468c6e69f446ae772b7e5a4bcb45",
     "semanticMetadataHash": "aaab1f6568f261e4beec82c080adc97fd9fce7657079038da91ee4a89b599504"
   },
   "history": [
@@ -109,6 +109,72 @@
         "avroSha256": "f197d3d683597b82573db07b77d902d76ee3ca3848dced532f8a0a71686ca491",
         "generatorVersion": "1.0.0",
         "postgresSha256": "e7b8348dbd7a1ec1d6c13c85bdc650a53df425f1e88f4d7c9222c5672544baf8",
+        "semanticMetadataHash": "aaab1f6568f261e4beec82c080adc97fd9fce7657079038da91ee4a89b599504"
+      },
+      "odcsId": "urn:arxiv-int:contract:embeddings:1.0.0",
+      "projections": {
+        "vector": {
+          "defaultDimensions": 1024,
+          "dimensionsField": "dimensions",
+          "index": "ivfflat"
+        }
+      },
+      "version": "1.0.0"
+    },
+    {
+      "contractId": "embeddings",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "embeddings.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "embeddings.dimensions": {
+          "logicalType": "integer",
+          "physicalType": "",
+          "required": false
+        },
+        "embeddings.embedding_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "embeddings.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "embeddings.model_digest": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "embeddings.profile_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "embeddings.target_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "embeddings.target_kind": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "embeddings.vector_ref": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "f197d3d683597b82573db07b77d902d76ee3ca3848dced532f8a0a71686ca491",
+        "generatorVersion": "2.0.0",
+        "postgresSha256": "09990024792a8dec525b9a1e6daece068cd2468c6e69f446ae772b7e5a4bcb45",
         "semanticMetadataHash": "aaab1f6568f261e4beec82c080adc97fd9fce7657079038da91ee4a89b599504"
       },
       "odcsId": "urn:arxiv-int:contract:embeddings:1.0.0",

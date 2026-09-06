@@ -63,45 +63,6 @@ Missing mandatory providers remain blocked/unavailable, never successful readine
 
 ### Contract governance -- `contract-governance`
 
-#### refactor-contract-schema-and-migration-tooling
-
-Replace SQL text and optional dbmate checks with contract-derived Python schema objects and a
-required, reviewable Alembic revision workflow.
-
-- Serves: `contract-governance` -- [Evolution and migrations](../design/spec.md#evolution-and-migrations)
-- Agent status: CLEAR
-- Task kind: refactor
-- Audit inputs: [AUD-data-engineering-tooling-1](records/0015-govern-review-data-engineering-tooling.md#audit-handoff).
-- Dependencies: [Deterministic schema generation](records/0011-contract-gov-implement-deterministic-schema-generation.md);
-[Evolution and migration policy](records/0012-contract-gov-enforce-evolution-and-migration-policy.md);
-[Domain investigation contracts](records/0014-contract-gov-define-domain-investigation-contracts-and-ontology.md).
-- User-visible outcome: A contract change yields reviewable Python migration operations and explicit
-revision/drift status without maintaining a second handwritten table model.
-- Scope boundary: Replace schema/migration plumbing and preserve semantic/evolution policy; provide
-the offline workflow and live adapter. Actual legacy adoption and pinned-store upgrade acceptance
-belong to `create-canonical-relational-schema`; no automatic adoption of an operator database.
-- Data and artifact paths: `src/arxiv_int/contracts/{generate,sqlalchemy,evolution}/`,
-`src/arxiv_int/migrations/versions/`, legacy `db/migrations/`, `db/schema.sql`, `pyproject.toml`,
-`uv.lock`, feature metadata, Make/CLI, mirrored tests, and `$DATA_DIR/migrations/<run-id>/`.
-- Execution path: Normalize existing ODCS bindings into schema-qualified SQLAlchemy Core metadata;
-preserve types/decimal precision/nullability/keys/references/descriptions with named constraints;
-fail unsupported mappings. Compile review DDL with the PostgreSQL dialect, retire competing generic
-SQL export and regex conformance, and generate candidate immutable Alembic Python revisions using
-frozen definitions and contract fingerprints. Implement revision/check/status/upgrade/downgrade
-wrappers with existing environment/root policy, owned-object filters, prior ownership for removals,
-secret redaction, graph/checksum checks, and explicit irreversible-change handling. Retain legacy
-SQL as adoption evidence; require catalog equivalence before stamping. Reuse the shared evolution
-classifier; update optional dependencies, exact output-sensitive pins, lock, licences, and setup.
-- Acceptance gates: Network-free regressions prove schema-qualified collisions, renamed/removed
-fields, nullability/type/default/constraint changes, unsupported metadata, missing revisions, multiple
-heads, cycles, missing runner, and unsafe adoption fail correctly. Generated Python revisions and
-offline PostgreSQL DDL are deterministic; old revisions ignore later contract edits; unrelated/dbt
-objects are excluded without hiding owned deletions; missing live evidence reports not-run. Existing
-serialization and semantic gates, `make ci`, and `make quality` pass. Offline success does not claim
-an applied or conformant live database.
-- Documentation target: `docs/impl/current/contracts.md`
-- Review checkpoint: `review-foundation-and-store-boundaries`.
-
 #### implement-contract-data-quality-checks
 
 Make contract conformance executable on dataset contents with bounded, descriptive validation
@@ -110,7 +71,7 @@ results shared by all producers.
 - Serves: `contract-governance` -- [Data quality](../design/spec.md#data-transformations-and-quality)
 - Agent status: CLEAR
 - Audit inputs: [AUD-data-engineering-tooling-3](records/0015-govern-review-data-engineering-tooling.md#audit-handoff).
-- Dependencies: `refactor-contract-schema-and-migration-tooling`.
+- Dependencies: [Contract schema and migration tooling](records/0017-contract-gov-refactor-contract-schema-and-migration-tooling.md).
 - User-visible outcome: Invalid batches and missing required checks have inspectable reasons and
 cannot be represented as publishable validated output.
 - Scope boundary: Implement reusable Pandera/Polars checks, generated dbt source/test YAML, and typed
@@ -170,7 +131,8 @@ with partition and provenance constraints.
 - Serves: `canonical-store` -- [PostgreSQL schemas](../design/spec.md#postgresql-schemas)
 - Agent status: RUN NEEDED
 - Dependencies: `build-pinned-paradedb-age-image` can yield either AGE-enabled or AGE-disabled;
-`refactor-contract-schema-and-migration-tooling`; `implement-contract-data-quality-checks`;
+[Contract schema and migration tooling](records/0017-contract-gov-refactor-contract-schema-and-migration-tooling.md);
+`implement-contract-data-quality-checks`;
 [Evolution and migration policy](records/0012-contract-gov-enforce-evolution-and-migration-policy.md).
 [Domain investigation contracts](records/0014-contract-gov-define-domain-investigation-contracts-and-ontology.md).
 

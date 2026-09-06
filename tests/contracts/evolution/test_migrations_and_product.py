@@ -1,4 +1,4 @@
-"""Migration ordering, destructive approval, and product evolution checks."""
+"""Product evolution policy, legacy adoption evidence, and revision-graph checks."""
 
 from pathlib import Path
 
@@ -7,16 +7,10 @@ import pytest
 from arxiv_int.contracts.datacontract_lint import datacontract_command
 from arxiv_int.contracts.evolution import check_evolution_policy, migration_policy_findings
 from arxiv_int.contracts.evolution.avro_compat import generated_avro_self_compatibility
-from arxiv_int.contracts.evolution.conformance import (
-    expected_tables_from_sql,
-    schema_conformance_findings,
-)
 from arxiv_int.contracts.evolution.datacontract_break import breaking_findings
-from arxiv_int.contracts.evolution.migrations import (
-    APPROVAL_MARKER,
-    destructive_migration_findings,
-    migration_order_findings,
-)
+from arxiv_int.contracts.evolution.migrations import legacy_evidence_findings
+from arxiv_int.contracts.migrations.adoption import inventory_legacy_sql, legacy_binding_findings
+from arxiv_int.contracts.sqlalchemy.model import load_schema_model_from_root
 from arxiv_int.quality.project_root import discover_project_root
 
 
@@ -35,44 +29,20 @@ def test_product_evolution_policy_passes() -> None:
 
 
 def test_product_migration_policy_passes() -> None:
-    assert migration_policy_findings(_root()) == []
+    assert migration_policy_findings(_root(), _root() / "contracts") == []
 
 
-def test_out_of_order_migrations_fail(tmp_path: Path) -> None:
-    directory = tmp_path / "migrations"
-    directory.mkdir()
-    (directory / "20260102000000_second.sql").write_text("SELECT 1;\n")
-    (directory / "20260101000000_first.sql").write_text("SELECT 1;\n")
-    # Sorted glob is chronological; fabricate by checking duplicate timestamp instead.
-    (directory / "20260101000000_again.sql").write_text("SELECT 1;\n")
-    findings = migration_order_findings(directory)
-    assert any("duplicate migration timestamp" in item for item in findings)
+def test_legacy_sql_is_retained_as_adoption_evidence() -> None:
+    inventory = inventory_legacy_sql(_root())
+    assert inventory.present
+    assert inventory.declared_tables
+    assert legacy_evidence_findings(_root()) == []
 
 
-def test_destructive_migration_requires_approval(tmp_path: Path) -> None:
-    directory = tmp_path / "migrations"
-    directory.mkdir()
-    (directory / "20260101000000_drop.sql").write_text("DROP TABLE documents;\n")
-    assert destructive_migration_findings(directory)
-    (directory / "20260101000000_drop.sql").write_text(
-        f"{APPROVAL_MARKER}\nDROP TABLE documents;\n"
-    )
-    assert destructive_migration_findings(directory) == []
-
-
-def test_schema_conformance_diff_detects_missing_column() -> None:
-    expected = {"documents": {"id", "title"}}
-    observed = {"documents": {"id"}}
-    findings = schema_conformance_findings(expected, observed)
-    assert any("missing column 'title'" in item for item in findings)
-
-
-def test_expected_tables_parse_generated_postgres() -> None:
-    postgres = _root() / "contracts" / "generated" / "postgres"
-    texts = [path.read_text(encoding="utf-8") for path in sorted(postgres.glob("*.sql"))]
-    tables = expected_tables_from_sql(texts)
-    assert "documents" in tables
-    assert "document_id" in tables["documents"]
+def test_legacy_tables_map_to_contract_bindings() -> None:
+    model = load_schema_model_from_root(_root() / "contracts")
+    inventory = inventory_legacy_sql(_root())
+    assert legacy_binding_findings(inventory, model) == []
 
 
 def test_generated_avro_self_compatibility() -> None:

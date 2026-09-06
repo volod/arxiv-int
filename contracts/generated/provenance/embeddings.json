@@ -4,8 +4,8 @@
     "avro/embeddings.avsc": "f197d3d683597b82573db07b77d902d76ee3ca3848dced532f8a0a71686ca491",
     "jsonschema/embeddings.schema.json": "02826857faa069018ef36c3d65b660442b0188effc737268b870036ac05c9f3b",
     "parquet/embeddings.parquet.json": "137983c37528d119687c6b1dd232951f8e849c472391089f6482bff7e655edfa",
-    "postgres/embeddings.sql": "e7b8348dbd7a1ec1d6c13c85bdc650a53df425f1e88f4d7c9222c5672544baf8",
-    "postgres/extensions/embeddings.sql": "7f0267da4dbe65f2e6b2a2105d02556f6829158958101448d4a14efd14ea59a2",
+    "postgres/embeddings.sql": "09990024792a8dec525b9a1e6daece068cd2468c6e69f446ae772b7e5a4bcb45",
+    "postgres/extensions/embeddings.sql": "904a09ae38fc32c25cfcfa62fd1f4571d1d9f095f3a2a0feb9a289b7f3ca3a4a",
     "postgres/extensions/embeddings.vector.sql": "cc2a0be01374725a599af0b2831eb893237a3ac03237cc4351d8038553e851f1",
     "pydantic/embeddings.py": "c0e840d8d1d656a44f85542a3aff7dd72078cc42bf123ba0b5a67a3fd6feb230"
   },

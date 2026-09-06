@@ -10,8 +10,13 @@ LOG_SERVICES ?=
 LOG_TAIL ?= 200
 LOG_FOLLOW ?= 0
 READINESS_ALLOW_DEGRADED ?= 0
+MESSAGE ?= contract schema change
+REVISION ?= head
+DOWN_REVISION ?= -1
 APPLY ?= 0
 COMMON_SH := $(PROJECT_ROOT)/scripts/shared/common.sh
+# One extra set for every syncing target so consecutive targets cannot uninstall each other.
+SYNC_EXTRAS := --extra dev --extra contracts --extra graph --extra store
 DATA_ROOT := $(shell $(if $(DATA_DIR),DATA_DIR='$(DATA_DIR)') bash -c '. "$$0"; arxiv_int_data_root' '$(COMMON_SH)')
 PYTEST_CACHE := -o cache_dir=$(DATA_ROOT)/cache/pytest
 
@@ -23,7 +28,9 @@ export MYPY_CACHE_DIR := $(DATA_ROOT)/cache/mypy
 .PHONY: help bootstrap venv lock package-check features config readiness services-config services-up \
 	services-status services-down services-reset logs graph-up ui-up format format-check lint typecheck test \
 	coverage complexity-gate shell-lint-gate lint-md lint-doc-links lint-spec-plan plan-status \
-	contracts contracts-gen contracts-check contracts-evolution ontology ontology-gen ontology-check \
+	contracts contracts-gen contracts-check contracts-evolution \
+	db-revision db-check db-status db-upgrade \
+	db-downgrade db-adopt ontology ontology-gen ontology-check \
 	ci-checks ci ci-github build quality code-quality quality-report
 
 help: ## List available targets
@@ -34,7 +41,7 @@ bootstrap: ## Sync .env and .venv, then audit readiness
 	@command -v uv >/dev/null 2>&1 || { echo "ERROR: uv is required"; exit 1; }
 	@source "$(COMMON_SH)"; arxiv_int_sync_dotenv; \
 		arxiv_int_load_env; \
-		uv sync --locked --extra dev --extra contracts --extra graph --python "$(PYTHON_VERSION)"
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)"
 	@printf '\n=== Package identity ===\n'
 	@$(MAKE) --no-print-directory package-check
 	@printf '\n=== Workstation readiness ===\n'
@@ -56,39 +63,71 @@ features: ## List optional feature groups, licences, and install commands (STAGE
 contracts: ## Lint product ODCS contracts (schema, integrity, Data Contract CLI)
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
 	@source "$(COMMON_SH)"; arxiv_int_load_env; \
-		uv sync --locked --extra contracts --extra dev --python "$(PYTHON_VERSION)"; \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)"; \
 		"$(VENV)/bin/arxiv-int" contracts lint
 
 contracts-gen: ## Generate committed physical schemas under contracts/generated
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
 	@source "$(COMMON_SH)"; arxiv_int_load_env; \
-		uv sync --locked --extra contracts --extra dev --python "$(PYTHON_VERSION)"; \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)"; \
 		"$(VENV)/bin/arxiv-int" contracts generate
 
 contracts-check: ## Fail when contracts/generated drifts from regeneration
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
 	@source "$(COMMON_SH)"; arxiv_int_load_env; \
-		uv sync --locked --extra contracts --extra dev --python "$(PYTHON_VERSION)"; \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)"; \
 		"$(VENV)/bin/arxiv-int" contracts check
 
 contracts-evolution: ## Check reviewed baselines, migrations, and evolution policy
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
 	@source "$(COMMON_SH)"; arxiv_int_load_env; \
-		uv sync --locked --extra contracts --extra dev --python "$(PYTHON_VERSION)"; \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)"; \
 		"$(VENV)/bin/arxiv-int" contracts evolution
+
+db-revision: ## Generate a candidate immutable revision from contract changes
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)"; \
+		"$(VENV)/bin/arxiv-int" db revision --message "$(MESSAGE)"
+
+db-check: ## Check the revision graph, checksums, and pending contract changes
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)"; \
+		"$(VENV)/bin/arxiv-int" db check
+
+db-status: ## Report the applied revision of the selected migration database
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
+		"$(VENV)/bin/arxiv-int" db status
+
+db-upgrade: ## Upgrade the selected migration database to REVISION
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
+		"$(VENV)/bin/arxiv-int" db upgrade --revision "$(REVISION)"
+
+db-downgrade: ## Downgrade the selected migration database to DOWN_REVISION
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
+		"$(VENV)/bin/arxiv-int" db downgrade --revision "$(DOWN_REVISION)"
+
+db-adopt: ## Inventory legacy SQL and report why adoption is refused
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
+		"$(VENV)/bin/arxiv-int" db adopt
 
 ontology: ontology-check ## Alias for ontology-check
 
 ontology-gen: ## Generate committed ontology.* bindings under ontology/generated
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
 	@source "$(COMMON_SH)"; arxiv_int_load_env; \
-		uv sync --locked --extra contracts --extra graph --extra dev --python "$(PYTHON_VERSION)"; \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)"; \
 		"$(VENV)/bin/arxiv-int" ontology generate
 
 ontology-check: ## Parse RDF/SHACL, verify bindings, drift, and ontology evolution
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
 	@source "$(COMMON_SH)"; arxiv_int_load_env; \
-		uv sync --locked --extra contracts --extra graph --extra dev --python "$(PYTHON_VERSION)"; \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)"; \
 		"$(VENV)/bin/arxiv-int" ontology check
 
 config: ## Resolve, validate, and redact runtime configuration
@@ -181,7 +220,7 @@ lint-spec-plan: ## Check capability registry, task structure, status, and orderi
 plan-status: ## Count tasks by lane/status and show the next eligible work
 	@"$(VENV)/bin/arxiv-int-plan" --root "$(PROJECT_ROOT)"
 
-ci-checks: format-check lint typecheck complexity-gate shell-lint-gate lint-doc-links lint-spec-plan contracts-check contracts-evolution ontology-check
+ci-checks: format-check lint typecheck complexity-gate shell-lint-gate lint-doc-links lint-spec-plan contracts-check contracts-evolution db-check ontology-check
 
 ci: ci-checks test ## Run the required local and GitHub CI gate
 

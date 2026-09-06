@@ -31,10 +31,22 @@ properties remain accepted for fixtures.
 
 ## Deterministic generation
 
-`src/arxiv_int/contracts/generate/` exports Avro, PostgreSQL baseline DDL, JSON Schema, and Pydantic
-models through Data Contract CLI first, then focused adapters for Parquet/Arrow descriptors,
-partition stubs, ParadeDB search DDL, pgvector dimensions, AGE projection stubs, and provenance
-sidecars. Outputs land under `contracts/generated/` with a `manifest.json` of file fingerprints.
+`src/arxiv_int/contracts/generate/` exports Avro, JSON Schema, and Pydantic models through Data
+Contract CLI, then focused adapters for Parquet/Arrow descriptors, partition templates, ParadeDB
+search DDL, pgvector dimensions, AGE projection stubs, and provenance sidecars. PostgreSQL DDL is no
+longer a generic CLI export: `src/arxiv_int/contracts/sqlalchemy/` normalizes ODCS into typed
+`NormalizedTable`/`NormalizedColumn` definitions, builds one schema-qualified SQLAlchemy Core
+`MetaData` with a shared naming convention, and compiles review DDL with the PostgreSQL dialect.
+Per-contract files land at `contracts/generated/postgres/<id>.sql` and the ordered owned-schema
+script at `contracts/generated/postgres/baseline.sql`, beside a `manifest.json` of fingerprints.
+
+Types, decimal precision/scale, nullability, primary keys, declared relationships, unique
+constraints, and descriptions survive into the metadata; descriptions are emitted as `COMMENT ON`
+statements. A declared `x-arxiv-int.partitionKey` becomes an explicit column instead of a separate
+`ALTER TABLE`. Unsupported metadata -- an unknown `logicalType`, unknown property or
+`logicalTypeOptions` keys, a non-`foreignKey` relationship, a target outside the registry, a missing
+primary key, duplicate key positions, a duplicate schema identity, or a duplicate physical binding --
+raises `UnsupportedContractMappingError` rather than being dropped.
 
 Operator commands:
 
@@ -42,9 +54,10 @@ Operator commands:
 - `make contracts-check` / `arxiv-int contracts check` -- regenerate into a temp directory and fail
   on drift (also part of `make ci`)
 
-Generation is byte-stable. Avro schemas parse and round-trip with `fastavro`. Baseline CREATE TABLE
-SQL parses with `sqlglot` and applies on a disposable Postgres 16 container when Docker is
-available. Extension SQL for BM25/AGE is committed for review but is not applied on stock Postgres.
+Generation is byte-stable. Avro schemas parse and round-trip with `fastavro`. Compiled DDL parses
+with `sqlglot` and the ordered `baseline.sql` applies on a disposable Postgres 16 container when
+Docker is available. Extension SQL for BM25/AGE is committed for review but is not applied on stock
+Postgres.
 Provenance sidecars retain ODCS id/version, semantic hash, and every `x-arxiv-int` key so source
 metadata is not silently dropped. Some CLI Avro mappings (for example ODCS `number` to Avro
 `bytes`) follow the exporter; logical types remain authoritative in ODCS and provenance.
@@ -57,26 +70,51 @@ classification covers identical, additive, breaking, tokenizer reindex, vector-d
 semantic-retarget, and graph-projection consequences. Version rules fail closed (minor for additive/
 reindex/graph; major for breaking/vector/semantic). Destructive SQL is never auto-approved.
 
-Legacy SQL files live in `db/migrations/` using dbmate-shaped names; `db/schema.sql` is a
-committed SQL snapshot. `make contracts-evolution` / `arxiv-int contracts evolution` checks baselines
-against current contracts, Avro self-compatibility, migration order/approvals/dump coverage, optional
-`dbmate status` when installed with `DATABASE_URL`, and disposable Postgres apply of baseline
-CREATE TABLE SQL. Fixtures under `tests/contracts/evolution/` prove each consequence class.
+Alembic owns the revision graph, applied version state, and upgrade/downgrade execution.
+`src/arxiv_int/migrations/` holds the environment and immutable Python revisions;
+`revision_manifest.json` pins each revision file checksum and `head_state.json` records the owned
+schema state the history produces. `src/arxiv_int/contracts/migrations/` implements the workflow:
 
-These checks do not yet execute an owned migration history or compare a migrated live catalog to
-contract metadata. Dump coverage checks table-name substrings; the conformance helper compares
-unqualified column-name sets and the disposable probe applies baseline SQL only. Missing dbmate
-does not fail the current check, and the destructive-statement regex/comment marker is a limited
-lint, not proof of safe changes or approval. No SQLAlchemy/Alembic migration runner, dbt project,
-Polars transformation layer, or Pandera dataset-validation adapter is implemented yet.
+- `arxiv-int db revision --message ...` / `make db-revision MESSAGE=...` diffs contract metadata
+  against the frozen head state and writes a candidate revision with literal `op.*` operations,
+  `CONTRACT_FINGERPRINTS`, and `REVIEW_NOTES`. Nothing is written when nothing changed.
+- `arxiv-int db check` / `make db-check` (part of `make ci`) checks parents, cycles, a single head,
+  revision-file checksums, head-state agreement, and any contract change lacking a revision.
+- `arxiv-int db status|upgrade|downgrade` / `make db-status|db-upgrade|db-downgrade` act only on the
+  database named by `ARXIV_INT_MIGRATION_DATABASE_URL`. Credentials are redacted in every message.
+- `arxiv-int db upgrade --sql` writes offline review SQL under `$DATA_DIR/migrations/<run-id>/`.
+- `arxiv-int db adopt` / `make db-adopt` inventories legacy SQL and reports why adoption is refused.
 
-The [data engineering review](../records/0015-govern-review-data-engineering-tooling.md) records
-these limits and the selected replacement design. The
-[migration refactor](../plan.md#refactor-contract-schema-and-migration-tooling),
-[shared data-quality checks](../plan.md#implement-contract-data-quality-checks), and
-[dbt foundation](../plan.md#implement-dbt-transformation-foundation) own implementation. Existing
-ODCS/JSON Schema/Pydantic, Avro and ontology validation remain available; they do not establish
-whole-dataset quality or live migration acceptance.
+Generated revisions are deterministic and frozen: a historical revision never imports today's
+contracts, and editing one after review fails the checksum gate. A revision that drops an owned table
+or column renders an irreversible `downgrade()` naming the recovery path and carries review notes
+that a removal is not an inferred rename. `arxiv_int.contracts.sqlalchemy.catalog` compares a live
+catalog to contract metadata by compiled column definitions rather than SQL substrings, restricted to
+owned tables; previously owned names are retained so deletions are not hidden by that exclusion.
+Autogeneration against a live database uses the same owned-object filter through the Alembic
+environment.
+
+`db/migrations/` and `db/schema.sql` remain retained legacy dbmate-shaped adoption evidence. Every
+legacy table name must map to exactly one contract binding; ambiguous unqualified names and unknown
+tables refuse adoption. Adoption also refuses whenever live catalog equivalence has not been proved,
+which is the current state: no database has been stamped, and offline success makes no claim about an
+applied or conformant live store.
+
+`make contracts-evolution` / `arxiv-int contracts evolution` checks baselines against current
+contracts, Avro self-compatibility, the migration report, retained legacy evidence, and the
+disposable Postgres apply of `baseline.sql`. Fixtures under `tests/contracts/evolution/` prove each
+consequence class.
+
+These checks do not execute an upgrade against the pinned product image, do not verify
+previous-release-to-head upgrades, and do not compare a migrated operator database. Missing live
+evidence is reported as `not-run`, never as a pass. No dbt project, Polars transformation layer, or
+Pandera dataset-validation adapter is implemented yet.
+
+The [data engineering review](../records/0015-govern-review-data-engineering-tooling.md) records the
+limits this refactor closed and the selected design; the
+[migration refactor record](../records/0017-contract-gov-refactor-contract-schema-and-migration-tooling.md)
+records the implementation. [Shared data-quality checks](../plan.md#implement-contract-data-quality-checks)
+and the [dbt foundation](../plan.md#implement-dbt-transformation-foundation) own the remaining work.
 
 ## Versioned ontology assets
 
@@ -137,11 +175,16 @@ structural upgrade.
 `tests/contracts/` covers primitive containment and identity, product ODCS schema validation,
 registry integrity, typed loader unknown-metadata retention, canonical `x-arxiv-int` bindings,
 generation adapters, golden fingerprints, Avro round-trip, SQL parse/apply, drift checking,
-evolution fixtures/migrations, and Data Contract CLI lint when the CLI is available.
+evolution fixtures, and Data Contract CLI lint when the CLI is available.
+`tests/contracts/sqlalchemy/` covers normalization refusals, metadata collisions, type coverage,
+deterministic DDL, and catalog comparison; `tests/contracts/migrations/` covers frozen state diffs,
+deterministic revision rendering, irreversible downgrades, checksum immutability, multiple heads,
+cycles, missing parents, missing runner, offline SQL, and adoption refusal.
 `tests/ontology/` covers RDF parse, binding coverage, SHACL/application agreement, owlrl
 disjointness, ontology evolution classes, and domain investigation fixtures. Evidence:
 [domain investigation contracts](../records/0014-contract-gov-define-domain-investigation-contracts-and-ontology.md);
 [versioned ontology assets](../records/0013-contract-gov-establish-versioned-ontology-assets.md);
+[contract schema and migration tooling](../records/0017-contract-gov-refactor-contract-schema-and-migration-tooling.md);
 [evolution and migration policy](../records/0012-contract-gov-enforce-evolution-and-migration-policy.md);
 [deterministic schema generation](../records/0011-contract-gov-implement-deterministic-schema-generation.md);
 [canonical contract registry](../records/0010-contract-gov-establish-canonical-contract-registry.md);

@@ -50,8 +50,8 @@
   },
   "fingerprints": {
     "avroSha256": "89bb4de1ea9a600bbb79c855563d8ce4a73feb136edd450894e8dbd2087cbe96",
-    "generatorVersion": "1.0.0",
-    "postgresSha256": "6bc0ab4e6e85fe449302f1369b86a05c150450178fe9920417d009ea180c3521",
+    "generatorVersion": "2.0.0",
+    "postgresSha256": "ca17d49581fb4917847730d2735e644bfcca8e614100d1ac95ca7f8abccb61b6",
     "semanticMetadataHash": "4df06b330e215f4667aa60f05b5d216a75a8271f6560094df85574acc529c0ad"
   },
   "history": [
@@ -109,6 +109,66 @@
         "avroSha256": "89bb4de1ea9a600bbb79c855563d8ce4a73feb136edd450894e8dbd2087cbe96",
         "generatorVersion": "1.0.0",
         "postgresSha256": "6bc0ab4e6e85fe449302f1369b86a05c150450178fe9920417d009ea180c3521",
+        "semanticMetadataHash": "4df06b330e215f4667aa60f05b5d216a75a8271f6560094df85574acc529c0ad"
+      },
+      "odcsId": "urn:arxiv-int:contract:anomaly-findings:1.0.0",
+      "projections": {},
+      "version": "1.0.0"
+    },
+    {
+      "contractId": "anomaly-findings",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "anomaly_findings.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "anomaly_findings.evidence_summary": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "anomaly_findings.finding_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "anomaly_findings.finding_type": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "anomaly_findings.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "anomaly_findings.rule_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "anomaly_findings.severity": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "anomaly_findings.status": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "anomaly_findings.subject_object_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "89bb4de1ea9a600bbb79c855563d8ce4a73feb136edd450894e8dbd2087cbe96",
+        "generatorVersion": "2.0.0",
+        "postgresSha256": "ca17d49581fb4917847730d2735e644bfcca8e614100d1ac95ca7f8abccb61b6",
         "semanticMetadataHash": "4df06b330e215f4667aa60f05b5d216a75a8271f6560094df85574acc529c0ad"
       },
       "odcsId": "urn:arxiv-int:contract:anomaly-findings:1.0.0",

@@ -14,13 +14,12 @@
 
 > In README.md, we have a Quick Start section with 11 steps just to set up the environment, and 11
 > for 2. Archive to analyst results. Please provide a single- or two-step target that performs the
-> setup for step 1. Environment and services setup (specifics: the user should edit .venv, and it
+> setup for step 1. Environment and services setup (specifics: the user should edit .env, and it
 > may take multiple attempts for the infra to be ready to run the pipeline), and a single command
 > to run all pipeline steps end-to-end using the default .env settings. Please design and add
 > additional tasks if needed.
 
-- Interpretation: `.venv` means `.env`, the operator configuration file; `.venv` is generated and
-  must not be hand-edited. This is a design/README/plan task. Both convenience commands remain
+- Interpretation: This is a design/README/plan task. Both convenience commands remain
   labelled planned until their implementations and acceptance gates pass.
 - Amendments: none.
 
@@ -66,8 +65,15 @@ Do not duplicate these as shell command chains or introduce another scheduler.
 
 ## Audit handoff
 
-Pending owner routing.
+| Note | Observation, evidence and impact | Next check and sole owner | Disposition |
+| --- | --- | --- | --- |
+| `AUD-operator-entrypoints-1` | Observed / blocking before the short setup workflow can be advertised: README Quick Start requires eleven manual environment steps and no setup coordinator exists. `make bootstrap` syncs `.env`/`.venv` and audits readiness, but dependency sync, model and image acquisition, service start, schema preparation and readiness remain separate operator commands with no shared retry, no resumption of verified work and no per-phase status, so an operator editing `.env` between attempts cannot retry only what still fails. | [Retryable setup command](../plan.md#implement-retryable-setup-command): prove absent `.env`/`.venv`, edited configuration, missing tools, failed sync/download/start, timeouts, cancellation and concurrent attempts, and that an unchanged retry reuses verified work while still probing readiness. | Open; routing complete, no production code changed here |
 
 ## Close or resume
 
 Next: specify the workflow and integration boundaries, update README/guides and plan, then verify.
+
+`AUD-operator-entrypoints-1` and this record's index row were added while
+[0017](0017-contract-gov-refactor-contract-schema-and-migration-tooling.md) was in progress, at the
+user's request, because both were failing `make lint-spec-plan` for every task. Nothing else in this
+record or its task scope changed.

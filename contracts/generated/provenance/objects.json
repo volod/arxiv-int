@@ -5,8 +5,8 @@
     "graph/objects.sql": "d8aee3b49711e6debce854b06e6b0f3db6a0eaf0586dfda6c4a42b609e133b75",
     "jsonschema/objects.schema.json": "1ba2948078845f2c9b43b8c679ad013239f3b52a2dc6066ad460f8096f67df48",
     "parquet/objects.parquet.json": "19317693a7911fe4c956afdab38c092cdd3e96f181dca1f8ab95446c16a858e9",
-    "postgres/extensions/objects.sql": "ec3baa10a8a34946d23a88ac4ec93b198c684e359a748cfcbea7177a4b48a8ab",
-    "postgres/objects.sql": "8c9af5ddf2fa618736014739090e88fa170843bcfda1365c21946590c6348ce2",
+    "postgres/extensions/objects.sql": "354d3aafce9018c0c4a857cbb3515dfec9cf7c87e6dbdff01a11173d8f3af670",
+    "postgres/objects.sql": "075bff45d83dc901e1054b2fd638bc01a78d7371cafc6f5ceb5199b3420f76a8",
     "pydantic/objects.py": "dcf050a4380d32110cddacaa4951f9a6e61ba99ccc594112c481ff0064648f33"
   },
   "canonicalEntity": null,

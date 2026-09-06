@@ -21,21 +21,6 @@ def _logical_to_arrow(logical: str) -> str:
     return mapping.get(logical, "string")
 
 
-def _logical_to_postgres(logical: str) -> str:
-    mapping = {
-        "string": "text",
-        "integer": "integer",
-        "number": "double precision",
-        "boolean": "boolean",
-        "timestamp": "timestamptz",
-        "date": "date",
-        "time": "time",
-        "object": "jsonb",
-        "array": "jsonb",
-    }
-    return mapping.get(logical, "text")
-
-
 def _schema_properties(odcs: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
     rows: list[tuple[str, dict[str, Any]]] = []
     for schema in odcs.get("schema") or []:
@@ -73,30 +58,28 @@ def parquet_descriptor(odcs: dict[str, Any], contract_id: str) -> str:
 
 
 def postgres_extension_sql(odcs: dict[str, Any], contract_id: str) -> str:
-    """Emit partition and constraint extension DDL from x-arxiv-int hints."""
+    """Emit partition templates that SQLAlchemy metadata cannot express.
+
+    Columns, types, keys, and constraints belong to the contract-derived metadata and
+    its Alembic revisions; this adapter only carries engine features beyond them.
+    """
     extension = project_extension(odcs.get("customProperties")) or {}
     schema = str(extension.get("schema") or "public")
     table = str(extension.get("table") or contract_id.replace("-", "_"))
     lines = [
         f"-- arxiv-int postgres extensions for {contract_id}",
         f"-- source: {odcs.get('id')}@{odcs.get('version')}",
+        f"-- table columns and constraints are owned by {schema}.{table} metadata revisions",
     ]
     partition_key = extension.get("partitionKey")
     if partition_key:
         lines.extend(
             [
-                f"ALTER TABLE {schema}.{table} ADD COLUMN IF NOT EXISTS {partition_key} text;",
                 f"-- HASH partition template for {schema}.{table} USING ({partition_key})",
                 f"-- CREATE TABLE {schema}.{table}_p0 PARTITION OF {schema}.{table} "
                 f"FOR VALUES WITH (MODULUS 16, REMAINDER 0);",
             ]
         )
-    for _schema_name, prop in _schema_properties(odcs):
-        if not prop.get("primaryKey"):
-            continue
-        name = str(prop["name"])
-        pg_type = _logical_to_postgres(str(prop.get("logicalType", "string")))
-        lines.append(f"ALTER TABLE {schema}.{table} ALTER COLUMN {name} TYPE {pg_type};")
     return normalize_text("\n".join(lines))
 
 

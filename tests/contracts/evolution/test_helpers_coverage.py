@@ -14,15 +14,14 @@ from arxiv_int.contracts.evolution import (
 )
 from arxiv_int.contracts.evolution.baseline import load_baseline
 from arxiv_int.contracts.evolution.check import check_evolution_policy
-from arxiv_int.contracts.evolution.conformance import schema_conformance_findings
 from arxiv_int.contracts.evolution.core import ChangeReport, freeze_baseline
 from arxiv_int.contracts.evolution.datacontract_break import breaking_findings
 from arxiv_int.contracts.evolution.migrations import (
-    dbmate_status_findings,
-    migration_order_findings,
-    schema_dump_findings,
+    legacy_evidence_findings,
+    migration_policy_findings,
 )
 from arxiv_int.contracts.evolution.policy import merge_change_reports
+from arxiv_int.contracts.sqlalchemy.catalog import CatalogColumn, catalog_findings
 from arxiv_int.quality.project_root import discover_project_root
 
 
@@ -75,18 +74,18 @@ def test_empty_registry_evolution_check_passes(tmp_path: Path) -> None:
     assert report.ok
 
 
-def test_malformed_migration_name_and_missing_schema(tmp_path: Path) -> None:
-    migrations = tmp_path / "db" / "migrations"
-    migrations.mkdir(parents=True)
-    (migrations / "not-a-migration.sql").write_text("SELECT 1;\n", encoding="utf-8")
-    findings = migration_order_findings(migrations)
-    assert any("not dbmate-shaped" in item for item in findings)
-    assert schema_dump_findings(tmp_path)
+def test_missing_legacy_evidence_is_reported(tmp_path: Path) -> None:
+    assert legacy_evidence_findings(tmp_path)
 
 
-def test_schema_conformance_unexpected_table() -> None:
-    findings = schema_conformance_findings({"a": {"id"}}, {"a": {"id"}, "b": {"id"}})
-    assert any("unexpected table 'b'" in item for item in findings)
+def test_catalog_diff_reports_previously_owned_table() -> None:
+    column = {"id": CatalogColumn("TEXT", False, True)}
+    findings = catalog_findings(
+        {"corpus.documents": column},
+        {"corpus.documents": column, "corpus.retired": column},
+        prior_owned=["corpus.retired"],
+    )
+    assert any("previously owned table 'corpus.retired'" in item for item in findings)
 
 
 def test_breaking_findings_without_cli(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
@@ -97,15 +96,12 @@ def test_breaking_findings_without_cli(monkeypatch: pytest.MonkeyPatch, tmp_path
     assert breaking_findings(tmp_path / "a.yaml", tmp_path / "b.yaml") == []
 
 
-def test_dbmate_status_skips_without_binary_or_url(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr("arxiv_int.contracts.evolution.migrations.dbmate_command", lambda: None)
-    assert dbmate_status_findings(_root()) == []
-    monkeypatch.setattr(
-        "arxiv_int.contracts.evolution.migrations.dbmate_command",
-        lambda: ["dbmate"],
-    )
-    monkeypatch.delenv("DATABASE_URL", raising=False)
-    assert dbmate_status_findings(_root()) == []
+def test_migration_policy_reports_missing_script_directory(tmp_path: Path) -> None:
+    contracts = tmp_path / "contracts"
+    contracts.mkdir()
+    (contracts / "registry.yaml").write_text("contracts: {}\n", encoding="utf-8")
+    findings = migration_policy_findings(tmp_path, contracts)
+    assert any("revision graph is invalid" in item for item in findings)
 
 
 def test_freeze_baseline_rejects_non_object(tmp_path: Path) -> None:
@@ -130,7 +126,7 @@ def test_missing_evolution_dir_and_migrations_dir(tmp_path: Path) -> None:
         contracts, project_root=tmp_path, include_migrations=True, include_live_sql=False
     )
     assert any("evolution directory is missing" in item for item in report.findings)
-    assert any("db/migrations directory is missing" in item for item in report.findings)
+    assert any("legacy migration evidence is missing" in item for item in report.findings)
 
 
 def test_freeze_contract_baseline_writes_history() -> None:
@@ -152,9 +148,11 @@ def test_avro_compatibility_reports_load_failure(tmp_path: Path) -> None:
     assert findings and "load failed" in findings[0]
 
 
-def test_schema_conformance_missing_table() -> None:
-    findings = schema_conformance_findings({"documents": {"id"}}, {})
-    assert any("missing table 'documents'" in item for item in findings)
+def test_catalog_diff_reports_missing_owned_table() -> None:
+    findings = catalog_findings(
+        {"corpus.documents": {"id": CatalogColumn("TEXT", False, True)}}, {}
+    )
+    assert any("missing owned table 'corpus.documents'" in item for item in findings)
 
 
 def test_breaking_findings_non_zero(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
@@ -189,23 +187,23 @@ def test_freeze_all_baselines_is_stable() -> None:
     assert {path: path.read_bytes() for path in paths} == before
 
 
-def test_disposable_sql_skip_without_docker(monkeypatch: pytest.MonkeyPatch) -> None:
-    from arxiv_int.contracts.evolution.conformance import disposable_schema_conformance_findings
+def test_disposable_sql_reports_missing_docker(monkeypatch: pytest.MonkeyPatch) -> None:
     from arxiv_int.contracts.generate import sql_validate
 
     monkeypatch.setattr(sql_validate.shutil, "which", lambda name: None)
-    assert disposable_schema_conformance_findings(["CREATE TABLE t (id text);"]) == []
+    findings = sql_validate.apply_baseline_on_disposable_postgres("CREATE TABLE t (id text);")
+    assert findings == ["docker unavailable; disposable postgres apply was not run"]
 
 
 def test_check_evolution_uses_live_sql_hook(monkeypatch: pytest.MonkeyPatch) -> None:
     called: list[bool] = []
 
-    def _fake_apply(texts: list[str]) -> list[str]:
+    def _fake_apply(baseline_sql: str) -> list[str]:
         called.append(True)
         return []
 
     monkeypatch.setattr(
-        "arxiv_int.contracts.evolution.conformance.apply_sql_on_disposable_postgres",
+        "arxiv_int.contracts.evolution.check.apply_baseline_on_disposable_postgres",
         _fake_apply,
     )
     report = check_evolution_policy(
@@ -226,19 +224,9 @@ def test_version_policy_rejects_backward_move() -> None:
     assert errors and "backward" in errors[0]
 
 
-def test_migration_policy_unsorted_names(tmp_path: Path) -> None:
-    migrations = tmp_path / "db" / "migrations"
-    migrations.mkdir(parents=True)
-    (tmp_path / "db" / "schema.sql").write_text("CREATE TABLE a (id text);\n", encoding="utf-8")
-    # Create files that sort incorrectly relative to timestamps if we force order check
-    (migrations / "20260102000000_b.sql").write_text(
-        "CREATE TABLE a (id text);\n", encoding="utf-8"
-    )
-    (migrations / "20260101000000_a.sql").write_text(
-        "CREATE TABLE a (id text);\n", encoding="utf-8"
-    )
-    # list_migration_files sorts by name, so order findings for timestamps should be clean;
-    # cover schema dump success path instead.
-    from arxiv_int.contracts.evolution.migrations import schema_dump_findings
+def test_product_migration_report_is_clean() -> None:
+    from arxiv_int.contracts.evolution.migrations import migration_report
 
-    assert schema_dump_findings(tmp_path) == []
+    report = migration_report(_root(), _root() / "contracts")
+    assert report.ok, report.findings
+    assert report.live_evidence == "not-run"

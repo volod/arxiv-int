@@ -4,8 +4,8 @@
     "avro/ontology-terms.avsc": "5efec421041548d1fba9feb6e45e75ea65af3cb7830b0ef4b57d700942ef0509",
     "jsonschema/ontology-terms.schema.json": "6ea5d73aaf78779fc44ecddc84e24f76a11e1ac1a53981a37fc1e726cc26398a",
     "parquet/ontology-terms.parquet.json": "f8f21605fa7a8b3fb89b653303d2368ecb622ce8d6f95306797b3e9728152b31",
-    "postgres/extensions/ontology-terms.sql": "eb5835de31555cbd90264f75fa22e5695081051231857126c68e870cc75591f0",
-    "postgres/ontology-terms.sql": "a575b3f74f8c7b2470bf5fc4db1716ce8c053e2085424958e6b62166406f8a39",
+    "postgres/extensions/ontology-terms.sql": "d2e50ed1921091744e719aa49ec86d758e29ebd1d7d2e18b7b088b5b6b7da7d0",
+    "postgres/ontology-terms.sql": "2b9c70d6a548e652a992c368fd6811da82fb7991eb7458a57542ac8f79973cca",
     "pydantic/ontology-terms.py": "e193697526f7fe257e853652b60095eeed98b43dc52201221eac34535377bfc4"
   },
   "canonicalEntity": null,

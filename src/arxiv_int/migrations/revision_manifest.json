@@ -1,0 +1,10 @@
+{
+  "revisions": {
+    "0001": {
+      "downRevision": null,
+      "file": "0001_baseline_contract_schema.py",
+      "message": "baseline contract schema",
+      "sha256": "c70712a790ea9a163fd3df2f71fed3f2d2eef93984b5ad0dc7ae1c5e4cc61b75"
+    }
+  }
+}

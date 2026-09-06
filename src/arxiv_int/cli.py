@@ -22,6 +22,15 @@ from arxiv_int.runtime.service_plan import PROFILE_HELP
 
 _LOG = logging.getLogger(__name__)
 
+DB_COMMAND_HELP = {
+    "revision": "generate a candidate immutable revision from contract changes",
+    "check": "check the revision graph, checksums, and pending contract changes",
+    "status": "report the applied revision of an explicitly selected database",
+    "upgrade": "apply revisions to an explicitly selected database",
+    "downgrade": "reverse revisions on an explicitly selected database",
+    "adopt": "inventory legacy SQL and report why adoption is refused",
+}
+
 
 def build_parser() -> argparse.ArgumentParser:
     """Build the command parser independently for tests and future subcommands."""
@@ -109,6 +118,29 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="skip disposable Postgres apply of baseline CREATE TABLE SQL",
     )
+    database = subcommands.add_parser(
+        "db", help="author, check, and apply owned canonical schema revisions"
+    )
+    migration_commands = database.add_subparsers(dest="db_command", required=True)
+    for action in ("revision", "check", "status", "upgrade", "downgrade", "adopt"):
+        migration = migration_commands.add_parser(action, help=DB_COMMAND_HELP[action])
+        migration.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
+        if action == "revision":
+            migration.add_argument(
+                "--message", default="contract schema change", help="revision summary"
+            )
+        if action in ("upgrade", "downgrade"):
+            migration.add_argument(
+                "--revision",
+                default="head" if action == "upgrade" else "-1",
+                help="target revision for the explicitly selected database",
+            )
+        if action == "upgrade":
+            migration.add_argument(
+                "--sql",
+                action="store_true",
+                help="emit review SQL offline instead of applying it",
+            )
     ontology = subcommands.add_parser("ontology", help="validate versioned ontology assets")
     ontology_commands = ontology.add_subparsers(dest="ontology_command", required=True)
     ontology_check = ontology_commands.add_parser(
@@ -288,6 +320,29 @@ def _run_contracts(args: argparse.Namespace) -> int:
     return 1
 
 
+def _run_db(args: argparse.Namespace) -> int:
+    from arxiv_int.contracts.lint import contracts_root_for
+    from arxiv_int.contracts.migrations import commands
+    from arxiv_int.runtime.project_root import ProjectRootError, find_project_root
+
+    try:
+        root = find_project_root(args.project_root)
+        contracts_root = contracts_root_for(root)
+        command = args.db_command
+        if command == "revision":
+            return commands.run_revision(root, contracts_root, args.message)
+        if command == "check":
+            return commands.run_check(root, contracts_root)
+        if command == "adopt":
+            return commands.run_adopt(root, contracts_root)
+        if command == "upgrade" and args.sql:
+            return commands.run_offline_sql(root, contracts_root, args.revision)
+        return commands.run_apply(root, contracts_root, command, getattr(args, "revision", "head"))
+    except (OSError, ProjectRootError, RuntimeError, ValueError) as error:
+        _LOG.error("%s", error)
+        return 1
+
+
 def _run_ontology(args: argparse.Namespace) -> int:
     from arxiv_int.ontology.check import check_ontology
     from arxiv_int.ontology.generate import generate_ontology_bindings
@@ -330,6 +385,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_services(args)
     if args.command == "contracts":
         return _run_contracts(args)
+    if args.command == "db":
+        return _run_db(args)
     if args.command == "ontology":
         return _run_ontology(args)
     return _run_info()

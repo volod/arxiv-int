@@ -4,8 +4,8 @@
     "avro/transactions.avsc": "117b0c38f3440847b24df8f52954c2d51ae816df7bd3d0191dc67cec48664b41",
     "jsonschema/transactions.schema.json": "ccf247d2305793fa06bf13ddbd8ee4449db3b994256fc85a49c80a4e26b64153",
     "parquet/transactions.parquet.json": "8cc520d32d8757c3b7fd502acb4ba1eb1222093c1f7b72077239b2f5d2990781",
-    "postgres/extensions/transactions.sql": "22c5f70e5ac18e9fbc58ca710f6b1bca7b10132ef5bd52cb887cdbf4781cf1c7",
-    "postgres/transactions.sql": "4f2c5b23c2104ff656150fdb0cf194141d8af774d7265e1187d03638da908ca7",
+    "postgres/extensions/transactions.sql": "c62f40d4638ef3a65d9860a55877b73fede4be0d2032c7126bfd8c6f03181640",
+    "postgres/transactions.sql": "ff05802886c6e8a0c2a931d39b68e015b6a2f4bc84d5cb1ad4a2864882719f4a",
     "pydantic/transactions.py": "58ca173d5e5c477d819297548e0150c0e4ecbaa9469449a7cbe52b9795805044"
   },
   "canonicalEntity": null,

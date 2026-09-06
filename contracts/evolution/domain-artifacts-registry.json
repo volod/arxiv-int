@@ -100,8 +100,8 @@
   },
   "fingerprints": {
     "avroSha256": "f99ddc095b5ba7b0b43bdabbb841d82491562352831f743cf2248c3e816aa3c8",
-    "generatorVersion": "1.0.0",
-    "postgresSha256": "2154e06b129dfe4591ff3f1fbaf8d7873564445beb5bf3ce3d13c425c341b1a4",
+    "generatorVersion": "2.0.0",
+    "postgresSha256": "a7e3fad2fac678a9293ff0202690f71106903135046fdef38a88843f9b4182d6",
     "semanticMetadataHash": "61f501c3551539e3dd62a9165aa6c4824296163e07274313a4015abdf0c79ded"
   },
   "history": [
@@ -209,6 +209,116 @@
         "avroSha256": "f99ddc095b5ba7b0b43bdabbb841d82491562352831f743cf2248c3e816aa3c8",
         "generatorVersion": "1.0.0",
         "postgresSha256": "2154e06b129dfe4591ff3f1fbaf8d7873564445beb5bf3ce3d13c425c341b1a4",
+        "semanticMetadataHash": "61f501c3551539e3dd62a9165aa6c4824296163e07274313a4015abdf0c79ded"
+      },
+      "odcsId": "urn:arxiv-int:contract:domain-artifacts-registry:1.0.0",
+      "projections": {},
+      "version": "1.0.0"
+    },
+    {
+      "contractId": "domain-artifacts-registry",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "domain_artifact_registry.artifact_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "domain_artifact_registry.artifact_type": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "domain_artifact_registry.byte_count": {
+          "logicalType": "integer",
+          "physicalType": "",
+          "required": false
+        },
+        "domain_artifact_registry.checksum": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "domain_artifact_registry.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "domain_artifact_registry.creation_status": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "domain_artifact_registry.evidence_coverage": {
+          "logicalType": "number",
+          "physicalType": "",
+          "required": false
+        },
+        "domain_artifact_registry.failure_reason": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "domain_artifact_registry.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "domain_artifact_registry.generator_fingerprint": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "domain_artifact_registry.identity_snapshot_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "domain_artifact_registry.input_fact_snapshot_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "domain_artifact_registry.media_type": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "domain_artifact_registry.policy_fingerprint": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "domain_artifact_registry.review_inclusion_rules": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "domain_artifact_registry.row_count": {
+          "logicalType": "integer",
+          "physicalType": "",
+          "required": false
+        },
+        "domain_artifact_registry.run_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "domain_artifact_registry.schema_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "domain_artifact_registry.uri_or_path": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "f99ddc095b5ba7b0b43bdabbb841d82491562352831f743cf2248c3e816aa3c8",
+        "generatorVersion": "2.0.0",
+        "postgresSha256": "a7e3fad2fac678a9293ff0202690f71106903135046fdef38a88843f9b4182d6",
         "semanticMetadataHash": "61f501c3551539e3dd62a9165aa6c4824296163e07274313a4015abdf0c79ded"
       },
       "odcsId": "urn:arxiv-int:contract:domain-artifacts-registry:1.0.0",

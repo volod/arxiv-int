@@ -4,8 +4,8 @@
     "avro/domain-artifacts-registry.avsc": "f99ddc095b5ba7b0b43bdabbb841d82491562352831f743cf2248c3e816aa3c8",
     "jsonschema/domain-artifacts-registry.schema.json": "385f38b4b01ef236e9bd0f0d78bc581afc5975a60ee3dbd5e32a2e3fab316ff4",
     "parquet/domain-artifacts-registry.parquet.json": "d26702086810e430b0e7b2744543e89dba37c56b14e69a435aa3ebf5b5d3f933",
-    "postgres/domain-artifacts-registry.sql": "2154e06b129dfe4591ff3f1fbaf8d7873564445beb5bf3ce3d13c425c341b1a4",
-    "postgres/extensions/domain-artifacts-registry.sql": "6a9d080572b07e50818665000bf1177dcc0d70f9ce221cecbcf43ed866bab6a1",
+    "postgres/domain-artifacts-registry.sql": "a7e3fad2fac678a9293ff0202690f71106903135046fdef38a88843f9b4182d6",
+    "postgres/extensions/domain-artifacts-registry.sql": "d782a877584aadd5a13e83965b5716c0ea62124e8da9a949528c0baa586993ca",
     "pydantic/domain-artifacts-registry.py": "d63f1e73e9529bfee75c99ba94982f84fe824684ea2e057fec1a72d52ca52037"
   },
   "canonicalEntity": null,

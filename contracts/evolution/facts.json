@@ -80,8 +80,8 @@
   },
   "fingerprints": {
     "avroSha256": "a25543a1bb9ee8b685a10b8c6255424ae641c21ebfefc288b7225c0ac0b1fe71",
-    "generatorVersion": "1.0.0",
-    "postgresSha256": "fd23ff7be59c87b425f6ce46c4457567c3dd2ce9c7938239df69949470a09fcc",
+    "generatorVersion": "2.0.0",
+    "postgresSha256": "ab870aebc85267f915c66147c516864cbfbba9e0830e7589a7eafdc58c7debee",
     "semanticMetadataHash": "d53461b5a7070b3c34a3041e3fce345435aca25afc16866c53a8105159319969"
   },
   "history": [
@@ -169,6 +169,103 @@
         "avroSha256": "a25543a1bb9ee8b685a10b8c6255424ae641c21ebfefc288b7225c0ac0b1fe71",
         "generatorVersion": "1.0.0",
         "postgresSha256": "fd23ff7be59c87b425f6ce46c4457567c3dd2ce9c7938239df69949470a09fcc",
+        "semanticMetadataHash": "d53461b5a7070b3c34a3041e3fce345435aca25afc16866c53a8105159319969"
+      },
+      "odcsId": "urn:arxiv-int:contract:facts:1.0.0",
+      "projections": {
+        "graph": {
+          "edgeLabel": "FACT",
+          "fromField": "subject_object_id",
+          "idField": "fact_id",
+          "toField": "object_object_id"
+        }
+      },
+      "version": "1.0.0"
+    },
+    {
+      "contractId": "facts",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "facts.chunk_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "facts.confidence": {
+          "logicalType": "number",
+          "physicalType": "",
+          "required": false
+        },
+        "facts.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "facts.document_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "facts.extractor_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "facts.fact_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "facts.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "facts.identity_snapshot_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "facts.literal_type": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "facts.literal_value": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "facts.object_object_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "facts.predicate_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "facts.span_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "facts.status": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "facts.subject_object_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "a25543a1bb9ee8b685a10b8c6255424ae641c21ebfefc288b7225c0ac0b1fe71",
+        "generatorVersion": "2.0.0",
+        "postgresSha256": "ab870aebc85267f915c66147c516864cbfbba9e0830e7589a7eafdc58c7debee",
         "semanticMetadataHash": "d53461b5a7070b3c34a3041e3fce345435aca25afc16866c53a8105159319969"
       },
       "odcsId": "urn:arxiv-int:contract:facts:1.0.0",

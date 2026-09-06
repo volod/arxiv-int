@@ -279,3 +279,71 @@ def test_config_show_applies_cli_roots_redacts_and_creates_layout(
     assert "filesystem=" in caplog.text
     assert (results / "normalized").is_dir()
     assert pgdata.is_dir()
+
+
+def test_parser_accepts_db_revision_and_apply_options() -> None:
+    parser = build_parser()
+
+    revision = parser.parse_args(["db", "revision", "--message", "add page count"])
+    assert (revision.command, revision.db_command) == ("db", "revision")
+    assert revision.message == "add page count"
+
+    upgrade = parser.parse_args(["db", "upgrade"])
+    assert (upgrade.db_command, upgrade.revision) == ("upgrade", "head")
+    assert parser.parse_args(["db", "downgrade"]).revision == "-1"
+    assert parser.parse_args(["db", "status"]).db_command == "status"
+    assert parser.parse_args(["db", "adopt"]).db_command == "adopt"
+
+
+def test_db_check_command_reports_findings(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture, tmp_path: Path
+) -> None:
+    from arxiv_int.contracts.migrations.check import MigrationCheckReport
+
+    monkeypatch.setattr(
+        "arxiv_int.runtime.project_root.find_project_root",
+        lambda explicit=None, environment=None: tmp_path,
+    )
+    monkeypatch.setattr(
+        "arxiv_int.contracts.lint.contracts_root_for",
+        lambda project_root=None: tmp_path,
+    )
+    monkeypatch.setattr(
+        "arxiv_int.contracts.migrations.commands.check_migrations",
+        lambda project_root, contracts_root: MigrationCheckReport(
+            ("contract metadata has no matching revision",),
+            ("add_column corpus.documents.x",),
+            "0001",
+        ),
+    )
+    caplog.set_level(logging.INFO)
+
+    assert main(["db", "check"]) == 1
+    assert "no matching revision" in caplog.text
+
+
+def test_db_status_reports_not_run_without_a_selected_database(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    from arxiv_int.contracts.migrations.runner import DATABASE_URL_VARIABLE
+
+    monkeypatch.delenv(DATABASE_URL_VARIABLE, raising=False)
+    caplog.set_level(logging.INFO)
+
+    assert main(["db", "status"]) == 2
+    assert "not-run" in caplog.text
+
+
+def test_db_command_reports_project_root_errors(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    from arxiv_int.runtime.project_root import ProjectRootError
+
+    def _fail(explicit=None, environment=None):  # type: ignore[no-untyped-def]
+        raise ProjectRootError("no project root")
+
+    monkeypatch.setattr("arxiv_int.runtime.project_root.find_project_root", _fail)
+    caplog.set_level(logging.INFO)
+
+    assert main(["db", "check"]) == 1
+    assert "no project root" in caplog.text

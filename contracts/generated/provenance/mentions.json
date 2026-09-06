@@ -4,8 +4,8 @@
     "avro/mentions.avsc": "5d8fc35c2b860ec053f9027d57b8630acabf853ba5232f57f025ac3c768c254d",
     "jsonschema/mentions.schema.json": "92ada5b29d53ddfb6aa0287771da1c1594e059c5e0cf896c0bffa236f9e5b789",
     "parquet/mentions.parquet.json": "efcfde331d0ce30cb9a72d7158691190c275be7b9cec301114d69e83adb457b5",
-    "postgres/extensions/mentions.sql": "43558dd868776e494e9bcb96f462918b3d14df03c6a03cb27a50a25265e77e0a",
-    "postgres/mentions.sql": "9d90237ce5f2d5ce29719c81ddad983eb7ada3182881d7669da220820a5c6991",
+    "postgres/extensions/mentions.sql": "13933d8c5240ed2ee14d66582f693d76cec58d7f962ee333bb0313ce8860feb0",
+    "postgres/mentions.sql": "bd117cccf0f0600191e8df8354cdb90f823b53bb1046666d24526b8be46a3276",
     "pydantic/mentions.py": "0187cd62cf75c5f7423a9ce4aec76051d3e86458c6c5411760a3eb7cb8c2ebee"
   },
   "canonicalEntity": null,

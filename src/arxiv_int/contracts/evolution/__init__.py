@@ -29,7 +29,11 @@ from arxiv_int.contracts.evolution.core import (
     schema_snapshot,
     version_policy_errors,
 )
-from arxiv_int.contracts.evolution.migrations import migration_policy_findings
+from arxiv_int.contracts.evolution.migrations import (
+    legacy_evidence_findings,
+    migration_policy_findings,
+    migration_report,
+)
 from arxiv_int.contracts.evolution.policy import (
     classify_contract_evolution,
     classify_projection_change,
@@ -60,9 +64,11 @@ __all__ = [
     "freeze_all_baselines",
     "freeze_baseline",
     "freeze_contract_baseline",
+    "legacy_evidence_findings",
     "merge_change_reports",
     "migrate_schema_snapshot",
     "migration_policy_findings",
+    "migration_report",
     "projection_snapshot",
     "schema_field_id",
     "schema_identity",

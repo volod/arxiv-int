@@ -13,13 +13,14 @@ from arxiv_int.contracts.evolution.baseline import (
     evolution_root,
     load_baseline,
 )
-from arxiv_int.contracts.evolution.conformance import (
-    disposable_schema_conformance_findings,
-    expected_tables_from_sql,
-)
 from arxiv_int.contracts.evolution.core import CHANGE_IDENTICAL, version_policy_errors
-from arxiv_int.contracts.evolution.migrations import migration_policy_findings
+from arxiv_int.contracts.evolution.migrations import (
+    legacy_evidence_findings,
+    migration_policy_findings,
+)
 from arxiv_int.contracts.evolution.policy import classify_contract_evolution
+from arxiv_int.contracts.generate.pipeline import BASELINE_DDL_RELATIVE
+from arxiv_int.contracts.generate.sql_validate import apply_baseline_on_disposable_postgres
 from arxiv_int.contracts.registry import FileRegistry
 
 _LOG = logging.getLogger(__name__)
@@ -89,14 +90,15 @@ def check_evolution_policy(
         findings.extend(_contract_findings(registry, contract_id))
     root = project_root or contracts_root.parent
     if include_migrations:
-        findings.extend(migration_policy_findings(root))
+        findings.extend(migration_policy_findings(root, contracts_root))
+        findings.extend(legacy_evidence_findings(root))
     if include_live_sql:
-        postgres = contracts_root / "generated" / "postgres"
-        texts = [path.read_text(encoding="utf-8") for path in sorted(postgres.glob("*.sql"))]
-        if texts:
-            expected = expected_tables_from_sql(texts)
-            _LOG.info("evolution expected %d baseline table(s)", len(expected))
-            findings.extend(disposable_schema_conformance_findings(texts))
+        baseline = contracts_root / "generated" / BASELINE_DDL_RELATIVE
+        if baseline.is_file():
+            _LOG.info("applying generated baseline DDL on a disposable database")
+            findings.extend(
+                apply_baseline_on_disposable_postgres(baseline.read_text(encoding="utf-8"))
+            )
     return EvolutionCheckReport(tuple(findings), len(registry.contract_ids()))
 
 

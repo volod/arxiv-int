@@ -18,16 +18,18 @@ from arxiv_int.contracts.generate.adapters import (
 from arxiv_int.contracts.generate.export import export_with_datacontract
 from arxiv_int.contracts.generate.normalize import normalize_json, sha256_text
 from arxiv_int.contracts.registry import FileRegistry
+from arxiv_int.contracts.sqlalchemy.ddl import baseline_ddl, contract_ddl
+from arxiv_int.contracts.sqlalchemy.model import ContractSchemaModel, load_schema_model
 
 _LOG = logging.getLogger(__name__)
 
-GENERATOR_VERSION = "1.0.0"
+GENERATOR_VERSION = "2.0.0"
 _CLI_FORMATS = (
     ("avro", "avro", ".avsc", None),
-    ("postgres", "sql", ".sql", "postgres"),
     ("jsonschema", "jsonschema", ".schema.json", None),
     ("pydantic", "pydantic-model", ".py", None),
 )
+BASELINE_DDL_RELATIVE = "postgres/baseline.sql"
 
 
 @dataclass(frozen=True)
@@ -50,6 +52,7 @@ def _contract_artifacts(
     contract_id: str,
     contracts_root: pathlib.Path,
     output_root: pathlib.Path,
+    model: ContractSchemaModel,
 ) -> dict[str, str]:
     entry = registry.get_entry(contract_id)
     odcs_path = contracts_root / entry.odcs_ref
@@ -59,6 +62,11 @@ def _contract_artifacts(
         exported = export_with_datacontract(odcs_path, fmt=fmt, dialect=dialect)
         relative = f"{folder}/{contract_id}{suffix}"
         fingerprints[relative] = _write(output_root / relative, exported)
+
+    relative = f"postgres/{contract_id}.sql"
+    fingerprints[relative] = _write(
+        output_root / relative, contract_ddl(model.metadata, model.by_contract(contract_id))
+    )
 
     relative = f"parquet/{contract_id}.parquet.json"
     fingerprints[relative] = _write(output_root / relative, parquet_descriptor(odcs, contract_id))
@@ -99,12 +107,18 @@ def _contract_artifacts(
     return fingerprints
 
 
-def _write_manifest(output_root: pathlib.Path, by_contract: dict[str, dict[str, str]]) -> str:
+def _write_manifest(
+    output_root: pathlib.Path,
+    by_contract: dict[str, dict[str, str]],
+    shared: dict[str, str],
+) -> str:
     files = {
         path: digest for artifacts in by_contract.values() for path, digest in artifacts.items()
     }
+    files.update(shared)
     manifest: dict[str, Any] = {
         "generatorVersion": GENERATOR_VERSION,
+        "shared": dict(sorted(shared.items())),
         "contracts": {
             contract_id: dict(sorted(artifacts.items()))
             for contract_id, artifacts in sorted(by_contract.items())
@@ -127,13 +141,19 @@ def generate_all_contracts(
     if destination.exists():
         shutil.rmtree(destination)
     destination.mkdir(parents=True, exist_ok=True)
+    model = load_schema_model(registry)
     by_contract: dict[str, dict[str, str]] = {}
     for contract_id in registry.contract_ids():
         _LOG.info("generating artifacts for %s", contract_id)
         by_contract[contract_id] = _contract_artifacts(
-            registry, contract_id, contracts_root, destination
+            registry, contract_id, contracts_root, destination, model
         )
-    manifest_fingerprint = _write_manifest(destination, by_contract)
+    baseline = {
+        BASELINE_DDL_RELATIVE: _write(
+            destination / BASELINE_DDL_RELATIVE, baseline_ddl(model.metadata)
+        )
+    }
+    manifest_fingerprint = _write_manifest(destination, by_contract, baseline)
     files = tuple(sorted(path for path in destination.rglob("*") if path.is_file()))
     return GenerationResult(destination, files, manifest_fingerprint)
 

@@ -45,8 +45,8 @@
   },
   "fingerprints": {
     "avroSha256": "02e5996ec4757d4aa7ae9b08c5d655d2256777212781c78c103095649138b878",
-    "generatorVersion": "1.0.0",
-    "postgresSha256": "8c9af5ddf2fa618736014739090e88fa170843bcfda1365c21946590c6348ce2",
+    "generatorVersion": "2.0.0",
+    "postgresSha256": "075bff45d83dc901e1054b2fd638bc01a78d7371cafc6f5ceb5199b3420f76a8",
     "semanticMetadataHash": "aa5b00325935c7f69a3c656bdd632c933c0f7b26f65df199804b354f076df18a"
   },
   "history": [
@@ -99,6 +99,66 @@
         "avroSha256": "02e5996ec4757d4aa7ae9b08c5d655d2256777212781c78c103095649138b878",
         "generatorVersion": "1.0.0",
         "postgresSha256": "8c9af5ddf2fa618736014739090e88fa170843bcfda1365c21946590c6348ce2",
+        "semanticMetadataHash": "aa5b00325935c7f69a3c656bdd632c933c0f7b26f65df199804b354f076df18a"
+      },
+      "odcsId": "urn:arxiv-int:contract:objects:1.0.0",
+      "projections": {
+        "graph": {
+          "idField": "object_id",
+          "vertexLabel": "Object"
+        }
+      },
+      "version": "1.0.0"
+    },
+    {
+      "contractId": "objects",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "objects.cluster_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "objects.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "objects.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "objects.lifecycle_state": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "objects.object_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "objects.object_type": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "objects.preferred_label": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "objects.review_state": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "02e5996ec4757d4aa7ae9b08c5d655d2256777212781c78c103095649138b878",
+        "generatorVersion": "2.0.0",
+        "postgresSha256": "075bff45d83dc901e1054b2fd638bc01a78d7371cafc6f5ceb5199b3420f76a8",
         "semanticMetadataHash": "aa5b00325935c7f69a3c656bdd632c933c0f7b26f65df199804b354f076df18a"
       },
       "odcsId": "urn:arxiv-int:contract:objects:1.0.0",

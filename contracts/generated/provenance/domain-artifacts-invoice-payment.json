@@ -5,8 +5,8 @@
     "graph/domain-artifacts-invoice-payment.sql": "16113d6deb3fdf8e268c30d1bff4b503c9d9d5badbb91a8d3f5fd1d758550733",
     "jsonschema/domain-artifacts-invoice-payment.schema.json": "bdceab1d5c301201d649db74a7ccdeb6946315548dd6f22fc472b0014d3ef8bc",
     "parquet/domain-artifacts-invoice-payment.parquet.json": "c2b8960ebff507855c3c7a884467016fef1e69ce8c1f5a56d7b6af0517b96481",
-    "postgres/domain-artifacts-invoice-payment.sql": "5b79cf39fc8841b69680b556873b3cad0971a072727dcb18ec8192754e0e83db",
-    "postgres/extensions/domain-artifacts-invoice-payment.sql": "555505fb5d5ea0801f641f7a3a5697f44f09a3d7ac28f1a333aa43e5f40558f6",
+    "postgres/domain-artifacts-invoice-payment.sql": "c473ff81f8cd31158df7d487f5b74288f04609073be6ccbc76c5dee3a0cdda58",
+    "postgres/extensions/domain-artifacts-invoice-payment.sql": "8230b31faf235c1ca8f8152b7c4086ec22b81b3c6ea07ceedf1feff4dcf50f09",
     "pydantic/domain-artifacts-invoice-payment.py": "b0cbec85eedff47bfb38db7ed41725d4f698033733828fcac469ea0344f5a4df"
   },
   "canonicalEntity": null,

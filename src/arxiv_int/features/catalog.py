@@ -29,6 +29,12 @@ FEATURE_GROUPS: tuple[FeatureGroup, ...] = (
             ),
             Requirement("pyyaml", "yaml", "MIT", "load contract, mapping, and profile documents"),
             Requirement(
+                "sqlalchemy",
+                "sqlalchemy",
+                "MIT",
+                "hold contract-derived schema metadata and compile review DDL",
+            ),
+            Requirement(
                 "sqlglot", "sqlglot", "MIT", "parse generated PostgreSQL DDL without a live server"
             ),
         ),
@@ -99,6 +105,9 @@ FEATURE_GROUPS: tuple[FeatureGroup, ...] = (
         summary="canonical PostgreSQL access for bulk load, control tables, and projections",
         owner="canonical-store",
         requirements=(
+            Requirement(
+                "alembic", "alembic", "MIT", "own the migration revision graph and apply revisions"
+            ),
             Requirement("psycopg", "psycopg", "LGPL-3.0-only", "connect and stream binary COPY"),
         ),
         system_dependencies=("a reachable PostgreSQL service with the required extensions",),

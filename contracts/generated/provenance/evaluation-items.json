@@ -4,8 +4,8 @@
     "avro/evaluation-items.avsc": "770b5594d6d22cead716d6092d4b4ccb0a7a9ef8c14a9ab38c3d2aaaf86122c1",
     "jsonschema/evaluation-items.schema.json": "fb8e2ca749dce53d2d29807474e6bdd5a99560fcf4d5c965a24ba7038a5b7855",
     "parquet/evaluation-items.parquet.json": "d0f0830abff19b16ce44a12332c66eea04922346f0b2b9e1897b06c1015055af",
-    "postgres/evaluation-items.sql": "7083dc9ba5e30fb773b916f9bcc41aaccdf74aa6235236db80cb9242dd508aee",
-    "postgres/extensions/evaluation-items.sql": "3b8e2aa23bb8117b3d5fc96d23ea0c4085e96469b127ee433a7896eb2a75e188",
+    "postgres/evaluation-items.sql": "2087120c83f21dec1d8107cb0353c0956d7b3b0f24741383a16ca40e098e917c",
+    "postgres/extensions/evaluation-items.sql": "4d03a92e9cba2a091c8e3468a7b22dd704de718af71724978c1a735aa36d3565",
     "pydantic/evaluation-items.py": "5a9da4a03476af63f049a8075bac7c533840e4ef92fc59f1e0c2a4e494aa2a61"
   },
   "canonicalEntity": null,

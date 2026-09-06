@@ -38,24 +38,14 @@ def parse_sql_statements(sql_texts: Sequence[str]) -> list[str]:
     return findings
 
 
-def baseline_create_table_scripts(sql_texts: Sequence[str]) -> list[str]:
-    """Return CREATE TABLE scripts suitable for a disposable database apply."""
-    scripts: list[str] = []
-    for text in sql_texts:
-        body = _active_sql(text)
-        if "CREATE TABLE" in body.upper():
-            scripts.append(body if body.endswith(";") else body + ";")
-    return scripts
-
-
-def apply_sql_on_disposable_postgres(sql_texts: Sequence[str]) -> list[str]:
-    """Apply baseline CREATE TABLE SQL on a disposable Docker Postgres when possible."""
+def apply_baseline_on_disposable_postgres(baseline_sql: str) -> list[str]:
+    """Apply the ordered baseline DDL on a disposable Docker Postgres when possible."""
     if shutil.which("docker") is None:
         return ["docker unavailable; disposable postgres apply was not run"]
-    scripts = baseline_create_table_scripts(sql_texts)
-    if not scripts:
+    body = _active_sql(baseline_sql)
+    if "CREATE TABLE" not in body.upper():
         return ["no CREATE TABLE statements found for disposable postgres apply"]
-    combined = "\n".join(scripts) + "\n"
+    combined = body + "\n"
     container = f"arxiv-int-sql-{os.getpid()}-{int(time.time() * 1000) % 100000}"
     with tempfile.TemporaryDirectory(prefix="arxiv-int-pg-sql-") as tmp:
         sql_file = Path(tmp) / "schema.sql"
@@ -120,10 +110,7 @@ def apply_sql_on_disposable_postgres(sql_texts: Sequence[str]) -> list[str]:
                     text=True,
                 )
                 if apply.returncode == 0:
-                    _LOG.info(
-                        "disposable postgres accepted %d CREATE TABLE script(s)",
-                        len(scripts),
-                    )
+                    _LOG.info("disposable postgres accepted the generated baseline DDL")
                     return []
                 detail = (apply.stderr or apply.stdout or "apply failed").strip()
                 if "starting up" in detail.lower() or "shutting down" in detail.lower():
