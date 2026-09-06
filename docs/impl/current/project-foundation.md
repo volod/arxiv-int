@@ -148,7 +148,10 @@ The locked bootstrap and package identity checks pass, and `make package-check` 
 `arxiv-int 0.1.0 (arxiv_int)`. The required `make ci` gate covers formatting, linting, typing,
 complexity, shell, documentation-link, specification-plan, and deterministic tests, and it passes
 at 172 tests; the complexity gate rejects Radon D-or-worse and cognitive complexity above 15, so
-both subchecks now run to completion. `make quality` adds coverage (90.14%, above the 90.0%
-floor), Markdown lint, and the build. `make build` produces `dist/arxiv_int-0.1.0.tar.gz` and
-`dist/arxiv_int-0.1.0-py3-none-any.whl`. Repair evidence:
-[quality baseline repair](../records/0003-foundation-restore-quality-gate-baseline.md).
+both subchecks now run to completion. `make quality` adds a diagnostic coverage report, Markdown
+lint, and the build. A numeric coverage percentage is not an acceptance gate; see
+[behavior-first test policy](../records/0026-foundation-adopt-behavior-first-test-policy.md).
+The quality baseline repair recorded 90.14% total coverage against a then-required 90% floor
+([quality baseline repair](../records/0003-foundation-restore-quality-gate-baseline.md)).
+`make build` produces `dist/arxiv_int-0.1.0.tar.gz` and
+`dist/arxiv_int-0.1.0-py3-none-any.whl`.

@@ -1709,6 +1709,16 @@ require separate repairs before consumers proceed; each concern has one owner. N
 ids. Fixture reviews cannot waive real-data, CUDA or human gates; unavailable private labels cannot
 block independent fixture implementation.
 
+Implementation tasks add tests for integrity, correctness, and business logic: the happy path, the
+main corner cases, and a regression for each defect found. That set is sufficient while interfaces
+are still changing. Do not add tests that only freeze current implementation, configuration
+snapshots, or historical policy. The suite stays a specification of required behavior, not an
+inventory of incidental coverage. A numeric line or branch coverage percentage is not an
+acceptance signal and must not fail `make ci` or `make quality`. Coverage reports remain
+diagnostic. Milestone checkpoints add targeted tests for important cases once that stage's
+interfaces have stabilized. Concluding that existing tests already cover those cases is valid.
+Restoring a numeric coverage floor is out of scope.
+
 Refactoring preserves public behavior except specified defect fixes. Reuse typed seams and shared
 root, service, credential, contract and artifact policy; avoid frameworks or line-count-only splits.
 

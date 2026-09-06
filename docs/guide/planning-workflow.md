@@ -123,6 +123,10 @@ Run a checkpoint after its inputs pass and before gated consumers start. Read pr
 affected code/tests, proofs and routed notes. Reconcile every note; record coverage, evidence,
 refactor/no-refactor verdict, and `proceed`, `proceed-with-nonblocking-notes`, or `blocked`.
 A blocker keeps the checkpoint open until its separate repair passes. Do not refactor without need.
+Checkpoints also add tests for important stabilized integrity, correctness, and business-logic
+cases in the stage when existing tests do not already cover them. A numeric coverage percentage is
+not an acceptance signal. Existing happy-path and main-corner coverage is a valid
+no-additional-tests conclusion.
 
 Early checkpoints use deterministic integration evidence; inspect real-data proofs when available.
 Their fixture verdict enables implementation, not real-corpus/CUDA promotion or physical placement.

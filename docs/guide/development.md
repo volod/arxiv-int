@@ -50,9 +50,11 @@ instead of a traceback.
 It checks formatting, Ruff rules, mypy, complexity, shell scripts, documentation links, specification
 and plan integrity, and tests.
 
-`make quality` adds branch coverage, Markdown style, and source/wheel builds. Run it before release
-or after changing project infrastructure. `make quality-report` reports files over the 250-line soft
-limit without turning cohesion into a numeric failure.
+`make quality` adds a diagnostic coverage report, Markdown style, and source/wheel builds. Run it
+before release or after changing project infrastructure. A numeric coverage percentage is not an
+acceptance gate; tests must cover integrity, correctness, and business logic and must not freeze
+current implementation or historical policy. `make quality-report` reports files over the 250-line
+soft limit without turning cohesion into a numeric failure.
 
 ## Direct uv commands
 
@@ -105,7 +107,7 @@ they are small, deterministic, safe to publish, and required for CI.
 | `make projections-status` | Show active projection pointers |
 | `make projections-cleanup` | Plan retired/failed projection drops (`APPLY=1` executes) |
 | `make test` | Run the deterministic unit test suite |
-| `make coverage` | Run tests with the coverage gate |
+| `make coverage` | Run tests and report coverage (diagnostic, not a percentage floor) |
 | `make format` | Apply Ruff formatting |
 | `make ci` | Run required local and CI checks |
 | `make quality` | Run CI checks, coverage, Markdown lint, and package build |

@@ -19,7 +19,9 @@ The Makefile exposes individual checks and two composed workflows:
 - `make ci` runs formatting, linting, typing, Radon and cognitive complexity, shell parsing and
   ShellCheck, documentation links, spec-plan integrity, contract generation drift, evolution policy,
   the migration revision graph (`make db-check`), ontology checks, and deterministic tests.
-- `make quality` adds branch coverage, Markdown lint, and source/wheel builds.
+- `make quality` adds a diagnostic coverage report, Markdown lint, and source/wheel builds.
+  A numeric coverage percentage is not an acceptance gate
+  ([behavior-first test policy](../records/0026-foundation-adopt-behavior-first-test-policy.md)).
 
 GitHub Actions runs `make ci-github`, an explicit alias of the same required gate, on Python 3.12
 and 3.13 after `uv sync --locked --extra dev --extra contracts --extra graph --extra store

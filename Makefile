@@ -295,7 +295,7 @@ typecheck: ## Run mypy over production code
 test: ## Run deterministic unit tests
 	@"$(PY)" -m pytest $(PYTEST_CACHE)
 
-coverage: ## Run tests and enforce the coverage floor
+coverage: ## Run tests and report coverage (diagnostic; no percentage floor)
 	@"$(PY)" -m pytest $(PYTEST_CACHE) --cov=arxiv_int --cov-report=term-missing
 
 complexity-gate: ## Fail on Radon D-or-worse or cognitive complexity above 15

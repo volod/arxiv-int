@@ -38,6 +38,9 @@ or blocked
 for the named consumers; no-refactoring-needed is a valid conclusion.
 - Scope boundary: Review the named milestone and routed notes only; no speculative rewrite, automatic
 model upgrade, scope expansion or deferred replacement for each producer task's own checks.
+Adding tests for important stabilized integrity, correctness, and business-logic cases in this
+stage is in scope; concluding that existing tests already cover them is valid. Restoring a
+numeric coverage floor is not.
 Use deterministic integration evidence and inspect provided-archive proofs when available;
 this verdict permits fixture implementation, not real-data or CUDA promotion.
 - Data and artifact paths: Accepted producer records under `docs/impl/records/`, current-state pages,
@@ -49,11 +52,15 @@ global checks, transformation lineage and failure-before-activation,
 setup configuration/edit/retry, dependency-sync failure propagation, phase ordering, shared
 profile requirements and infrastructure-ready versus pipeline-available reporting,
 optional imports, extension coexistence and canonical-versus-projection ownership;
-replay representative existing tests/validators and reconcile every routed note; record concrete
-findings with evidence, severity, affected consumers and one disposition each.
+replay representative existing tests/validators; add tests for important integrity, correctness,
+and business-logic cases that the stage's now-stable interfaces still miss; reconcile every
+routed note; record concrete findings with evidence, severity, affected consumers and one
+disposition each.
 - Acceptance gates: Every producer requirement and open note has an evidence-backed disposition;
 verify the
-listed invariants and make ci. Create a focused prerequisite refactor task for any blocking finding
+listed invariants and make ci. Important stabilized cases in this stage have tests or an
+evidence-backed conclusion that existing tests already cover them; a coverage percentage is not
+a gate. Create a focused prerequisite refactor task for any blocking finding
 and keep this checkpoint open until it passes; preserve valid negative results and nonblocking
 follow-ups in the checkpoint record without claiming a wider audit.
 - Documentation target: `docs/impl/current/canonical-store.md`
@@ -523,6 +530,9 @@ or blocked
 for the named consumers; no-refactoring-needed is a valid conclusion.
 - Scope boundary: Review the named milestone and routed notes only; no speculative rewrite, automatic
 model upgrade, scope expansion or deferred replacement for each producer task's own checks.
+Adding tests for important stabilized integrity, correctness, and business-logic cases in this
+stage is in scope; concluding that existing tests already cover them is valid. Restoring a
+numeric coverage floor is not.
 Use deterministic integration evidence and inspect provided-archive proofs when available;
 this verdict permits fixture implementation, not real-data or CUDA promotion.
 - Data and artifact paths: Accepted producer records under `docs/impl/records/`, current-state pages,
@@ -530,11 +540,15 @@ existing test/proof artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
 - Execution path: Read full task snapshots and source changes; trace source immutability,
 complete-scan semantics, cell/member coordinates, shard/generation
 identity, cache invalidation, atomic publication, forecast/reserve refusal and bounded queues;
-replay representative existing tests/validators and reconcile every routed note; record concrete
-findings with evidence, severity, affected consumers and one disposition each.
+replay representative existing tests/validators; add tests for important integrity, correctness,
+and business-logic cases that the stage's now-stable interfaces still miss; reconcile every
+routed note; record concrete findings with evidence, severity, affected consumers and one
+disposition each.
 - Acceptance gates: Every producer requirement and open note has an evidence-backed disposition;
 verify the
-listed invariants and make ci. Create a focused prerequisite refactor task for any blocking finding
+listed invariants and make ci. Important stabilized cases in this stage have tests or an
+evidence-backed conclusion that existing tests already cover them; a coverage percentage is not
+a gate. Create a focused prerequisite refactor task for any blocking finding
 and keep this checkpoint open until it passes; preserve valid negative results and nonblocking
 follow-ups in the checkpoint record without claiming a wider audit.
 - Documentation target: `docs/impl/current/pipeline-control.md`
@@ -1017,6 +1031,9 @@ or blocked
 for the named consumers; no-refactoring-needed is a valid conclusion.
 - Scope boundary: Review the named milestone and routed notes only; no speculative rewrite, automatic
 model upgrade, scope expansion or deferred replacement for each producer task's own checks.
+Adding tests for important stabilized integrity, correctness, and business-logic cases in this
+stage is in scope; concluding that existing tests already cover them is valid. Restoring a
+numeric coverage floor is not.
 Use deterministic integration evidence and inspect provided-archive proofs when available;
 this verdict permits fixture implementation, not real-data or CUDA promotion.
 - Data and artifact paths: Accepted producer records under `docs/impl/records/`, current-state pages,
@@ -1024,11 +1041,15 @@ existing test/proof artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
 - Execution path: Read full task snapshots and source changes; trace mention anchors versus clusters,
 merge/split replay, exact fact evidence, ontology/domain
 constraints, financial/product roles, review overlays and SQL/graph parity;
-replay representative existing tests/validators and reconcile every routed note; record concrete
-findings with evidence, severity, affected consumers and one disposition each.
+replay representative existing tests/validators; add tests for important integrity, correctness,
+and business-logic cases that the stage's now-stable interfaces still miss; reconcile every
+routed note; record concrete findings with evidence, severity, affected consumers and one
+disposition each.
 - Acceptance gates: Every producer requirement and open note has an evidence-backed disposition;
 verify the
-listed invariants and make ci. Create a focused prerequisite refactor task for any blocking finding
+listed invariants and make ci. Important stabilized cases in this stage have tests or an
+evidence-backed conclusion that existing tests already cover them; a coverage percentage is not
+a gate. Create a focused prerequisite refactor task for any blocking finding
 and keep this checkpoint open until it passes; preserve valid negative results and nonblocking
 follow-ups in the checkpoint record without claiming a wider audit.
 - Documentation target: `docs/impl/current/identity-ontology-graph.md`
@@ -1547,6 +1568,9 @@ or blocked
 for the named consumers; no-refactoring-needed is a valid conclusion.
 - Scope boundary: Review the named milestone and routed notes only; no speculative rewrite, automatic
 model upgrade, scope expansion or deferred replacement for each producer task's own checks.
+Adding tests for important stabilized integrity, correctness, and business-logic cases in this
+stage is in scope; concluding that existing tests already cover them is valid. Restoring a
+numeric coverage floor is not.
 Use deterministic integration evidence and inspect provided-archive proofs when available;
 this verdict permits fixture implementation, not real-data or CUDA promotion.
 - Data and artifact paths: Accepted producer records under `docs/impl/records/`, current-state pages,
@@ -1554,11 +1578,15 @@ existing test/proof artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
 - Execution path: Read full task snapshots and source changes; trace company/product/person catalogs,
 invoice allocations, BOM units/revisions, supply roles,
 anomaly cohorts/ranks, graph-table parity, one-generation reports and source drill-down;
-replay representative existing tests/validators and reconcile every routed note; record concrete
-findings with evidence, severity, affected consumers and one disposition each.
+replay representative existing tests/validators; add tests for important integrity, correctness,
+and business-logic cases that the stage's now-stable interfaces still miss; reconcile every
+routed note; record concrete findings with evidence, severity, affected consumers and one
+disposition each.
 - Acceptance gates: Every producer requirement and open note has an evidence-backed disposition;
 verify the
-listed invariants and make ci. Create a focused prerequisite refactor task for any blocking finding
+listed invariants and make ci. Important stabilized cases in this stage have tests or an
+evidence-backed conclusion that existing tests already cover them; a coverage percentage is not
+a gate. Create a focused prerequisite refactor task for any blocking finding
 and keep this checkpoint open until it passes; preserve valid negative results and nonblocking
 follow-ups in the checkpoint record without claiming a wider audit.
 - Documentation target: `docs/impl/current/discovery-visualization.md`
@@ -1814,16 +1842,23 @@ or blocked
 for the named consumers; no-refactoring-needed is a valid conclusion.
 - Scope boundary: Review the named milestone and routed notes only; no speculative rewrite, automatic
 model upgrade, scope expansion or deferred replacement for each producer task's own checks.
+Adding tests for important stabilized integrity, correctness, and business-logic cases in this
+stage is in scope; concluding that existing tests already cover them is valid. Restoring a
+numeric coverage floor is not.
 - Data and artifact paths: Accepted producer records under `docs/impl/records/`, current-state pages,
 existing test/proof artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
 - Execution path: Read full task snapshots and source changes; trace one-CUDA-host model/resource
 evidence, no-egress boundaries, backup completeness, decision
 retention, source lookup, restore parity, cancellation and disk/WAL/rebuild headroom;
-replay representative existing tests/validators and reconcile every routed note; record concrete
-findings with evidence, severity, affected consumers and one disposition each.
+replay representative existing tests/validators; add tests for important integrity, correctness,
+and business-logic cases that the stage's now-stable interfaces still miss; reconcile every
+routed note; record concrete findings with evidence, severity, affected consumers and one
+disposition each.
 - Acceptance gates: Every producer requirement and open note has an evidence-backed disposition;
 verify the
-listed invariants and make ci. Create a focused prerequisite refactor task for any blocking finding
+listed invariants and make ci. Important stabilized cases in this stage have tests or an
+evidence-backed conclusion that existing tests already cover them; a coverage percentage is not
+a gate. Create a focused prerequisite refactor task for any blocking finding
 and keep this checkpoint open until it passes; preserve valid negative results and nonblocking
 follow-ups in the checkpoint record without claiming a wider audit.
 - Documentation target: `docs/impl/current/operations.md`
@@ -1921,16 +1956,23 @@ or blocked
 for the named consumers; no-refactoring-needed is a valid conclusion.
 - Scope boundary: Review the named milestone and routed notes only; no speculative rewrite, automatic
 model upgrade, scope expansion or deferred replacement for each producer task's own checks.
+Adding tests for important stabilized integrity, correctness, and business-logic cases in this
+stage is in scope; concluding that existing tests already cover them is valid. Restoring a
+numeric coverage floor is not.
 - Data and artifact paths: Accepted producer records under `docs/impl/records/`, current-state pages,
 existing test/proof artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
 - Execution path: Read full task snapshots and source changes; trace vector/profile isolation,
 conditional model loading, no default all-corpus embeddings,
 paired relevance evidence, resource lifecycle, citation validity and lexical fallback;
-replay representative existing tests/validators and reconcile every routed note; record concrete
-findings with evidence, severity, affected consumers and one disposition each.
+replay representative existing tests/validators; add tests for important integrity, correctness,
+and business-logic cases that the stage's now-stable interfaces still miss; reconcile every
+routed note; record concrete findings with evidence, severity, affected consumers and one
+disposition each.
 - Acceptance gates: Every producer requirement and open note has an evidence-backed disposition;
 verify the
-listed invariants and make ci. Create a focused prerequisite refactor task for any blocking finding
+listed invariants and make ci. Important stabilized cases in this stage have tests or an
+evidence-backed conclusion that existing tests already cover them; a coverage percentage is not
+a gate. Create a focused prerequisite refactor task for any blocking finding
 and keep this checkpoint open until it passes; preserve valid negative results and nonblocking
 follow-ups in the checkpoint record without claiming a wider audit.
 - Documentation target: `docs/impl/current/semantic-retrieval.md`
@@ -2030,16 +2072,23 @@ or blocked
 for the named consumers; no-refactoring-needed is a valid conclusion.
 - Scope boundary: Review the named milestone and routed notes only; no speculative rewrite, automatic
 model upgrade, scope expansion or deferred replacement for each producer task's own checks.
+Adding tests for important stabilized integrity, correctness, and business-logic cases in this
+stage is in scope; concluding that existing tests already cover them is valid. Restoring a
+numeric coverage floor is not.
 - Data and artifact paths: Accepted producer records under `docs/impl/records/`, current-state pages,
 existing test/proof artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
 - Execution path: Read full task snapshots and source changes; trace artifact-only execution,
 complete classification accounting, source/destination identity,
 independent copies, protected roots, durable move journal, edited-target rollback refusal and lookup;
-replay representative existing tests/validators and reconcile every routed note; record concrete
-findings with evidence, severity, affected consumers and one disposition each.
+replay representative existing tests/validators; add tests for important integrity, correctness,
+and business-logic cases that the stage's now-stable interfaces still miss; reconcile every
+routed note; record concrete findings with evidence, severity, affected consumers and one
+disposition each.
 - Acceptance gates: Every producer requirement and open note has an evidence-backed disposition;
 verify the
-listed invariants and make ci. Create a focused prerequisite refactor task for any blocking finding
+listed invariants and make ci. Important stabilized cases in this stage have tests or an
+evidence-backed conclusion that existing tests already cover them; a coverage percentage is not
+a gate. Create a focused prerequisite refactor task for any blocking finding
 and keep this checkpoint open until it passes; preserve valid negative results and nonblocking
 follow-ups in the checkpoint record without claiming a wider audit.
 - Documentation target: `docs/impl/current/archive-organization.md`

@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0026` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0027` after the rows
 below).
 
 | Record | Scope | Result |
@@ -37,3 +37,4 @@ below).
 | [0023 Representative corpus approval](0023-corpus-approve-representative-corpus-and-gold.md) | Operator-designated legally usable representative slice as `PROOF_ARCHIVE_DIR` | Accepted |
 | [0024 dbt transformation foundation](0024-store-implement-dbt-transformation-foundation.md) | Local dbt project, typed runner, isolated derived generations, synthetic fixture DAG | Accepted |
 | [0025 Rebuildable search and graph projections](0025-store-implement-rebuildable-search-and-graph-projections.md) | ParadeDB/pgvector/AGE projection lifecycle, dbt inputs, pointer switch, fixture checks | Accepted |
+| [0026 Behavior-first test policy](0026-foundation-adopt-behavior-first-test-policy.md) | Replace numeric coverage floor with integrity/correctness/business-logic tests; checkpoint deepening | Accepted |
