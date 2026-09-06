@@ -1,0 +1,18 @@
+{
+  "age_enabled": true,
+  "image_ref": "arxiv-int/postgres:17-0.25.6-age1.7.0",
+  "probe_summary": {
+    "age_gate": "pass",
+    "bm25_vector": "pass",
+    "cypher": "pass",
+    "dump_restore": "pass",
+    "licenses": "pass",
+    "restart": "pass",
+    "sql": "pass",
+    "start": "pass",
+    "transaction": "pass",
+    "versions": "pass"
+  },
+  "probed_at": "2026-09-06T11:21:50Z",
+  "reason": "combined extension probes passed"
+}

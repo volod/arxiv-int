@@ -80,6 +80,8 @@ they are small, deterministic, safe to publish, and required for CI.
 | `make bootstrap` | Append-sync `.env`, update the locked environment, and audit readiness |
 | `make readiness` | Emit console and JSON workstation readiness reports |
 | `make services-up` | Start and health-check the default `pipeline` service set |
+| `make postgres-image` | Build the pinned ParadeDB + AGE database image (`NO_CACHE=1` for clean cache) |
+| `make postgres-image-probe` | Run disposable extension probes (`WRITE_GATE=1` records the AGE gate) |
 | `make services-down` | Stop containers; preserve bind-mounted service data |
 | `make services-reset` | Stop containers; list erasable roots (add `APPLY=1` to erase) |
 | `make package-check` | Verify the installed package identity; bootstrap runs it automatically |

@@ -154,6 +154,31 @@ def build_parser() -> argparse.ArgumentParser:
     ontology_generate.add_argument(
         "--project-root", type=Path, default=None, help=argparse.SUPPRESS
     )
+    store = subcommands.add_parser("store", help="build and probe the pinned PostgreSQL image")
+    store_commands = store.add_subparsers(dest="store_command", required=True)
+    store_build = store_commands.add_parser("build-image", help="build the ParadeDB+AGE image")
+    store_build.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
+    store_build.add_argument(
+        "--no-cache",
+        action="store_true",
+        help="build without the Docker layer cache",
+    )
+    store_probe = store_commands.add_parser(
+        "probe-image",
+        help="run disposable extension probes against PGDATA_DIR",
+    )
+    store_probe.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
+    store_probe.add_argument(
+        "--pgdata-dir",
+        type=Path,
+        default=None,
+        help="disposable PGDATA_DIR (default: $DATA_DIR/postgres-image-probe/<run-id>)",
+    )
+    store_probe.add_argument(
+        "--write-gate",
+        action="store_true",
+        help="record docker/postgres/age-compatibility.json from probe results",
+    )
     return parser
 
 
@@ -371,6 +396,29 @@ def _run_ontology(args: argparse.Namespace) -> int:
     return 1
 
 
+def _run_store(args: argparse.Namespace) -> int:
+    from arxiv_int.runtime.project_root import ProjectRootError, find_project_root
+    from arxiv_int.stores.postgres_image.commands import run_build_command, run_probe_command
+
+    try:
+        root = find_project_root(args.project_root)
+        if args.store_command == "build-image":
+            return run_build_command(root, no_cache=args.no_cache)
+        pgdata = args.pgdata_dir
+        if pgdata is None:
+            data_root = (
+                Path(os.environ["DATA_DIR"]) if os.environ.get("DATA_DIR") else root / ".data"
+            )
+            if not data_root.is_absolute():
+                data_root = (root / data_root).resolve()
+            run_id = f"probe-{os.getpid()}"
+            pgdata = data_root / "postgres-image-probe" / run_id / "pgdata"
+        return run_probe_command(root, pgdata, write_gate=args.write_gate)
+    except (OSError, ProjectRootError, RuntimeError, ValueError) as error:
+        _LOG.error("%s", error)
+        return 1
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     """Run the selected command and return a process status."""
     logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -389,6 +437,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_db(args)
     if args.command == "ontology":
         return _run_ontology(args)
+    if args.command == "store":
+        return _run_store(args)
     return _run_info()
 
 

@@ -97,32 +97,6 @@ fixture validation makes no held-out model or real-archive quality claim.
 
 ### Canonical store -- `canonical-store`
 
-#### build-pinned-paradedb-age-image
-
-Build and verify a project-owned image containing one PostgreSQL major, ParadeDB/`pg_search`,
-pgvector, and Apache AGE.
-
-- Serves: `canonical-store` -- [Architecture decision](../design/spec.md#architecture-decision)
-- Agent status: RUN NEEDED
-- Research: yes
-- Dependencies: Compose profiles and operator wrappers documented in
-[Portable runtime](current/portable-runtime.md).
-- User-visible outcome: The core database starts from a reproducible image and reports exact
-extension/build identities; graph mode is enabled only when its compatibility suite passes.
-- Scope boundary: Test extension coexistence, licensing, initialization, upgrade seam, and basic
-operations; do not claim production multi-TB scale.
-- Data and artifact paths: `docker/postgres/Dockerfile`, `docker/postgres/initdb/`,
-`docker/postgres/NOTICE`, `tests/integration/extensions/`, and `$PGDATA_DIR` for the declared
-disposable run.
-- Execution path: Derive from a pinned ParadeDB Community digest; install a pinned AGE release for
-the same PostgreSQL major; merge preload requirements; create `vector`, `pg_search`, and `age` in
-order; run SQL, BM25, vector, Cypher, dump/restore, restart, and transaction probes.
-- Acceptance gates: Image builds from a clean cache; extension versions match pins; combined probes
-pass across restart and dump/restore; licenses are present. A valid negative result disables the
-AGE profile and records the incompatibility without blocking relational graph work.
-- Documentation target: `docs/impl/current/canonical-store.md`
-- Review checkpoint: `review-foundation-and-store-boundaries`.
-
 #### create-canonical-relational-schema
 
 Apply generated migrations for control, corpus, search, knowledge, ontology, and evaluation schemas
@@ -130,7 +104,8 @@ with partition and provenance constraints.
 
 - Serves: `canonical-store` -- [PostgreSQL schemas](../design/spec.md#postgresql-schemas)
 - Agent status: RUN NEEDED
-- Dependencies: `build-pinned-paradedb-age-image` can yield either AGE-enabled or AGE-disabled;
+- Dependencies: [Pinned ParadeDB + AGE image](records/0018-store-build-pinned-paradedb-age-image.md)
+(AGE-enabled or AGE-disabled);
 [Contract schema and migration tooling](records/0017-contract-gov-refactor-contract-schema-and-migration-tooling.md);
 `implement-contract-data-quality-checks`;
 [Evolution and migration policy](records/0012-contract-gov-enforce-evolution-and-migration-policy.md).

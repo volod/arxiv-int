@@ -14,6 +14,8 @@ MESSAGE ?= contract schema change
 REVISION ?= head
 DOWN_REVISION ?= -1
 APPLY ?= 0
+NO_CACHE ?= 0
+WRITE_GATE ?= 0
 COMMON_SH := $(PROJECT_ROOT)/scripts/shared/common.sh
 # One extra set for every syncing target so consecutive targets cannot uninstall each other.
 SYNC_EXTRAS := --extra dev --extra contracts --extra graph --extra store
@@ -26,7 +28,8 @@ export MYPY_CACHE_DIR := $(DATA_ROOT)/cache/mypy
 .DEFAULT_GOAL := help
 
 .PHONY: help bootstrap venv lock package-check features config readiness services-config services-up \
-	services-status services-down services-reset logs graph-up ui-up format format-check lint typecheck test \
+	services-status services-down services-reset logs graph-up ui-up postgres-image postgres-image-probe \
+	format format-check lint typecheck test \
 	coverage complexity-gate shell-lint-gate lint-md lint-doc-links lint-spec-plan plan-status \
 	contracts contracts-gen contracts-check contracts-evolution \
 	db-revision db-check db-status db-upgrade \
@@ -173,6 +176,18 @@ graph-up: services-up ## Start the graph profile
 
 ui-up: SERVICE_PROFILES := ui
 ui-up: services-up ## Start the UI profile
+
+postgres-image: ## Build the pinned ParadeDB+AGE database image (NO_CACHE=1 for clean cache)
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
+		"$(VENV)/bin/arxiv-int" store build-image \
+		$(if $(filter 1,$(NO_CACHE)),--no-cache,)
+
+postgres-image-probe: ## Probe extensions on a disposable PGDATA_DIR (WRITE_GATE=1 records AGE gate)
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
+		"$(VENV)/bin/arxiv-int" store probe-image \
+		$(if $(filter 1,$(WRITE_GATE)),--write-gate,)
 
 format: ## Format production code and tests with Ruff
 	@"$(VENV)/bin/ruff" format src tests

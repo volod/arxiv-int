@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Literal
 
 from arxiv_int.runtime.config_model import RuntimeConfig
+from arxiv_int.runtime.host_identity import host_gid, host_uid
 from arxiv_int.runtime.paths import create_results_layout, validate_runtime_paths
 from arxiv_int.runtime.service_plan import (
     PROFILE_ALIASES as PROFILE_ALIASES,
@@ -18,6 +19,7 @@ from arxiv_int.runtime.service_plan import (
     STATE_SERVICES,
     ServicePlan,
     plan_services,
+    require_graph_age,
 )
 from arxiv_int.runtime.service_plan import (
     SUPPORTED_PROFILES as SUPPORTED_PROFILES,
@@ -53,8 +55,8 @@ def compose_environment(
         {
             "PROJECT_ROOT": str(config.project_root),
             "COMPOSE_PROFILES": "",
-            "RUNTIME_GID": str(os.getgid()),
-            "RUNTIME_UID": str(os.getuid()),
+            "RUNTIME_GID": str(host_gid()),
+            "RUNTIME_UID": str(host_uid()),
             "AGE_VIEWER_STATE_DIR": str(config.service_state_dir / "age-viewer"),
             "GRAFANA_STATE_DIR": str(config.service_state_dir / "grafana"),
             "PROMETHEUS_STATE_DIR": str(config.service_state_dir / "prometheus"),
@@ -67,7 +69,7 @@ def prepare_service_layout(
     config: RuntimeConfig, plan: ServicePlan | None = None
 ) -> tuple[Path, ...]:
     """Validate service roots and create the runtime and per-service state directories."""
-    selected = plan or plan_services("pipeline")
+    selected = plan or plan_services("pipeline", project_root=config.project_root)
     variables = selected.path_variables(config)
     validation = validate_runtime_paths(config, variables=variables)
     created = list(create_results_layout(config, validation, variables=variables))
@@ -152,7 +154,7 @@ def compose_command(
     """Return one stable Docker Compose command without shell interpolation."""
     if tail < 0:
         raise ComposeConfigurationError("log tail must be zero or greater")
-    plan = plan_services(profiles)
+    plan = plan_services(profiles, project_root=config.project_root)
     if action not in {"config", "up", "down", "status", "logs"}:
         raise ComposeConfigurationError("unsupported Compose command action")
     if any(service not in plan.services for service in services):
@@ -218,7 +220,7 @@ def run_compose(
     runner: ComposeRunner = _subprocess_runner,
 ) -> int:
     """Preflight mutating requests and run Docker Compose with secrets only in memory."""
-    plan = plan_services(profiles)
+    plan = plan_services(profiles, project_root=config.project_root)
     selected = plan.profiles
     if action != "reset":
         compose_command(config, action, selected, services=services, follow=follow, tail=tail)
@@ -227,6 +229,8 @@ def run_compose(
         raise ComposeConfigurationError(
             "set POSTGRES_PASSWORD in .env before starting the database"
         )
+    if action == "up":
+        require_graph_age(plan)
     if action == "reset":
         return _run_reset(config, selected, apply, runner)
     needs_layout = action in {"config", "up"}

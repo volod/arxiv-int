@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0017` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0019` after the rows
 below).
 
 | Record | Scope | Result |
@@ -29,3 +29,4 @@ below).
 | [0015 Data engineering tooling review](0015-govern-review-data-engineering-tooling.md) | Schema/migration implementation review; SQLAlchemy/Alembic, dbt, Polars/Pandera design and prerequisite task routing | Accepted review; 432 tests and documentation gates pass; three implementation tasks remain open |
 | [0016 Simple operator entrypoints](0016-govern-design-simple-operator-entrypoints.md) | Design for a retryable setup target and one default archive-to-report command, with implementation owners and acceptance | Active; documentation and verification pending |
 | [0017 Contract schema and migration tooling](0017-contract-gov-refactor-contract-schema-and-migration-tooling.md) | Contract-derived SQLAlchemy metadata, review DDL, immutable Alembic revisions, live catalog comparison and refusal-first legacy adoption | Active; see the record for gates |
+| [0018 Build pinned ParadeDB + AGE image](0018-store-build-pinned-paradedb-age-image.md) | Project-owned ParadeDB/pgvector/AGE image, coexistence probes, graph AGE gate, host-UID bind mounts | Accepted; clean-cache build and disposable probes pass; AGE enabled; `make ci` 530/1 |

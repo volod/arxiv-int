@@ -203,8 +203,10 @@ available, recorded in `$RESULTS_DIR/reports/readiness.json`. Overall readiness 
 stopped Compose services. Rotational storage checks pass. The model-selection refactor passes
 `make ci` with 160 tests and `make services-config`; it starts no service or model download.
 
-External images carry both an exact version and an immutable registry digest. AGE Viewer carries a
-project-owned version while its image build remains downstream work. Every service has a healthcheck
+External images carry both an exact version and an immutable registry digest. The database service
+uses the project-owned `arxiv-int/postgres` tag built from a pinned ParadeDB digest plus Apache AGE;
+see [Canonical store](canonical-store.md). AGE Viewer carries a project-owned version while its image
+build remains downstream work. Every service has a healthcheck
 and a bounded stop grace period. The PostgreSQL exporter healthcheck probes `/metrics` because that
 image has no `/health` route, and its `DATA_SOURCE_NAME` stays on one Compose line so YAML folding
 cannot insert a space before the host. Every published port binds to `127.0.0.1`; vLLM is absent
@@ -212,10 +214,12 @@ unless its profile is selected; cAdvisor does not mount the host root.
 
 The operator entry point loads the same layered runtime configuration and passes Compose an explicit
 project directory and `.env` path. It replaces host mount variables in memory with resolved absolute
-paths, injects `RUNTIME_UID` and `RUNTIME_GID` from the invoking process, performs the runtime
+paths, injects `RUNTIME_UID` and `RUNTIME_GID` from the invoking process (required; Compose refuses
+missing values so a bare `docker compose` cannot create inaccessible root or image-default UID
+files), performs the runtime
 preflight before config validation or startup, and creates only the documented layout plus
-per-service state directories. The database, Grafana, Prometheus, AGE Viewer, and vLLM services run as
-that operator UID so bind-mounted artifacts remain host-writable; privileged cAdvisor does not.
+per-service state directories. Every service that writes a bind mount -- database, Grafana, Prometheus,
+AGE Viewer, postgres-exporter, and vLLM -- runs as that operator UID. Privileged cAdvisor does not.
 The database alone mounts `PGDATA_DIR`. A
 configured `PG_WAL_DIR` and any `PG_TABLESPACE_<NAME>_DIR` become generated, short-lived Compose
 overrides mounted only into the database; the override contains no secrets and is removed after the
@@ -226,7 +230,10 @@ are not mounted. The service preflight consequently excludes `PROOF_ARCHIVE_DIR`
 read-without-modification proof-run contract remains enforced by pipeline behavior and future proof
 commands; ordinary host write permission is accepted.
 
-A `PGDATA_DIR` initialized under the previous image-default UID (typically 999) must be reassigned to
+Disposable image probes under `arxiv-int store probe-image` also pass `docker run --user` with the
+same host UID/GID so `$DATA_DIR/postgres-image-probe/.../pgdata` stays erasable by the operator.
+
+A `PGDATA_DIR` initialized under an older image-default UID (typically 999) must be reassigned to
 the operator once before `make services-up` can pass the writable-path preflight, for example
 `docker run --rm -v "$PGDATA_DIR:/data" alpine chown -R "$(id -u):$(id -g)" /data`.
 
