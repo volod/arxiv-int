@@ -104,5 +104,6 @@ intentional endpoint restrictions. No real endpoint was contacted and no backgro
 All required gates passed. Current portable-runtime documentation, record index, audit dispositions
 and dependency links reference this accepted record. Only satisfied task scope was removed from
 the plan: 88 to 87 tasks, agent lane 77 to 76, human lane unchanged at 11. No capability added or
-removed; existing `portable-runtime` readiness is hardened. Next task is
-`refactor-contract-identity-and-reference-validation`.
+removed; existing `portable-runtime` readiness is hardened. The next planned agent task after this
+acceptance was contract identity repair; that work is now accepted in
+[Contract identity and reference validation](refactor-contract-identity-and-reference-validation.md).

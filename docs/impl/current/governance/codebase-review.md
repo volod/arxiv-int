@@ -25,12 +25,12 @@ queue bounds are explicitly distinguished from reproduced failures in the record
 
 ## Future repairs and checkpoints
 
-The [forward plan](../../plan.md) has eight focused refactoring tasks and one governance enforcement
-task before affected consumers. They cover quality-gate repair, shared root policy, configuration
-parity, profile-aware service planning, probe safety, contract identity/reference validation, bundle
-validation, typed stage/artifact contracts, and durable-record/dependency checks. Findings have
-stable note ids and one owning task in the record. Existing scheduler and telemetry tasks own their
-respective implementation gaps, avoiding duplicate backlog entries.
+The [forward plan](../../plan.md) retains focused refactoring and enforcement work before affected
+consumers. Completed foundation repairs are linked from current-state pages and accepted records:
+shared root policy, configuration parity, profile-aware service planning, probe safety, contract
+identity/reference validation, and durable-record/dependency checks. Remaining routed notes still
+own bundle validation and typed stage/artifact contracts. Existing scheduler and telemetry tasks
+own their respective implementation gaps, avoiding duplicate backlog entries.
 
 Seven finite checkpoints review foundation/store, corpus/control, knowledge/identity,
 investigation/report, production/recovery, selected semantic retrieval, and archive organization.

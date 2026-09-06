@@ -10,33 +10,6 @@ ordering, and lifecycle rules belong in the
 
 ### Contract governance -- `contract-governance`
 
-#### refactor-contract-identity-and-reference-validation
-
-Prevent escaped canonical references and ambiguous field identities in existing contract primitives.
-
-- Serves: `contract-governance` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
-- Agent status: CLEAR
-- Task kind: refactor
-- Audit inputs: [AUD-codebase-06, AUD-codebase-07](records/codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: [Quality baseline repair](records/restore-quality-gate-baseline.md); existing
-[Contract primitives](current/project-foundation.md#contract-primitives).
-- User-visible outcome: Every canonical file reference stays within its declared contract root, and distinct
-schema-qualified fields cannot overwrite each other in compatibility snapshots.
-- Scope boundary: Refactor current loaders/snapshots only; full ODCS adapters and schema generation remain
-their existing tasks. Do not introduce a second semantic model or silently change stored hashes.
-- Data and artifact paths: `src/arxiv_int/contracts/{canonical,registry,evolution,fingerprint}.py`,
-`tests/contracts/`, and synthetic ODCS fixtures.
-- Execution path: Reuse rooted reference validation for registry and canonical loaders; reject duplicate
-or
-ambiguous bindings and malformed known fields while preserving unknown metadata; define explicit
-schema-qualified identity and reviewed migration behavior for existing snapshot fingerprints.
-- Acceptance gates: Failing regressions cover parent/absolute/symlink escapes, repeated field names
-in different
-schemas, true duplicates, unknown metadata, deterministic snapshots and explicit compatibility
-consequences; existing valid fixtures remain supported or receive a documented migration.
-- Documentation target: `docs/impl/current/contracts.md`
-- Review checkpoint: `review-foundation-and-store-boundaries`.
-
 #### establish-canonical-contract-registry
 
 Define ODCS contracts, a canonical semantic model, dataset registry, and physical-to-canonical
@@ -47,7 +20,7 @@ mappings for the first pipeline entities.
 - Agent status: CLEAR
 - Dependencies: The contract primitives and package/CLI identity documented in
 [Project foundation](current/project-foundation.md#contract-primitives).
-`refactor-contract-identity-and-reference-validation`.
+[Contract identity and reference validation](records/refactor-contract-identity-and-reference-validation.md).
 - User-visible outcome: Documents, spans, chunks, objects, mentions, facts, topics, ontology terms,
 embeddings, source occurrences, transactions, catalogs, anomaly findings, and evaluation items
 have one reviewable schema source of truth.
@@ -249,8 +222,10 @@ Review the integrated milestone before pipeline control and corpus adapters.
 - Task kind: checkpoint
 - Audit inputs: [AUD-safe-runtime-root-boundaries-1](records/refactor-safe-runtime-root-boundaries.md#audit-handoff);
 [AUD-runtime-configuration-parity-1, AUD-runtime-configuration-parity-2](records/refactor-runtime-configuration-parity.md#audit-handoff).
-- Dependencies: `implement-rebuildable-search-and-graph-projections`; [Readiness probe safety](records/refactor-readiness-probe-safety.md);
-`refactor-contract-identity-and-reference-validation`; `enforce-task-record-and-checkpoint-integrity`.
+- Dependencies: `implement-rebuildable-search-and-graph-projections`;
+[Readiness probe safety](records/refactor-readiness-probe-safety.md);
+[Contract identity and reference validation](records/refactor-contract-identity-and-reference-validation.md);
+`enforce-task-record-and-checkpoint-integrity`.
 - User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
 or blocked
 for the named consumers; no-refactoring-needed is a valid conclusion.
@@ -404,7 +379,7 @@ Align foundational stage, extraction and artifact references before concrete ada
 - Agent status: CLEAR
 - Task kind: refactor
 - Audit inputs: [AUD-codebase-13](records/codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: `establish-canonical-contract-registry`; `refactor-contract-identity-and-reference-validation`.
+- Dependencies: `establish-canonical-contract-registry`; [Contract identity and reference validation](records/refactor-contract-identity-and-reference-validation.md).
 - User-visible outcome: Multi-silo inputs, structured source anchors, generation identities and honest
 stage states
 fit the shared interfaces rather than being hidden in string metadata or invented per adapter.

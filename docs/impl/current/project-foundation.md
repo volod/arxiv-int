@@ -74,10 +74,11 @@ release. The foundational configuration merge and containment helpers have grown
 
 `arxiv_int.contracts` provides an explicit-root file registry, an immutable canonical semantic
 model, deterministic semantic metadata hashes, registered generator dispatch, and schema
-snapshot/change/version/baseline primitives. The registry rejects paths outside its root and
-detects drift from a reviewed semantic hash. Later contract-governance work owns project ODCS
-documents, `x-arxiv-int` adapters, concrete physical generators, adjacent-history policy,
-migrations, and live-store checks.
+snapshot/change/version/baseline primitives. Rooted reference validation, schema-qualified field
+identity, binding uniqueness, and legacy snapshot migration are documented in
+[Contracts](contracts.md). Later contract-governance work owns project ODCS documents,
+`x-arxiv-int` adapters, concrete physical generators, adjacent-history policy, migrations, and
+live-store checks.
 
 ## Evaluation and retrieval primitives
 

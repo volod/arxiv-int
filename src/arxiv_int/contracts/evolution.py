@@ -9,6 +9,8 @@ from typing import Any
 CHANGE_IDENTICAL = "identical"
 CHANGE_ADDITIVE = "additive"
 CHANGE_BREAKING = "breaking"
+FIELD_IDENTITY_SCHEMA_QUALIFIED = "schema-qualified"
+_SCHEMA_FIELD_SEP = "."
 
 
 @dataclass(frozen=True)
@@ -19,19 +21,46 @@ class ChangeReport:
     details: tuple[str, ...] = field(default_factory=tuple)
 
 
-def _schema_properties(odcs_document: dict[str, Any]) -> Iterator[dict[str, Any]]:
+def schema_field_id(schema_id: str, field_name: str) -> str:
+    """Return the stable schema-qualified identity for one physical field."""
+    if not schema_id or not field_name:
+        raise ValueError("schema id and field name are required")
+    if _SCHEMA_FIELD_SEP in schema_id:
+        raise ValueError(f"schema id must not contain {_SCHEMA_FIELD_SEP!r}: {schema_id!r}")
+    return f"{schema_id}{_SCHEMA_FIELD_SEP}{field_name}"
+
+
+def schema_identity(schema: dict[str, Any], index: int) -> str:
+    """Return the declared schema name or a stable positional id."""
+    name = schema.get("name")
+    if name is None or name == "":
+        return f"#{index}"
+    text = str(name)
+    if _SCHEMA_FIELD_SEP in text:
+        raise ValueError(f"schema name must not contain {_SCHEMA_FIELD_SEP!r}: {text!r}")
+    return text
+
+
+def _schema_properties(
+    odcs_document: dict[str, Any],
+) -> Iterator[tuple[str, dict[str, Any]]]:
     schemas = odcs_document.get("schema", [])
     if not isinstance(schemas, list):
         return
-    for schema in schemas:
+    seen_schemas: set[str] = set()
+    for index, schema in enumerate(schemas):
         if not isinstance(schema, dict):
             continue
+        schema_id = schema_identity(schema, index)
+        if schema_id in seen_schemas:
+            raise ValueError(f"duplicate schema identity '{schema_id}'")
+        seen_schemas.add(schema_id)
         properties = schema.get("properties", [])
         if not isinstance(properties, list):
             continue
         for prop in properties:
-            if isinstance(prop, dict) and "name" in prop:
-                yield prop
+            if isinstance(prop, dict):
+                yield schema_id, prop
 
 
 def schema_snapshot(
@@ -40,16 +69,22 @@ def schema_snapshot(
     *,
     fingerprints: dict[str, str] | None = None,
 ) -> dict[str, Any]:
-    """Extract fields that participate in physical compatibility."""
+    """Extract schema-qualified fields that participate in physical compatibility."""
     fields: dict[str, dict[str, Any]] = {}
-    for prop in _schema_properties(odcs_document):
-        fields[str(prop["name"])] = {
+    for schema_id, prop in _schema_properties(odcs_document):
+        if "name" not in prop:
+            raise ValueError(f"schema '{schema_id}' has a property without a name")
+        identity = schema_field_id(schema_id, str(prop["name"]))
+        if identity in fields:
+            raise ValueError(f"duplicate field identity '{identity}'")
+        fields[identity] = {
             "logicalType": prop.get("logicalType", ""),
             "physicalType": prop.get("physicalType", ""),
             "required": bool(prop.get("required", False)),
         }
     snapshot: dict[str, Any] = {
         "contractId": contract_id,
+        "fieldIdentity": FIELD_IDENTITY_SCHEMA_QUALIFIED,
         "odcsId": str(odcs_document.get("id", contract_id)),
         "version": str(odcs_document.get("version", "")),
         "fields": fields,
@@ -59,6 +94,39 @@ def schema_snapshot(
             key: value for key, value in sorted(fingerprints.items()) if value
         }
     return snapshot
+
+
+def migrate_schema_snapshot(snapshot: dict[str, Any], *, schema_id: str) -> dict[str, Any]:
+    """Upgrade a legacy bare-field snapshot under one reviewed schema identity.
+
+    Unmigrated legacy snapshots compared to schema-qualified snapshots report every
+    field as removed and re-added, which classifies as breaking. Operators must run
+    this migration (or re-freeze) before compatibility checks. Stored semantic
+    metadata hashes are unchanged by this structural upgrade.
+    """
+    if snapshot.get("fieldIdentity") == FIELD_IDENTITY_SCHEMA_QUALIFIED:
+        return dict(snapshot)
+    raw_fields = snapshot.get("fields")
+    if not isinstance(raw_fields, dict):
+        raise ValueError("legacy schema snapshot fields must be a mapping")
+    if not schema_id or _SCHEMA_FIELD_SEP in schema_id:
+        raise ValueError(f"migration schema id is invalid: {schema_id!r}")
+    migrated: dict[str, Any] = {}
+    for name, spec in raw_fields.items():
+        text = str(name)
+        if _SCHEMA_FIELD_SEP in text:
+            raise ValueError(
+                f"legacy snapshot field '{text}' already looks schema-qualified; "
+                "refuse an ambiguous migration"
+            )
+        identity = schema_field_id(schema_id, text)
+        if identity in migrated:
+            raise ValueError(f"duplicate field identity '{identity}' during migration")
+        migrated[identity] = spec
+    upgraded = dict(snapshot)
+    upgraded["fieldIdentity"] = FIELD_IDENTITY_SCHEMA_QUALIFIED
+    upgraded["fields"] = migrated
+    return upgraded
 
 
 def classify_change(

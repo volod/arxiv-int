@@ -6,6 +6,7 @@ from typing import Any
 
 from arxiv_int.contracts._yaml import load_mapping
 from arxiv_int.contracts.fingerprint import semantic_metadata_hash
+from arxiv_int.contracts.paths import resolve_rooted_reference
 
 
 class MetadataDriftError(RuntimeError):
@@ -60,20 +61,22 @@ class FileRegistry:
         except KeyError as error:
             raise KeyError(f"Unknown contract id: {contract_id}") from error
 
-    def _path(self, reference: str) -> pathlib.Path:
-        path = (self.root / reference).resolve()
-        if not path.is_relative_to(self.root):
-            raise ValueError(f"Registry reference escapes contract root: {reference}")
-        return path
+    def _path(self, reference: str, *, label: str) -> pathlib.Path:
+        return resolve_rooted_reference(self.root, reference, label=label)
 
     def load_odcs(self, contract_id: str) -> dict[str, Any]:
-        return load_mapping(self._path(self.get_entry(contract_id).odcs_ref))
+        entry = self.get_entry(contract_id)
+        return load_mapping(
+            self._path(entry.odcs_ref, label=f"Registry ODCS reference for '{contract_id}'")
+        )
 
     def load_mapping(self, contract_id: str) -> dict[str, Any]:
         reference = self.get_entry(contract_id).mapping_ref
         if reference is None:
             raise KeyError(f"Contract has no canonical mapping: {contract_id}")
-        return load_mapping(self._path(reference))
+        return load_mapping(
+            self._path(reference, label=f"Registry mapping reference for '{contract_id}'")
+        )
 
     def semantic_fingerprint(self, contract_id: str) -> str:
         return semantic_metadata_hash(self.load_mapping(contract_id))
