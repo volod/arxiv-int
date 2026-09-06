@@ -57,11 +57,26 @@ classification covers identical, additive, breaking, tokenizer reindex, vector-d
 semantic-retarget, and graph-projection consequences. Version rules fail closed (minor for additive/
 reindex/graph; major for breaking/vector/semantic). Destructive SQL is never auto-approved.
 
-Ordered migrations live in `db/migrations/` using dbmate-shaped names; `db/schema.sql` is the
-reviewed dump. `make contracts-evolution` / `arxiv-int contracts evolution` checks baselines against
-current contracts, Avro self-compatibility, migration order/approvals/dump coverage, optional
+Legacy SQL files live in `db/migrations/` using dbmate-shaped names; `db/schema.sql` is a
+committed SQL snapshot. `make contracts-evolution` / `arxiv-int contracts evolution` checks baselines
+against current contracts, Avro self-compatibility, migration order/approvals/dump coverage, optional
 `dbmate status` when installed with `DATABASE_URL`, and disposable Postgres apply of baseline
 CREATE TABLE SQL. Fixtures under `tests/contracts/evolution/` prove each consequence class.
+
+These checks do not yet execute an owned migration history or compare a migrated live catalog to
+contract metadata. Dump coverage checks table-name substrings; the conformance helper compares
+unqualified column-name sets and the disposable probe applies baseline SQL only. Missing dbmate
+does not fail the current check, and the destructive-statement regex/comment marker is a limited
+lint, not proof of safe changes or approval. No SQLAlchemy/Alembic migration runner, dbt project,
+Polars transformation layer, or Pandera dataset-validation adapter is implemented yet.
+
+The [data engineering review](../records/0015-govern-review-data-engineering-tooling.md) records
+these limits and the selected replacement design. The
+[migration refactor](../plan.md#refactor-contract-schema-and-migration-tooling),
+[shared data-quality checks](../plan.md#implement-contract-data-quality-checks), and
+[dbt foundation](../plan.md#implement-dbt-transformation-foundation) own implementation. Existing
+ODCS/JSON Schema/Pydantic, Avro and ontology validation remain available; they do not establish
+whole-dataset quality or live migration acceptance.
 
 ## Versioned ontology assets
 

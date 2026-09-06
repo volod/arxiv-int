@@ -8,6 +8,132 @@ ordering, and lifecycle rules belong in the
 
 ## Agent Implementation Tasks
 
+All schema and dataset work follows the specification's
+[tool ownership and quality policy](../design/spec.md#data-transformations-and-quality):
+contract-derived SQLAlchemy metadata and Alembic revisions, dbt models for relational
+transformations, Polars/PyArrow for local batches, and Pandera/dbt validation before publication.
+Each producer owns its domain models/checks and uses the shared implementations below. Transactional
+queries, COPY, extension DDL, and Cypher retain the narrow exceptions defined in the specification.
+Proof tasks retain tool/rule/model fingerprints and required quality outcomes; a skipped validator
+cannot establish a pass. These requirements also apply to later additive contract/migration work.
+
+### Portable runtime -- `portable-runtime`
+
+#### implement-retryable-setup-command
+
+Replace manual environment, model and service command sequencing with one setup/edit/retry target.
+
+- Serves: `portable-runtime` -- [Operator setup](../design/spec.md#retryable-setup-and-default-pipeline-command)
+- Agent status: RUN NEEDED
+- Audit inputs: [AUD-operator-entrypoints-1](records/0016-govern-design-simple-operator-entrypoints.md#audit-handoff).
+- Dependencies: [Root boundaries](records/0005-runtime-refactor-safe-runtime-root-boundaries.md);
+[Configuration parity](records/0006-runtime-refactor-runtime-configuration-parity.md);
+[Service planning](records/0007-runtime-refactor-profile-aware-service-planning.md);
+[Probe safety](records/0008-runtime-refactor-readiness-probe-safety.md);
+`create-canonical-relational-schema`; `implement-local-inference-adapters`.
+- User-visible outcome: `make setup` creates missing `.env`, names required edits, and safely retries
+dependency/model/service/schema preparation until applicable checks pass, without shell activation.
+- Scope boundary: A thin setup coordinator over existing adapters; no corpus processing, alternative
+scheduler, privileged OS installation, service-data reset or automatic destructive migration.
+Report pipeline implementation availability separately; full default-run acceptance belongs to the
+existing directory-to-knowledge-base and provided-archive proof tasks.
+- Data and artifact paths: `src/arxiv_int/runtime/setup/`, shared configuration/feature/service policy,
+`scripts/shared/common.sh`, Make/CLI, `.env.example`, `tests/setup/`,
+`$DATA_DIR/setup/<attempt-id>/`, and safe `$RESULTS_DIR/reports/{setup,readiness}.json`.
+- Execution path: Reuse dotenv append-sync and resolution before `.venv` exists; introduce typed
+PIPELINE_PROFILE/SERVICE_PROFILES/SETUP_DOWNLOADS settings with spec defaults. Resolve setup
+requirements from declarative profile/feature metadata without importing workers; use supplied
+fixture requirements until concrete profile providers ship. Sync one union of locked extras and
+propagate sync failures; do not chain bootstrap's pre-start readiness as a prerequisite to startup.
+Prepare safe roots, obtain pinned selected images/models through existing adapters, start services,
+wait with bounded progress, run eligible Alembic upgrades and final readiness. Preserve operator
+values and verified work; revalidate actual state and fingerprints on each retry, reject concurrent
+conflicting setup, handle cancellation, and render redacted per-phase status plus next action.
+- Acceptance gates: Deterministic fakes cover absent `.env`/`.venv`, incomplete/edited configuration,
+spaces/foreign checkout, explicit overrides, missing tools/privileges, failed sync/download/start,
+timeouts, offline cache misses, model/backend switching, unsafe roots, schema drift, blocked
+migrations, cancellation and concurrent attempts. Fresh shell calls observe `.env` edits; unchanged
+retries reuse verified work but probe readiness again. No dependent phase runs after failure.
+Declare a disposable pinned-store/local-endpoint setup smoke, including stopped/restarted services,
+and prove source/data preservation; fixture model acquisition cannot prove production model fit.
+Missing mandatory providers remain blocked/unavailable, never successful readiness. `make ci` and
+`make quality` pass; README only advertises the setup outcomes actually proved.
+- Documentation target: `docs/impl/current/portable-runtime.md`
+- Review checkpoint: `review-foundation-and-store-boundaries`.
+
+### Contract governance -- `contract-governance`
+
+#### refactor-contract-schema-and-migration-tooling
+
+Replace SQL text and optional dbmate checks with contract-derived Python schema objects and a
+required, reviewable Alembic revision workflow.
+
+- Serves: `contract-governance` -- [Evolution and migrations](../design/spec.md#evolution-and-migrations)
+- Agent status: CLEAR
+- Task kind: refactor
+- Audit inputs: [AUD-data-engineering-tooling-1](records/0015-govern-review-data-engineering-tooling.md#audit-handoff).
+- Dependencies: [Deterministic schema generation](records/0011-contract-gov-implement-deterministic-schema-generation.md);
+[Evolution and migration policy](records/0012-contract-gov-enforce-evolution-and-migration-policy.md);
+[Domain investigation contracts](records/0014-contract-gov-define-domain-investigation-contracts-and-ontology.md).
+- User-visible outcome: A contract change yields reviewable Python migration operations and explicit
+revision/drift status without maintaining a second handwritten table model.
+- Scope boundary: Replace schema/migration plumbing and preserve semantic/evolution policy; provide
+the offline workflow and live adapter. Actual legacy adoption and pinned-store upgrade acceptance
+belong to `create-canonical-relational-schema`; no automatic adoption of an operator database.
+- Data and artifact paths: `src/arxiv_int/contracts/{generate,sqlalchemy,evolution}/`,
+`src/arxiv_int/migrations/versions/`, legacy `db/migrations/`, `db/schema.sql`, `pyproject.toml`,
+`uv.lock`, feature metadata, Make/CLI, mirrored tests, and `$DATA_DIR/migrations/<run-id>/`.
+- Execution path: Normalize existing ODCS bindings into schema-qualified SQLAlchemy Core metadata;
+preserve types/decimal precision/nullability/keys/references/descriptions with named constraints;
+fail unsupported mappings. Compile review DDL with the PostgreSQL dialect, retire competing generic
+SQL export and regex conformance, and generate candidate immutable Alembic Python revisions using
+frozen definitions and contract fingerprints. Implement revision/check/status/upgrade/downgrade
+wrappers with existing environment/root policy, owned-object filters, prior ownership for removals,
+secret redaction, graph/checksum checks, and explicit irreversible-change handling. Retain legacy
+SQL as adoption evidence; require catalog equivalence before stamping. Reuse the shared evolution
+classifier; update optional dependencies, exact output-sensitive pins, lock, licences, and setup.
+- Acceptance gates: Network-free regressions prove schema-qualified collisions, renamed/removed
+fields, nullability/type/default/constraint changes, unsupported metadata, missing revisions, multiple
+heads, cycles, missing runner, and unsafe adoption fail correctly. Generated Python revisions and
+offline PostgreSQL DDL are deterministic; old revisions ignore later contract edits; unrelated/dbt
+objects are excluded without hiding owned deletions; missing live evidence reports not-run. Existing
+serialization and semantic gates, `make ci`, and `make quality` pass. Offline success does not claim
+an applied or conformant live database.
+- Documentation target: `docs/impl/current/contracts.md`
+- Review checkpoint: `review-foundation-and-store-boundaries`.
+
+#### implement-contract-data-quality-checks
+
+Make contract conformance executable on dataset contents with bounded, descriptive validation
+results shared by all producers.
+
+- Serves: `contract-governance` -- [Data quality](../design/spec.md#data-transformations-and-quality)
+- Agent status: CLEAR
+- Audit inputs: [AUD-data-engineering-tooling-3](records/0015-govern-review-data-engineering-tooling.md#audit-handoff).
+- Dependencies: `refactor-contract-schema-and-migration-tooling`.
+- User-visible outcome: Invalid batches and missing required checks have inspectable reasons and
+cannot be represented as publishable validated output.
+- Scope boundary: Implement reusable Pandera/Polars checks, generated dbt source/test YAML, and typed
+results; reuse domain/SHACL rules. Producer tasks attach their semantics, pipeline tasks enforce
+activation, and `implement-dbt-transformation-foundation` executes whole-relation dbt checks.
+- Data and artifact paths: `src/arxiv_int/data_quality/`, shared contract generation,
+`contracts/generated/{quality,dbt}/`, `tests/data_quality/`, feature/dependency/Make files,
+`$DATA_DIR/data-quality/<run-id>/`, and `$RUNS_DIR/<run-id>/quality/` for published evidence.
+- Execution path: Generate strict schema/type/nullability/value/key checks from the same normalized
+ODCS fields; map supported rules to Pandera and dbt with stable ids. Validate materialized bounded
+Polars batches via PyArrow IO; distinguish batch versus whole-snapshot rules and delegate global
+keys/relationships to declared dbt or disk-backed checks. Emit rule/input/tool fingerprints,
+scope/count/severity/status and redacted failure references through typed results. Keep data-quality
+dependencies optional and avoid importing them into CLI/core paths that do not need them.
+- Acceptance gates: Fixtures cover valid/invalid types, nulls, decimal/unit cases, unknown rules,
+missing checks, duplicate keys split across batches, broken relationships, empty and insufficient
+data, and bounded failure samples. LazyFrame schema-only validation cannot count as data validation;
+unexecuted global checks cannot pass. Generation is stable and retains descriptions; outputs are
+secret-free and memory is bounded by declared batch/spill limits. `make ci` and `make quality` pass;
+fixture validation makes no held-out model or real-archive quality claim.
+- Documentation target: `docs/impl/current/contracts.md`
+- Review checkpoint: `review-foundation-and-store-boundaries`.
+
 ### Canonical store -- `canonical-store`
 
 #### build-pinned-paradedb-age-image
@@ -42,23 +168,67 @@ Apply generated migrations for control, corpus, search, knowledge, ontology, and
 with partition and provenance constraints.
 
 - Serves: `canonical-store` -- [PostgreSQL schemas](../design/spec.md#postgresql-schemas)
-- Agent status: CLEAR
+- Agent status: RUN NEEDED
 - Dependencies: `build-pinned-paradedb-age-image` can yield either AGE-enabled or AGE-disabled;
+`refactor-contract-schema-and-migration-tooling`; `implement-contract-data-quality-checks`;
 [Evolution and migration policy](records/0012-contract-gov-enforce-evolution-and-migration-policy.md).
 [Domain investigation contracts](records/0014-contract-gov-define-domain-investigation-contracts-and-ontology.md).
 
 - User-visible outcome: Canonical documents, assertions, reviews, and run state have constrained,
 queryable tables independent of search and graph projections.
-- Scope boundary: Create schema, roles, partitions, staging/load functions, and indexes required for
-correctness; corpus-scale tuning belongs to evaluation.
-- Data and artifact paths: `db/migrations/`, `db/schema.sql`, `src/arxiv_int/stores/postgres/`, and
+- Scope boundary: Create schema, roles, partitions, staging/load adapters, and indexes required for
+correctness; dbt owns derived relations, and corpus-scale tuning belongs to evaluation.
+- Data and artifact paths: `src/arxiv_int/migrations/versions/`, `db/schema.sql`,
+`src/arxiv_int/stores/postgres/`, legacy adoption fixtures under `db/migrations/`, and
 `tests/integration/postgres/`.
-- Execution path: Generate/apply migrations; define typed literal fact constraints,
-bitemporal/provenance columns, stable hash partitioning, role grants, staging tables, and
-idempotent upserts; add SQLAlchemy/psycopg typed adapters only where useful.
+- Execution path: Generate reviewed Alembic Python revisions from ODCS-derived SQLAlchemy metadata;
+apply them on the pinned disposable store and inspect actual catalog definitions, including schema,
+types, defaults, precision, keys, checks, partitions and extension objects. Define typed literal
+fact/provenance constraints, stable hash partitions, role grants, COPY staging, and bound SQLAlchemy
+upserts; validate staged batches with shared quality checks. Create the `derived` schema and dbt
+role boundary without owning dbt model tables. Test verified legacy-table relocation/adoption and
+refuse unknown/drifted states before stamping. Declare the disposable integration run and retain
+redacted revision, row-preservation, and live-schema evidence.
 - Acceptance gates: Contract-to-live conformance passes; constraint and rollback fixtures reject
 invalid fact shapes, missing provenance, duplicates, and cross-version vector mixing; migration
-and clean-load schemas match.
+and clean-load schemas match. Empty-to-head, previous-release-to-head, repeat-at-head,
+supported downgrade/upgrade or explicit irreversible refusal, and interrupted migration tests pass;
+legacy adoption preserves rows and rejects partial/drifted databases. A missing database/tool is
+not-run and keeps this task open; `make ci` and `make quality` pass.
+- Documentation target: `docs/impl/current/canonical-store.md`
+- Review checkpoint: `review-foundation-and-store-boundaries`.
+
+#### implement-dbt-transformation-foundation
+
+Provide one local, contract-described dbt project and typed runner for relational transformations
+before projection, catalog, and report builders introduce embedded business SQL.
+
+- Serves: `canonical-store` -- [Transformations](../design/spec.md#data-transformations-and-quality)
+- Agent status: RUN NEEDED
+- Audit inputs: [AUD-data-engineering-tooling-2](records/0015-govern-review-data-engineering-tooling.md#audit-handoff).
+- Dependencies: `create-canonical-relational-schema`; `implement-contract-data-quality-checks`.
+- User-visible outcome: Named models can be built/tested locally with source lineage and quality
+results; failed builds leave the active generation unchanged.
+- Scope boundary: Establish dbt execution, ownership and synthetic model fixtures; domain tasks own
+their business models. Do not add an orchestrator/service, replace canonical writes, require dbt
+Python models on PostgreSQL, or materialize the archive in pandas.
+- Data and artifact paths: `transformations/{dbt_project.yml,models,tests,macros}/`, generated dbt
+contract YAML, `src/arxiv_int/transformations/`, `tests/transformations/`, feature/lock/Make files,
+`$DATA_DIR/dbt/<run-id>/`, and `$RUNS_DIR/<run-id>/{manifests,quality}/`.
+- Execution path: Pin compatible Python dbt Core 1.x and `dbt-postgres` in optional `transform`
+dependencies; add typed parse/build/test invocation and rooted, environment-only credentials.
+Consume generated source/column/test metadata; define descriptive staging/intermediate/mart model
+conventions using source/ref. Build only in isolated `derived` generations with bounded threads and
+exclusive target ownership; expose results for the existing pipeline to activate. Retain sanitized
+manifest/run-results, selected model/input fingerprints and rule outcomes. Keep custom macros small;
+invoke local Polars functions for Python-only preparation through the existing stage seam.
+- Acceptance gates: dbt parse plus declared compile/build/test runs on synthetic pinned PostgreSQL
+fixtures pass. Clean, repeated and incremental builds agree after insert/update/delete and policy
+changes; failed data tests or interrupted/concurrent builds cannot activate partial data. Role tests
+prove canonical relations and Alembic state cannot be mutated by dbt; migrations ignore dbt-owned
+relations. Missing adapter/database and invalid models fail explicitly; secrets stay out of artifacts,
+base imports remain light, and `make ci` / `make quality` pass. Keep required live checks open when
+unavailable; no corpus-scale or domain-quality claim follows from the fixture DAG.
 - Documentation target: `docs/impl/current/canonical-store.md`
 - Review checkpoint: `review-foundation-and-store-boundaries`.
 
@@ -70,16 +240,19 @@ projection canonical.
 - Serves: `canonical-store` --
 [Search and vector projections](../design/spec.md#search-and-vector-projections)
 - Agent status: CLEAR
-- Dependencies: `create-canonical-relational-schema`.
+- Dependencies: `create-canonical-relational-schema`; `implement-dbt-transformation-foundation`.
 - User-visible outcome: Search/vector/graph projections can be built, validated, version-switched,
 and dropped without losing canonical rows.
 - Scope boundary: Implement lifecycle and correctness checks on fixtures; relevance and scale
 promotion belong to later capabilities.
-- Data and artifact paths: `src/arxiv_int/stores/projections/`, `db/migrations/`,
+- Data and artifact paths: `src/arxiv_int/stores/projections/`, Alembic revisions,
+`transformations/models/projections/`,
 `tests/integration/projections/`, and `$RUNS_DIR/<run-id>/manifests/`.
 - Execution path: Add versioned projection metadata, staging builds, row/count/checksum
 reconciliation, sampled SQL/Cypher parity, active-pointer switch, and cleanup planning; preserve
-full evidence relationally.
+full evidence relationally. Prepare relational projection inputs in described dbt models with
+source/ref and data tests; keep index DDL and AGE/Cypher in reviewed engine adapters. Use shared
+quality results before activation and typed SQLAlchemy operations for pointer transactions.
 - Acceptance gates: Rebuild from normalized/canonical fixtures yields identical logical ids; failed
 builds never replace active projections; graph-disabled mode supports recursive SQL and open
 exports.
@@ -96,6 +269,7 @@ Review the integrated milestone before pipeline control and corpus adapters.
 - Audit inputs: [AUD-safe-runtime-root-boundaries-1](records/0005-runtime-refactor-safe-runtime-root-boundaries.md#audit-handoff);
 [AUD-runtime-configuration-parity-1, AUD-runtime-configuration-parity-2](records/0006-runtime-refactor-runtime-configuration-parity.md#audit-handoff).
 - Dependencies: `implement-rebuildable-search-and-graph-projections`;
+`implement-retryable-setup-command`;
 [Readiness probe safety](records/0008-runtime-refactor-readiness-probe-safety.md);
 [Contract identity and reference validation](records/0009-contract-gov-refactor-contract-identity-and-reference-validation.md);
 `enforce-task-record-and-checkpoint-integrity`.
@@ -110,6 +284,10 @@ this verdict permits fixture implementation, not real-data or CUDA promotion.
 existing test/proof artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
 - Execution path: Read full task snapshots and source changes; trace configuration/CLI/service parity,
 protected roots and secrets, contract identity/evolution,
+Alembic revision/adoption and live catalog evidence, dbt/canonical ownership, Pandera batch versus
+global checks, transformation lineage and failure-before-activation,
+setup configuration/edit/retry, dependency-sync failure propagation, phase ordering, shared
+profile requirements and infrastructure-ready versus pipeline-available reporting,
 optional imports, extension coexistence and canonical-versus-projection ownership;
 replay representative existing tests/validators and reconcile every routed note; record concrete
 findings with evidence, severity, affected consumers and one disposition each.
@@ -216,7 +394,8 @@ paired evaluation utilities.
 
 - Serves: `evaluation-foundation` -- [Evaluation and acceptance](../design/spec.md#evaluation-and-acceptance)
 - Agent status: CLEAR
-- Dependencies: [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
+- Dependencies: `implement-contract-data-quality-checks`;
+[Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
 the evaluation and retrieval primitives
 documented in [Project foundation](current/project-foundation.md#evaluation-and-retrieval-primitives).
 `refactor-evaluation-bundle-validation`.
@@ -236,6 +415,8 @@ resource cost, and adopt/retain/inconclusive verdicts; register the
 `evaluate` stage body that writes the immutable evaluation bundle; add a typed proof manifest,
 stage-to-validator registry, redaction, fingerprint freshness, proof summary helpers, and a shared
 `make proof CAPABILITY=...` dispatcher.
+Reuse shared data-quality result identities and fixtures for missing/global checks; keep
+held-out accuracy metrics separate from Pandera/dbt structural validation.
 - Acceptance gates: Split leakage and provenance checks pass; bootstrap seeds and item ledgers
 replay; missing evidence refuses a verdict; metrics have positive/negative fixtures; proof bundles
 reject stale fingerprints, missing artifact checksums, unvalidated usable stages, and private paths
@@ -266,6 +447,8 @@ stages, a new orchestrator framework, or backend-specific logic in shared interf
 references from
 contracts; distinguish partial/empty/not-selected outcomes and conditional feature requirements;
 keep fixture conformance dependency-light and adapters responsible for actual processing.
+Include typed validation-result and transformation-run references in artifact interfaces; keep
+Pandera/dbt implementation imports in optional adapters.
 - Acceptance gates: Conformance fixtures cover duplicate paths across silos, cell/member anchors, distinct
 generations of one partition, conditional GPU/UI features and failure/partial states; public
 compatibility decisions are recorded; no optional heavy imports enter core; make ci passes.
@@ -293,6 +476,10 @@ capability.
 - Execution path: Define stage-owned code/dependency/input fingerprints, transitive artifact edges,
 cache validation, concurrent reuse leases, state transitions, atomic sibling writes, bounded retry
 taxonomy, stale-lease recovery, and downstream invalidation planning.
+Use Alembic-managed control tables and bound SQLAlchemy transactions; bind validation and dbt
+model/input/rule fingerprints into reuse keys. Activation requires all applicable quality checks,
+including global checks, and successful model results for the exact generation; warnings and
+quarantine coverage remain visible.
 - Acceptance gates: Property/state-machine tests reject illegal transitions; crash injection proves
 no partial output is accepted; unchanged rerun validates manifests and does not invoke the heavy
 worker; a changed owned fingerprint marks exactly the reachable closure stale; forced retry creates
@@ -320,6 +507,9 @@ resource estimates, validators, and dependencies;
 resolve parameters; validate required
 upstream manifests; add run/update/stage/status/resume/invalidate/rebuild and prune-plan commands;
 keep Make wrappers thin and destructive application separately confirmed.
+Invoke the shared dbt runner for declared relational model selections and the common Pandera
+validator at producer boundaries; propagate failed/not-run quality outcomes and generation leases
+without introducing a second scheduler.
 - Acceptance gates: DAG, range, skip, invalid dependency, update, resume, targeted invalidate,
 fresh-generation rebuild, prune dry-run, force, and signal-handling tests pass; CLI help lists
 defaults and precedence; fixture DAG smoke produces the same manifests as independent fixture
@@ -433,6 +623,8 @@ or commands, rerun stages, mutate artifacts, or treat an inspection as proof acc
 - Execution path: Add `arxiv-int inspect RUN_ID` and the matching run-artifact lookup using the
 pipeline registry and contracts; render console and JSON summaries with bounded samples and masked
 secrets; inspect the real run produced after each available stage implementation.
+Read retained Pandera/dbt quality results and sanitized model lineage; show rule scope, failed
+counts, quarantine references and not-run status without executing transformations.
 - Acceptance gates: Normal empty, partial, quarantined, and schema-drifted run artifacts produce
 stable summaries; inspection leaves checksums unchanged; summaries contain no secrets, unbounded
 corpus text, development alias, or machine-specific path.
@@ -457,13 +649,18 @@ obsolete derived storage.
 never delete archive sources, move ledgers, immutable review history, active generations, or the sole
 recovery copy.
 - Data and artifact paths: `ctl.artifact_lineage`, source delta/tombstone and prune-event contracts,
-`src/arxiv_int/pipeline/reconcile/`, `src/arxiv_int/pipeline/prune/`, additive `db/migrations/`, and
+`src/arxiv_int/pipeline/reconcile/`, `src/arxiv_int/pipeline/prune/`,
+additive `src/arxiv_int/migrations/versions/`, and
 `$RUNS_DIR/<run-id>/{delta,invalidation,rebuild,prune}/`.
 - Execution path: Diff complete comparable source manifests into add/content-change/path-rename/remove;
 unavailable silos, partial scans, or unstable files cannot create removal tombstones; compute the
 minimal downstream closure; retract stale rows/edges from active views after replacements validate;
 retain shared evidence; create isolated rebuild generations and atomic activation; make prune
 two-phase with dry-run ids, reference/pin/backup checks, and compact retained lineage.
+Use Alembic Python revisions for new control fields and typed SQLAlchemy transactions for
+tombstones/activation; place set-based derived-view recomputation in dbt models. Reconcile dbt
+source/ref lineage with artifact edges and test deleted inputs, late corrections and model changes
+against a clean build; successful quality checks precede every pointer switch.
 - Acceptance gates: Deterministic fixtures prove no-op updates invoke no heavy workers; additions
 touch only new shards; path-only renames avoid content analysis; changes/removals retract exactly
 dependent active outputs; stage fingerprint changes invalidate only owned descendants; rebuild
@@ -585,6 +782,8 @@ archive-bomb limits, shard by stable id, and write atomic Parquet manifests; reg
 the stage in the existing registry and expose `arxiv-int stage inventory` plus
 `make stage STAGE=inventory` in the same change,
 then run that command on a bounded authorized archive when available and inspect its artifacts.
+Use PyArrow batch writers and contract-derived Pandera checks before sealing partitions;
+record completed global occurrence-key checks and reject batches with invalid provenance.
 - Acceptance gates: Network-free fixtures cover large/sparse files, links, permission errors,
 renamed duplicates, nested archives, encrypted files, interruption, and resume; two silos sharing one
 root-relative path stay distinct while identical bytes resolve to one content identity; memory is
@@ -615,6 +814,8 @@ container/member paths, raw hashes, and extraction quality; never execute macros
 bound temp files,
 child processes, timeouts, and decompression; register `extract` with the normal stage interface and
 run it against a bounded authorized archive when available after deterministic checks pass.
+Validate emitted document/span batches with shared Pandera schemas and existing source-anchor
+checks; preserve explicit quarantine and incomplete-coverage results.
 - Acceptance gates: The reviewed extraction fixture reports per-format text, table, and anchor
 coverage; corrupt/encrypted/oversized inputs fail safely; repeated content hashes reuse outputs;
 source files remain unchanged; the normal `make stage STAGE=extract` run produces inspectable
@@ -641,6 +842,9 @@ source/extracted records.
 original-to-normalized offsets; detect language; run exact, normalized, MinHash/lexical, and
 edition grouping; implement bounded structure/table/sentence chunkers with source breadcrumbs;
 register the normal stage commands and run them against a bounded authorized archive when available.
+Express tabular normalization and grouping with typed Polars expressions and PyArrow batches;
+keep text/span algorithms in focused Python functions. Run generated Pandera checks, cross-partition
+identity checks and bounded-memory tests before publishing.
 - Acceptance gates: Golden offsets and table headers survive chunking; unchanged input yields stable
 ids; dedupe precision is measured on labels; no suppression occurs without an overlay; out-of-core
 memory and shard-resume tests pass; the declared fixture commands produce inspectable artifacts
@@ -695,6 +899,9 @@ evidence-bearing results and stable filter behavior.
 - Execution path: Binary-COPY staging rows; create one covering ParadeDB index per partition/table
 design; index Russian text plus literal ids and required filter fields; expose typed query and
 explain/diagnostic modes.
+Reuse dbt-tested projection inputs and Pandera batch validation; use psycopg binary COPY and
+bound SQLAlchemy queries. Keep ParadeDB index/search syntax in named engine assets and Alembic
+operations, separate from business transformations.
 - Acceptance gates: Load counts/checksums reconcile; result citations resolve to source spans;
 concurrent index build/rebuild remains observable; query and index failures have actionable
 diagnostics.
@@ -799,12 +1006,13 @@ while random text and extraction failures remain visibly `unclassified` or `unre
 - Scope boundary: Produce mappings and review candidates only; do not move source files, classify
 virtual archive members as independently movable files, or force low-confidence assignments.
 - Data and artifact paths: `$RESULTS_DIR/normalized/classifications/`, `corpus.file_classification`,
-additive `db/migrations/`, `src/arxiv_int/classification/`, classifier profiles, and
-`$RUNS_DIR/<run-id>/evaluation/classification/`.
+additive `src/arxiv_int/migrations/versions/`, `src/arxiv_int/classification/`, classifier profiles,
+and `$RUNS_DIR/<run-id>/evaluation/classification/`.
 - Execution path: Combine metadata and normalized-text rules with a measured lightweight classifier;
 allow bounded local-model assistance only when it improves held-out results; retain multi-label
 scores, one primary ancestor path, decisive evidence, failure taxonomy, and complete fingerprints;
-generate and apply the classification contract migration.
+generate and apply reviewed classification Alembic Python revisions from the extended ODCS metadata;
+use Polars for batch feature preparation and shared Pandera checks for classification outputs.
 - Acceptance gates: Every inventory file appears exactly once; unreadability follows extraction
 evidence; exact and ancestor-aware precision/recall, hierarchical distance, calibration, selective
 coverage, exceptional-outcome confusion, reproducibility, throughput, and memory meet predeclared
@@ -942,6 +1150,9 @@ through versioned merge/split overlays. Use the selected maintained Splink relea
 the local seam with DuckDB; define
 blocking and comparison specs; train/calibrate from reviewer labels; persist the model, thresholds,
 pair probabilities, and cluster algorithm.
+Keep Splink-generated DuckDB SQL inside the maintained adapter; prepare inputs with Polars
+and shared Pandera checks. Express relational cluster/alias projection models in dbt with
+relationship and stable-key tests; persist review decisions through typed transactions.
 - Acceptance gates: Fixture linkage and same-name/jurisdiction/identifier nonmatches pass; archive thresholds
 remain proposals until reviewed; only an approved policy may apply automatic merges; replay does
 not refit; uncertain/rejected pairs remain separate; rollback restores the
@@ -968,6 +1179,9 @@ duplication into AGE.
 - Execution path: Batch vertices/edges with stable ids; checkpoint high-water marks; validate
 counts, ids, sampled paths, and SQL/Cypher results; switch active graph version atomically;
 enforce depth/result/time limits.
+Use dbt models and data tests for relational vertex/edge inputs, and named SQL/Cypher assets
+for bounded parity probes. Alembic owns graph lifecycle metadata; the narrow AGE adapter owns
+projection commands and quality results gate the active-pointer transaction.
 - Acceptance gates: Rebuild is deterministic; sampled traversals match recursive SQL; evidence
 lookup succeeds for every sampled edge; AGE-disabled mode exports the same logical graph; failed
 build leaves prior graph active.
@@ -1057,6 +1271,8 @@ financial and product adapters are separate tasks; register ontology asset valid
 through the stage registry; define JSON-schema LLM envelopes; retrieve
 bounded evidence; validate source spans,
 types, units, currencies, model output, and one bounded repair; batch and checkpoint by content hash.
+Use generated structured-output validation followed by shared Pandera batch checks; preserve
+evidence/semantic validators and write proposed rows through typed SQLAlchemy/COPY adapters.
 - Acceptance gates: Malformed, unsupported, uncited, and span-mismatched outputs are retained as
 typed failures, not facts; per-type precision/recall and citation validity are measured; rerun is
 idempotent.
@@ -1080,6 +1296,8 @@ same names with identity, an invoice with delivery, or a paid label with a bank 
 - Execution path: Integrate table/document adapters for invoice and bank records, journal/ledger exports,
 credit notes/reversals and contracts; preserve raw/decimal values, currency, debit/credit, dates,
 formulas/cached values, role direction, and evidence; expose the lane under the registered facts stage.
+Normalize tabular values with typed Polars expressions and explicit decimal/currency schemas;
+reuse Pandera and existing domain rules without float arithmetic or silent coercion.
 - Acceptance gates: Network-free fixtures cover same-name parties, multi-page/sheet tables,
 OCR decimal errors,
 negative/reversed entries, mixed currency and missing identifiers; no macros execute; per-field/type
@@ -1105,6 +1323,8 @@ required components, quantities, manufacturing capability, or actual supply.
 part number,
 revision/effectivity, alternatives, quantity per parent and units; keep unknown values null;
 register the bounded product lane under facts and measure against frozen examples.
+Use typed Polars/PyArrow batches and shared Pandera quantity/unit/key checks; retain domain
+validators for revision/effectivity and evidence semantics.
 - Acceptance gates: Fixtures separate model from physical instance, explicit part-of from mention,
 alternatives
 from mandatory components, and incompatible revisions; citation validity and per-type/quantity
@@ -1133,6 +1353,9 @@ human-gated.
 contradiction, and evidence checks; create immutable decision events and reversible active views;
 register `validate-facts` separately
 from the upstream ontology configuration stage.
+Reuse generated Pandera checks and existing ontology/domain predicates; express relational
+duplicate/conflict groups and active review views as described dbt models with data tests. Keep
+immutable review-event writes in typed SQLAlchemy transactions.
 - Acceptance gates: Synthetic and gold contradictions are found with measured precision; every
 active status derives from an audit event; rejected/superseded facts retain evidence; rules are
 versioned and replayable.
@@ -1193,6 +1416,9 @@ totals and
 many-to-many allocations with currency, tolerance, credit/reversal and time constraints; distinguish
 matched, partial, overallocated, disputed, duplicate and unmatched states; render bounded graphs
 from the same tables without requiring AGE.
+Put reconciliation joins, allocations, balances and party views in named dbt models with grain,
+decimal/currency definitions, source/ref dependencies and domain data tests; use typed Polars for
+local export preparation and shared quality checks before publishing.
 - Acceptance gates: Frozen positive/negative fixtures prove party direction, no inferred ownership
 from payment,
 no over-allocation silently accepted, partial/reversed/multi-invoice payments, source arithmetic,
@@ -1222,6 +1448,9 @@ or infer actual shipment from a catalog or quote. AGE is not required.
 alternatives and
 revision/effectivity; derive rollups only with compatible units and retain operands; project quoted,
 ordered, invoiced, shipped, received and paid stages; calculate concentration with denominators.
+Use described dbt models for relational BOM/supply projections and aggregation, with explicit
+unit/revision grain and cycle/rollup tests. Keep traversal algorithms in focused typed Python where
+needed; validate export batches through Pandera and reuse existing domain rules.
 - Acceptance gates: Fixtures cover repeated components, multi-level rollups, cycles, unknown
 quantities, mixed
 units, alternatives, conflicting revisions and incomplete supplier coverage; tables/graphs match,
@@ -1244,13 +1473,15 @@ were produced, partial, empty, or failed and provides a verified local path plus
 summary for each.
 - Scope boundary: Register immutable outputs and read-only links; do not mark failed output
 successful, embed unrestricted source text, or let dashboards become the canonical registry.
-- Data and artifact paths: `ctl.artifact`, additive `db/migrations/`,
+- Data and artifact paths: `ctl.artifact`, additive `src/arxiv_int/migrations/versions/`,
 `$RUNS_DIR/<run-id>/artifacts/registry.{json,parquet}`, `src/arxiv_int/reporting/artifacts/`, CLI/API
 responses, and registry contract tests.
-- Execution path: Generate and apply additive artifact-registry migrations; assign stable artifact
-ids; capture type/schema/generator/input/policy fingerprints, paths, media types, checksums, counts,
-evidence coverage, status, and failure reason; validate output before one atomic registry
+- Execution path: Generate and apply additive artifact-registry Alembic Python revisions; assign
+stable artifact ids; capture type/schema/generator/input/policy fingerprints, paths, media types,
+checksums, counts, evidence coverage, status, and failure reason; validate output before one atomic registry
 publication; add `run artifacts` listing and report links.
+Use contract-derived Alembic Python revisions and typed SQLAlchemy registry transactions; bind
+model lineage and shared quality evidence to each artifact fingerprint before publication.
 - Acceptance gates: Contract fixtures cover produced/partial/empty/failed states; every successful
 row resolves to checksum-valid files and source evidence; missing or corrupt output prevents
 publication; unchanged reruns reuse ids; CLI/API and manifest/SQL registries agree.
@@ -1303,6 +1534,9 @@ produce insufficient-evidence and a detector may yield no useful findings.
 - Execution path: Generate finding schemas and register anomalies; implement constraints, comparable-currency
 amount cohorts, duplicate/unmatched candidates, graph concentration/cycles and BOM consistency;
 retain rule/version, operands, source ids, denominator, time window, sample floor and rank rationale.
+Define relational cohorts and deterministic aggregate rules in described dbt models; use
+Polars expressions for local batch calculations. Reuse Pandera/domain checks for input validity,
+and distinguish expected detector findings from data-quality failures.
 - Acceptance gates: Fixtures prove exact expected flags and hard negatives, decimal/unit
 correctness, minimum
 cohort and temporal-leakage guards, source/derivation validity, deterministic grouping, and bounded
@@ -1326,6 +1560,8 @@ implicit feedback training, or unrestricted graph queries.
 - Execution path: Expose anomalies list/show and explicit review operations; publish JSON/Parquet, comparison
 tables and bounded subgraphs; preserve stable finding groups and review reasons across reruns;
 invalidate computations after source, identity, policy or cohort changes.
+Keep triage projections in tested dbt models, review writes in typed SQLAlchemy transactions,
+and export batch validation in the shared Pandera adapter.
 - Acceptance gates: Review replay and undo retain source facts; stale findings are labelled and recomputed;
 rank/filter definitions and skipped/insufficient counts are present; empty outputs validate; exports
 and canonical counts agree; changed evidence cannot inherit a misleading resolved state.
@@ -1404,6 +1640,9 @@ and `$RUNS_DIR/<run-id>/artifacts/catalogs/`.
 - Execution path: Register catalogs and catalog company/product/person; implement filtered/paginated
 CSV/Parquet/JSON exports and bounded relation/evidence views; publish one registry entry per required
 catalog including empty states, snapshot fingerprints, coverage and review inclusion policy.
+Build catalog relations as named dbt models with documented grain, source/ref, inclusion policy,
+stable keys and relationship/count tests. Typed query adapters handle pagination and export;
+Pandera validates exported batches against the same contracts.
 - Acceptance gates: Fixtures prove role versus entity distinctions, same-name nonmatches,
 aliases and identifiers,
 source/identity merge-split/removal updates, counts against canonical views, complete citations,
@@ -1437,6 +1676,10 @@ report sections, per-document content overviews with extractive snippets and sec
 CSV/Parquet/HTML exports, and explain modes; register the `report`
 stage body behind `arxiv-int report build RUN_ID` and `search lexical|semantic|hybrid`; constrain
 text/depth/result/time.
+Consume dbt-tested report/catalog marts and retained quality/lineage artifacts; use bound
+SQLAlchemy query expressions for filters and pagination, reviewed SQL/Cypher assets for engine
+queries, and Polars/PyArrow with Pandera for bounded exports. No report business transformations
+are embedded in Python strings or dashboard query text.
 - Acceptance gates: Scenario fixtures return complete citations and declared inclusion rules; SQL
 injection and path tests pass; large/unbounded requests are refused; exports conform to generated
 contracts; report manifest and pinned canonical snapshots agree; source snippets cannot execute
@@ -1464,6 +1707,8 @@ screenshot/query smoke fixtures.
 - Execution path: Provision PostgreSQL datasource and dashboards as code from the repository, keep
 only mutable service state under `SERVICE_STATE_DIR`; create read-only views; configure AGE Viewer;
 document loopback URLs and lifecycle; add health and bounded-query smoke tests.
+Read described dbt marts through bounded parameterized dashboard queries; keep metric
+transformations in dbt models and provision role changes through Alembic Python revisions.
 - Acceptance gates: Fresh profile start needs no manual datasource setup; read-only roles cannot
 mutate canonical rows; dashboards load fixture data; deleting `SERVICE_STATE_DIR` loses no
 provisioned definition; graph profile absence degrades cleanly.
@@ -1574,6 +1819,8 @@ change, not a deferred audit. Do not invent missing benchmarks.
 claim registry.
 - Execution path: Link published metrics to run fields and content pins; list invalidations caused
 by contract, model, profile, classification, or artifact changes.
+Include Alembic revision identity, dbt model/input hashes and required Pandera/dbt rule outcomes
+in freshness checks; a missing, stale or skipped validation report cannot certify an artifact.
 - Acceptance gates: Every published number resolves to one immutable artifact field; implementation
 boundaries remain explicit; orphan or stale claims fail CI.
 - Documentation target: `docs/impl/current/evaluation.md`
@@ -1723,6 +1970,9 @@ manifests, review/identity/anomaly dispositions, configured policies, path-event
 registries, checksums, and free-space requirements; restore
 into a new directory, run contract/live-store/source-lookup checks, and rebuild disposable
 projections.
+Capture Alembic heads and immutable revisions, contract/model/rule versions, and sanitized dbt
+lineage/quality reports. Verify the restored live catalog without blind stamping; rebuild dbt
+derived generations and run shared quality tests before activating restored projections.
 - Acceptance gates: Clean-target restore reproduces canonical counts/checksums and sampled queries;
 a backup missing a configured WAL or tablespace root fails as incomplete rather than restoring a
 partial cluster; missing/corrupt backup parts fail before mutation; recovery time/space are recorded;
@@ -1806,6 +2056,8 @@ model/index before comparison.
 - Execution path: Select unique/high-value/evaluation/miss-driven chunks; batch through Ollama,
 vLLM, or local encoder; validate dimensions and normalization; write Parquet then binary COPY;
 create no cross-profile index.
+Use PyArrow/Polars batches with contract-derived Pandera profile/dimension checks before COPY;
+manage selected vector schema/index changes through reviewed Alembic operations.
 - Acceptance gates: Interrupted batch resumes; input/model/config changes create new ids;
 selected-tier reason is recorded; embedding output is deterministic within declared tolerance; 16
 GB VRAM stays within budget.
@@ -1915,7 +2167,8 @@ explicitly writable silo root per plan. Never overwrite, silently recategorize, 
 escaping links, write into the results or database roots, or run from the ordinary read-only
 pipeline/Compose path.
 - Data and artifact paths: `src/arxiv_int/archive/`, `corpus.document_path_event`, additive
-`db/migrations/`, `$RUNS_DIR/<run-id>/archive-reorganization/{plan.json,ledger.parquet,journal/}`,
+`src/arxiv_int/migrations/versions/`,
+`$RUNS_DIR/<run-id>/archive-reorganization/{plan.json,ledger.parquet,journal/}`,
 CLI and path-limit fixtures, the declared copy target, and the selected silo root only after
 `--apply` in `move` mode.
 - Execution path: Build ancestor directories from reversible class tokens and bounded ASCII slugs;
@@ -1929,6 +2182,9 @@ suffixes, filesystem identity checks, and idempotent path-ledger import; seal
 the ledger before journaling renames or verified copies; expose resume and verified rollback;
 reuse the shared read-only
 `archive locate` resolver.
+Generate the path-event change as a reviewed Alembic Python revision; use typed Polars/Arrow
+ledger operations and shared Pandera checks on sealed inputs and output ledgers. The placement
+executor remains independent of live dbt/database services.
 - Acceptance gates: Dry-run is byte-for-byte reproducible; apply requires the exact accepted plan and
 mode; fixtures prove no overwrite, byte-identical content in both modes, hash verification of every
 copied file, one-to-one placed/blocked path accounting, collision and stale-hash refusal,
