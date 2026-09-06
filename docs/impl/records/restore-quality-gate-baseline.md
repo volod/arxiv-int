@@ -107,7 +107,9 @@ restored an existing gate and added no product behavior.
 
 Updated on acceptance: [Project foundation](../current/project-foundation.md#tests-and-verification)
 and the [record index](README.md). References to the removed plan task now point at this record.
-Next action: the plan's next agent task,
-[`enforce-task-record-and-checkpoint-integrity`](../plan.md#enforce-task-record-and-checkpoint-integrity),
-which depended on this baseline and is now unblocked. No process, service or temporary scaffold
-remains; the baseline copies under `.data/quality-baseline/20260906/` are retained as evidence.
+Next action at the time of acceptance: the plan's next agent task,
+`enforce-task-record-and-checkpoint-integrity`, which depended on this baseline and was unblocked
+by it; it is now the accepted
+[record and checkpoint integrity](enforce-task-record-and-checkpoint-integrity.md).
+No process, service or temporary scaffold remains; the baseline copies under
+`.data/quality-baseline/20260906/` are retained as evidence.

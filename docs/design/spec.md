@@ -1457,10 +1457,10 @@ block independent fixture implementation.
 Refactoring preserves public behavior except specified defect fixes. Reuse typed seams and shared
 root, service, credential, contract and artifact policy; avoid frameworks or line-count-only splits.
 
-Evaluation requires manual gate-to-evidence review. Future automated fixtures must detect lost
-multiline fields, dangling open/archived dependencies, cycles, missing accepted task snapshots,
-orphan notes and unresolved checkpoint blockers. Until that enforcement task ships, those checks
-remain manual; current tooling does not enforce them. This workflow does not select models or
+Evaluation requires manual gate-to-evidence review of the recorded evidence itself. Automated
+fixtures detect lost multiline fields, dangling open/archived dependencies, cycles, missing accepted
+task snapshots, orphan notes and unresolved checkpoint blockers; they judge resolvable structure,
+not whether the evidence behind a gate is sufficient. This workflow does not select models or
 claim that a model choice proves implementation quality.
 
 ## Evaluation and acceptance

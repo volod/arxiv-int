@@ -8,33 +8,6 @@ ordering, and lifecycle rules belong in the
 
 ## Agent Implementation Tasks
 
-### Project foundation -- `project-foundation`
-
-#### enforce-task-record-and-checkpoint-integrity
-
-Make task handoff records and review dependencies verifiable instead of relying on summaries.
-
-- Serves: `project-foundation` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
-- Agent status: CLEAR
-- Task kind: implementation
-- Audit inputs: [AUD-codebase-09](records/codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: [Quality baseline repair](records/restore-quality-gate-baseline.md);
-[Task records](records/README.md).
-- User-visible outcome: Task requirements survive plan removal; missing evidence, unresolved review
-blockers and dangling dependency ids cannot be mistaken for completed prerequisites.
-- Scope boundary: Extend the existing plan parser/checker and summary; no task database, Git rewrite,
-model selection automation, or fabricated records for old tasks.
-- Data and artifact paths: `src/arxiv_int/quality/{plan_model,plan_integrity,plan_summary}.py`, `tests/quality/`,
-`docs/impl/records/`, and `$DATA_DIR/governance-checks/<run-id>/`.
-- Execution path: Preserve complete multiline fields and fenced accepted task snapshots; resolve dependencies
-against open tasks or accepted records, distinguish conditional references, detect cycles, validate
-record/checkpoint/note links and statuses, and make next-task output respect prerequisites.
-- Acceptance gates: Regression fixtures cover lost continuation lines, dangling/archived ids, cycles,
-conditional branches, missing snapshots/evidence, unresolved blocking notes and valid no-refactor reviews;
-existing structure/order checks remain strict and make ci passes.
-- Documentation target: `docs/impl/current/governance.md`
-- Review checkpoint: `review-foundation-and-store-boundaries`.
-
 ### Portable runtime -- `portable-runtime`
 
 #### refactor-safe-runtime-root-boundaries

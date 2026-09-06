@@ -110,3 +110,19 @@ def test_main_returns_failure_for_invalid_documents(tmp_path: Path) -> None:
     write_project(tmp_path, plan=plan_with())
 
     assert main(["--root", str(tmp_path)]) == 1
+
+
+def test_a_repeated_task_field_is_reported(tmp_path: Path) -> None:
+    plan = plan_with(task_block(extra_fields="- Scope boundary: A second boundary.\n"))
+
+    findings = integrity_findings(write_project(tmp_path, plan=plan))
+
+    assert any("`Scope Boundary` is declared twice" in finding for finding in findings)
+
+
+def test_a_missing_review_checkpoint_is_reported(tmp_path: Path) -> None:
+    plan = plan_with(task_block()).replace("- Review checkpoint: none; task-local review only.", "")
+
+    findings = integrity_findings(write_project(tmp_path, plan=plan))
+
+    assert any("missing non-empty `Review Checkpoint` field" in finding for finding in findings)

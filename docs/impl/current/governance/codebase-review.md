@@ -55,10 +55,11 @@ and disposition. Current summaries link records instead of losing those details 
 second queue. New review rounds use new ids when later changes expose integration risk. Routine
 self-review remains part of every task; model choice alone supplies no quality guarantee.
 
-These are documentation requirements available now. The current parser still ignores continuation
-lines, and `make plan-status` reports priority without checking dependency readiness. Automated
-record, note, dependency-cycle and checkpoint enforcement remains a named future task. Until then,
-perform those checks manually; the existing integrity checker has not been extended in this change.
+These are documentation requirements available now. The parser ignored continuation lines and
+`make plan-status` reported priority without checking dependency readiness when this review ran;
+[record and checkpoint integrity](../../records/enforce-task-record-and-checkpoint-integrity.md)
+has since added record, note, dependency-cycle and checkpoint enforcement. The integrity checker
+was not extended by this review itself.
 
 The [README quickstart](../../../../README.md#quick-start) now has ordered tables for prerequisites,
 environment, host inference, locked extras, services, and readiness; a separately labelled target
