@@ -151,8 +151,8 @@ formatting/import ordering in `src/arxiv_int/runtime/__init__.py` and Radon comp
 `tests/compose/test_profiles.py::test_rendered_topology_has_pins_health_stop_and_mount_isolation`,
 and the complexity target stopped at Radon, so its subsequent cognitive-complexity check was
 not established by that run. The
-[quality baseline repair](../records/0003-foundation-restore-quality-gate-baseline.md) has since fixed both;
-`make ci` and `make quality` now pass and both complexity subchecks run. These baseline
+[quality baseline repair](../records/0003-foundation-restore-quality-gate-baseline.md) has since
+fixed both; `make ci` and `make quality` now pass and both complexity subchecks run. These baseline
 findings do not become new product capabilities or deferred audit tasks. Runtime/CUDA and
 provided-archive proofs remain forward tasks. No services, model processes, ports, or external
 resources were started by this audit.

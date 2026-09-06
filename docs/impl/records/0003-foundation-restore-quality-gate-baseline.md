@@ -95,9 +95,10 @@ started stack.
 
 `none identified`. Reviewed scope: the two repaired files, the complexity gate wiring in
 `Makefile`, and the diff against `099b223` for unrelated formatting churn (none present;
-`git diff --check` clean). [AUD-codebase-10](0001-govern-codebase-and-workflow-audit.md#audit-handoff) is
-resolved by this record: the required gate is green, so a later failure is attributable to the
-next change. The audit's remaining code findings keep their existing owner tasks.
+`git diff --check` clean).
+[AUD-codebase-10](0001-govern-codebase-and-workflow-audit.md#audit-handoff) is resolved by this
+record: the required gate is green, so a later failure is attributable to the next change. The
+audit's remaining code findings keep their existing owner tasks.
 
 ## Close or resume
 

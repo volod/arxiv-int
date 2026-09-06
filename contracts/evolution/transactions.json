@@ -1,0 +1,132 @@
+{
+  "contractId": "transactions",
+  "fieldIdentity": "schema-qualified",
+  "fields": {
+    "transactions.amount": {
+      "logicalType": "number",
+      "physicalType": "",
+      "required": false
+    },
+    "transactions.contract_version": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "transactions.currency": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "transactions.document_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "transactions.event_time": {
+      "logicalType": "timestamp",
+      "physicalType": "",
+      "required": false
+    },
+    "transactions.generation_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "transactions.party_object_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "transactions.party_subject_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "transactions.transaction_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "transactions.transaction_type": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    }
+  },
+  "fingerprints": {
+    "avroSha256": "117b0c38f3440847b24df8f52954c2d51ae816df7bd3d0191dc67cec48664b41",
+    "generatorVersion": "1.0.0",
+    "postgresSha256": "4f2c5b23c2104ff656150fdb0cf194141d8af774d7265e1187d03638da908ca7",
+    "semanticMetadataHash": "304478e93fdd2d2145ffcb79b902ab56f7e360c7ac89aa53ea8de65074a5b870"
+  },
+  "history": [
+    {
+      "contractId": "transactions",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "transactions.amount": {
+          "logicalType": "number",
+          "physicalType": "",
+          "required": false
+        },
+        "transactions.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "transactions.currency": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "transactions.document_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "transactions.event_time": {
+          "logicalType": "timestamp",
+          "physicalType": "",
+          "required": false
+        },
+        "transactions.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "transactions.party_object_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "transactions.party_subject_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "transactions.transaction_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "transactions.transaction_type": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "117b0c38f3440847b24df8f52954c2d51ae816df7bd3d0191dc67cec48664b41",
+        "generatorVersion": "1.0.0",
+        "postgresSha256": "4f2c5b23c2104ff656150fdb0cf194141d8af774d7265e1187d03638da908ca7",
+        "semanticMetadataHash": "304478e93fdd2d2145ffcb79b902ab56f7e360c7ac89aa53ea8de65074a5b870"
+      },
+      "odcsId": "urn:arxiv-int:contract:transactions:1.0.0",
+      "projections": {},
+      "version": "1.0.0"
+    }
+  ],
+  "odcsId": "urn:arxiv-int:contract:transactions:1.0.0",
+  "projections": {},
+  "version": "1.0.0"
+}

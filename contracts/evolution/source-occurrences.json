@@ -1,0 +1,132 @@
+{
+  "contractId": "source-occurrences",
+  "fieldIdentity": "schema-qualified",
+  "fields": {
+    "source_occurrences.container_path": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "source_occurrences.content_hash": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "source_occurrences.contract_version": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "source_occurrences.generation_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "source_occurrences.member_path": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "source_occurrences.occurrence_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "source_occurrences.relative_path": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "source_occurrences.scan_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "source_occurrences.silo_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "source_occurrences.status": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    }
+  },
+  "fingerprints": {
+    "avroSha256": "d28255ef4e366ac163463820fc1f5f41698e74aa448f1900169ce8ca841dd448",
+    "generatorVersion": "1.0.0",
+    "postgresSha256": "eb220caa1f598244b0ac214f602798aab2388ccf38705e671540d29e54366ec5",
+    "semanticMetadataHash": "2c6102d0cf82a82e0199ed780ac01ecafb561c4c7cf3f15789643945446ffd75"
+  },
+  "history": [
+    {
+      "contractId": "source-occurrences",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "source_occurrences.container_path": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "source_occurrences.content_hash": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "source_occurrences.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "source_occurrences.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "source_occurrences.member_path": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "source_occurrences.occurrence_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "source_occurrences.relative_path": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "source_occurrences.scan_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "source_occurrences.silo_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "source_occurrences.status": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "d28255ef4e366ac163463820fc1f5f41698e74aa448f1900169ce8ca841dd448",
+        "generatorVersion": "1.0.0",
+        "postgresSha256": "eb220caa1f598244b0ac214f602798aab2388ccf38705e671540d29e54366ec5",
+        "semanticMetadataHash": "2c6102d0cf82a82e0199ed780ac01ecafb561c4c7cf3f15789643945446ffd75"
+      },
+      "odcsId": "urn:arxiv-int:contract:source-occurrences:1.0.0",
+      "projections": {},
+      "version": "1.0.0"
+    }
+  ],
+  "odcsId": "urn:arxiv-int:contract:source-occurrences:1.0.0",
+  "projections": {},
+  "version": "1.0.0"
+}

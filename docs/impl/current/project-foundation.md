@@ -74,10 +74,11 @@ release. The foundational configuration merge and containment helpers have grown
 
 `arxiv_int.contracts` provides an explicit-root file registry, an immutable canonical semantic
 model, deterministic semantic metadata hashes, registered generator dispatch, schema
-snapshot/change/version/baseline primitives, and deterministic multi-format generation from the
-product ODCS tree. The shipped registry, `x-arxiv-int` bindings, Pydantic loaders, lint workflow,
-and `contracts/generated` artifacts are documented in [Contracts](contracts.md). Later
-contract-governance work owns adjacent-history policy, migrations, and live-store checks.
+snapshot/change/version/baseline primitives, deterministic multi-format generation, and evolution
+policy with reviewed baselines and dbmate-shaped migrations. The shipped registry, `x-arxiv-int`
+bindings, loaders, generation tree, and evolution checks are documented in
+[Contracts](contracts.md). Later contract-governance work owns ontology assets and applying
+migrations onto the pinned multi-extension store image.
 
 ## Evaluation and retrieval primitives
 

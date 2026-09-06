@@ -99,6 +99,16 @@ def build_parser() -> argparse.ArgumentParser:
         "check", help="fail when contracts/generated drifts from regeneration"
     )
     check.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
+    evolution = contract_commands.add_parser(
+        "evolution",
+        help="check reviewed baselines, migrations, and compatibility policy",
+    )
+    evolution.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
+    evolution.add_argument(
+        "--skip-live-sql",
+        action="store_true",
+        help="skip disposable Postgres apply of baseline CREATE TABLE SQL",
+    )
     return parser
 
 
@@ -203,7 +213,13 @@ def _run_readiness(args: argparse.Namespace) -> int:
     return result.report.exit_code
 
 
+def _log_findings(findings: list[str] | tuple[str, ...]) -> None:
+    for finding in findings:
+        _LOG.error("%s", finding)
+
+
 def _run_contracts(args: argparse.Namespace) -> int:
+    from arxiv_int.contracts.evolution import check_evolution_policy
     from arxiv_int.contracts.generate import check_generation_drift, generate_all_contracts
     from arxiv_int.contracts.lint import contracts_root_for, lint_contracts
     from arxiv_int.runtime.project_root import ProjectRootError, find_project_root
@@ -211,7 +227,8 @@ def _run_contracts(args: argparse.Namespace) -> int:
     try:
         root = find_project_root(args.project_root)
         contracts_root = contracts_root_for(root)
-        if args.contracts_command == "generate":
+        command = args.contracts_command
+        if command == "generate":
             result = generate_all_contracts(contracts_root)
             _LOG.info(
                 "generated %d artifact(s); manifest=%s",
@@ -219,30 +236,42 @@ def _run_contracts(args: argparse.Namespace) -> int:
                 result.manifest_fingerprint[:12],
             )
             return 0
-        if args.contracts_command == "check":
+        if command == "check":
             findings = check_generation_drift(contracts_root)
             if findings:
-                for finding in findings:
-                    _LOG.error("%s", finding)
+                _log_findings(findings)
                 return 1
             _LOG.info("contracts generation drift check passed")
             return 0
-        report = lint_contracts(
+        if command == "evolution":
+            report = check_evolution_policy(
+                contracts_root,
+                project_root=root,
+                include_live_sql=not args.skip_live_sql,
+            )
+            if report.findings:
+                _log_findings(report.findings)
+                return 1
+            _LOG.info(
+                "contracts evolution policy passed: %d contract(s)",
+                report.checked_contracts,
+            )
+            return 0
+        lint_report = lint_contracts(
             contracts_root,
             run_datacontract=not args.skip_datacontract,
         )
     except (OSError, ProjectRootError, RuntimeError, ValueError) as error:
         _LOG.error("%s", error)
         return 1
-    if report.ok:
+    if lint_report.ok:
         _LOG.info(
             "contracts lint passed: %d dataset(s); datacontract=%s",
-            report.checked_datasets,
-            report.datacontract_ran,
+            lint_report.checked_datasets,
+            lint_report.datacontract_ran,
         )
         return 0
-    for finding in report.findings:
-        _LOG.error("%s", finding)
+    _log_findings(lint_report.findings)
     return 1
 
 

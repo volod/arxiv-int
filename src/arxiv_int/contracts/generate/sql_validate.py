@@ -56,7 +56,7 @@ def apply_sql_on_disposable_postgres(sql_texts: Sequence[str]) -> list[str]:
     if not scripts:
         return ["no CREATE TABLE statements found for disposable postgres apply"]
     combined = "\n".join(scripts) + "\n"
-    container = f"arxiv-int-sql-check-{os.getpid()}"
+    container = f"arxiv-int-sql-{os.getpid()}-{int(time.time() * 1000) % 100000}"
     with tempfile.TemporaryDirectory(prefix="arxiv-int-pg-sql-") as tmp:
         sql_file = Path(tmp) / "schema.sql"
         sql_file.write_text(combined, encoding="utf-8")
@@ -81,7 +81,7 @@ def apply_sql_on_disposable_postgres(sql_texts: Sequence[str]) -> list[str]:
         if run.returncode != 0:
             return [f"failed to start disposable postgres: {run.stderr.strip()}"]
         try:
-            for _ in range(40):
+            for _ in range(60):
                 ready = subprocess.run(
                     ["docker", "exec", container, "pg_isready", "-U", "postgres"],
                     check=False,
@@ -93,34 +93,44 @@ def apply_sql_on_disposable_postgres(sql_texts: Sequence[str]) -> list[str]:
                 time.sleep(0.25)
             else:
                 return ["disposable postgres did not become ready"]
+            time.sleep(0.5)
             subprocess.run(
                 ["docker", "cp", str(sql_file), f"{container}:/tmp/schema.sql"],
                 check=True,
                 capture_output=True,
                 text=True,
             )
-            apply = subprocess.run(
-                [
-                    "docker",
-                    "exec",
-                    container,
-                    "psql",
-                    "-U",
-                    "postgres",
-                    "-v",
-                    "ON_ERROR_STOP=1",
-                    "-f",
-                    "/tmp/schema.sql",
-                ],
-                check=False,
-                capture_output=True,
-                text=True,
-            )
-            if apply.returncode != 0:
+            detail = "apply failed"
+            for _ in range(8):
+                apply = subprocess.run(
+                    [
+                        "docker",
+                        "exec",
+                        container,
+                        "psql",
+                        "-U",
+                        "postgres",
+                        "-v",
+                        "ON_ERROR_STOP=1",
+                        "-f",
+                        "/tmp/schema.sql",
+                    ],
+                    check=False,
+                    capture_output=True,
+                    text=True,
+                )
+                if apply.returncode == 0:
+                    _LOG.info(
+                        "disposable postgres accepted %d CREATE TABLE script(s)",
+                        len(scripts),
+                    )
+                    return []
                 detail = (apply.stderr or apply.stdout or "apply failed").strip()
-                return [f"disposable postgres rejected SQL: {detail}"]
-            _LOG.info("disposable postgres accepted %d CREATE TABLE script(s)", len(scripts))
-            return []
+                if "starting up" in detail.lower() or "shutting down" in detail.lower():
+                    time.sleep(0.5)
+                    continue
+                break
+            return [f"disposable postgres rejected SQL: {detail}"]
         finally:
             subprocess.run(
                 ["docker", "rm", "-f", container],

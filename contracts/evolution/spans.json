@@ -1,0 +1,112 @@
+{
+  "contractId": "spans",
+  "fieldIdentity": "schema-qualified",
+  "fields": {
+    "spans.contract_version": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "spans.document_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "spans.end_char": {
+      "logicalType": "integer",
+      "physicalType": "",
+      "required": false
+    },
+    "spans.generation_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "spans.kind": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "spans.page": {
+      "logicalType": "integer",
+      "physicalType": "",
+      "required": false
+    },
+    "spans.span_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "spans.start_char": {
+      "logicalType": "integer",
+      "physicalType": "",
+      "required": false
+    }
+  },
+  "fingerprints": {
+    "avroSha256": "eb39c2b21651d27b14dc1c735fbde38c24926a46bfc7f71b4b52447afeea6f7a",
+    "generatorVersion": "1.0.0",
+    "postgresSha256": "303d07e40808256dd083471fb012d316deea52cf7a8649c0a9dff0b3050a1232",
+    "semanticMetadataHash": "499653b788b2a74e7afa78eb2cc3e082fd9cad7cd2a3fdd7c3bd23901902307b"
+  },
+  "history": [
+    {
+      "contractId": "spans",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "spans.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "spans.document_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "spans.end_char": {
+          "logicalType": "integer",
+          "physicalType": "",
+          "required": false
+        },
+        "spans.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "spans.kind": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "spans.page": {
+          "logicalType": "integer",
+          "physicalType": "",
+          "required": false
+        },
+        "spans.span_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "spans.start_char": {
+          "logicalType": "integer",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "eb39c2b21651d27b14dc1c735fbde38c24926a46bfc7f71b4b52447afeea6f7a",
+        "generatorVersion": "1.0.0",
+        "postgresSha256": "303d07e40808256dd083471fb012d316deea52cf7a8649c0a9dff0b3050a1232",
+        "semanticMetadataHash": "499653b788b2a74e7afa78eb2cc3e082fd9cad7cd2a3fdd7c3bd23901902307b"
+      },
+      "odcsId": "urn:arxiv-int:contract:spans:1.0.0",
+      "projections": {},
+      "version": "1.0.0"
+    }
+  ],
+  "odcsId": "urn:arxiv-int:contract:spans:1.0.0",
+  "projections": {},
+  "version": "1.0.0"
+}

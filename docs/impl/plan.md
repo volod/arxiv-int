@@ -10,29 +10,6 @@ ordering, and lifecycle rules belong in the
 
 ### Contract governance -- `contract-governance`
 
-#### enforce-evolution-and-migration-policy
-
-Add reviewed schema/semantic baselines, compatibility classification, ordered SQL migrations, and
-live-store conformance checks.
-
-- Serves: `contract-governance` -- [Evolution and migrations](../design/spec.md#evolution-and-migrations)
-- Agent status: CLEAR
-- Dependencies: [Deterministic schema generation](records/0011-contract-gov-implement-deterministic-schema-generation.md).
-- User-visible outcome: Breaking, reindexing, and graph-rebuild consequences are reported before a
-schema change can reach data.
-- Scope boundary: Detect, classify, and prepare migrations; never auto-approve destructive or
-table-rewriting changes.
-- Data and artifact paths: `contracts/evolution/`, `db/migrations/`, `db/schema.sql`,
-`src/arxiv_int/contracts/evolution.py`, and `tests/contracts/evolution/`.
-- Execution path: Extend the existing adjacent-history and semantic-fingerprint primitives; invoke
-Avro reader/writer compatibility and Data Contract CLI breaking checks; integrate dbmate; compare
-generated baseline, migration dump, and live information schema.
-- Acceptance gates: Fixtures prove identical, additive, breaking, tokenizer/reindex,
-vector-dimension, semantic-retarget, and graph-projection cases; version rules fail closed;
-out-of-order migrations and drift fail CI.
-- Documentation target: `docs/impl/current/contracts.md`
-- Review checkpoint: `review-foundation-and-store-boundaries`.
-
 #### establish-versioned-ontology-assets
 
 Create the controlled vocabulary, classes, predicates, semantic mappings, SHACL shapes, and open RDF
@@ -123,7 +100,7 @@ with partition and provenance constraints.
 - Serves: `canonical-store` -- [PostgreSQL schemas](../design/spec.md#postgresql-schemas)
 - Agent status: CLEAR
 - Dependencies: `build-pinned-paradedb-age-image` can yield either AGE-enabled or AGE-disabled;
-`enforce-evolution-and-migration-policy`.
+[Evolution and migration policy](records/0012-contract-gov-enforce-evolution-and-migration-policy.md).
 `define-domain-investigation-contracts-and-ontology`.
 
 - User-visible outcome: Canonical documents, assertions, reviews, and run state have constrained,

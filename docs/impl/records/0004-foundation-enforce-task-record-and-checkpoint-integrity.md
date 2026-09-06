@@ -121,10 +121,11 @@ repository documents and fixtures only.
 ## Audit handoff
 
 `none identified`. Reviewed scope: the five quality modules, their tests, and the plan/record
-documents the gate reads. [AUD-codebase-09](0001-govern-codebase-and-workflow-audit.md#audit-handoff) is
-resolved by this record: continuation lines are preserved, dependencies resolve against open tasks
-and accepted records, cycles are detected, and `make plan-status` reports actual eligibility. The
-audit's remaining code findings keep their existing owner tasks.
+documents the gate reads.
+[AUD-codebase-09](0001-govern-codebase-and-workflow-audit.md#audit-handoff) is resolved by this
+record: continuation lines are preserved, dependencies resolve against open tasks and accepted
+records, cycles are detected, and `make plan-status` reports actual eligibility. The audit's
+remaining code findings keep their existing owner tasks.
 
 Two limits are recorded rather than routed, because neither is a defect in the accepted scope.
 Conditional-branch detection is wording-based and conservative by design. The gate checks that

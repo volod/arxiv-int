@@ -1,8 +1,9 @@
 # Contracts
 
 Product ODCS `3.1.0` contracts under `contracts/` are the reviewable schema source of truth for
-pipeline entities. `arxiv_int.contracts` loads, fingerprints, lints, and generates physical schemas
-from that tree through rooted references, typed loaders, and schema-qualified evolution primitives.
+pipeline entities. `arxiv_int.contracts` loads, fingerprints, lints, generates physical schemas, and
+enforces evolution policy from that tree through rooted references, typed loaders, and
+schema-qualified baselines.
 
 ## Product registry
 
@@ -47,6 +48,20 @@ Provenance sidecars retain ODCS id/version, semantic hash, and every `x-arxiv-in
 metadata is not silently dropped. Some CLI Avro mappings (for example ODCS `number` to Avro
 `bytes`) follow the exporter; logical types remain authoritative in ODCS and provenance.
 
+## Evolution and migrations
+
+Reviewed baselines under `contracts/evolution/<contract-id>.json` capture schema-qualified fields,
+semantic fingerprints, generator/artifact hashes, and search/vector/graph projections. Policy
+classification covers identical, additive, breaking, tokenizer reindex, vector-dimension,
+semantic-retarget, and graph-projection consequences. Version rules fail closed (minor for additive/
+reindex/graph; major for breaking/vector/semantic). Destructive SQL is never auto-approved.
+
+Ordered migrations live in `db/migrations/` using dbmate-shaped names; `db/schema.sql` is the
+reviewed dump. `make contracts-evolution` / `arxiv-int contracts evolution` checks baselines against
+current contracts, Avro self-compatibility, migration order/approvals/dump coverage, optional
+`dbmate status` when installed with `DATABASE_URL`, and disposable Postgres apply of baseline
+CREATE TABLE SQL. Fixtures under `tests/contracts/evolution/` prove each consequence class.
+
 ## Loaders and primitives
 
 Pydantic loaders in `loaders.py` preserve unknown metadata (`extra="allow"`). Rooted reference
@@ -72,8 +87,9 @@ structural upgrade.
 
 `tests/contracts/` covers primitive containment and identity, product ODCS schema validation,
 registry integrity, typed loader unknown-metadata retention, canonical `x-arxiv-int` bindings,
-generation adapters, golden fingerprints, Avro round-trip, SQL parse/apply, drift checking, and
-Data Contract CLI lint when the CLI is available. Evidence:
+generation adapters, golden fingerprints, Avro round-trip, SQL parse/apply, drift checking,
+evolution fixtures/migrations, and Data Contract CLI lint when the CLI is available. Evidence:
+[evolution and migration policy](../records/0012-contract-gov-enforce-evolution-and-migration-policy.md);
 [deterministic schema generation](../records/0011-contract-gov-implement-deterministic-schema-generation.md);
 [canonical contract registry](../records/0010-contract-gov-establish-canonical-contract-registry.md);
 [contract identity and reference validation](../records/0009-contract-gov-refactor-contract-identity-and-reference-validation.md).

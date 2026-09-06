@@ -9,8 +9,21 @@ from typing import Any
 CHANGE_IDENTICAL = "identical"
 CHANGE_ADDITIVE = "additive"
 CHANGE_BREAKING = "breaking"
+CHANGE_REINDEX = "reindex"
+CHANGE_VECTOR_DIMENSION = "vector-dimension"
+CHANGE_SEMANTIC_RETARGET = "semantic-retarget"
+CHANGE_GRAPH_PROJECTION = "graph-projection"
 FIELD_IDENTITY_SCHEMA_QUALIFIED = "schema-qualified"
 _SCHEMA_FIELD_SEP = "."
+
+_MAJOR_CLASSES = frozenset(
+    {
+        CHANGE_BREAKING,
+        CHANGE_VECTOR_DIMENSION,
+        CHANGE_SEMANTIC_RETARGET,
+    }
+)
+_MINOR_CLASSES = frozenset({CHANGE_ADDITIVE, CHANGE_REINDEX, CHANGE_GRAPH_PROJECTION})
 
 
 @dataclass(frozen=True)
@@ -169,15 +182,16 @@ def version_policy_errors(
     current_version: str,
     change: ChangeReport,
 ) -> tuple[str, ...]:
-    """Enforce minor bumps for additive and major bumps for breaking changes."""
+    """Enforce version bumps for classified physical and projection changes."""
     baseline = _semver(baseline_version)
     current = _semver(current_version)
     if current < baseline:
         return (f"{contract_id}: version moved backward",)
-    if change.change_class == CHANGE_ADDITIVE and current[:2] <= baseline[:2]:
-        return (f"{contract_id}: additive change requires a minor version bump",)
-    if change.change_class == CHANGE_BREAKING and current[0] <= baseline[0]:
-        return (f"{contract_id}: breaking change requires a major version bump",)
+    klass = change.change_class
+    if klass in _MINOR_CLASSES and current[:2] <= baseline[:2]:
+        return (f"{contract_id}: {klass} change requires a minor version bump",)
+    if klass in _MAJOR_CLASSES and current[0] <= baseline[0]:
+        return (f"{contract_id}: {klass} change requires a major version bump",)
     return ()
 
 

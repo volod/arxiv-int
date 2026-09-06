@@ -1,0 +1,21 @@
+{
+  "fields": {
+    "docs.id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    }
+  },
+  "fingerprints": {
+    "semanticMetadataHash": "abc"
+  },
+  "projections": {
+    "search": {
+      "textFields": [
+        "title"
+      ],
+      "tokenizer": "unicode_words"
+    }
+  },
+  "version": "1.0.0"
+}

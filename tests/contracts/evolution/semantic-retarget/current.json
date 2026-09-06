@@ -1,0 +1,14 @@
+{
+  "fields": {
+    "docs.id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    }
+  },
+  "fingerprints": {
+    "semanticMetadataHash": "def"
+  },
+  "projections": {},
+  "version": "2.0.0"
+}

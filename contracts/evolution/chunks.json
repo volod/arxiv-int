@@ -1,0 +1,136 @@
+{
+  "contractId": "chunks",
+  "fieldIdentity": "schema-qualified",
+  "fields": {
+    "chunks.chunk_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "chunks.chunker_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "chunks.contract_version": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "chunks.document_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "chunks.end_char": {
+      "logicalType": "integer",
+      "physicalType": "",
+      "required": false
+    },
+    "chunks.generation_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "chunks.ordinal": {
+      "logicalType": "integer",
+      "physicalType": "",
+      "required": false
+    },
+    "chunks.start_char": {
+      "logicalType": "integer",
+      "physicalType": "",
+      "required": false
+    },
+    "chunks.text": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    }
+  },
+  "fingerprints": {
+    "avroSha256": "14c1313a787977857c3cbe9dd2c827e4ea9441d6b2ae2056ef7da9dfa0687789",
+    "generatorVersion": "1.0.0",
+    "postgresSha256": "e7686ac1eb5fc58bf26f0e0116686ce2fd6265aae19f758f9c731c5c1eee1fa2",
+    "semanticMetadataHash": "307de21efa13da3e18d6dfc8393d9ea9d7c499023dfad346163dab3f32986cd9"
+  },
+  "history": [
+    {
+      "contractId": "chunks",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "chunks.chunk_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "chunks.chunker_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "chunks.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "chunks.document_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "chunks.end_char": {
+          "logicalType": "integer",
+          "physicalType": "",
+          "required": false
+        },
+        "chunks.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "chunks.ordinal": {
+          "logicalType": "integer",
+          "physicalType": "",
+          "required": false
+        },
+        "chunks.start_char": {
+          "logicalType": "integer",
+          "physicalType": "",
+          "required": false
+        },
+        "chunks.text": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "14c1313a787977857c3cbe9dd2c827e4ea9441d6b2ae2056ef7da9dfa0687789",
+        "generatorVersion": "1.0.0",
+        "postgresSha256": "e7686ac1eb5fc58bf26f0e0116686ce2fd6265aae19f758f9c731c5c1eee1fa2",
+        "semanticMetadataHash": "307de21efa13da3e18d6dfc8393d9ea9d7c499023dfad346163dab3f32986cd9"
+      },
+      "odcsId": "urn:arxiv-int:contract:chunks:1.0.0",
+      "projections": {
+        "search": {
+          "textFields": [
+            "text"
+          ],
+          "tokenizer": "russian_stem"
+        }
+      },
+      "version": "1.0.0"
+    }
+  ],
+  "odcsId": "urn:arxiv-int:contract:chunks:1.0.0",
+  "projections": {
+    "search": {
+      "textFields": [
+        "text"
+      ],
+      "tokenizer": "russian_stem"
+    }
+  },
+  "version": "1.0.0"
+}
