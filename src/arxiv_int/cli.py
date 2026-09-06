@@ -154,7 +154,9 @@ def build_parser() -> argparse.ArgumentParser:
     ontology_generate.add_argument(
         "--project-root", type=Path, default=None, help=argparse.SUPPRESS
     )
-    store = subcommands.add_parser("store", help="build and probe the pinned PostgreSQL image")
+    store = subcommands.add_parser(
+        "store", help="build, probe, and apply the pinned PostgreSQL store"
+    )
     store_commands = store.add_subparsers(dest="store_command", required=True)
     store_build = store_commands.add_parser("build-image", help="build the ParadeDB+AGE image")
     store_build.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
@@ -179,6 +181,26 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="record docker/postgres/age-compatibility.json from probe results",
     )
+    store_apply = store_commands.add_parser(
+        "apply-schema",
+        help="apply owned Alembic revisions on a selected or disposable database",
+    )
+    store_apply.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
+    store_apply.add_argument("--revision", default="head")
+    store_apply.add_argument("--run-id", default=None, help="evidence id under DATA_DIR/migrations")
+    store_apply.add_argument(
+        "--pgdata-dir",
+        type=Path,
+        default=None,
+        help="disposable PGDATA_DIR when no ARXIV_INT_MIGRATION_DATABASE_URL is set",
+    )
+    store_inspect = store_commands.add_parser(
+        "inspect-schema",
+        help="inspect live catalog conformance without applying revisions",
+    )
+    store_inspect.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
+    store_inspect.add_argument("--run-id", default=None)
+
     quality = subcommands.add_parser(
         "data-quality", help="validate dataset contents against contracts"
     )
@@ -382,7 +404,9 @@ def _run_db(args: argparse.Namespace) -> int:
         if command == "check":
             return commands.run_check(root, contracts_root)
         if command == "adopt":
-            return commands.run_adopt(root, contracts_root)
+            from arxiv_int.stores.postgres.commands import run_adopt_schema
+
+            return run_adopt_schema(root, run_id="adopt")
         if command == "upgrade" and args.sql:
             return commands.run_offline_sql(root, contracts_root, args.revision)
         return commands.run_apply(root, contracts_root, command, getattr(args, "revision", "head"))
@@ -419,23 +443,39 @@ def _run_ontology(args: argparse.Namespace) -> int:
     return 1
 
 
+def _tool_data_dir(root: Path) -> Path:
+    """Return the developer artifact root used for disposable store PGDATA."""
+    data_root = Path(os.environ["DATA_DIR"]) if os.environ.get("DATA_DIR") else root / ".data"
+    if not data_root.is_absolute():
+        data_root = (root / data_root).resolve()
+    return data_root
+
+
 def _run_store(args: argparse.Namespace) -> int:
     from arxiv_int.runtime.project_root import ProjectRootError, find_project_root
+    from arxiv_int.stores.postgres.commands import run_apply_schema, run_inspect_schema
     from arxiv_int.stores.postgres_image.commands import run_build_command, run_probe_command
 
     try:
         root = find_project_root(args.project_root)
         if args.store_command == "build-image":
             return run_build_command(root, no_cache=args.no_cache)
+        if args.store_command == "apply-schema":
+            run_id = args.run_id or f"apply-{os.getpid()}"
+            pgdata = args.pgdata_dir or _tool_data_dir(root) / "migrations" / run_id / "pgdata"
+            return run_apply_schema(
+                root,
+                pgdata_dir=pgdata,
+                run_id=run_id,
+                revision=args.revision,
+            )
+        if args.store_command == "inspect-schema":
+            run_id = args.run_id or f"inspect-{os.getpid()}"
+            return run_inspect_schema(root, run_id=run_id)
         pgdata = args.pgdata_dir
         if pgdata is None:
-            data_root = (
-                Path(os.environ["DATA_DIR"]) if os.environ.get("DATA_DIR") else root / ".data"
-            )
-            if not data_root.is_absolute():
-                data_root = (root / data_root).resolve()
             run_id = f"probe-{os.getpid()}"
-            pgdata = data_root / "postgres-image-probe" / run_id / "pgdata"
+            pgdata = _tool_data_dir(root) / "postgres-image-probe" / run_id / "pgdata"
         return run_probe_command(root, pgdata, write_gate=args.write_gate)
     except (OSError, ProjectRootError, RuntimeError, ValueError) as error:
         _LOG.error("%s", error)

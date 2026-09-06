@@ -17,5 +17,5 @@ change. Write behavior, modules, commands, tests, and results at the narrowest l
 | [Project foundation](current/project-foundation.md) | Distribution, import package, CLI identity, and project metadata |
 | [Contracts](current/contracts.md) | Product ODCS registry, generation, ontology assets, rooted loaders, fingerprints, lint, and dataset quality checks |
 | [Portable runtime](current/portable-runtime.md) | Layered configuration, safe roots, storage evidence, and runtime layout |
-| [Canonical store](current/canonical-store.md) | Pinned ParadeDB + AGE image, extension coexistence gate, and operator build/probe entrypoints |
+| [Canonical store](current/canonical-store.md) | Pinned ParadeDB + AGE image, HASH-partitioned canonical schemas, roles, staging load, and live adoption |
 | [Governance](current/governance.md) | Agent adapters, capability registry, plan lanes, integrity checks, specification/codebase audits and durable task records |

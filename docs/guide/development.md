@@ -89,6 +89,10 @@ they are small, deterministic, safe to publish, and required for CI.
 | `make contracts-gen` | Generate committed physical schemas, quality catalogs, and dbt YAML |
 | `make db-revision` | Write a candidate Alembic revision from contract metadata (`MESSAGE=...`) |
 | `make db-check` | Revision graph, checksums, and pending contract changes (part of `make ci`) |
+| `make db-status` | Report the applied revision of `ARXIV_INT_MIGRATION_DATABASE_URL` |
+| `make db-upgrade` | Apply owned Alembic revisions to that URL (`REVISION=head`) |
+| `make db-apply-schema` | Apply owned revisions on the URL or a disposable PGDATA; evidence under `$DATA_DIR/migrations` |
+| `make db-adopt` | Stamp a live catalog after equivalence, or report why stamping is refused |
 | `make data-quality` | Validate `DATASET` contents for `RUN_ID` (`INPUT=...` required) |
 | `make test` | Run the deterministic unit test suite |
 | `make coverage` | Run tests with the coverage gate |

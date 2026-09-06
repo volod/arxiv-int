@@ -30,7 +30,8 @@ Replace manual environment, model and service command sequencing with one setup/
 [Configuration parity](records/0006-runtime-refactor-runtime-configuration-parity.md);
 [Service planning](records/0007-runtime-refactor-profile-aware-service-planning.md);
 [Probe safety](records/0008-runtime-refactor-readiness-probe-safety.md);
-`create-canonical-relational-schema`; `implement-local-inference-adapters`.
+[Canonical relational schema](records/0021-store-create-canonical-relational-schema.md);
+`implement-local-inference-adapters`.
 - User-visible outcome: `make setup` creates missing `.env`, names required edits, and safely retries
 dependency/model/service/schema preparation until applicable checks pass, without shell activation.
 - Scope boundary: A thin setup coordinator over existing adapters; no corpus processing, alternative
@@ -63,43 +64,6 @@ Missing mandatory providers remain blocked/unavailable, never successful readine
 
 ### Canonical store -- `canonical-store`
 
-#### create-canonical-relational-schema
-
-Apply generated migrations for control, corpus, search, knowledge, ontology, and evaluation schemas
-with partition and provenance constraints.
-
-- Serves: `canonical-store` -- [PostgreSQL schemas](../design/spec.md#postgresql-schemas)
-- Agent status: RUN NEEDED
-- Dependencies: [Pinned ParadeDB + AGE image](records/0018-store-build-pinned-paradedb-age-image.md)
-(AGE-enabled or AGE-disabled);
-[Contract schema and migration tooling](records/0017-contract-gov-refactor-contract-schema-and-migration-tooling.md);
-[Contract data-quality checks](records/0019-contract-gov-implement-contract-data-quality-checks.md);
-[Evolution and migration policy](records/0012-contract-gov-enforce-evolution-and-migration-policy.md).
-[Domain investigation contracts](records/0014-contract-gov-define-domain-investigation-contracts-and-ontology.md).
-
-- User-visible outcome: Canonical documents, assertions, reviews, and run state have constrained,
-queryable tables independent of search and graph projections.
-- Scope boundary: Create schema, roles, partitions, staging/load adapters, and indexes required for
-correctness; dbt owns derived relations, and corpus-scale tuning belongs to evaluation.
-- Data and artifact paths: `src/arxiv_int/migrations/versions/`, `$DATA_DIR/migrations/<run-id>/`,
-`src/arxiv_int/stores/postgres/`, and `tests/integration/postgres/`.
-- Execution path: Generate reviewed Alembic Python revisions from ODCS-derived SQLAlchemy metadata;
-apply them on the pinned disposable store and inspect actual catalog definitions, including schema,
-types, defaults, precision, keys, checks, partitions and extension objects. Define typed literal
-fact/provenance constraints, stable hash partitions, role grants, COPY staging, and bound SQLAlchemy
-upserts; validate staged batches with shared quality checks. Create the `derived` schema and dbt
-role boundary without owning dbt model tables. Test verified legacy-table relocation/adoption and
-refuse unknown/drifted states before stamping. Declare the disposable integration run and retain
-redacted revision, row-preservation, and live-schema evidence.
-- Acceptance gates: Contract-to-live conformance passes; constraint and rollback fixtures reject
-invalid fact shapes, missing provenance, duplicates, and cross-version vector mixing; migration
-and clean-load schemas match. Empty-to-head, previous-release-to-head, repeat-at-head,
-supported downgrade/upgrade or explicit irreversible refusal, and interrupted migration tests pass;
-legacy adoption preserves rows and rejects partial/drifted databases. A missing database/tool is
-not-run and keeps this task open; `make ci` and `make quality` pass.
-- Documentation target: `docs/impl/current/canonical-store.md`
-- Review checkpoint: `review-foundation-and-store-boundaries`.
-
 #### implement-dbt-transformation-foundation
 
 Provide one local, contract-described dbt project and typed runner for relational transformations
@@ -108,7 +72,7 @@ before projection, catalog, and report builders introduce embedded business SQL.
 - Serves: `canonical-store` -- [Transformations](../design/spec.md#data-transformations-and-quality)
 - Agent status: RUN NEEDED
 - Audit inputs: [AUD-data-engineering-tooling-2](records/0015-govern-review-data-engineering-tooling.md#audit-handoff).
-- Dependencies: `create-canonical-relational-schema`;
+- Dependencies: [Canonical relational schema](records/0021-store-create-canonical-relational-schema.md);
 [Contract data-quality checks](records/0019-contract-gov-implement-contract-data-quality-checks.md).
 - User-visible outcome: Named models can be built/tested locally with source lineage and quality
 results; failed builds leave the active generation unchanged.
@@ -143,7 +107,8 @@ projection canonical.
 - Serves: `canonical-store` --
 [Search and vector projections](../design/spec.md#search-and-vector-projections)
 - Agent status: CLEAR
-- Dependencies: `create-canonical-relational-schema`; `implement-dbt-transformation-foundation`.
+- Dependencies: [Canonical relational schema](records/0021-store-create-canonical-relational-schema.md);
+`implement-dbt-transformation-foundation`.
 - User-visible outcome: Search/vector/graph projections can be built, validated, version-switched,
 and dropped without losing canonical rows.
 - Scope boundary: Implement lifecycle and correctness checks on fixtures; relevance and scale
@@ -366,7 +331,8 @@ with deterministic reuse keys.
 - Serves: `pipeline-control` --
 [Resumability, idempotency, and provenance](../design/spec.md#resumability-idempotency-and-provenance)
 - Agent status: CLEAR
-- Dependencies: `create-canonical-relational-schema`; fixture artifact contracts from
+- Dependencies: [Canonical relational schema](records/0021-store-create-canonical-relational-schema.md);
+fixture artifact contracts from
 [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md).
 `refactor-stage-and-artifact-interface-contracts`.
 `review-foundation-and-store-boundaries`.
@@ -1039,7 +1005,7 @@ operating points.
 - Serves: `identity-ontology-graph` --
 [Analysis, graph, and visualization behavior](../design/spec.md#analysis-graph-and-visualization-behavior)
 - Agent status: RUN NEEDED
-- Dependencies: `evaluate-general-and-domain-ner`; `create-canonical-relational-schema`;
+- Dependencies: `evaluate-general-and-domain-ner`; [Canonical relational schema](records/0021-store-create-canonical-relational-schema.md);
 `create-evaluation-fixtures-and-metrics`.
 - User-visible outcome: Aliases such as organization names, suppliers, equipment models, and
 transliterations resolve to canonical objects with match evidence and uncertainty.
@@ -1161,7 +1127,7 @@ LLM calls for bounded high-value lanes.
 - Agent status: RUN NEEDED
 - Dependencies: `evaluate-general-and-domain-ner`; `implement-local-inference-adapters`;
 `implement-probabilistic-entity-resolution`; [Domain investigation contracts](records/0014-contract-gov-define-domain-investigation-contracts-and-ontology.md);
-`create-canonical-relational-schema`.
+[Canonical relational schema](records/0021-store-create-canonical-relational-schema.md).
 - User-visible outcome: Design/revision, assembly/component, equipment, supplier, order, shipment,
 invoice, payment, date, quantity, and other relations are queryable with exact source evidence and
 extraction provenance.
@@ -1829,7 +1795,7 @@ container mounts, and a network-denied run mode.
 [Operations, backup, and security](../design/spec.md#operations-backup-and-security)
 - Agent status: RUN NEEDED
 - Dependencies: Compose profiles documented in [Portable runtime](current/portable-runtime.md);
-`create-canonical-relational-schema`; `implement-local-inference-adapters`;
+[Canonical relational schema](records/0021-store-create-canonical-relational-schema.md); `implement-local-inference-adapters`;
 `build-search-graph-and-report-interfaces`. Organizer hardening is accepted in its own capability.
 - User-visible outcome: The local stack can process prepared inputs without unintended network
 access or writable archive access, with bounded read-only evidence and report queries.

@@ -32,7 +32,8 @@ required, reviewable Alembic revision workflow.
 revision/drift status without maintaining a second handwritten table model.
 - Scope boundary: Replace schema/migration plumbing and preserve semantic/evolution policy; provide
 the offline workflow and live adapter. Actual legacy adoption and pinned-store upgrade acceptance
-belong to `create-canonical-relational-schema`; no automatic adoption of an operator database.
+belong to [Canonical relational schema](0021-store-create-canonical-relational-schema.md);
+no automatic adoption of an operator database.
 - Data and artifact paths: `src/arxiv_int/contracts/{generate,sqlalchemy,evolution}/`,
 `src/arxiv_int/migrations/versions/`, legacy `db/migrations/`, `db/schema.sql`, `pyproject.toml`,
 `uv.lock`, feature metadata, Make/CLI, mirrored tests, and `$DATA_DIR/migrations/<run-id>/`.
@@ -110,7 +111,8 @@ regenerated.
 
 Limitations: no database has been stamped or upgraded. Offline success makes no claim about an
 applied or conformant live store; live upgrade, previous-release-to-head and adoption evidence
-remain with `create-canonical-relational-schema`. Current state:
+remain with [Canonical relational schema](0021-store-create-canonical-relational-schema.md).
+Current state:
 [contracts](../current/contracts.md).
 
 ## Acceptance evidence
@@ -128,7 +130,7 @@ remain with `create-canonical-relational-schema`. Current state:
 | Migration gate | `make db-check` -- head `0001`, live evidence `not-run` | pass |
 | `make ci` | `make ci` | pass; 522 tests, all gates green |
 | `make quality` | `make coverage` 90.31% (floor 90); `make lint-md`; `make build` (wheel ships the Alembic environment, template and manifests); `make complexity-gate`; `make shell-lint-gate` | pass |
-| Live upgrade, downgrade, previous-release-to-head, stamping | none | not-run; no database was contacted, owned by `create-canonical-relational-schema` |
+| Live upgrade, downgrade, previous-release-to-head, stamping | none at 0017 close | not-run then; later recorded in [0021](0021-store-create-canonical-relational-schema.md) |
 
 Artifacts: `contracts/generated/postgres/*.sql` and `baseline.sql`,
 `src/arxiv_int/migrations/versions/0001_baseline_contract_schema.py`, `revision_manifest.json`
@@ -146,7 +148,7 @@ and regex checks.
 Every declared gate passed, including `make ci` (522 tests) and the `make quality` gates. Current
 contracts, the database README, developer tooling, the record index and the 0015 audit note link
 this record; `AUD-data-engineering-tooling-1` is resolved. The task block was removed from the plan
-and its two references (`create-canonical-relational-schema`,
+and its two references ([Canonical relational schema](0021-store-create-canonical-relational-schema.md),
 `implement-contract-data-quality-checks`) point at this record.
 
 Two plan findings predating this task blocked `make lint-spec-plan` for its whole duration and were

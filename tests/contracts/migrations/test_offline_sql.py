@@ -22,6 +22,9 @@ def test_offline_upgrade_sql_is_deterministic_and_schema_qualified() -> None:
     assert "CONSTRAINT pk_documents PRIMARY KEY (document_id)" in first
     assert "REFERENCES corpus.documents (document_id)" in first
     assert "INSERT INTO alembic_version (version_num) VALUES ('0001')" in first
+    assert "PARTITION BY HASH" in first
+    assert "ck_facts_object_xor_literal" in first
+    assert "CREATE SCHEMA IF NOT EXISTS derived" in first
 
 
 def test_offline_sql_matches_the_generated_baseline_tables() -> None:

@@ -30,7 +30,9 @@ Tests under `tests/quality/` exercise failure cases for the documentation checks
 asserting the repository passes. `make quality-report` reports source and shell files over the
 250-line soft limit; generated Alembic revisions under `src/arxiv_int/migrations/versions/` are
 frozen review evidence and are excluded from Ruff formatting so a formatter upgrade cannot rewrite an
-applied revision. Configuration tests exercise missing-template copying, append-only declaration
+applied revision. Those revision files and `migrations/env.py` are also omitted from branch coverage
+because they execute only against a live database; the declared schema suite covers them.
+Configuration tests exercise missing-template copying, append-only declaration
 sync, idempotency, and preservation of operator values.
 
 ## Artifact paths

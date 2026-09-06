@@ -83,8 +83,10 @@ schema state the history produces. `src/arxiv_int/contracts/migrations/` impleme
 - `arxiv-int db status|upgrade|downgrade` / `make db-status|db-upgrade|db-downgrade` act only on the
   database named by `ARXIV_INT_MIGRATION_DATABASE_URL`. Credentials are redacted in every message.
 - `arxiv-int db upgrade --sql` writes offline review SQL under `$DATA_DIR/migrations/<run-id>/`.
-- `arxiv-int db adopt` / `make db-adopt` reports why stamping stays refused until live catalog
-  equivalence is proved.
+- `arxiv-int db adopt` / `make db-adopt` live-adopts when that URL is set: relocates leftover
+  `public` tables into owned schemas when destinations are missing, refuses partial or drifted
+  catalogs, and stamps `0001` for an unpartitioned contract-equivalent store or `0002` when the
+  store overlay is complete. Without a URL it reports why stamping stays refused.
 
 Generated revisions are deterministic and frozen: a historical revision never imports today's
 contracts, and editing one after review fails the checksum gate. A revision that drops an owned table
@@ -95,18 +97,15 @@ owned tables; previously owned names are retained so deletions are not hidden by
 Autogeneration against a live database uses the same owned-object filter through the Alembic
 environment.
 
-`arxiv-int db adopt` / `make db-adopt` refuses stamping until live catalog equivalence is proved.
-No database has been stamped; offline success makes no claim about an applied or conformant live
-store. Live review SQL stays under `$DATA_DIR/migrations/<run-id>/`.
+Live schema overlay, HASH partitions, roles, staging COPY, and disposable apply evidence are
+documented in [Canonical store](canonical-store.md). Offline evolution checks still do not stamp an
+operator database by themselves. Missing live evidence is reported as `not-run`, never as a pass.
+dbt model execution remains with
+[the dbt foundation task](../plan.md#implement-dbt-transformation-foundation).
 
 `make contracts-evolution` / `arxiv-int contracts evolution` checks baselines against current
 contracts, Avro self-compatibility, the migration report, and the disposable Postgres apply of
 `baseline.sql`. Fixtures under `tests/contracts/evolution/` prove each consequence class.
-
-These checks do not execute an upgrade against the pinned product image, do not verify
-previous-release-to-head upgrades, and do not compare a migrated operator database. Missing live
-evidence is reported as `not-run`, never as a pass. dbt model execution remains with
-[the dbt foundation task](../plan.md#implement-dbt-transformation-foundation).
 
 The [data engineering review](../records/0015-govern-review-data-engineering-tooling.md) records the
 selected design; the
@@ -115,7 +114,9 @@ records SQLAlchemy/Alembic ownership; the
 [data-quality record](../records/0019-contract-gov-implement-contract-data-quality-checks.md)
 records dataset checks; the
 [duplicate SQL retirement](../records/0020-contract-gov-retire-duplicate-dbmate-sql.md)
-removes the leftover `db/` tree and SQL-dump inventory.
+removes the leftover `db/` tree and SQL-dump inventory; the
+[canonical relational schema record](../records/0021-store-create-canonical-relational-schema.md)
+records live overlay apply and adoption on the pinned store.
 
 ## Dataset quality checks
 

@@ -102,12 +102,12 @@ and CLI/Make entrypoints. Whole-relation dbt execution stays with
 Every declared fixture gate passed. Current contracts, developer tooling, project foundation,
 development guide, README, the record index, and `AUD-data-engineering-tooling-3` link this record.
 The task block was removed from the plan; dependents
-(`create-canonical-relational-schema`, `implement-dbt-transformation-foundation`,
+([Canonical relational schema](0021-store-create-canonical-relational-schema.md), `implement-dbt-transformation-foundation`,
 `create-evaluation-fixtures-and-metrics`) point at this record. `contract-governance` is shipped
 in the capability registry; live migration and dbt execution remain with canonical-store.
 
 Counts: before 83 tasks (72 agent, 11 human); after 82 tasks (71 agent, 11 human). Next agent
-task: `create-canonical-relational-schema` (RUN NEEDED).
+task after 0019: [Canonical relational schema](0021-store-create-canonical-relational-schema.md).
 
 Capabilities: contract-governance gains executable dataset checks with inspectable non-publishable
 outcomes. No dbt run, live store, held-out model, or real-archive quality is claimed. No commit or

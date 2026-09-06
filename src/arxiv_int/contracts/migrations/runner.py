@@ -175,6 +175,21 @@ def downgrade(
     )
 
 
+def stamp(
+    project_root: Path, contracts_root: Path, *, url: str | None = None, revision: str = "head"
+) -> RunnerOutcome:
+    """Stamp an explicitly selected database without running migrations."""
+    from alembic import command
+
+    return _command(
+        project_root,
+        contracts_root,
+        url,
+        f"stamp {revision}",
+        lambda config: command.stamp(config, revision),
+    )
+
+
 def current_revision(
     project_root: Path, contracts_root: Path, *, url: str | None = None
 ) -> RunnerOutcome:

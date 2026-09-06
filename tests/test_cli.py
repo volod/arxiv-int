@@ -295,6 +295,17 @@ def test_parser_accepts_db_revision_and_apply_options() -> None:
     assert parser.parse_args(["db", "adopt"]).db_command == "adopt"
 
 
+def test_parser_accepts_store_schema_commands() -> None:
+    parser = build_parser()
+    apply = parser.parse_args(["store", "apply-schema", "--revision", "0002", "--run-id", "r1"])
+    assert apply.store_command == "apply-schema"
+    assert apply.revision == "0002"
+    assert apply.run_id == "r1"
+    inspect = parser.parse_args(["store", "inspect-schema"])
+    assert inspect.store_command == "inspect-schema"
+    assert parser.parse_args(["store", "build-image"]).store_command == "build-image"
+
+
 def test_db_check_command_reports_findings(
     monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture, tmp_path: Path
 ) -> None:

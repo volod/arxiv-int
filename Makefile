@@ -35,7 +35,7 @@ export MYPY_CACHE_DIR := $(DATA_ROOT)/cache/mypy
 	coverage complexity-gate shell-lint-gate lint-md lint-doc-links lint-spec-plan plan-status \
 	contracts contracts-gen contracts-check contracts-evolution \
 	db-revision db-check db-status db-upgrade \
-	db-downgrade db-adopt ontology ontology-gen ontology-check data-quality \
+	db-downgrade db-adopt db-apply-schema ontology ontology-gen ontology-check data-quality \
 	ci-checks ci ci-github build quality code-quality quality-report
 
 help: ## List available targets
@@ -116,10 +116,16 @@ db-downgrade: ## Downgrade the selected migration database to DOWN_REVISION
 	@source "$(COMMON_SH)"; arxiv_int_load_env; \
 		"$(VENV)/bin/arxiv-int" db downgrade --revision "$(DOWN_REVISION)"
 
-db-adopt: ## Report why stamping an existing database is refused
+db-adopt: ## Adopt a live database after catalog equivalence, or report why stamping is refused
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
 	@source "$(COMMON_SH)"; arxiv_int_load_env; \
 		"$(VENV)/bin/arxiv-int" db adopt
+
+db-apply-schema: ## Apply owned revisions (URL or disposable PGDATA); evidence under DATA_DIR/migrations
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
+		"$(VENV)/bin/arxiv-int" store apply-schema --revision "$(REVISION)" \
+		--run-id "$(RUN_ID)"
 
 ontology: ontology-check ## Alias for ontology-check
 

@@ -75,8 +75,8 @@ AGE profile and records the incompatibility without blocking relational graph wo
 ## Audit handoff
 
 none identified. Reviewed image build, preload merge, init order, graph gate refusal, host-UID
-ownership for bind mounts, and probe suite boundaries; relational schema application remains owned
-by `create-canonical-relational-schema`.
+ownership for bind mounts, and probe suite boundaries; live schema application is recorded in
+[Canonical relational schema](0021-store-create-canonical-relational-schema.md).
 
 ## Close or resume
 

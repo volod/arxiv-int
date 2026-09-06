@@ -21,6 +21,7 @@ from arxiv_int.contracts.migrations.runner import (
     downgrade,
     redact_url,
     runner_available,
+    stamp,
     upgrade,
 )
 from arxiv_int.contracts.migrations.state import SchemaOperation, contract_state, diff_states
@@ -47,5 +48,6 @@ __all__ = [
     "redact_url",
     "require_safe_adoption",
     "runner_available",
+    "stamp",
     "upgrade",
 ]

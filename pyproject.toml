@@ -111,6 +111,10 @@ addopts = "-q"
 [tool.coverage.run]
 branch = true
 source = ["arxiv_int"]
+omit = [
+  "src/arxiv_int/migrations/env.py",
+  "src/arxiv_int/migrations/versions/*",
+]
 
 [tool.coverage.report]
 fail_under = 90

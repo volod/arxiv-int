@@ -7,7 +7,8 @@
 - State: accepted
 - Source: ad hoc operator request after [0019](0019-contract-gov-implement-contract-data-quality-checks.md);
   the committed `db/*.sql` dumps were a stale second schema beside Alembic.
-- Initial count: 82 tasks (71 agent, 11 human); next agent task `create-canonical-relational-schema`.
+- Initial count: 82 tasks (71 agent, 11 human); next agent task was
+  [Canonical relational schema](0021-store-create-canonical-relational-schema.md).
 - Accepted task:
 
 ```markdown
@@ -118,7 +119,7 @@ Limitations: no database was stamped. Current state: [contracts](../current/cont
 | Adoption still refuses missing live catalog | `test_adoption_without_live_evidence_is_refused` | pass; valid negative |
 | Focused migration/evolution tests | `pytest tests/contracts/migrations tests/contracts/evolution` | pass |
 | `make ci` | full composed gate | not-run after this amendment; focused tests and doc-link/spec-plan lints passed |
-| Live store / adoption of an operator database | none | not-run; owned by `create-canonical-relational-schema` |
+| Live store / adoption of an operator database | none at 0020 close | not-run then; later recorded in [0021](0021-store-create-canonical-relational-schema.md) |
 
 ## Audit handoff
 
@@ -127,5 +128,6 @@ Limitations: no database was stamped. Current state: [contracts](../current/cont
 ## Close or resume
 
 Accepted. Counts unchanged: 82 tasks (71 agent, 11 human). Next agent task remains
-`create-canonical-relational-schema` (RUN NEEDED). Live review SQL stays under
+[Canonical relational schema](0021-store-create-canonical-relational-schema.md).
+Live review SQL stays under
 `$DATA_DIR/migrations/<run-id>/`. No commit or push was made.
