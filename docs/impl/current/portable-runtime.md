@@ -4,6 +4,14 @@ Runtime configuration and path behavior lives cohesively under `src/arxiv_int/ru
 top-level package contains only its initializer, CLI entry point, and metadata module; runtime
 implementation details do not expand that namespace.
 
+The available workflow uses `make bootstrap`, explicit model/service preparation, the pinned
+PostgreSQL image builder and store schema commands. `make setup` and `make pipeline` remain planned;
+the [operator workflow](../../guide/operator-workflow.md) distinguishes today's manual commands from
+the proposed atomic chain. The [entrypoint design record](../records/0016-govern-design-simple-operator-entrypoints.md)
+specifies setup/edit/retry, shared command handlers, service-bound schema checks and the
+[remaining setup task](../plan.md#implement-retryable-setup-command). This design adds no runtime
+capability or claim of pipeline readiness.
+
 ## Layered configuration
 
 `arxiv_int.runtime.load_runtime_config()` resolves runtime values with CLI, process environment,

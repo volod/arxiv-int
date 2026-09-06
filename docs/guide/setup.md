@@ -1,10 +1,14 @@
 # Workstation Setup and Readiness
 
+For the short target workflow and the full command chain, see
+[Operator workflow and atomic commands](operator-workflow.md). The setup and pipeline aggregates
+remain planned; that guide distinguishes available manual commands from their target replacements.
+
 Install Git, Make, uv, Docker with the Compose plugin, and Python 3.12 or newer. Create the local
 environment file and set the three operator roots before bootstrapping:
 
 ```bash
-cp .env.example .env
+test -e .env || cp .env.example .env
 make bootstrap
 make readiness
 ```

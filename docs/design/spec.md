@@ -1177,21 +1177,42 @@ change Docker groups, manage systemd, or rewrite host storage configuration.
 
 `make setup` creates `.env` from the template when absent and preserves all existing values and
 commented declarations on later attempts. It reports missing/invalid operator roots and secrets
-before product-root writes, downloads or service startup. No editor, activated virtual environment,
-manual exports, direct uv invocation or command chain is required. Every invocation rereads the
+before product-root writes, downloads or service startup. Setup does not launch an editor. No
+activated virtual environment, manual exports, direct uv invocation or command chain is required.
+Every invocation rereads the
 file through the existing resolver; explicit environment overrides remain visible as override
 sources and retain precedence, with secret values masked.
 
-After configuration is valid, the setup coordinator performs these ordered phases through existing
-typed adapters: check host prerequisites; sync one locked union of selected feature dependencies
-into `.venv`; verify package identity; prepare validated paths; obtain required pinned images and
-configured model assets; start selected services; wait within bounded deadlines; check/apply eligible
-reviewed Alembic revisions; validate contract/tool/model/service readiness. A stopped host Ollama
+After configuration is valid, the setup coordinator performs these ordered phases through shared
+atomic command handlers: check host prerequisites; sync one locked union of selected feature
+dependencies into `.venv`; verify package identity; prepare validated paths; obtain required pinned
+images and configured model assets; start selected services; wait within bounded deadlines;
+check/apply eligible reviewed Alembic revisions; validate contract/tool/model/service readiness.
+A stopped host Ollama
 service requires an operator action; a selected vLLM container is managed through Compose. Model
 acquisition uses the configured backend's storage and never silently chooses another model.
 Downloads are setup operations; `SETUP_DOWNLOADS=0` requires locally cached assets and refuses
 missing ones. Default `SETUP_DOWNLOADS=1` permits configured package/image/model acquisition during
 setup. Pipeline workers never install dependencies, pull models, or start infrastructure.
+
+Each phase remains independently callable through Make/CLI. The coordinator supplies resolved
+configuration and attempt context to the same typed handlers used by those commands; it does not
+copy shell recipes, SQL or model/service operations. The ordered command chain and the availability
+of each command belong in the linked [operator workflow](../guide/operator-workflow.md).
+The setup owner provides the missing configuration, environment, image/model acquisition, bounded
+wait and schema-binding commands around existing dotenv, feature, Compose, store and inference
+adapters. Package/contract/ontology checks use their existing handlers with the prepared dependency
+union; nested commands must not remove selected extras or repeat online dependency sync in offline
+mode. Bootstrap remains a contributor workflow, not a pre-start readiness barrier for setup.
+
+Schema preparation explicitly binds to the selected service's database and credentials from the
+shared runtime configuration, verifies target identity, and uses the existing store apply/inspect
+and Alembic policy. Pass credentials privately through the adapter; never print a URL or interpolate
+passwords into shell commands. A conflicting explicit migration target is refused with a redacted
+next action. The store smoke command's disposable-database fallback is disabled in setup. An empty
+database can receive the reviewed initial revisions. A nonempty unversioned, unknown or drifted
+catalog requires a separate reviewed repair/adoption action; setup never auto-adopts it, invents a
+revision, or substitutes scratch-database success for service health.
 
 Setup and pipeline use one declarative profile requirement source: required/optional stage features,
 services, model identities, contract revisions and availability. The setup coordinator consumes
@@ -1232,10 +1253,22 @@ report entry paths, plus exact status/resume commands after interruption. CLI ex
 run contract; Make returns nonzero on failure and displays the logical result without claiming to
 preserve every distinct CLI exit code. Repeated unchanged runs reuse validated artifacts.
 
+The aggregate pipeline command composes the same run-create, preflight, forecast, registered stage
+and run-finalize handlers exposed by the atomic interfaces. Creation assigns a unique run id and
+freezes the resolved profile/configuration; each subsequent atomic command uses that run id and
+validates its recorded inputs. Retain only secret-free configuration evidence and fingerprints;
+resolve credentials privately at execution. A changed configuration requires a new run or explicit invalidation,
+not silent cross-command drift. Finalization verifies required quality/artifact states and commits
+the coherent generation pointer; building a report alone cannot activate a generation. Standalone
+processing stages still enforce preflight, forecast freshness, dependencies and leases. The explicit
+chain and aggregate run must produce equivalent logical artifacts, lineage, quality outcomes and
+completion states, allowing different run ids/timestamps. Both stop on failure and retain resumable evidence.
+
 Evaluation covers no `.env`/no `.venv`, edit-and-retry without shell exports, precedence, dependency
 sync failure, cached/offline runs, missing host services, slow startup, model failure, schema drift,
-concurrency and cancellation. Fixture tests compare Make and CLI defaults and prove unsafe or
-incomplete setup cannot launch workers. A declared disposable host smoke verifies actual setup,
+concurrency and cancellation. Fixture tests compare Make and CLI defaults, aggregate/atomic phase
+traces, and run-generation results; they prove unsafe or incomplete setup cannot launch workers and
+that schema readiness checks the intended service. A declared disposable host smoke verifies setup,
 followed by the existing mixed-fixture and authorized archive proofs using bare `make pipeline`.
 Until those owners pass, README labels these targets planned and links the available manual path.
 
@@ -1254,12 +1287,16 @@ arxiv-int transform parse|build|test --run-id RUN_ID
 arxiv-int data-quality check DATASET --run-id RUN_ID
 arxiv-int services status
 arxiv-int pipeline forecast --archive-dir PATH [--from STAGE] [--to STAGE]
+arxiv-int pipeline forecast --run-id RUN_ID
 arxiv-int pipeline run [--archive-dir PATH] [--results-dir PATH] [--profile investigation|lexical]
                        [--from STAGE] [--to STAGE]
 arxiv-int pipeline update --archive-dir PATH [--from STAGE] [--to STAGE]
 arxiv-int pipeline rebuild --archive-dir PATH [--from STAGE] [--to STAGE]
 arxiv-int pipeline invalidate STAGE [--document-id ID]
 arxiv-int stage STAGE --archive-dir PATH --results-dir PATH [stage options]
+arxiv-int stage STAGE --run-id RUN_ID [stage options]
+arxiv-int run create
+arxiv-int run finalize RUN_ID
 arxiv-int artifacts prune --stale [--apply --plan PLAN_ID]
 arxiv-int archive reorganize --classification PATH --silo ID --mode copy --target PATH
 arxiv-int archive reorganize --classification PATH --silo ID --mode move
@@ -1282,6 +1319,8 @@ Standard Make targets are thin, documented wrappers:
 
 ```text
 make help                  make setup                 make pipeline
+make setup-config          make setup-env             make setup-wait
+make services-pull         make models-pull           make setup-schema
 make bootstrap             make package-check
 make readiness             make config                make contracts
 make contracts-gen         make contracts-evolution  make services-up
@@ -1290,7 +1329,8 @@ make db-upgrade REVISION=...                          make db-downgrade REVISION
 make transform-build RUN_ID=...                      make data-quality DATASET=... RUN_ID=...
 make services-down         make services-reset       make services-status
 make logs
-make forecast              make pipeline              make update
+make run-create            make forecast RUN_ID=...   make run-finalize RUN_ID=...
+make update
 make proof CAPABILITY=...  make stage STAGE=...       make resume RUN_ID=...
 make search QUERY=...      make graph-up              make ui-up
 make eval                  make test                  make integration-test
@@ -1747,7 +1787,7 @@ and results, but never copies private source content or machine-specific archive
 
 | Area              | Gate                                                                                                                                                                                             |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Fresh setup       | From a copied repo, `make bootstrap` creates or extends `.env`, reports missing configuration, and after operator edits, `make readiness`, `make services-up`, a smoke pipeline, and `make ci` succeed without paths tied to the original disk. |
+| Fresh setup       | From a copied repo, `make setup` creates or extends `.env`, reports required edits, and retries safely to verified service/schema/model readiness. Bare `make pipeline` then produces the required manifest/report using `.env`; the documented atomic chain is equivalent. Missing implementations remain explicit. `make ci` passes without paths tied to the original disk. |
 | Operator entrypoints | `make setup`, edit `.env`, and retry reaches verified readiness without losing completed work; bare `make pipeline` performs forecast through validated report publication with no manual stage commands. |
 | Contracts         | ODCS lint, generation drift, Avro round-trip/compatibility, evolution policy, migration status, and live Postgres schema tests pass.                                                             |
 | Migrations        | Contract-derived SQLAlchemy metadata, reviewed Alembic Python history, empty/prior-release upgrades, verified legacy adoption and live catalog parity pass; unavailable live checks remain not-run. |

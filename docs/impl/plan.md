@@ -34,31 +34,49 @@ Replace manual environment, model and service command sequencing with one setup/
 `implement-local-inference-adapters`.
 - User-visible outcome: `make setup` creates missing `.env`, names required edits, and safely retries
 dependency/model/service/schema preparation until applicable checks pass, without shell activation.
-- Scope boundary: A thin setup coordinator over existing adapters; no corpus processing, alternative
-scheduler, privileged OS installation, service-data reset or automatic destructive migration.
+- Scope boundary: A thin coordinator over independently callable atomic commands and existing
+adapters; no corpus processing, alternative scheduler, privileged OS installation, service-data
+reset or automatic destructive migration.
 Report pipeline implementation availability separately; full default-run acceptance belongs to the
 existing directory-to-knowledge-base and provided-archive proof tasks.
 - Data and artifact paths: `src/arxiv_int/runtime/setup/`, shared configuration/feature/service policy,
-`scripts/shared/common.sh`, Make/CLI, `.env.example`, `tests/setup/`,
+`scripts/shared/common.sh`, Make/CLI, `.env.example`, `tests/runtime/setup/`,
+`docs/guide/operator-workflow.md`,
 `$DATA_DIR/setup/<attempt-id>/`, and safe `$RESULTS_DIR/reports/{setup,readiness}.json`.
 - Execution path: Reuse dotenv append-sync and resolution before `.venv` exists; introduce typed
-PIPELINE_PROFILE/SERVICE_PROFILES/SETUP_DOWNLOADS settings with spec defaults. Resolve setup
-requirements from declarative profile/feature metadata without importing workers; use supplied
-fixture requirements until concrete profile providers ship. Sync one union of locked extras and
-propagate sync failures; do not chain bootstrap's pre-start readiness as a prerequisite to startup.
-Prepare safe roots, obtain pinned selected images/models through existing adapters, start services,
-wait with bounded progress, run eligible Alembic upgrades and final readiness. Preserve operator
-values and verified work; revalidate actual state and fingerprints on each retry, reject concurrent
-conflicting setup, handle cancellation, and render redacted per-phase status plus next action.
+PIPELINE_PROFILE/SERVICE_PROFILES/SETUP_DOWNLOADS settings with spec defaults and no Make defaults
+shadowing `.env`. Resolve setup requirements from declarative profile/feature metadata without
+importing workers; use supplied
+fixture requirements until concrete profile providers ship; this task owns the lightweight
+requirement seam and does not depend on the later pipeline DAG. Expose `setup-config`, `setup-env`,
+`services-pull`, `models-pull`, `setup-wait` and `setup-schema` atomic Make/CLI commands. Compose them
+with existing package, path/service, pinned PostgreSQL image, contract/ontology and readiness
+handlers in the runbook's order; direct and aggregate calls share typed policy and attempt context.
+Extend the existing consolidated extra set with the selected requirements, sync once, and propagate
+failures; nested commands retain that union and honor offline mode. Do not chain bootstrap's
+pre-start readiness as a prerequisite to startup. Prepare safe roots, acquire/cache-check selected
+images/models, start services, wait for transport/model health without requiring an initialized
+schema, and run eligible Alembic upgrades and
+catalog inspection against the configured service only. Derive its connection privately from shared
+config, verify target identity and refuse conflicting migration URL overrides, unknown catalogs or
+drift; disable the store command's disposable fallback and leave adoption to its explicit workflow.
+Reuse accepted store/quality adapters without generating revisions or embedding transformation SQL.
+Preserve operator values and verified work; revalidate actual state and fingerprints on each retry,
+reject concurrent conflicting setup, handle cancellation, and render redacted per-phase status plus
+next action.
 - Acceptance gates: Deterministic fakes cover absent `.env`/`.venv`, incomplete/edited configuration,
 spaces/foreign checkout, explicit overrides, missing tools/privileges, failed sync/download/start,
 timeouts, offline cache misses, model/backend switching, unsafe roots, schema drift, blocked
-migrations, cancellation and concurrent attempts. Fresh shell calls observe `.env` edits; unchanged
+migrations, cancellation and concurrent attempts. Compare the aggregate and documented atomic phase
+traces, reports and failure propagation; prove schema checks hit the selected service and cannot
+succeed against scratch or conflicting targets. Fresh shell calls observe `.env` edits; unchanged
 retries reuse verified work but probe readiness again. No dependent phase runs after failure.
-Declare a disposable pinned-store/local-endpoint setup smoke, including stopped/restarted services,
+Declare a setup smoke with isolated configured roots and the pinned store/local endpoint, including
+stopped/restarted services, slow health and an edited setting followed by the same `make setup`,
 and prove source/data preservation; fixture model acquisition cannot prove production model fit.
-Missing mandatory providers remain blocked/unavailable, never successful readiness. `make ci` and
-`make quality` pass; README only advertises the setup outcomes actually proved.
+Missing mandatory providers remain blocked/unavailable, never successful readiness. The linked
+runbook reproduces the setup chain without hidden prerequisites or duplicated business logic.
+`make ci` and `make quality` pass; README only advertises the setup outcomes actually proved.
 - Documentation target: `docs/impl/current/portable-runtime.md`
 - Review checkpoint: `review-foundation-and-store-boundaries`.
 
@@ -188,7 +206,9 @@ mutation.
 structured-output schemas, and `tests/inference/`.
 - Execution path: Implement local API adapters, capability discovery, schema response validation,
 bounded repair, streaming/cancel, retries, model digest capture, and fake servers for
-deterministic tests.
+deterministic tests. Expose reusable model identity/health/cancellation operations for setup;
+explicit asset acquisition and its `models-pull` wrapper belong to the setup task, never to
+inference request execution.
 - Acceptance gates: Provider conformance tests agree on typed results/statuses; unreachable and
 incompatible models fail clearly; prompts and secrets are not logged; no remote hostname passes
 local-only policy by default.
@@ -366,8 +386,9 @@ runners, resume, status, invalidate, rebuild, and stale-prune planning interface
 - Dependencies: `implement-run-ledger-and-atomic-artifacts`.
 - User-visible outcome: Operators can run or update one stage or a `--from`/`--to` dependency
 closure, inspect invalidation, start a fresh generation, and resume by run id through CLI or Make.
-- Scope boundary: Orchestrate in-process/local workers first; do not introduce Airflow, Prefect,
-Celery, Redis, or Kubernetes.
+- Scope boundary: Orchestrate in-process/local workers first with fixture DAGs; full preflight,
+forecast and publication assembly belongs to `implement-investigation-profile-and-output-manifest`.
+Do not introduce Airflow, Prefect, Celery, Redis, or Kubernetes.
 - Data and artifact paths: `src/arxiv_int/cli.py`, `src/arxiv_int/pipeline/registry.py`, `Makefile`,
 and `tests/pipeline/orchestration/`.
 - Execution path: Build the typed registry with fixture runners first; declare required/conditional
@@ -375,14 +396,20 @@ input contracts,
 resource estimates, validators, and dependencies;
 resolve parameters; validate required
 upstream manifests; add run/update/stage/status/resume/invalidate/rebuild and prune-plan commands;
-keep Make wrappers thin and destructive application separately confirmed.
+keep Make wrappers thin and destructive application separately confirmed. Provide `make run-create`
+and `make stage STAGE=... RUN_ID=...`, backed by the same run-context/stage handlers as `make pipeline`.
+Resolve defaults from `.env` without activation or manual exports; allocate a unique run id instead
+of inheriting Make's developer `RUN_ID=local` fallback. Freeze profile/configuration for subsequent
+atomic calls and refuse drift or stale upstream inputs. Reuse setup's declarative requirement seam;
+do not maintain parallel feature/service lists. Document command order in the operator workflow.
 Invoke the shared dbt runner for declared relational model selections and the common Pandera
 validator at producer boundaries; propagate failed/not-run quality outcomes and generation leases
 without introducing a second scheduler.
 - Acceptance gates: DAG, range, skip, invalid dependency, update, resume, targeted invalidate,
 fresh-generation rebuild, prune dry-run, force, and signal-handling tests pass; CLI help lists
-defaults and precedence; fixture DAG smoke produces the same manifests as independent fixture
-stages; unregistered required
+defaults and precedence; bare Make and CLI defaults agree. Aggregate and independent fixture stages
+sharing a run context produce equivalent logical manifests/lineage and refuse the same invalid
+inputs; failure halts downstream work in both paths. Unregistered required
 stages and stale upstream snapshots fail explicitly. The directory-to-report gate exercises concrete
 stages after they become available.
 - Documentation target: `docs/impl/current/pipeline-control.md`
@@ -441,11 +468,15 @@ estimate lower/upper output, time, WAL, temp, staging, rebuild, rollback, backup
 selected pipeline output costs; the organizer estimates placement independently; deduplicate
 filesystem devices across the archive, results, and
 database roots; read accessible free bytes; emit evidence/coefficient provenance and a fingerprinted
-console/JSON decision; add stage-boundary free-space rechecks.
+console/JSON decision; add stage-boundary free-space rechecks. Expose `make forecast RUN_ID=...`
+and the equivalent CLI option to use the created run's frozen inputs and retain its forecast under
+that run. The aggregate command calls the same estimator and refusal handler; standalone forecasts
+remain available without creating a production generation.
 - Acceptance gates: Zero-history fixtures yield conservative low-confidence ranges; estimates replay
 from captured evidence; shared devices are counted once; inaccessible paths and upper-bound peak plus
 reserve shortfalls exit non-zero before heavy work; stale forecasts are rejected; simulated free-space
-loss checkpoints before allocation without accepting partial output.
+loss checkpoints before allocation without accepting partial output. Atomic and aggregate forecast
+decisions agree for the same captured inputs; changed configuration cannot reuse a stale forecast.
 - Documentation target: `docs/impl/current/pipeline-control.md`
 - Review checkpoint: `review-corpus-and-control-integrity`.
 
@@ -468,10 +499,20 @@ runners; do not claim concrete extraction or full-pipeline acceptance from mocks
 artifact/snapshot ids,
 counts/checksums, coverage and report path; validate then switch one active generation pointer;
 write diagnostic reports for partial/failed runs and reconcile orphan staging after crashes.
+Connect concrete profile declarations to setup's shared requirement seam. Assemble bare
+`make pipeline` / `arxiv-int pipeline run` from the same create, preflight, forecast, stage and
+finalize handlers as the documented atomic chain. Expose `make run-finalize RUN_ID=...` and
+`arxiv-int run finalize RUN_ID`; report rendering alone cannot activate a generation. Return the run
+id, logical status, manifest/report paths and exact status/resume commands; enforce missing-provider,
+quality, resource and authorization gates before dependent work. Update the operator workflow with
+the actual profile order and availability while concrete stages remain pending.
 - Acceptance gates: Fixtures cover complete, valid-empty, partial, failed, blocked, interrupted,
 and not-selected
 states, specified exit codes, stale dependency refusal, and crash recovery across file/database
-publication; a partial run cannot replace the last complete generation.
+publication; a partial run cannot replace the last complete generation. No-argument Make and CLI
+runs read `.env` in fresh shells; the explicit atomic chain yields equivalent logical artifacts,
+lineage, quality and final states. Missing setup/required stages refuse execution, optional disabled
+branches stay explicit, and interruption preserves one resumable generation.
 - Documentation target: `docs/impl/current/pipeline-control.md`
 - Review checkpoint: `review-corpus-and-control-integrity`.
 
@@ -1713,11 +1754,14 @@ Make integration
 target, and disposable configured runtime roots.
 - Execution path: Use a text/document, financial table, product assembly, ambiguous parties,
 malformed source
-and cross-file relation; run investigation once, validate manifest/report and every source anchor,
-then rerun unchanged and test a source change/removal plus an interrupted publication.
+and cross-file relation; configure their roots in `.env`, run bare `make pipeline`, validate
+manifest/report and every source anchor, then compare with the documented atomic chain on isolated
+equivalent inputs. Rerun unchanged and test a source change/removal plus an interrupted publication.
 - Acceptance gates: Required catalog/domain/anomaly entries, expected relations/amounts/BOM and valid-empty
 cases match frozen expectations; exit/state semantics, bounded resources, no source writes,
-cache reuse, coherent generation updates and source-level report drill-down all pass.
+cache reuse, coherent generation updates and source-level report drill-down all pass. No shell
+activation, exports, separate forecast or post-run report/validation command is needed; aggregate
+and atomic results agree logically. README availability changes only after the corresponding gates.
 - Documentation target: `docs/impl/current/evaluation.md`
 - Review checkpoint: `review-production-readiness-and-recovery`.
 
@@ -1742,8 +1786,9 @@ representative-scale authorization or conceal failed, stale, blocked, or absent 
 - Data and artifact paths: `$PROOF_ARCHIVE_DIR` used without modification, prior proof bundles, and
 `$RESULTS_DIR/proofs/evaluation-evidence/<proof-id>/` containing evaluation/report outputs and the
 end-to-end proof index.
-- Execution path: Require a passing forecast; execute one `pipeline run --profile investigation` on the
-authorized archive using one CUDA host and the selected local inference lane; verify required
+- Execution path: Set the authorized bounded archive scope and selected local inference lane in
+`.env`; run `make setup` with edits/retries until ready, then bare `make pipeline` on one CUDA host.
+Retain the automatic preflight/forecast and setup evidence; verify required
 outputs, entry report and exact source anchors; capture actual device/model resources; join current
 stage proofs for quality context, rerun unchanged and publish the coverage/provenance matrix.
 - Acceptance gates: Every required usable stage has a current `passed` or valid-empty proof and
