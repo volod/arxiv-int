@@ -1,0 +1,42 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix ai: <https://arxiv-int.local/ns/ontology#> .
+@prefix aic: <https://arxiv-int.local/ns/class/> .
+@prefix aip: <https://arxiv-int.local/ns/pred/> .
+
+# Semantic mappings from ontology IRIs to canonical contract vocabulary terms.
+# These keep ODCS semanticTerm URNs and RDF assets inspectably aligned.
+
+aic:Document skos:exactMatch <urn:arxiv-int:term:document-id> .
+aic:Span skos:exactMatch <urn:arxiv-int:term:span-id> .
+aic:Chunk skos:exactMatch <urn:arxiv-int:term:chunk-id> .
+aic:Object skos:exactMatch <urn:arxiv-int:term:object-id> .
+aic:Mention skos:exactMatch <urn:arxiv-int:term:mention-id> .
+aic:Alias skos:exactMatch <urn:arxiv-int:term:alias-id> .
+aic:Fact skos:exactMatch <urn:arxiv-int:term:fact-id> .
+aic:Topic skos:exactMatch <urn:arxiv-int:term:topic-id> .
+aic:OntologyTerm skos:exactMatch <urn:arxiv-int:term:term-id> .
+aic:Embedding skos:exactMatch <urn:arxiv-int:term:embedding-id> .
+aic:SourceOccurrence skos:exactMatch <urn:arxiv-int:term:occurrence-id> .
+aic:Transaction skos:exactMatch <urn:arxiv-int:term:transaction-id> .
+aic:CatalogEntry skos:exactMatch <urn:arxiv-int:term:catalog-entry-id> .
+aic:AnomalyFinding skos:exactMatch <urn:arxiv-int:term:finding-id> .
+aic:EvaluationItem skos:exactMatch <urn:arxiv-int:term:evaluation-item-id> .
+
+aip:mentions skos:relatedMatch <urn:arxiv-int:term:predicate-id> .
+aip:aliasOf skos:relatedMatch <urn:arxiv-int:term:predicate-id> .
+aip:identifiedBy skos:relatedMatch <urn:arxiv-int:term:predicate-id> .
+aip:preferredName skos:relatedMatch <urn:arxiv-int:term:preferred-name> .
+aip:locatedAt skos:relatedMatch <urn:arxiv-int:term:predicate-id> .
+aip:assignedToTopic skos:relatedMatch <urn:arxiv-int:term:topic-id> .
+aip:extractedFrom skos:relatedMatch <urn:arxiv-int:term:document-id> .
+aip:derivedFrom skos:relatedMatch <urn:arxiv-int:term:fact-id> .
+aip:supersedes skos:relatedMatch <urn:arxiv-int:term:fact-id> .
+aip:confidenceScore skos:exactMatch <urn:arxiv-int:term:confidence> .
+
+# Deprecated alias rule: sameAs remains queryable but maps to aliasOf.
+aip:sameAs ai:successor aip:aliasOf ;
+    skos:exactMatch aip:aliasOf ;
+    owl:deprecated true .

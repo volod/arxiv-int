@@ -10,31 +10,6 @@ ordering, and lifecycle rules belong in the
 
 ### Contract governance -- `contract-governance`
 
-#### establish-versioned-ontology-assets
-
-Create the controlled vocabulary, classes, predicates, semantic mappings, SHACL shapes, and open RDF
-exports that validate the knowledge model.
-
-- Serves: `contract-governance` -- [AGE graph projection](../design/spec.md#age-graph-projection)
-- Agent status: CLEAR
-- Dependencies: [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
-representative domain vocabulary can begin
-from reviewed fixtures.
-- User-visible outcome: Object/fact semantics are inspectable, versioned, exportable, and testable
-independently of AGE.
-- Scope boundary: Establish a minimal evidence-backed ontology; do not claim automated ontology
-induction is authoritative.
-- Data and artifact paths: `contracts/canonical/`, `ontology/*.ttl`, `ontology/*.shacl.ttl`,
-generated `ontology.*` bindings, and `tests/ontology/`.
-- Execution path: Define stable URIs, labels in source languages, domain/range, units, selected
-disjoint/functional constraints, mappings, and deprecation/alias rules; validate with
-rdflib/pySHACL and a second reasoner where practical.
-- Acceptance gates: RDF parses; SHACL positive/negative fixtures agree with application validation;
-every active predicate maps to a contract binding; breaking ontology changes follow evolution
-policy.
-- Documentation target: `docs/impl/current/contracts.md`
-- Review checkpoint: `review-foundation-and-store-boundaries`.
-
 #### define-domain-investigation-contracts-and-ontology
 
 Define evidence semantics and output contracts for design relationships, bills of materials,
@@ -43,7 +18,7 @@ supply chains, invoices, payments, and their run-artifact registry entries.
 - Serves: `contract-governance` --
 [Domain investigation artifacts](../design/spec.md#domain-investigation-artifacts)
 - Agent status: CLEAR
-- Dependencies: `establish-versioned-ontology-assets`;
+- Dependencies: [Versioned ontology assets](records/0013-contract-gov-establish-versioned-ontology-assets.md);
 [Deterministic schema generation](records/0011-contract-gov-implement-deterministic-schema-generation.md).
 - User-visible outcome: Operators see consistent definitions for `part-of`, supply roles, invoice
 obligations, payment allocations, conflicts, and empty/partial results before graphs are generated.
@@ -1014,7 +989,7 @@ recursive SQL and open export fallbacks.
 - Agent status: RUN NEEDED
 - Dependencies: `implement-probabilistic-entity-resolution`;
 `implement-fact-validation-conflict-and-review-overlays`;
-`implement-rebuildable-search-and-graph-projections`; `establish-versioned-ontology-assets`.
+`implement-rebuildable-search-and-graph-projections`; [Versioned ontology assets](records/0013-contract-gov-establish-versioned-ontology-assets.md).
 - User-visible outcome: Operators can run bounded Cypher traversals and inspect a graph whose nodes
 and edges resolve back to canonical facts and evidence.
 - Scope boundary: Projection and bounded query API only; no Neo4j GDS parity claim and no large text
@@ -1178,7 +1153,7 @@ reversible review state.
 - Agent status: CLEAR
 - Dependencies: `implement-provenance-bearing-fact-extraction`;
 `extract-financial-and-bookkeeping-records`; `extract-product-and-assembly-records`;
-`establish-versioned-ontology-assets`.
+[Versioned ontology assets](records/0013-contract-gov-establish-versioned-ontology-assets.md).
 - User-visible outcome: Conflicting claims and uncertain facts remain visible and reviewable instead
 of being silently collapsed into one value.
 - Scope boundary: Validate and group; human acceptance thresholds and domain truth judgments remain
@@ -2118,7 +2093,7 @@ report meaning.
 - Agent status: HUMAN-GATED
 - Dependencies: `prove-identity-ontology-graph-on-provided-archive`; held-out linkage curves from
 `implement-probabilistic-entity-resolution`; ontology review package from
-`establish-versioned-ontology-assets`.
+[Versioned ontology assets](records/0013-contract-gov-establish-versioned-ontology-assets.md).
 - User-visible outcome: Auto-merge thresholds and ontology semantics reflect the owner's precision
 tolerance and domain meaning.
 - Scope boundary: Approve bounded policies and terms; no manual editing of source mentions or

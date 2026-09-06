@@ -1,0 +1,131 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ai: <https://arxiv-int.local/ns/ontology#> .
+@prefix aic: <https://arxiv-int.local/ns/class/> .
+@prefix aip: <https://arxiv-int.local/ns/pred/> .
+
+########################################
+# Class node shapes
+########################################
+
+ai:NaturalPersonShape a sh:NodeShape ;
+    sh:targetClass aic:NaturalPerson ;
+    sh:not [
+        a sh:NodeShape ;
+        sh:class aic:LegalEntity ;
+    ] ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:minCount 1 ;
+    ] .
+
+ai:LegalEntityShape a sh:NodeShape ;
+    sh:targetClass aic:LegalEntity ;
+    sh:not [
+        a sh:NodeShape ;
+        sh:class aic:NaturalPerson ;
+    ] .
+
+ai:ProductModelShape a sh:NodeShape ;
+    sh:targetClass aic:ProductModel ;
+    sh:not [
+        a sh:NodeShape ;
+        sh:class aic:EquipmentInstance ;
+    ] .
+
+ai:ObjectPreferredNameShape a sh:NodeShape ;
+    sh:targetClass aic:Object ;
+    sh:property [
+        sh:path aip:preferredName ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+    ] .
+
+########################################
+# Predicate property shapes
+########################################
+
+ai:MentionsShape a sh:NodeShape ;
+    sh:targetSubjectsOf aip:mentions ;
+    sh:class aic:Document ;
+    sh:property [
+        sh:path aip:mentions ;
+        sh:class aic:Object ;
+        sh:minCount 1 ;
+    ] .
+
+ai:AliasOfShape a sh:NodeShape ;
+    sh:targetSubjectsOf aip:aliasOf ;
+    sh:class aic:Object ;
+    sh:property [
+        sh:path aip:aliasOf ;
+        sh:class aic:Object ;
+        sh:minCount 1 ;
+    ] .
+
+ai:LocatedAtShape a sh:NodeShape ;
+    sh:targetSubjectsOf aip:locatedAt ;
+    sh:class aic:Object ;
+    sh:property [
+        sh:path aip:locatedAt ;
+        sh:class aic:Location ;
+        sh:minCount 1 ;
+    ] .
+
+ai:AssignedToTopicShape a sh:NodeShape ;
+    sh:targetSubjectsOf aip:assignedToTopic ;
+    sh:class aic:Object ;
+    sh:property [
+        sh:path aip:assignedToTopic ;
+        sh:class aic:Topic ;
+        sh:minCount 1 ;
+    ] .
+
+ai:ExtractedFromShape a sh:NodeShape ;
+    sh:targetSubjectsOf aip:extractedFrom ;
+    sh:class aic:Fact ;
+    sh:property [
+        sh:path aip:extractedFrom ;
+        sh:class aic:Document ;
+        sh:minCount 1 ;
+    ] .
+
+ai:DerivedFromShape a sh:NodeShape ;
+    sh:targetSubjectsOf aip:derivedFrom ;
+    sh:class aic:AnomalyFinding ;
+    sh:property [
+        sh:path aip:derivedFrom ;
+        sh:class aic:Fact ;
+        sh:minCount 1 ;
+    ] .
+
+ai:SupersedesShape a sh:NodeShape ;
+    sh:targetSubjectsOf aip:supersedes ;
+    sh:class aic:Fact ;
+    sh:property [
+        sh:path aip:supersedes ;
+        sh:class aic:Fact ;
+        sh:maxCount 1 ;
+    ] .
+
+ai:IdentifiedByShape a sh:NodeShape ;
+    sh:targetSubjectsOf aip:identifiedBy ;
+    sh:class aic:Object ;
+    sh:property [
+        sh:path aip:identifiedBy ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] .
+
+ai:ConfidenceScoreShape a sh:NodeShape ;
+    sh:targetSubjectsOf aip:confidenceScore ;
+    sh:class aic:Fact ;
+    sh:property [
+        sh:path aip:confidenceScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+    ] .

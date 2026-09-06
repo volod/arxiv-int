@@ -55,6 +55,12 @@ def test_parser_accepts_contracts_generate_and_check() -> None:
     assert parser.parse_args(["contracts", "evolution"]).contracts_command == "evolution"
 
 
+def test_parser_accepts_ontology_check_and_generate() -> None:
+    parser = build_parser()
+    assert parser.parse_args(["ontology", "check"]).ontology_command == "check"
+    assert parser.parse_args(["ontology", "generate"]).ontology_command == "generate"
+
+
 def test_contracts_lint_command_reports_success(
     monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture, tmp_path: Path
 ) -> None:
@@ -128,6 +134,35 @@ def test_contracts_evolution_command(
 
     assert main(["contracts", "evolution", "--skip-live-sql"]) == 0
     assert "evolution policy passed" in caplog.text
+
+
+def test_ontology_check_and_generate_commands(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture, tmp_path: Path
+) -> None:
+    from arxiv_int.ontology.check import OntologyCheckReport
+
+    monkeypatch.setattr(
+        "arxiv_int.runtime.project_root.find_project_root",
+        lambda explicit=None, environment=None: tmp_path,
+    )
+    monkeypatch.setattr(
+        "arxiv_int.ontology.paths.ontology_root_for",
+        lambda project_root=None: tmp_path / "ontology",
+    )
+    monkeypatch.setattr(
+        "arxiv_int.ontology.generate.generate_ontology_bindings",
+        lambda root: {"ontology.catalog.json": "abc"},
+    )
+    monkeypatch.setattr(
+        "arxiv_int.ontology.check.check_ontology",
+        lambda root, project_root=None, refresh_generated=False: OntologyCheckReport((), 11, 23),
+    )
+    caplog.set_level(logging.INFO)
+
+    assert main(["ontology", "generate"]) == 0
+    assert "generated" in caplog.text
+    assert main(["ontology", "check"]) == 0
+    assert "ontology check passed" in caplog.text
 
 
 def test_readiness_and_services_default_to_pipeline_profiles() -> None:

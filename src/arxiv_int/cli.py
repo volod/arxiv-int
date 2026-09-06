@@ -109,6 +109,19 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="skip disposable Postgres apply of baseline CREATE TABLE SQL",
     )
+    ontology = subcommands.add_parser("ontology", help="validate versioned ontology assets")
+    ontology_commands = ontology.add_subparsers(dest="ontology_command", required=True)
+    ontology_check = ontology_commands.add_parser(
+        "check",
+        help="parse RDF/SHACL, verify bindings, generation drift, and evolution baseline",
+    )
+    ontology_check.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
+    ontology_generate = ontology_commands.add_parser(
+        "generate", help="regenerate committed ontology.* bindings"
+    )
+    ontology_generate.add_argument(
+        "--project-root", type=Path, default=None, help=argparse.SUPPRESS
+    )
     return parser
 
 
@@ -275,6 +288,34 @@ def _run_contracts(args: argparse.Namespace) -> int:
     return 1
 
 
+def _run_ontology(args: argparse.Namespace) -> int:
+    from arxiv_int.ontology.check import check_ontology
+    from arxiv_int.ontology.generate import generate_ontology_bindings
+    from arxiv_int.ontology.paths import ontology_root_for
+    from arxiv_int.runtime.project_root import ProjectRootError, find_project_root
+
+    try:
+        root = find_project_root(args.project_root)
+        ontology_root = ontology_root_for(root)
+        if args.ontology_command == "generate":
+            files = generate_ontology_bindings(ontology_root)
+            _LOG.info("generated %d ontology binding artifact(s)", len(files))
+            return 0
+        report = check_ontology(ontology_root, project_root=root)
+    except (OSError, ProjectRootError, RuntimeError, ValueError) as error:
+        _LOG.error("%s", error)
+        return 1
+    if report.ok:
+        _LOG.info(
+            "ontology check passed: %d class(es), %d predicate(s)",
+            report.checked_classes,
+            report.checked_predicates,
+        )
+        return 0
+    _log_findings(report.findings)
+    return 1
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     """Run the selected command and return a process status."""
     logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -289,6 +330,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_services(args)
     if args.command == "contracts":
         return _run_contracts(args)
+    if args.command == "ontology":
+        return _run_ontology(args)
     return _run_info()
 
 

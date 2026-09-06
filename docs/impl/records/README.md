@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0013` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0014` after the rows
 below).
 
 | Record | Scope | Result |
@@ -24,3 +24,4 @@ below).
 | [0010 Canonical contract registry](0010-contract-gov-establish-canonical-contract-registry.md) | ODCS 3.1 registry, mappings, canonical model, loaders and lint | Accepted; official schema and Data Contract CLI lint pass with `make ci` / `make quality` |
 | [0011 Deterministic schema generation](0011-contract-gov-implement-deterministic-schema-generation.md) | ODCS-to-Avro/SQL/Parquet/JSON/graph generation with drift check | Accepted; committed `contracts/generated`, `make contracts-check`, Avro/SQL gates pass |
 | [0012 Evolution and migration policy](0012-contract-gov-enforce-evolution-and-migration-policy.md) | Reviewed baselines, consequence classes, dbmate migrations, live SQL apply | Accepted; fixtures and `make contracts-evolution` / CI pass |
+| [0013 Versioned ontology assets](0013-contract-gov-establish-versioned-ontology-assets.md) | Controlled vocabulary, RDF/SHACL, bindings, ontology evolution | Accepted; `make ontology-check` / CI pass |

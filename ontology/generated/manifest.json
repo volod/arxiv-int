@@ -1,0 +1,9 @@
+{
+  "files": {
+    "ontology.bindings.json": "37fb6348e4fddc102b21c476406bf855b29a922d893fd2f8cf4c8bdc4eeedd7a",
+    "ontology.catalog.json": "7004a3775a2879e5dfe1a42f5d7b1724a978643ddcf7d7a3d6ffcaeffcf9c860",
+    "ontology.terms.json": "5a8e5257cc37bf1c70c52a7722dceb0c709f602655f12d17f40d54476789e1e5"
+  },
+  "ontologyId": "urn:arxiv-int:ontology:1.0.0",
+  "version": "1.0.0"
+}

@@ -1,5 +1,7 @@
 metadata:
   canonicalModelRef: urn:arxiv-int:model:1.0.0
+  ontologyRef: urn:arxiv-int:ontology:1.0.0
+  ontologyVersion: "1.0.0"
 semanticTerms:
   urn:arxiv-int:term:alias-id:
     valueType: string

@@ -1,0 +1,20 @@
+# Pinned ontology configuration for the knowledge-model vocabulary.
+version: "1.0.0"
+ontologyId: urn:arxiv-int:ontology:1.0.0
+title: arxiv-int foundation ontology
+description: >
+  Minimal evidence-backed classes, predicates, mappings, and SHACL shapes that
+  validate object and fact semantics independently of AGE. Domain investigation
+  predicates are added by a later contract-governance task.
+assets:
+  core: core.ttl
+  mappings: mappings.ttl
+  shapes: shapes.shacl.ttl
+generatedDir: generated
+evolutionBaseline: evolution/baseline.json
+namespaces:
+  ai: https://arxiv-int.local/ns/ontology#
+  aic: https://arxiv-int.local/ns/class/
+  aip: https://arxiv-int.local/ns/pred/
+  unit: https://arxiv-int.local/ns/unit/
+  term: "urn:arxiv-int:term:"

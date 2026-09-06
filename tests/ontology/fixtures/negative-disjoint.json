@@ -1,0 +1,11 @@
+{
+  "assertions": [
+    {
+      "subject_id": "person-1",
+      "subject_types": ["class.natural-person", "class.legal-entity"],
+      "predicate": "pred.preferred-name",
+      "literal_value": "Pat",
+      "literal_datatype": "http://www.w3.org/2001/XMLSchema#string"
+    }
+  ]
+}

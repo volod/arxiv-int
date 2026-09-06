@@ -1,0 +1,11 @@
+{
+  "assertions": [
+    {
+      "subject_id": "obj-1",
+      "subject_types": ["class.object"],
+      "predicate": "pred.preferred-name",
+      "literal_value": "Acme",
+      "literal_datatype": "http://www.w3.org/2001/XMLSchema#string"
+    }
+  ]
+}

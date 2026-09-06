@@ -1,0 +1,56 @@
+{
+  "activePredicates": [
+    {
+      "contractBinding": "fact.predicateId",
+      "termId": "pred.alias-of",
+      "uri": "https://arxiv-int.local/ns/pred/aliasOf"
+    },
+    {
+      "contractBinding": "fact.predicateId",
+      "termId": "pred.assigned-to-topic",
+      "uri": "https://arxiv-int.local/ns/pred/assignedToTopic"
+    },
+    {
+      "contractBinding": "fact.predicateId",
+      "termId": "pred.confidence-score",
+      "uri": "https://arxiv-int.local/ns/pred/confidenceScore"
+    },
+    {
+      "contractBinding": "fact.predicateId",
+      "termId": "pred.derived-from",
+      "uri": "https://arxiv-int.local/ns/pred/derivedFrom"
+    },
+    {
+      "contractBinding": "fact.predicateId",
+      "termId": "pred.extracted-from",
+      "uri": "https://arxiv-int.local/ns/pred/extractedFrom"
+    },
+    {
+      "contractBinding": "fact.predicateId",
+      "termId": "pred.identified-by",
+      "uri": "https://arxiv-int.local/ns/pred/identifiedBy"
+    },
+    {
+      "contractBinding": "fact.predicateId",
+      "termId": "pred.located-at",
+      "uri": "https://arxiv-int.local/ns/pred/locatedAt"
+    },
+    {
+      "contractBinding": "fact.predicateId",
+      "termId": "pred.mentions",
+      "uri": "https://arxiv-int.local/ns/pred/mentions"
+    },
+    {
+      "contractBinding": "fact.predicateId",
+      "termId": "pred.preferred-name",
+      "uri": "https://arxiv-int.local/ns/pred/preferredName"
+    },
+    {
+      "contractBinding": "fact.predicateId",
+      "termId": "pred.supersedes",
+      "uri": "https://arxiv-int.local/ns/pred/supersedes"
+    }
+  ],
+  "ontologyId": "urn:arxiv-int:ontology:1.0.0",
+  "version": "1.0.0"
+}
