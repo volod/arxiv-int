@@ -28,8 +28,9 @@ sources:
             name: invoice_object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: payment_object_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -38,8 +39,9 @@ sources:
             name: payment_object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: line_number must match logical type integer.
             meta:
               arxiv_int_rule_ids:
@@ -102,8 +104,9 @@ sources:
             name: document_id
             tests:
               - relationships:
-                  field: document_id
-                  to: "source('corpus', 'documents')"
+                  arguments:
+                    field: document_id
+                    to: "source('corpus', 'documents')"
           - description: review_state must match logical type string.
             meta:
               arxiv_int_rule_ids:

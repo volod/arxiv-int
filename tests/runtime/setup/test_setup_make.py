@@ -39,6 +39,7 @@ def test_make_setup_exposes_atomic_commands_without_profile_defaults() -> None:
     assert "arxiv_int_setup_env" in setup
     assert 'bin/arxiv-int" setup' in setup
     assert "--extra inference" in setup
+    assert "--extra transform" in setup
     assert "--profiles" not in _dry_run("services-up")
     assert '--profiles "core ui"' in _dry_run("services-up", "SERVICE_PROFILES=core ui")
     assert "setup --phase images" in _dry_run("services-pull")

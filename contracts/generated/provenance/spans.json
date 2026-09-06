@@ -2,7 +2,7 @@
   "apiVersion": "v3.1.0",
   "artifacts": {
     "avro/spans.avsc": "eb39c2b21651d27b14dc1c735fbde38c24926a46bfc7f71b4b52447afeea6f7a",
-    "dbt/spans.yml": "5730cb73687f0b615675fdec23e790919141917a8bc47b5bd7ecd73b17ff6540",
+    "dbt/spans.yml": "ed7e4e202b7f62fdd4d04d16a4cf2df793ddfaa8e0d420fbf896b2c75cfee9b8",
     "jsonschema/spans.schema.json": "a511b6d661bc08c6c26dfab8e446c0359646e6c501d9a06c0c5b34d8685688cb",
     "parquet/spans.parquet.json": "daba3ef8f36640881f5ba6ea321f3090907843fa561388cebf03f49d6f750bf2",
     "postgres/extensions/spans.sql": "e4cb717dca02429357918f712241187ade4a00939b0c58496b201d98abac8619",

@@ -2,7 +2,7 @@
   "apiVersion": "v3.1.0",
   "artifacts": {
     "avro/facts.avsc": "a25543a1bb9ee8b685a10b8c6255424ae641c21ebfefc288b7225c0ac0b1fe71",
-    "dbt/facts.yml": "deb27347bd97157210a972881b1557c8604dd606756474a9f3ce2600b865d43e",
+    "dbt/facts.yml": "024e7ddbdf2f2ac81bfe732a84b394bec4bbd7024ada46d89e062d02c6e209a8",
     "graph/facts.sql": "17fc91b74eba6759aa33fa9e6a7bdc4ed0c0002f5f129e249706aab7aa44f3c7",
     "jsonschema/facts.schema.json": "d2b70d3295b34fef030bd14474d91481372179d0b90af9cbd05a76b43bc2f4e6",
     "parquet/facts.parquet.json": "d5b26152529cad288acc50086cce9161b6de16e9ea1bf72286067e6fd096781d",

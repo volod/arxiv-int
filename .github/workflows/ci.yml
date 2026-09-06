@@ -27,7 +27,7 @@ jobs:
           enable-cache: true
 
       - name: Install locked environment
-        run: uv sync --locked --extra dev --extra contracts --extra graph --extra store --extra lake --extra data-quality --extra inference --python ${{ matrix.python-version }}
+        run: uv sync --locked --extra dev --extra contracts --extra graph --extra store --extra lake --extra data-quality --extra inference --extra transform --python ${{ matrix.python-version }}
 
       - name: Run required checks
         run: make ci-github PYTHON_VERSION=${{ matrix.python-version }}

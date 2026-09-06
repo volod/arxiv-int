@@ -23,8 +23,9 @@ sources:
             name: document_id
             tests:
               - relationships:
-                  field: document_id
-                  to: "source('corpus', 'documents')"
+                  arguments:
+                    field: document_id
+                    to: "source('corpus', 'documents')"
           - description: span_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -33,8 +34,9 @@ sources:
             name: span_id
             tests:
               - relationships:
-                  field: span_id
-                  to: "source('corpus', 'spans')"
+                  arguments:
+                    field: span_id
+                    to: "source('corpus', 'spans')"
           - description: chunk_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -43,8 +45,9 @@ sources:
             name: chunk_id
             tests:
               - relationships:
-                  field: chunk_id
-                  to: "source('corpus', 'chunks')"
+                  arguments:
+                    field: chunk_id
+                    to: "source('corpus', 'chunks')"
           - description: surface_form must match logical type string.
             meta:
               arxiv_int_rule_ids:

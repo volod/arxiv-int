@@ -100,8 +100,8 @@ environment.
 Live schema overlay, HASH partitions, roles, staging COPY, and disposable apply evidence are
 documented in [Canonical store](canonical-store.md). Offline evolution checks still do not stamp an
 operator database by themselves. Missing live evidence is reported as `not-run`, never as a pass.
-dbt model execution remains with
-[the dbt foundation task](../plan.md#implement-dbt-transformation-foundation).
+Whole-relation dbt execution is recorded in
+[Canonical store](canonical-store.md#relational-transformations).
 
 `make contracts-evolution` / `arxiv-int contracts evolution` checks baselines against current
 contracts, Avro self-compatibility, the migration report, and the disposable Postgres apply of
@@ -116,14 +116,17 @@ records dataset checks; the
 [duplicate SQL retirement](../records/0020-contract-gov-retire-duplicate-dbmate-sql.md)
 removes the leftover `db/` tree and SQL-dump inventory; the
 [canonical relational schema record](../records/0021-store-create-canonical-relational-schema.md)
-records live overlay apply and adoption on the pinned store.
+records live overlay apply and adoption on the pinned store; the
+[dbt transformation foundation](../records/0024-store-implement-dbt-transformation-foundation.md)
+records local model build/test and isolated derived generations.
 
 ## Dataset quality checks
 
 `src/arxiv_int/data_quality/` compiles the same normalized ODCS fields used for SQLAlchemy into a
 stable rule catalog. Generation writes `contracts/generated/quality/<id>.rules.json` and
 `contracts/generated/dbt/{<id>.yml,sources.yml}` beside other physical artifacts; fingerprints
-enter provenance sidecars and `manifest.json`. `GENERATOR_VERSION` is `2.1.0`.
+enter provenance sidecars and `manifest.json`. `GENERATOR_VERSION` is `2.1.0`. Generated generic
+dbt tests nest arguments under `arguments` so dbt Core 1.12 can compile them.
 
 Batch rules (type, nullability, max length, decimal, accepted values, unit companions, and
 in-batch uniqueness) run against eager Polars frames through Pandera/Polars. Snapshot uniqueness
@@ -138,7 +141,8 @@ executed and passed; missing, unexecuted, failed, or schema-only outcomes stay i
 blocked. The `data-quality` extra carries Pandera; Polars/PyArrow stay in `lake`. CLI and core
 paths that do not validate data do not import them. Producers attach ontology/SHACL results;
 unattached required semantic checks are explicit `not-run`. Fixture tests make no held-out model
-or real-archive quality claim. Whole-relation dbt execution is not part of this adapter.
+or real-archive quality claim. Whole-relation dbt execution uses the runner in
+[Canonical store](canonical-store.md#relational-transformations); this adapter does not invoke dbt.
 
 ## Versioned ontology assets
 

@@ -230,6 +230,9 @@ def build_parser() -> argparse.ArgumentParser:
     check.add_argument("--runs-dir", type=Path, default=None)
     check.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
     add_setup_parser(subcommands)
+    from arxiv_int.transformations.commands import add_transform_parser
+
+    add_transform_parser(subcommands)
     return parser
 
 
@@ -550,6 +553,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_setup_command(args)
     if args.command == "data-quality":
         return _run_data_quality(args)
+    if args.command == "transform":
+        from arxiv_int.transformations.commands import run_transform_command
+
+        return run_transform_command(args)
     return _run_info()
 
 

@@ -22,6 +22,7 @@ LOCKED_EXTRAS: tuple[str, ...] = (
     "lake",
     "data-quality",
     "inference",
+    "transform",
 )
 _DOWNLOAD_TRUE = frozenset({"1", "true", "yes", "on"})
 _DOWNLOAD_FALSE = frozenset({"0", "false", "no", "off"})

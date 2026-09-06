@@ -19,41 +19,6 @@ cannot establish a pass. These requirements also apply to later additive contrac
 
 ### Canonical store -- `canonical-store`
 
-#### implement-dbt-transformation-foundation
-
-Provide one local, contract-described dbt project and typed runner for relational transformations
-before projection, catalog, and report builders introduce embedded business SQL.
-
-- Serves: `canonical-store` -- [Transformations](../design/spec.md#data-transformations-and-quality)
-- Agent status: RUN NEEDED
-- Audit inputs: [AUD-data-engineering-tooling-2](records/0015-govern-review-data-engineering-tooling.md#audit-handoff).
-- Dependencies: [Canonical relational schema](records/0021-store-create-canonical-relational-schema.md);
-[Contract data-quality checks](records/0019-contract-gov-implement-contract-data-quality-checks.md).
-- User-visible outcome: Named models can be built/tested locally with source lineage and quality
-results; failed builds leave the active generation unchanged.
-- Scope boundary: Establish dbt execution, ownership and synthetic model fixtures; domain tasks own
-their business models. Do not add an orchestrator/service, replace canonical writes, require dbt
-Python models on PostgreSQL, or materialize the archive in pandas.
-- Data and artifact paths: `transformations/{dbt_project.yml,models,tests,macros}/`, generated dbt
-contract YAML, `src/arxiv_int/transformations/`, `tests/transformations/`, feature/lock/Make files,
-`$DATA_DIR/dbt/<run-id>/`, and `$RUNS_DIR/<run-id>/{manifests,quality}/`.
-- Execution path: Pin compatible Python dbt Core 1.x and `dbt-postgres` in optional `transform`
-dependencies; add typed parse/build/test invocation and rooted, environment-only credentials.
-Consume generated source/column/test metadata; define descriptive staging/intermediate/mart model
-conventions using source/ref. Build only in isolated `derived` generations with bounded threads and
-exclusive target ownership; expose results for the existing pipeline to activate. Retain sanitized
-manifest/run-results, selected model/input fingerprints and rule outcomes. Keep custom macros small;
-invoke local Polars functions for Python-only preparation through the existing stage seam.
-- Acceptance gates: dbt parse plus declared compile/build/test runs on synthetic pinned PostgreSQL
-fixtures pass. Clean, repeated and incremental builds agree after insert/update/delete and policy
-changes; failed data tests or interrupted/concurrent builds cannot activate partial data. Role tests
-prove canonical relations and Alembic state cannot be mutated by dbt; migrations ignore dbt-owned
-relations. Missing adapter/database and invalid models fail explicitly; secrets stay out of artifacts,
-base imports remain light, and `make ci` / `make quality` pass. Keep required live checks open when
-unavailable; no corpus-scale or domain-quality claim follows from the fixture DAG.
-- Documentation target: `docs/impl/current/canonical-store.md`
-- Review checkpoint: `review-foundation-and-store-boundaries`.
-
 #### implement-rebuildable-search-and-graph-projections
 
 Create projection lifecycle code for ParadeDB, pgvector candidates, and AGE without making any
@@ -63,7 +28,7 @@ projection canonical.
 [Search and vector projections](../design/spec.md#search-and-vector-projections)
 - Agent status: CLEAR
 - Dependencies: [Canonical relational schema](records/0021-store-create-canonical-relational-schema.md);
-`implement-dbt-transformation-foundation`.
+[dbt transformation foundation](records/0024-store-implement-dbt-transformation-foundation.md).
 - User-visible outcome: Search/vector/graph projections can be built, validated, version-switched,
 and dropped without losing canonical rows.
 - Scope boundary: Implement lifecycle and correctness checks on fixtures; relevance and scale

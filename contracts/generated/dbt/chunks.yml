@@ -23,8 +23,9 @@ sources:
             name: document_id
             tests:
               - relationships:
-                  field: document_id
-                  to: "source('corpus', 'documents')"
+                  arguments:
+                    field: document_id
+                    to: "source('corpus', 'documents')"
           - description: chunker_id must match logical type string.
             meta:
               arxiv_int_rule_ids:

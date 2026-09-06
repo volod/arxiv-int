@@ -61,7 +61,7 @@ handlers in order. A successful infrastructure audit does not mean the archive p
    source scripts/shared/common.sh
    arxiv_int_load_env
    uv sync --locked --extra dev --extra contracts --extra lake --extra store \
-     --extra inference --extra graph --extra data-quality
+     --extra inference --extra graph --extra data-quality --extra transform
    make features
    ```
 

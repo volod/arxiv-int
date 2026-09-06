@@ -72,13 +72,15 @@ arxiv-int readiness [--profiles PROFILES] [--timeout SECONDS]
 arxiv-int services --help
 arxiv-int contracts --help
 arxiv-int data-quality check DATASET --run-id RUN_ID --input PATH
+arxiv-int transform parse|compile|build|test --run-id RUN_ID
 ```
 
 `info` is a packaging and executable-path smoke test. `features` lists optional dependency groups,
 install status and commands, distribution licences, and expected system dependencies.
 `data-quality check` validates one contract dataset and writes secret-free evidence; a missing or
-unexecuted required check cannot look publishable. Domain commands arrive as their specified
-capabilities are implemented.
+unexecuted required check cannot look publishable. `transform` parses, compiles, builds, or tests
+isolated derived dbt models; a failed or unexecuted required live check cannot look like a pass.
+Domain commands arrive as their specified capabilities are implemented.
 
 ## Development
 

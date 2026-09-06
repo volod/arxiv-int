@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0024` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0025` after the rows
 below).
 
 | Record | Scope | Result |
@@ -26,12 +26,13 @@ below).
 | [0012 Evolution and migration policy](0012-contract-gov-enforce-evolution-and-migration-policy.md) | Reviewed baselines, consequence classes, dbmate migrations, live SQL apply | Accepted; fixtures and `make contracts-evolution` / CI pass |
 | [0013 Versioned ontology assets](0013-contract-gov-establish-versioned-ontology-assets.md) | Controlled vocabulary, RDF/SHACL, bindings, ontology evolution | Accepted; `make ontology-check` / CI pass |
 | [0014 Domain investigation contracts](0014-contract-gov-define-domain-investigation-contracts-and-ontology.md) | Domain artifact ODCS, ontology predicates, fixtures | Accepted; contracts/ontology CI pass |
-| [0015 Data engineering tooling review](0015-govern-review-data-engineering-tooling.md) | Schema/migration implementation review; SQLAlchemy/Alembic, dbt, Polars/Pandera design and prerequisite task routing | Accepted review; 432 tests and documentation gates pass; dbt foundation remains open |
+| [0015 Data engineering tooling review](0015-govern-review-data-engineering-tooling.md) | Schema/migration implementation review; SQLAlchemy/Alembic, dbt, Polars/Pandera design and prerequisite task routing | Accepted review; 432 tests and documentation gates pass; dbt foundation resolved by 0024 |
 | [0016 Simple operator entrypoints](0016-govern-design-simple-operator-entrypoints.md) | Retryable setup and one default pipeline command, separate atomic-command runbook, shared handlers and remaining implementation owners | Accepted design; runtime targets remain planned |
 | [0017 Contract schema and migration tooling](0017-contract-gov-refactor-contract-schema-and-migration-tooling.md) | Contract-derived SQLAlchemy metadata, review DDL, immutable Alembic revisions, live catalog comparison and refusal-first legacy adoption | Accepted; offline gates pass; live upgrade remains with the canonical schema task |
 | [0018 Build pinned ParadeDB + AGE image](0018-store-build-pinned-paradedb-age-image.md) | Project-owned ParadeDB/pgvector/AGE image, coexistence probes, graph AGE gate, host-UID bind mounts | Accepted; clean-cache build and disposable probes pass; AGE enabled; `make ci` 530/1 |
-| [0019 Contract data-quality checks](0019-contract-gov-implement-contract-data-quality-checks.md) | Contract-derived Pandera/Polars batch checks, generated dbt YAML, typed results that cannot pass when required checks are missing or unexecuted | Accepted; fixture gates, `make ci`, and `make quality` pass; dbt execution remains with the transformation foundation |
+| [0019 Contract data-quality checks](0019-contract-gov-implement-contract-data-quality-checks.md) | Contract-derived Pandera/Polars batch checks, generated dbt YAML, typed results that cannot pass when required checks are missing or unexecuted | Accepted; fixture gates, `make ci`, and `make quality` pass; whole-relation dbt execution is in 0024 |
 | [0020 Retire duplicate dbmate SQL](0020-contract-gov-retire-duplicate-dbmate-sql.md) | Remove leftover `db/` and SQL-dump inventory so Alembic is the only authored schema history | Accepted; `db/` deleted; dump inventory and parallel-history tests removed |
 | [0021 Canonical relational schema](0021-store-create-canonical-relational-schema.md) | Apply Alembic history on the pinned store with partitions, constraints, roles, staging, and adoption | Accepted |
 | [0022 Retryable setup command](0022-runtime-implement-retryable-setup-command.md) | One setup/edit/retry coordinator over atomic env, image, model, service and schema commands | Accepted |
 | [0023 Representative corpus approval](0023-corpus-approve-representative-corpus-and-gold.md) | Operator-designated legally usable representative slice as `PROOF_ARCHIVE_DIR` | Accepted |
+| [0024 dbt transformation foundation](0024-store-implement-dbt-transformation-foundation.md) | Local dbt project, typed runner, isolated derived generations, synthetic fixture DAG | Accepted |

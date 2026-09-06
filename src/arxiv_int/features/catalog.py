@@ -132,6 +132,28 @@ FEATURE_GROUPS: tuple[FeatureGroup, ...] = (
         system_dependencies=("a reachable PostgreSQL service with the required extensions",),
     ),
     FeatureGroup(
+        name="transform",
+        summary="Python dbt Core invocation for derived staging, intermediate, and mart models",
+        owner="canonical-store",
+        requirements=(
+            Requirement(
+                "dbt-core",
+                "dbt.cli.main",
+                "Apache-2.0",
+                "parse, compile, build, and test described SQL models",
+            ),
+            Requirement(
+                "dbt-postgres",
+                "dbt.adapters.postgres",
+                "Apache-2.0",
+                "materialize derived relations on the local PostgreSQL store",
+            ),
+        ),
+        system_dependencies=(
+            "a reachable PostgreSQL service with the derived schema and dbt role",
+        ),
+    ),
+    FeatureGroup(
         name="ui",
         summary="report rendering and local dashboard assets",
         owner="discovery-visualization",
@@ -155,10 +177,10 @@ STAGE_FEATURES: Mapping[str, tuple[str, ...]] = {
     "entities": ("data-quality", "lake", "store"),
     "facts": ("data-quality", "gpu", "inference", "lake", "store"),
     "ontology": ("graph",),
-    "graph": ("graph", "store"),
-    "domain-artifacts": ("data-quality", "lake", "store"),
+    "graph": ("graph", "store", "transform"),
+    "domain-artifacts": ("data-quality", "lake", "store", "transform"),
     "evaluate": ("data-quality", "evaluation", "lake"),
-    "report": ("data-quality", "lake", "store", "ui"),
+    "report": ("data-quality", "lake", "store", "transform", "ui"),
 }
 
 _BY_NAME = {group.name: group for group in FEATURE_GROUPS}

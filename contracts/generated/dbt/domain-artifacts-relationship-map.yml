@@ -23,8 +23,9 @@ sources:
             name: subject_object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: predicate_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -38,8 +39,9 @@ sources:
             name: object_object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: relation_kind must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -83,8 +85,9 @@ sources:
             name: document_id
             tests:
               - relationships:
-                  field: document_id
-                  to: "source('corpus', 'documents')"
+                  arguments:
+                    field: document_id
+                    to: "source('corpus', 'documents')"
           - description: span_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -93,8 +96,9 @@ sources:
             name: span_id
             tests:
               - relationships:
-                  field: span_id
-                  to: "source('corpus', 'spans')"
+                  arguments:
+                    field: span_id
+                    to: "source('corpus', 'spans')"
           - description: anchor_kind must match logical type string.
             meta:
               arxiv_int_rule_ids:

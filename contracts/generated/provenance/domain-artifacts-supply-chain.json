@@ -2,7 +2,7 @@
   "apiVersion": "v3.1.0",
   "artifacts": {
     "avro/domain-artifacts-supply-chain.avsc": "311c15d8b0fc6df2f884ae040fd8ac04dd868cfc87edce9a8a05121080d43093",
-    "dbt/domain-artifacts-supply-chain.yml": "ec023f42fe281d2a382ea849481bf4f446d7ecd1fe9683c1e088c40826279669",
+    "dbt/domain-artifacts-supply-chain.yml": "501e621ecdb7371f5259e9b8a012f42025ef76cd6f8ef54e7ba7f2c77e49acad",
     "graph/domain-artifacts-supply-chain.sql": "05edfe2e53129fb5f4fb7445337c7876e16ba54844d328ba2a94f550df6683db",
     "jsonschema/domain-artifacts-supply-chain.schema.json": "27ea4a8a87c664d2cd33623f1f64bc39e88081148c3dceb3c25b7eff469e1adf",
     "parquet/domain-artifacts-supply-chain.parquet.json": "ccd70aa3eebae4ccb9806f00275bb5c4d48bd2676f8287bd8eed21c2fa2f283f",

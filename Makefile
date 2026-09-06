@@ -19,7 +19,7 @@ NO_CACHE ?= 0
 WRITE_GATE ?= 0
 COMMON_SH := $(PROJECT_ROOT)/scripts/shared/common.sh
 # One extra set for every syncing target so consecutive targets cannot uninstall each other.
-SYNC_EXTRAS := --extra dev --extra contracts --extra graph --extra store --extra lake --extra data-quality --extra inference
+SYNC_EXTRAS := --extra dev --extra contracts --extra graph --extra store --extra lake --extra data-quality --extra inference --extra transform
 PROFILE_ARGS := $(if $(SERVICE_PROFILES),--profiles "$(SERVICE_PROFILES)",)
 DATA_ROOT := $(shell $(if $(DATA_DIR),DATA_DIR='$(DATA_DIR)') bash -c '. "$$0"; arxiv_int_data_root' '$(COMMON_SH)')
 PYTEST_CACHE := -o cache_dir=$(DATA_ROOT)/cache/pytest
@@ -37,6 +37,7 @@ export MYPY_CACHE_DIR := $(DATA_ROOT)/cache/mypy
 	contracts contracts-gen contracts-check contracts-evolution \
 	db-revision db-check db-status db-upgrade \
 	db-downgrade db-adopt db-apply-schema ontology ontology-gen ontology-check data-quality \
+	transform-parse transform-compile transform-build transform-test \
 	ci-checks ci ci-github build quality code-quality quality-report
 
 help: ## List available targets
@@ -149,6 +150,30 @@ data-quality: ## Validate DATASET contents for RUN_ID (INPUT=... required)
 		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)"; \
 		"$(VENV)/bin/arxiv-int" data-quality check "$(DATASET)" --run-id "$(RUN_ID)" \
 		--input "$(INPUT)" $(if $(RELATED),$(foreach item,$(RELATED),--related $(item)),)
+
+transform-parse: ## Parse the dbt project for RUN_ID without materializing relations
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)"; \
+		"$(VENV)/bin/arxiv-int" transform parse --run-id "$(RUN_ID)"
+
+transform-compile: ## Compile selected dbt models for RUN_ID
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)"; \
+		"$(VENV)/bin/arxiv-int" transform compile --run-id "$(RUN_ID)"
+
+transform-build: ## Build and test isolated derived models for RUN_ID
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)"; \
+		"$(VENV)/bin/arxiv-int" transform build --run-id "$(RUN_ID)"
+
+transform-test: ## Run dbt data tests for RUN_ID without replacing the active generation
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)"; \
+		"$(VENV)/bin/arxiv-int" transform test --run-id "$(RUN_ID)"
 
 config: ## Resolve, validate, and redact runtime configuration
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }

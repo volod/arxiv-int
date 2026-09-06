@@ -28,14 +28,15 @@ make features STAGE=extract
 
 `make features` lists every group with its status, the pipeline stages that activate it, its
 install command, the licence and purpose of each declared distribution, and the system dependencies
-it expects. Populated groups are `contracts`, `data-quality`, `graph`, `inference`, `lake`, and
-`store`. The `embeddings`, `evaluation`, `extraction`, `gpu`, `nlp`, and `ui` groups are declared
-and reserved for the capability that will choose their components.
+it expects. Populated groups are `contracts`, `data-quality`, `graph`, `inference`, `lake`,
+`store`, and `transform`. The `embeddings`, `evaluation`, `extraction`, `gpu`, `nlp`, and `ui`
+groups are declared and reserved for the capability that will choose their components.
 
 System dependencies are not installed by an extra. The `extraction` group expects a reachable
 Apache Tika server plus `tesseract-ocr` and `ocrmypdf` for the scanned-PDF lane, `store` expects a
-reachable PostgreSQL service, `inference` expects an Ollama system service or the optional vLLM
-profile, `gpu` expects a matching NVIDIA driver and CUDA runtime, and `ui` expects Docker.
+reachable PostgreSQL service, `transform` expects that same service with the `derived` schema and
+dbt role, `inference` expects an Ollama system service or the optional vLLM profile, `gpu` expects
+a matching NVIDIA driver and CUDA runtime, and `ui` expects Docker.
 
 Adding a dependency means adding it to the group that owns it in
 `src/arxiv_int/features/catalog.py` and to the matching extra in `pyproject.toml`, then running
@@ -96,6 +97,10 @@ they are small, deterministic, safe to publish, and required for CI.
 | `make db-apply-schema` | Apply owned revisions on the URL or a disposable PGDATA; evidence under `$DATA_DIR/migrations` |
 | `make db-adopt` | Stamp a live catalog after equivalence, or report why stamping is refused |
 | `make data-quality` | Validate `DATASET` contents for `RUN_ID` (`INPUT=...` required) |
+| `make transform-parse` | Parse the dbt project for `RUN_ID` without materializing relations |
+| `make transform-compile` | Compile selected dbt models for `RUN_ID` |
+| `make transform-build` | Build and test an isolated derived generation for `RUN_ID` |
+| `make transform-test` | Run dbt data tests for `RUN_ID` without replacing the active generation |
 | `make test` | Run the deterministic unit test suite |
 | `make coverage` | Run tests with the coverage gate |
 | `make format` | Apply Ruff formatting |

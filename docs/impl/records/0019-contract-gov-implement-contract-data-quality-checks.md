@@ -94,15 +94,16 @@ Artifacts: `contracts/generated/quality/*.rules.json`, `contracts/generated/dbt/
 
 `none identified` for the reviewed scope: rule compilation, Pandera batch adapters, disk-backed
 snapshot uniqueness/relationships, generated dbt YAML, typed publication gating, optional extras,
-and CLI/Make entrypoints. Whole-relation dbt execution stays with
-`implement-dbt-transformation-foundation`.
+and CLI/Make entrypoints. Whole-relation dbt execution is recorded in
+[0024](0024-store-implement-dbt-transformation-foundation.md).
 
 ## Close or resume
 
 Every declared fixture gate passed. Current contracts, developer tooling, project foundation,
 development guide, README, the record index, and `AUD-data-engineering-tooling-3` link this record.
 The task block was removed from the plan; dependents
-([Canonical relational schema](0021-store-create-canonical-relational-schema.md), `implement-dbt-transformation-foundation`,
+([Canonical relational schema](0021-store-create-canonical-relational-schema.md),
+[dbt transformation foundation](0024-store-implement-dbt-transformation-foundation.md),
 `create-evaluation-fixtures-and-metrics`) point at this record. `contract-governance` is shipped
 in the capability registry; live migration and dbt execution remain with canonical-store.
 

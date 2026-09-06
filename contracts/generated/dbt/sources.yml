@@ -23,8 +23,9 @@ sources:
             name: document_id
             tests:
               - relationships:
-                  field: document_id
-                  to: "source('corpus', 'documents')"
+                  arguments:
+                    field: document_id
+                    to: "source('corpus', 'documents')"
           - description: chunker_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -257,8 +258,9 @@ sources:
             name: document_id
             tests:
               - relationships:
-                  field: document_id
-                  to: "source('corpus', 'documents')"
+                  arguments:
+                    field: document_id
+                    to: "source('corpus', 'documents')"
           - description: start_char must match logical type integer.
             meta:
               arxiv_int_rule_ids:
@@ -472,8 +474,9 @@ sources:
             name: subject_object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: rule_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -602,8 +605,9 @@ sources:
             name: object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: alias_text must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -675,8 +679,9 @@ sources:
             name: root_object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: parent_object_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -685,8 +690,9 @@ sources:
             name: parent_object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: child_object_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -695,8 +701,9 @@ sources:
             name: child_object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: predicate_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -747,8 +754,9 @@ sources:
             name: revision_object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: completeness_status must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -772,8 +780,9 @@ sources:
             name: document_id
             tests:
               - relationships:
-                  field: document_id
-                  to: "source('corpus', 'documents')"
+                  arguments:
+                    field: document_id
+                    to: "source('corpus', 'documents')"
           - description: anchor_kind must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -840,8 +849,9 @@ sources:
             name: object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: preferred_name must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -908,8 +918,9 @@ sources:
             name: subject_object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: predicate_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -949,8 +960,9 @@ sources:
             name: document_id
             tests:
               - relationships:
-                  field: document_id
-                  to: "source('corpus', 'documents')"
+                  arguments:
+                    field: document_id
+                    to: "source('corpus', 'documents')"
           - description: span_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -959,8 +971,9 @@ sources:
             name: span_id
             tests:
               - relationships:
-                  field: span_id
-                  to: "source('corpus', 'spans')"
+                  arguments:
+                    field: span_id
+                    to: "source('corpus', 'spans')"
           - description: chunk_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -969,8 +982,9 @@ sources:
             name: chunk_id
             tests:
               - relationships:
-                  field: chunk_id
-                  to: "source('corpus', 'chunks')"
+                  arguments:
+                    field: chunk_id
+                    to: "source('corpus', 'chunks')"
           - description: identity_snapshot_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -1037,8 +1051,9 @@ sources:
             name: invoice_object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: payment_object_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -1047,8 +1062,9 @@ sources:
             name: payment_object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: line_number must match logical type integer.
             meta:
               arxiv_int_rule_ids:
@@ -1111,8 +1127,9 @@ sources:
             name: document_id
             tests:
               - relationships:
-                  field: document_id
-                  to: "source('corpus', 'documents')"
+                  arguments:
+                    field: document_id
+                    to: "source('corpus', 'documents')"
           - description: review_state must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -1176,8 +1193,9 @@ sources:
             name: document_id
             tests:
               - relationships:
-                  field: document_id
-                  to: "source('corpus', 'documents')"
+                  arguments:
+                    field: document_id
+                    to: "source('corpus', 'documents')"
           - description: span_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -1186,8 +1204,9 @@ sources:
             name: span_id
             tests:
               - relationships:
-                  field: span_id
-                  to: "source('corpus', 'spans')"
+                  arguments:
+                    field: span_id
+                    to: "source('corpus', 'spans')"
           - description: chunk_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -1196,8 +1215,9 @@ sources:
             name: chunk_id
             tests:
               - relationships:
-                  field: chunk_id
-                  to: "source('corpus', 'chunks')"
+                  arguments:
+                    field: chunk_id
+                    to: "source('corpus', 'chunks')"
           - description: surface_form must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -1327,8 +1347,9 @@ sources:
             name: subject_object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: predicate_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -1342,8 +1363,9 @@ sources:
             name: object_object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: relation_kind must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -1387,8 +1409,9 @@ sources:
             name: document_id
             tests:
               - relationships:
-                  field: document_id
-                  to: "source('corpus', 'documents')"
+                  arguments:
+                    field: document_id
+                    to: "source('corpus', 'documents')"
           - description: span_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -1397,8 +1420,9 @@ sources:
             name: span_id
             tests:
               - relationships:
-                  field: span_id
-                  to: "source('corpus', 'spans')"
+                  arguments:
+                    field: span_id
+                    to: "source('corpus', 'spans')"
           - description: anchor_kind must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -1471,8 +1495,9 @@ sources:
             name: from_object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: to_object_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -1481,8 +1506,9 @@ sources:
             name: to_object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: role_predicate_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -1496,8 +1522,9 @@ sources:
             name: product_object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: transaction_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -1506,8 +1533,9 @@ sources:
             name: transaction_id
             tests:
               - relationships:
-                  field: transaction_id
-                  to: "source('kg', 'transactions')"
+                  arguments:
+                    field: transaction_id
+                    to: "source('kg', 'transactions')"
           - description: direction must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -1536,8 +1564,9 @@ sources:
             name: document_id
             tests:
               - relationships:
-                  field: document_id
-                  to: "source('corpus', 'documents')"
+                  arguments:
+                    field: document_id
+                    to: "source('corpus', 'documents')"
           - description: review_state must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -1617,8 +1646,9 @@ sources:
             name: party_subject_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: party_object_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -1627,8 +1657,9 @@ sources:
             name: party_object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: document_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -1637,8 +1668,9 @@ sources:
             name: document_id
             tests:
               - relationships:
-                  field: document_id
-                  to: "source('corpus', 'documents')"
+                  arguments:
+                    field: document_id
+                    to: "source('corpus', 'documents')"
           - description: event_time must match logical type timestamp.
             meta:
               arxiv_int_rule_ids:
@@ -1859,8 +1891,9 @@ sources:
             name: document_id
             tests:
               - relationships:
-                  field: document_id
-                  to: "source('corpus', 'documents')"
+                  arguments:
+                    field: document_id
+                    to: "source('corpus', 'documents')"
           - description: score must match logical type number.
             meta:
               arxiv_int_rule_ids:

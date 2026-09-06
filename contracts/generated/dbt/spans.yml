@@ -23,8 +23,9 @@ sources:
             name: document_id
             tests:
               - relationships:
-                  field: document_id
-                  to: "source('corpus', 'documents')"
+                  arguments:
+                    field: document_id
+                    to: "source('corpus', 'documents')"
           - description: start_char must match logical type integer.
             meta:
               arxiv_int_rule_ids:

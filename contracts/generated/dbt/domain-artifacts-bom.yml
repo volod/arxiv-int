@@ -28,8 +28,9 @@ sources:
             name: root_object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: parent_object_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -38,8 +39,9 @@ sources:
             name: parent_object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: child_object_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -48,8 +50,9 @@ sources:
             name: child_object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: predicate_id must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -100,8 +103,9 @@ sources:
             name: revision_object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: completeness_status must match logical type string.
             meta:
               arxiv_int_rule_ids:
@@ -125,8 +129,9 @@ sources:
             name: document_id
             tests:
               - relationships:
-                  field: document_id
-                  to: "source('corpus', 'documents')"
+                  arguments:
+                    field: document_id
+                    to: "source('corpus', 'documents')"
           - description: anchor_kind must match logical type string.
             meta:
               arxiv_int_rule_ids:

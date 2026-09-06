@@ -28,8 +28,9 @@ sources:
             name: object_id
             tests:
               - relationships:
-                  field: object_id
-                  to: "source('kg', 'objects')"
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
           - description: preferred_name must match logical type string.
             meta:
               arxiv_int_rule_ids:

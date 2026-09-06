@@ -1,0 +1,36 @@
+name: arxiv_int
+version: "1.0.0"
+config-version: 2
+profile: arxiv_int
+
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  arxiv_int:
+    +materialized: view
+    +on_schema_change: fail
+    staging:
+      +materialized: view
+      +tags: ["fixture", "staging"]
+    intermediate:
+      +materialized: incremental
+      +tags: ["fixture", "intermediate"]
+    marts:
+      +materialized: table
+      +tags: ["fixture", "marts"]
+
+on-run-start:
+  - "SET ROLE arxiv_int_dbt"
+
+vars:
+  generation_id: unset
+  policy_version: "1"
+  fail_tests: "false"
+  derived_schema: derived
+  reconcile_deletes: true
+
+flags:
+  send_anonymous_usage_stats: false

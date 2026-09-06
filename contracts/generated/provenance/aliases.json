@@ -2,7 +2,7 @@
   "apiVersion": "v3.1.0",
   "artifacts": {
     "avro/aliases.avsc": "7118d07bcdfe528f04cc3bbe5337237c4c97a87ae0799160e0caa2d43eca8258",
-    "dbt/aliases.yml": "316057962aa9a0ed53639183147fa0ebcd2add3f95e005bdd3194e1229d81578",
+    "dbt/aliases.yml": "61900d9c2977ccad739ea9836accde24424885cec8e9f875fe0ce295439a6ec6",
     "jsonschema/aliases.schema.json": "10b9fc7fc0628633b0fcbe4a0139053668555ac12dfcd8c64eeee766c2fb484b",
     "parquet/aliases.parquet.json": "6e235135a157a586615f9b4646e9f543c3a2ef9b011a342c49ceea7cd20383d0",
     "postgres/aliases.sql": "679b22bc706995071b1735267bce8e6ffe8a96f73329371e1a857a0f9a9afac8",

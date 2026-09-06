@@ -43,6 +43,7 @@ in agreement in both directions.
 | `inference` | populated | `httpx` (BSD-3-Clause) |
 | `lake` | populated | `duckdb` (MIT), `polars` (MIT), `pyarrow` (Apache-2.0) |
 | `store` | populated | `alembic` (MIT), `psycopg[binary]` (LGPL-3.0-only) |
+| `transform` | populated | `dbt-core` (Apache-2.0), `dbt-postgres` (Apache-2.0) |
 | `embeddings` | reserved for `semantic-retrieval` | none yet |
 | `evaluation` | reserved for `evaluation-foundation` | none yet |
 | `extraction` | reserved for `corpus-foundation` | none yet |
@@ -80,7 +81,7 @@ policy with reviewed baselines and Alembic Python revisions. The shipped registr
 bindings, loaders, generation tree, and evolution checks are documented in
 [Contracts](contracts.md). Contract-governance ODCS, generation, evolution, and ontology assets are
 documented there; live schema overlay on the pinned multi-extension store is recorded in
-[Canonical store](canonical-store.md). dbt transforms and projection lifecycle remain later work.
+[Canonical store](canonical-store.md). Projection lifecycle remains later work.
 
 ## Evaluation and retrieval primitives
 

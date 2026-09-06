@@ -2,7 +2,7 @@
   "apiVersion": "v3.1.0",
   "artifacts": {
     "avro/chunks.avsc": "14c1313a787977857c3cbe9dd2c827e4ea9441d6b2ae2056ef7da9dfa0687789",
-    "dbt/chunks.yml": "4a79fa4c6ccef24683584af54ad6ad8768cf44024c47b13cd1cebaf9cb8e39ea",
+    "dbt/chunks.yml": "d581abf563d71df8154a2d888977b8d3c92586b0a298a82813dde367f48ca57c",
     "jsonschema/chunks.schema.json": "79752e6a05811939575bdef81b7a61b600aa60cf70dce3b158002128a518b4c6",
     "parquet/chunks.parquet.json": "5b6f6eccc43adecdddba88acfb25fa8c201a7607a2ba557741ef73ea16753d7d",
     "postgres/chunks.sql": "94f4e4aabee040e6f8440a1a0548270acdba3b52e37b2a7875b5bc0f9beec2c6",

@@ -80,13 +80,15 @@ def _column_tests(rules: Sequence[QualityRule]) -> list[Any]:
         elif rule.kind == KIND_UNIQUE:
             tests.append("unique")
         elif rule.kind == KIND_ACCEPTED_VALUES:
-            tests.append({"accepted_values": {"values": list(rule.accepted_values)}})
+            tests.append({"accepted_values": {"arguments": {"values": list(rule.accepted_values)}}})
         elif rule.kind == "relationship" and rule.target_schema and rule.target_table:
             tests.append(
                 {
                     "relationships": {
-                        "field": rule.target_column,
-                        "to": f"source('{rule.target_schema}', '{rule.target_table}')",
+                        "arguments": {
+                            "field": rule.target_column,
+                            "to": f"source('{rule.target_schema}', '{rule.target_table}')",
+                        }
                     }
                 }
             )
