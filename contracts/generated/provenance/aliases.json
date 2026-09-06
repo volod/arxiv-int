@@ -1,0 +1,26 @@
+{
+  "apiVersion": "v3.1.0",
+  "artifacts": {
+    "avro/aliases.avsc": "7118d07bcdfe528f04cc3bbe5337237c4c97a87ae0799160e0caa2d43eca8258",
+    "jsonschema/aliases.schema.json": "10b9fc7fc0628633b0fcbe4a0139053668555ac12dfcd8c64eeee766c2fb484b",
+    "parquet/aliases.parquet.json": "6e235135a157a586615f9b4646e9f543c3a2ef9b011a342c49ceea7cd20383d0",
+    "postgres/aliases.sql": "011c925101b3998ede953bb692a71d1e5ca1f504e65f7f5110d3b6606252ce0a",
+    "postgres/extensions/aliases.sql": "b9861e03dfb8f6192300d96a43742341b7564274a95a494c988b0a8f5cd84849",
+    "pydantic/aliases.py": "ce2472cd0b73e799ba6aed6d62f923ac560083916b02adff093d690d60a471e3"
+  },
+  "canonicalEntity": null,
+  "contractId": "aliases",
+  "customExtensionKeys": [
+    "partitionKey",
+    "schema",
+    "table"
+  ],
+  "odcsId": "urn:arxiv-int:contract:aliases:1.0.0",
+  "odcsVersion": "1.0.0",
+  "postgres": {
+    "partitionKey": "bucket",
+    "schema": "kg",
+    "table": "aliases"
+  },
+  "semanticMetadataHash": "a561948012ae0f628c1e138304c902213acdd7d7c4d498d8df4b8e1859251d32"
+}

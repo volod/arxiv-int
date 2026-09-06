@@ -24,6 +24,10 @@ customProperties:
       schema: corpus
       table: documents
       partitionKey: bucket
+      search:
+        textFields:
+          - title
+        tokenizer: russian_stem
 schema:
   - name: documents
     physicalName: documents

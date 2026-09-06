@@ -37,7 +37,7 @@ in agreement in both directions.
 
 | Group | State | Declared distributions |
 | --- | --- | --- |
-| `contracts` | populated | `jsonschema` (MIT), `pydantic` (MIT), `pyyaml` (MIT) |
+| `contracts` | populated | `fastavro` (MIT), `jsonschema` (MIT), `pydantic` (MIT), `pyyaml` (MIT), `sqlglot` (MIT) |
 | `graph` | populated | `pyshacl` (Apache-2.0), `rdflib` (BSD-3-Clause) |
 | `inference` | populated | `httpx` (BSD-3-Clause) |
 | `lake` | populated | `duckdb` (MIT), `pyarrow` (Apache-2.0) |
@@ -73,11 +73,11 @@ release. The foundational configuration merge and containment helpers have grown
 ## Contract primitives
 
 `arxiv_int.contracts` provides an explicit-root file registry, an immutable canonical semantic
-model, deterministic semantic metadata hashes, registered generator dispatch, and schema
-snapshot/change/version/baseline primitives. The shipped product ODCS registry, `x-arxiv-int`
-bindings, Pydantic loaders, and lint workflow are documented in [Contracts](contracts.md). Later
-contract-governance work owns concrete physical generators, adjacent-history policy, migrations,
-and live-store checks.
+model, deterministic semantic metadata hashes, registered generator dispatch, schema
+snapshot/change/version/baseline primitives, and deterministic multi-format generation from the
+product ODCS tree. The shipped registry, `x-arxiv-int` bindings, Pydantic loaders, lint workflow,
+and `contracts/generated` artifacts are documented in [Contracts](contracts.md). Later
+contract-governance work owns adjacent-history policy, migrations, and live-store checks.
 
 ## Evaluation and retrieval primitives
 

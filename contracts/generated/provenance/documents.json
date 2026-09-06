@@ -1,0 +1,28 @@
+{
+  "apiVersion": "v3.1.0",
+  "artifacts": {
+    "avro/documents.avsc": "73b74ccf017b48ed30ba0cdcce3d2df8c5a5ce1181417ebd734ebd6f237ac225",
+    "jsonschema/documents.schema.json": "af8f6f831a00248aa06ac58ccafe3c27e6fe2343d04fb214a0cf5a83c317c024",
+    "parquet/documents.parquet.json": "7975183f928f7d43cc4b70df3d217f4a80cec063b8b3da851812e9aa9b8a7f6b",
+    "postgres/documents.sql": "f25674b9645634071b344e335cfd9fef264f104e3363f6e40bfee9fd326bf923",
+    "postgres/extensions/documents.sql": "fa39a4ef2171d854bb660361a7ea8ca21afefc17d8b613eded155b7ac39fdb9a",
+    "pydantic/documents.py": "d0b0052649bc348b5bedb992975bcc275571bd42a5053a5c99359eff26c14c93",
+    "search/documents.sql": "45a3c5f5e1baed5e1d3801d9e30108710c4613a100131365efc6b19f1679e00a"
+  },
+  "canonicalEntity": null,
+  "contractId": "documents",
+  "customExtensionKeys": [
+    "partitionKey",
+    "schema",
+    "search",
+    "table"
+  ],
+  "odcsId": "urn:arxiv-int:contract:documents:1.0.0",
+  "odcsVersion": "1.0.0",
+  "postgres": {
+    "partitionKey": "bucket",
+    "schema": "corpus",
+    "table": "documents"
+  },
+  "semanticMetadataHash": "310be9094a64330b47ab31641053480fce0d90287febb43b185f9f63b9508bb9"
+}

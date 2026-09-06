@@ -1,0 +1,25 @@
+{
+  "apiVersion": "v3.1.0",
+  "artifacts": {
+    "avro/ontology-terms.avsc": "5efec421041548d1fba9feb6e45e75ea65af3cb7830b0ef4b57d700942ef0509",
+    "jsonschema/ontology-terms.schema.json": "6ea5d73aaf78779fc44ecddc84e24f76a11e1ac1a53981a37fc1e726cc26398a",
+    "parquet/ontology-terms.parquet.json": "f8f21605fa7a8b3fb89b653303d2368ecb622ce8d6f95306797b3e9728152b31",
+    "postgres/extensions/ontology-terms.sql": "eb5835de31555cbd90264f75fa22e5695081051231857126c68e870cc75591f0",
+    "postgres/ontology-terms.sql": "a575b3f74f8c7b2470bf5fc4db1716ce8c053e2085424958e6b62166406f8a39",
+    "pydantic/ontology-terms.py": "e193697526f7fe257e853652b60095eeed98b43dc52201221eac34535377bfc4"
+  },
+  "canonicalEntity": null,
+  "contractId": "ontology-terms",
+  "customExtensionKeys": [
+    "schema",
+    "table"
+  ],
+  "odcsId": "urn:arxiv-int:contract:ontology-terms:1.0.0",
+  "odcsVersion": "1.0.0",
+  "postgres": {
+    "partitionKey": null,
+    "schema": "ontology",
+    "table": "terms"
+  },
+  "semanticMetadataHash": "c9b2bf052d617fa9387f34dd1568bb46f6d89a46ce0205b73d65e35c45bc5e41"
+}

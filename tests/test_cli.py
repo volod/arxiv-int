@@ -48,6 +48,12 @@ def test_parser_accepts_contracts_lint_options() -> None:
     assert arguments.skip_datacontract is True
 
 
+def test_parser_accepts_contracts_generate_and_check() -> None:
+    parser = build_parser()
+    assert parser.parse_args(["contracts", "generate"]).contracts_command == "generate"
+    assert parser.parse_args(["contracts", "check"]).contracts_command == "check"
+
+
 def test_contracts_lint_command_reports_success(
     monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture, tmp_path: Path
 ) -> None:
@@ -69,6 +75,35 @@ def test_contracts_lint_command_reports_success(
 
     assert main(["contracts", "lint", "--skip-datacontract"]) == 0
     assert "contracts lint passed" in caplog.text
+
+
+def test_contracts_generate_and_check_commands(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture, tmp_path: Path
+) -> None:
+    from arxiv_int.contracts.generate import GenerationResult
+
+    monkeypatch.setattr(
+        "arxiv_int.runtime.project_root.find_project_root",
+        lambda explicit=None, environment=None: tmp_path,
+    )
+    monkeypatch.setattr(
+        "arxiv_int.contracts.lint.contracts_root_for",
+        lambda project_root=None: tmp_path,
+    )
+    monkeypatch.setattr(
+        "arxiv_int.contracts.generate.generate_all_contracts",
+        lambda root: GenerationResult(tmp_path, (), "abc123"),
+    )
+    monkeypatch.setattr(
+        "arxiv_int.contracts.generate.check_generation_drift",
+        lambda root: [],
+    )
+    caplog.set_level(logging.INFO)
+
+    assert main(["contracts", "generate"]) == 0
+    assert "generated" in caplog.text
+    assert main(["contracts", "check"]) == 0
+    assert "drift check passed" in caplog.text
 
 
 def test_readiness_and_services_default_to_pipeline_profiles() -> None:

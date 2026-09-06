@@ -1,0 +1,42 @@
+{
+  "fields": [
+    {
+      "name": "term_id",
+      "type": "string"
+    },
+    {
+      "name": "uri",
+      "type": "string"
+    },
+    {
+      "name": "label",
+      "type": "string"
+    },
+    {
+      "name": "kind",
+      "type": "string"
+    },
+    {
+      "name": "domain_uri",
+      "type": "string"
+    },
+    {
+      "name": "range_uri",
+      "type": "string"
+    },
+    {
+      "name": "ontology_version",
+      "type": "string"
+    },
+    {
+      "name": "generation_id",
+      "type": "string"
+    },
+    {
+      "name": "contract_version",
+      "type": "string"
+    }
+  ],
+  "name": "terms",
+  "type": "record"
+}

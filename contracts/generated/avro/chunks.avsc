@@ -1,0 +1,42 @@
+{
+  "fields": [
+    {
+      "name": "chunk_id",
+      "type": "string"
+    },
+    {
+      "name": "document_id",
+      "type": "string"
+    },
+    {
+      "name": "chunker_id",
+      "type": "string"
+    },
+    {
+      "name": "ordinal",
+      "type": "int"
+    },
+    {
+      "name": "text",
+      "type": "string"
+    },
+    {
+      "name": "start_char",
+      "type": "int"
+    },
+    {
+      "name": "end_char",
+      "type": "int"
+    },
+    {
+      "name": "generation_id",
+      "type": "string"
+    },
+    {
+      "name": "contract_version",
+      "type": "string"
+    }
+  ],
+  "name": "chunks",
+  "type": "record"
+}

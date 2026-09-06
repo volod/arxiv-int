@@ -1,0 +1,38 @@
+{
+  "fields": [
+    {
+      "name": "mention_id",
+      "type": "string"
+    },
+    {
+      "name": "document_id",
+      "type": "string"
+    },
+    {
+      "name": "span_id",
+      "type": "string"
+    },
+    {
+      "name": "chunk_id",
+      "type": "string"
+    },
+    {
+      "name": "surface_form",
+      "type": "string"
+    },
+    {
+      "name": "object_anchor_id",
+      "type": "string"
+    },
+    {
+      "name": "generation_id",
+      "type": "string"
+    },
+    {
+      "name": "contract_version",
+      "type": "string"
+    }
+  ],
+  "name": "mentions",
+  "type": "record"
+}

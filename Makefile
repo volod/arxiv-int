@@ -23,7 +23,7 @@ export MYPY_CACHE_DIR := $(DATA_ROOT)/cache/mypy
 .PHONY: help bootstrap venv lock package-check features config readiness services-config services-up \
 	services-status services-down services-reset logs graph-up ui-up format format-check lint typecheck test \
 	coverage complexity-gate shell-lint-gate lint-md lint-doc-links lint-spec-plan plan-status \
-	contracts ci-checks ci ci-github build quality code-quality quality-report
+	contracts contracts-gen contracts-check ci-checks ci ci-github build quality code-quality quality-report
 
 help: ## List available targets
 	@awk 'BEGIN {FS = ":.*## "; print "Usage: make <target>\n"} /^[a-zA-Z0-9_.-]+:.*## / {printf "  %-20s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -57,6 +57,18 @@ contracts: ## Lint product ODCS contracts (schema, integrity, Data Contract CLI)
 	@source "$(COMMON_SH)"; arxiv_int_load_env; \
 		uv sync --locked --extra contracts --extra dev --python "$(PYTHON_VERSION)"; \
 		"$(VENV)/bin/arxiv-int" contracts lint
+
+contracts-gen: ## Generate committed physical schemas under contracts/generated
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
+		uv sync --locked --extra contracts --extra dev --python "$(PYTHON_VERSION)"; \
+		"$(VENV)/bin/arxiv-int" contracts generate
+
+contracts-check: ## Fail when contracts/generated drifts from regeneration
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
+		uv sync --locked --extra contracts --extra dev --python "$(PYTHON_VERSION)"; \
+		"$(VENV)/bin/arxiv-int" contracts check
 
 config: ## Resolve, validate, and redact runtime configuration
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
@@ -148,7 +160,7 @@ lint-spec-plan: ## Check capability registry, task structure, status, and orderi
 plan-status: ## Count tasks by lane/status and show the next eligible work
 	@"$(VENV)/bin/arxiv-int-plan" --root "$(PROJECT_ROOT)"
 
-ci-checks: format-check lint typecheck complexity-gate shell-lint-gate lint-doc-links lint-spec-plan
+ci-checks: format-check lint typecheck complexity-gate shell-lint-gate lint-doc-links lint-spec-plan contracts-check
 
 ci: ci-checks test ## Run the required local and GitHub CI gate
 

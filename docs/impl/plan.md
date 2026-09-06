@@ -10,28 +10,6 @@ ordering, and lifecycle rules belong in the
 
 ### Contract governance -- `contract-governance`
 
-#### implement-deterministic-schema-generation
-
-Generate physical schemas and model boundaries from ODCS while minimizing custom generator code.
-
-- Serves: `contract-governance` -- [Generation](../design/spec.md#generation)
-- Agent status: CLEAR
-- Dependencies: [Canonical contract registry](records/establish-canonical-contract-registry.md).
-- User-visible outcome: One contract change reproducibly updates Avro, Arrow/Parquet, PostgreSQL
-baseline, search, graph, and structured-output schemas.
-- Scope boundary: Generate baseline artifacts and extension DDL; do not apply migrations to an
-existing database.
-- Data and artifact paths: `contracts/generated/{avro,parquet,postgres,jsonschema,graph}/`,
-`src/arxiv_int/contracts/generate/`, and `tests/contracts/golden/`.
-- Execution path: Use Data Contract CLI exporters first; add focused adapters for partitions,
-ParadeDB tokenizers/indexes, vector dimensions, AGE projections, provenance metadata, and
-Pydantic/JSON Schema; normalize ordering and fingerprints.
-- Acceptance gates: Generation is byte-stable; `make contracts-gen` and drift check pass; Avro
-parses and round-trips; generated SQL parses against a disposable database; no source contract
-metadata is silently lost.
-- Documentation target: `docs/impl/current/contracts.md`
-- Review checkpoint: `review-foundation-and-store-boundaries`.
-
 #### enforce-evolution-and-migration-policy
 
 Add reviewed schema/semantic baselines, compatibility classification, ordered SQL migrations, and
@@ -39,7 +17,7 @@ live-store conformance checks.
 
 - Serves: `contract-governance` -- [Evolution and migrations](../design/spec.md#evolution-and-migrations)
 - Agent status: CLEAR
-- Dependencies: `implement-deterministic-schema-generation`.
+- Dependencies: [Deterministic schema generation](records/implement-deterministic-schema-generation.md).
 - User-visible outcome: Breaking, reindexing, and graph-rebuild consequences are reported before a
 schema change can reach data.
 - Scope boundary: Detect, classify, and prepare migrations; never auto-approve destructive or
@@ -89,7 +67,7 @@ supply chains, invoices, payments, and their run-artifact registry entries.
 [Domain investigation artifacts](../design/spec.md#domain-investigation-artifacts)
 - Agent status: CLEAR
 - Dependencies: `establish-versioned-ontology-assets`;
-`implement-deterministic-schema-generation`.
+[Deterministic schema generation](records/implement-deterministic-schema-generation.md).
 - User-visible outcome: Operators see consistent definitions for `part-of`, supply roles, invoice
 obligations, payment allocations, conflicts, and empty/partial results before graphs are generated.
 - Scope boundary: Define source-asserted investigation semantics and schemas; do not infer missing
@@ -702,7 +680,8 @@ Compose Tika, Docling, and OCR/layout fallbacks behind one evidence-preserving e
 - Serves: `corpus-foundation` --
 [Russian-language and document analysis](../design/spec.md#russian-language-and-document-analysis)
 - Agent status: RUN NEEDED
-- Dependencies: `implement-streaming-inventory`; `implement-deterministic-schema-generation`.
+- Dependencies: `implement-streaming-inventory`;
+[Deterministic schema generation](records/implement-deterministic-schema-generation.md).
 - User-visible outcome: Supported documents become normalized source spans with page/table/offset
 evidence; failures are quarantined with actionable reasons.
 - Scope boundary: Integrate existing engines and selection policy; do not build a new parser or

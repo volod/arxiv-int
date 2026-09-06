@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "cluster_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "contract_version": {
+      "type": "string"
+    },
+    "generation_id": {
+      "type": "string"
+    },
+    "lifecycle_state": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "object_id": {
+      "primaryKey": true,
+      "type": "string"
+    },
+    "object_type": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "preferred_label": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "review_state": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "object_id",
+    "generation_id",
+    "contract_version"
+  ],
+  "type": "object"
+}

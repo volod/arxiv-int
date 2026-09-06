@@ -24,6 +24,9 @@ customProperties:
       schema: kg
       table: objects
       partitionKey: bucket
+      graph:
+        vertexLabel: Object
+        idField: object_id
 schema:
   - name: objects
     physicalName: objects

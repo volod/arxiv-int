@@ -1,0 +1,26 @@
+{
+  "apiVersion": "v3.1.0",
+  "artifacts": {
+    "avro/catalogs.avsc": "7791e662a6a7a9eb9993a34f05c34e5507df1575402eb6842c03184f173a4ed2",
+    "jsonschema/catalogs.schema.json": "0539157f8b4df6ba1991f9eb2db0376f5a1a75ca271991cf060253b35d530f3a",
+    "parquet/catalogs.parquet.json": "e53f2ac761cea5a98ab6235d43459de1dba8f8a3498bbcd83052b6858327e81d",
+    "postgres/catalogs.sql": "842057ea00d8fff419aa1647495c1ab6fe01b994bf51c760a503e0fbef2f5c3a",
+    "postgres/extensions/catalogs.sql": "3a6c500efbdbd237d851fb4569611edac885d3ee1430ae4c85680ee32bfbcf6c",
+    "pydantic/catalogs.py": "d0c3731273603890d6714386042b529345b074f1f235055d4fbc0bba7ca49c67"
+  },
+  "canonicalEntity": null,
+  "contractId": "catalogs",
+  "customExtensionKeys": [
+    "partitionKey",
+    "schema",
+    "table"
+  ],
+  "odcsId": "urn:arxiv-int:contract:catalogs:1.0.0",
+  "odcsVersion": "1.0.0",
+  "postgres": {
+    "partitionKey": "bucket",
+    "schema": "kg",
+    "table": "catalog_entries"
+  },
+  "semanticMetadataHash": "b22834a1446f8709cb247f26262a511174c1e5dd95f1f40507762c133260e737"
+}

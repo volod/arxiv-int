@@ -91,6 +91,14 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="skip Data Contract CLI lint (official JSON Schema still runs)",
     )
+    generate = contract_commands.add_parser(
+        "generate", help="generate deterministic physical schemas from ODCS"
+    )
+    generate.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
+    check = contract_commands.add_parser(
+        "check", help="fail when contracts/generated drifts from regeneration"
+    )
+    check.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
     return parser
 
 
@@ -196,13 +204,31 @@ def _run_readiness(args: argparse.Namespace) -> int:
 
 
 def _run_contracts(args: argparse.Namespace) -> int:
+    from arxiv_int.contracts.generate import check_generation_drift, generate_all_contracts
     from arxiv_int.contracts.lint import contracts_root_for, lint_contracts
     from arxiv_int.runtime.project_root import ProjectRootError, find_project_root
 
     try:
         root = find_project_root(args.project_root)
+        contracts_root = contracts_root_for(root)
+        if args.contracts_command == "generate":
+            result = generate_all_contracts(contracts_root)
+            _LOG.info(
+                "generated %d artifact(s); manifest=%s",
+                len(result.files),
+                result.manifest_fingerprint[:12],
+            )
+            return 0
+        if args.contracts_command == "check":
+            findings = check_generation_drift(contracts_root)
+            if findings:
+                for finding in findings:
+                    _LOG.error("%s", finding)
+                return 1
+            _LOG.info("contracts generation drift check passed")
+            return 0
         report = lint_contracts(
-            contracts_root_for(root),
+            contracts_root,
             run_datacontract=not args.skip_datacontract,
         )
     except (OSError, ProjectRootError, RuntimeError, ValueError) as error:

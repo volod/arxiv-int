@@ -1,0 +1,38 @@
+{
+  "fields": [
+    {
+      "name": "span_id",
+      "type": "string"
+    },
+    {
+      "name": "document_id",
+      "type": "string"
+    },
+    {
+      "name": "start_char",
+      "type": "int"
+    },
+    {
+      "name": "end_char",
+      "type": "int"
+    },
+    {
+      "name": "page",
+      "type": "int"
+    },
+    {
+      "name": "kind",
+      "type": "string"
+    },
+    {
+      "name": "generation_id",
+      "type": "string"
+    },
+    {
+      "name": "contract_version",
+      "type": "string"
+    }
+  ],
+  "name": "spans",
+  "type": "record"
+}

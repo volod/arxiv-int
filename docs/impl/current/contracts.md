@@ -1,8 +1,8 @@
 # Contracts
 
 Product ODCS `3.1.0` contracts under `contracts/` are the reviewable schema source of truth for
-pipeline entities. `arxiv_int.contracts` loads, fingerprints, and lints that tree through rooted
-references, typed loaders, and schema-qualified evolution primitives.
+pipeline entities. `arxiv_int.contracts` loads, fingerprints, lints, and generates physical schemas
+from that tree through rooted references, typed loaders, and schema-qualified evolution primitives.
 
 ## Product registry
 
@@ -23,8 +23,29 @@ transactions, catalogs, anomaly findings, and evaluation items.
 
 Generation and binding hints live under ODCS `customProperties` with property name `x-arxiv-int`.
 Field bindings nest at `x-arxiv-int.canonicalBinding` (`binding`, `semanticTerm`, plus unknown
-keys). Dataset-level `x-arxiv-int` carries postgres `schema`/`table` (and optional `partitionKey`).
-Legacy top-level `canonicalBinding` properties remain accepted for fixtures.
+keys). Dataset-level `x-arxiv-int` carries postgres `schema`/`table` (and optional `partitionKey`),
+plus optional `search`, `vector`, and `graph` generation hints. Legacy top-level `canonicalBinding`
+properties remain accepted for fixtures.
+
+## Deterministic generation
+
+`src/arxiv_int/contracts/generate/` exports Avro, PostgreSQL baseline DDL, JSON Schema, and Pydantic
+models through Data Contract CLI first, then focused adapters for Parquet/Arrow descriptors,
+partition stubs, ParadeDB search DDL, pgvector dimensions, AGE projection stubs, and provenance
+sidecars. Outputs land under `contracts/generated/` with a `manifest.json` of file fingerprints.
+
+Operator commands:
+
+- `make contracts-gen` / `arxiv-int contracts generate` -- wipe and regenerate the committed tree
+- `make contracts-check` / `arxiv-int contracts check` -- regenerate into a temp directory and fail
+  on drift (also part of `make ci`)
+
+Generation is byte-stable. Avro schemas parse and round-trip with `fastavro`. Baseline CREATE TABLE
+SQL parses with `sqlglot` and applies on a disposable Postgres 16 container when Docker is
+available. Extension SQL for BM25/AGE is committed for review but is not applied on stock Postgres.
+Provenance sidecars retain ODCS id/version, semantic hash, and every `x-arxiv-int` key so source
+metadata is not silently dropped. Some CLI Avro mappings (for example ODCS `number` to Avro
+`bytes`) follow the exporter; logical types remain authoritative in ODCS and provenance.
 
 ## Loaders and primitives
 
@@ -50,7 +71,9 @@ structural upgrade.
 ## Tests and verification
 
 `tests/contracts/` covers primitive containment and identity, product ODCS schema validation,
-registry integrity, typed loader unknown-metadata retention, canonical `x-arxiv-int` bindings, and
+registry integrity, typed loader unknown-metadata retention, canonical `x-arxiv-int` bindings,
+generation adapters, golden fingerprints, Avro round-trip, SQL parse/apply, drift checking, and
 Data Contract CLI lint when the CLI is available. Evidence:
+[deterministic schema generation](../records/implement-deterministic-schema-generation.md);
 [canonical contract registry](../records/establish-canonical-contract-registry.md);
 [contract identity and reference validation](../records/refactor-contract-identity-and-reference-validation.md).

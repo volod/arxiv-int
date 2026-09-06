@@ -1,0 +1,26 @@
+{
+  "apiVersion": "v3.1.0",
+  "artifacts": {
+    "avro/spans.avsc": "eb39c2b21651d27b14dc1c735fbde38c24926a46bfc7f71b4b52447afeea6f7a",
+    "jsonschema/spans.schema.json": "a511b6d661bc08c6c26dfab8e446c0359646e6c501d9a06c0c5b34d8685688cb",
+    "parquet/spans.parquet.json": "daba3ef8f36640881f5ba6ea321f3090907843fa561388cebf03f49d6f750bf2",
+    "postgres/extensions/spans.sql": "fdda2bfb55b63045fdf8a3aeab0be2c7cb6b465114825c5a8dce99d1928ef639",
+    "postgres/spans.sql": "303d07e40808256dd083471fb012d316deea52cf7a8649c0a9dff0b3050a1232",
+    "pydantic/spans.py": "9e68f901f8d9558d663d8d00a696fed2068c51b5ee869c6c0ead4f0e75a9292f"
+  },
+  "canonicalEntity": null,
+  "contractId": "spans",
+  "customExtensionKeys": [
+    "partitionKey",
+    "schema",
+    "table"
+  ],
+  "odcsId": "urn:arxiv-int:contract:spans:1.0.0",
+  "odcsVersion": "1.0.0",
+  "postgres": {
+    "partitionKey": "bucket",
+    "schema": "corpus",
+    "table": "spans"
+  },
+  "semanticMetadataHash": "499653b788b2a74e7afa78eb2cc3e082fd9cad7cd2a3fdd7c3bd23901902307b"
+}

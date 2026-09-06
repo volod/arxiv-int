@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "catalog_entry_id": {
+      "primaryKey": true,
+      "type": "string"
+    },
+    "catalog_kind": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "contract_version": {
+      "type": "string"
+    },
+    "document_count": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "generation_id": {
+      "type": "string"
+    },
+    "object_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "preferred_name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "review_state": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "catalog_entry_id",
+    "generation_id",
+    "contract_version"
+  ],
+  "type": "object"
+}

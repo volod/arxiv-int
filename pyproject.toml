@@ -25,9 +25,11 @@ dependencies = []
 # until the owning capability adds one. Output-sensitive tooling is pinned exactly.
 [project.optional-dependencies]
 contracts = [
+  "fastavro>=1.9,<2",
   "jsonschema>=4.23,<5",
   "pydantic>=2.10,<3",
   "pyyaml>=6,<7",
+  "sqlglot>=26,<28",
 ]
 dev = [
   "complexipy==6.0.0",

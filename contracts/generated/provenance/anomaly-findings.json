@@ -1,0 +1,25 @@
+{
+  "apiVersion": "v3.1.0",
+  "artifacts": {
+    "avro/anomaly-findings.avsc": "89bb4de1ea9a600bbb79c855563d8ce4a73feb136edd450894e8dbd2087cbe96",
+    "jsonschema/anomaly-findings.schema.json": "08ca6677c59fd295c3a9125fbef7eb20b8534265001f8f07593c8da5ebd176f0",
+    "parquet/anomaly-findings.parquet.json": "c925f8fa2ab5ff6388b17a88d21c96eff5497f38d40569c423e9514acc62ca60",
+    "postgres/anomaly-findings.sql": "6bc0ab4e6e85fe449302f1369b86a05c150450178fe9920417d009ea180c3521",
+    "postgres/extensions/anomaly-findings.sql": "58ed24ffd9868850ee48fb8ccb82bb69b9a4a3e0e4515f1c06416184d828fb20",
+    "pydantic/anomaly-findings.py": "8b01391b1dd0585e699c8117537c0c4d6f5e3afd2b24a3c8e1795f16f83fd262"
+  },
+  "canonicalEntity": null,
+  "contractId": "anomaly-findings",
+  "customExtensionKeys": [
+    "schema",
+    "table"
+  ],
+  "odcsId": "urn:arxiv-int:contract:anomaly-findings:1.0.0",
+  "odcsVersion": "1.0.0",
+  "postgres": {
+    "partitionKey": null,
+    "schema": "eval",
+    "table": "anomaly_findings"
+  },
+  "semanticMetadataHash": "4df06b330e215f4667aa60f05b5d216a75a8271f6560094df85574acc529c0ad"
+}

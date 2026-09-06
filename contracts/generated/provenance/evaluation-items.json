@@ -1,0 +1,25 @@
+{
+  "apiVersion": "v3.1.0",
+  "artifacts": {
+    "avro/evaluation-items.avsc": "770b5594d6d22cead716d6092d4b4ccb0a7a9ef8c14a9ab38c3d2aaaf86122c1",
+    "jsonschema/evaluation-items.schema.json": "fb8e2ca749dce53d2d29807474e6bdd5a99560fcf4d5c965a24ba7038a5b7855",
+    "parquet/evaluation-items.parquet.json": "d0f0830abff19b16ce44a12332c66eea04922346f0b2b9e1897b06c1015055af",
+    "postgres/evaluation-items.sql": "7083dc9ba5e30fb773b916f9bcc41aaccdf74aa6235236db80cb9242dd508aee",
+    "postgres/extensions/evaluation-items.sql": "3b8e2aa23bb8117b3d5fc96d23ea0c4085e96469b127ee433a7896eb2a75e188",
+    "pydantic/evaluation-items.py": "5a9da4a03476af63f049a8075bac7c533840e4ef92fc59f1e0c2a4e494aa2a61"
+  },
+  "canonicalEntity": null,
+  "contractId": "evaluation-items",
+  "customExtensionKeys": [
+    "schema",
+    "table"
+  ],
+  "odcsId": "urn:arxiv-int:contract:evaluation-items:1.0.0",
+  "odcsVersion": "1.0.0",
+  "postgres": {
+    "partitionKey": null,
+    "schema": "eval",
+    "table": "evaluation_items"
+  },
+  "semanticMetadataHash": "4872b90c395c64cf24c72e4bba2c062dc4a3f48da1596b8096250931c6df70b0"
+}

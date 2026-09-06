@@ -1,0 +1,28 @@
+{
+  "apiVersion": "v3.1.0",
+  "artifacts": {
+    "avro/facts.avsc": "a25543a1bb9ee8b685a10b8c6255424ae641c21ebfefc288b7225c0ac0b1fe71",
+    "graph/facts.sql": "17fc91b74eba6759aa33fa9e6a7bdc4ed0c0002f5f129e249706aab7aa44f3c7",
+    "jsonschema/facts.schema.json": "d2b70d3295b34fef030bd14474d91481372179d0b90af9cbd05a76b43bc2f4e6",
+    "parquet/facts.parquet.json": "d5b26152529cad288acc50086cce9161b6de16e9ea1bf72286067e6fd096781d",
+    "postgres/extensions/facts.sql": "decf9fb60bce17de87130eb18e9bd8fc7adbdacae0844f9abdd2d484f85dfe71",
+    "postgres/facts.sql": "fd23ff7be59c87b425f6ce46c4457567c3dd2ce9c7938239df69949470a09fcc",
+    "pydantic/facts.py": "f531e4159649246165494a33be3c60ed62923b997aada6348dbcc0568e7d1304"
+  },
+  "canonicalEntity": null,
+  "contractId": "facts",
+  "customExtensionKeys": [
+    "graph",
+    "partitionKey",
+    "schema",
+    "table"
+  ],
+  "odcsId": "urn:arxiv-int:contract:facts:1.0.0",
+  "odcsVersion": "1.0.0",
+  "postgres": {
+    "partitionKey": "bucket",
+    "schema": "kg",
+    "table": "facts"
+  },
+  "semanticMetadataHash": "d53461b5a7070b3c34a3041e3fce345435aca25afc16866c53a8105159319969"
+}

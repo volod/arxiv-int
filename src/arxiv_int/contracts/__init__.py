@@ -21,7 +21,13 @@ from arxiv_int.contracts.evolution import (
     version_policy_errors,
 )
 from arxiv_int.contracts.fingerprint import semantic_metadata_hash
-from arxiv_int.contracts.generate import ContractGenerator, generate_registered
+from arxiv_int.contracts.generate import (
+    ContractGenerator,
+    GenerationResult,
+    check_generation_drift,
+    generate_all_contracts,
+    generate_registered,
+)
 from arxiv_int.contracts.paths import resolve_rooted_reference
 from arxiv_int.contracts.registry import ContractEntry, FileRegistry
 
@@ -36,9 +42,12 @@ __all__ = [
     "ContractEntry",
     "ContractGenerator",
     "FileRegistry",
+    "GenerationResult",
     "SemanticTerm",
+    "check_generation_drift",
     "classify_change",
     "freeze_baseline",
+    "generate_all_contracts",
     "generate_registered",
     "load_canonical_model",
     "migrate_schema_snapshot",

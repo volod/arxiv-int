@@ -1,0 +1,49 @@
+{
+  "fields": [
+    {
+      "name": "transaction_id",
+      "type": "string"
+    },
+    {
+      "name": "transaction_type",
+      "type": "string"
+    },
+    {
+      "name": "amount",
+      "type": "bytes"
+    },
+    {
+      "name": "currency",
+      "type": "string"
+    },
+    {
+      "name": "party_subject_id",
+      "type": "string"
+    },
+    {
+      "name": "party_object_id",
+      "type": "string"
+    },
+    {
+      "name": "document_id",
+      "type": "string"
+    },
+    {
+      "name": "event_time",
+      "type": {
+        "logicalType": "timestamp-millis",
+        "type": "long"
+      }
+    },
+    {
+      "name": "generation_id",
+      "type": "string"
+    },
+    {
+      "name": "contract_version",
+      "type": "string"
+    }
+  ],
+  "name": "transactions",
+  "type": "record"
+}

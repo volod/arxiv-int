@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "contract_version": {
+      "type": "string"
+    },
+    "dataset_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "evaluation_item_id": {
+      "primaryKey": true,
+      "type": "string"
+    },
+    "generation_id": {
+      "type": "string"
+    },
+    "gold_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "item_kind": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "label": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "query_text": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "split": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "evaluation_item_id",
+    "generation_id",
+    "contract_version"
+  ],
+  "type": "object"
+}

@@ -1,4 +1,4 @@
-"""Portable dispatch for deterministic contract generators."""
+"""Portable dispatch for one focused contract generator."""
 
 import pathlib
 from typing import Any, Protocol

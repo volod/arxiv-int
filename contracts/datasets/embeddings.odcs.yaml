@@ -24,6 +24,10 @@ customProperties:
       schema: search
       table: embeddings
       partitionKey: bucket
+      vector:
+        dimensionsField: dimensions
+        defaultDimensions: 1024
+        index: ivfflat
 schema:
   - name: embeddings
     physicalName: embeddings

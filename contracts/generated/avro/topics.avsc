@@ -1,0 +1,38 @@
+{
+  "fields": [
+    {
+      "name": "topic_assignment_id",
+      "type": "string"
+    },
+    {
+      "name": "topic_id",
+      "type": "string"
+    },
+    {
+      "name": "label",
+      "type": "string"
+    },
+    {
+      "name": "scheme_id",
+      "type": "string"
+    },
+    {
+      "name": "document_id",
+      "type": "string"
+    },
+    {
+      "name": "score",
+      "type": "bytes"
+    },
+    {
+      "name": "generation_id",
+      "type": "string"
+    },
+    {
+      "name": "contract_version",
+      "type": "string"
+    }
+  ],
+  "name": "topic_assignments",
+  "type": "record"
+}

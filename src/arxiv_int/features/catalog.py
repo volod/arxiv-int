@@ -12,9 +12,12 @@ from arxiv_int.features.model import FeatureGroup, Requirement
 FEATURE_GROUPS: tuple[FeatureGroup, ...] = (
     FeatureGroup(
         name="contracts",
-        summary="ODCS contract loading, JSON Schema validation, and typed loaders",
+        summary="ODCS contract loading, validation, typed loaders, and schema generation",
         owner="contract-governance",
         requirements=(
+            Requirement(
+                "fastavro", "fastavro", "MIT", "parse and round-trip generated Avro schemas"
+            ),
             Requirement(
                 "jsonschema", "jsonschema", "MIT", "validate contracts against the ODCS schema"
             ),
@@ -25,6 +28,9 @@ FEATURE_GROUPS: tuple[FeatureGroup, ...] = (
                 "load ODCS and mapping documents with unknown metadata",
             ),
             Requirement("pyyaml", "yaml", "MIT", "load contract, mapping, and profile documents"),
+            Requirement(
+                "sqlglot", "sqlglot", "MIT", "parse generated PostgreSQL DDL without a live server"
+            ),
         ),
     ),
     FeatureGroup(

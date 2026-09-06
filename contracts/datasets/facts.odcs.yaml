@@ -24,6 +24,11 @@ customProperties:
       schema: kg
       table: facts
       partitionKey: bucket
+      graph:
+        edgeLabel: FACT
+        fromField: subject_object_id
+        toField: object_object_id
+        idField: fact_id
 schema:
   - name: facts
     physicalName: facts
