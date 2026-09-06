@@ -14,9 +14,9 @@ from arxiv_int.runtime import (
 )
 
 
-def _config(tmp_path: Path, **overrides: str):
-    checkout = tmp_path / "checkout"
-    checkout.mkdir(exist_ok=True)
+def _config(tmp_path: Path, *, _checkout: str | None = None, **overrides: str):
+    checkout = Path(_checkout) if _checkout else tmp_path / "checkout"
+    checkout.mkdir(parents=True, exist_ok=True)
     (checkout / "pyproject.toml").write_text("[project]\nname='fixture'\n", encoding="utf-8")
     (checkout / ".env").write_text(
         "ARCHIVE_DIR=unused\nRESULTS_DIR=unused\nPGDATA_DIR=unused\n", encoding="utf-8"
@@ -81,6 +81,57 @@ def test_reset_refuses_results_dir_and_archive_overlap(tmp_path: Path) -> None:
         )
 
 
+def test_reset_refuses_a_target_containing_a_protected_root(tmp_path: Path) -> None:
+    """An ancestor of the checkout, an archive silo, or RESULTS_DIR is never erasable."""
+    for variable, container in (
+        ("SERVICE_STATE_DIR", tmp_path),
+        ("MODEL_CACHE_DIR", tmp_path),
+        ("PGDATA_DIR", tmp_path),
+    ):
+        with pytest.raises(ServiceResetError, match="overlaps"):
+            reset_service_data(_config(tmp_path, **{variable: str(container)}), apply=False)
+
+    nested = tmp_path / "results" / "nested"
+    (nested / "checkout").mkdir(parents=True)
+    with pytest.raises(ServiceResetError, match="the project checkout"):
+        reset_service_data(
+            _config(tmp_path, SERVICE_STATE_DIR=str(nested), _checkout=str(nested / "checkout")),
+            apply=False,
+        )
+
+
+def test_reset_refuses_a_target_enclosing_the_proof_archive(tmp_path: Path) -> None:
+    proof = tmp_path / "state" / "proofs"
+    proof.mkdir(parents=True)
+    with pytest.raises(ServiceResetError, match="the proof archive"):
+        reset_service_data(
+            _config(
+                tmp_path,
+                SERVICE_STATE_DIR=str(tmp_path / "state"),
+                PROOF_ARCHIVE_DIR=str(proof),
+            ),
+            apply=False,
+        )
+
+
+def test_reset_refuses_a_symlink_swapped_into_a_protected_root(tmp_path: Path) -> None:
+    """A link swapped after planning is refused by the revalidation before deletion."""
+    config = _config(tmp_path)
+    for path in (config.pgdata_dir, config.service_state_dir, config.model_cache_dir):
+        path.mkdir(parents=True)
+    planned = reset_service_data(config, apply=False)
+    assert config.model_cache_dir.resolve() in planned
+
+    keep = tmp_path / "archive" / "source.tar"
+    keep.write_bytes(b"source")
+    config.model_cache_dir.rmdir()
+    config.model_cache_dir.symlink_to(tmp_path / "archive", target_is_directory=True)
+
+    with pytest.raises(ServiceResetError, match="an archive silo"):
+        reset_service_data(config, apply=True)
+    assert keep.is_file()
+
+
 def test_run_compose_reset_stops_then_optionally_erases(tmp_path: Path) -> None:
     config = _config(tmp_path)
     config.pgdata_dir.mkdir(parents=True)
@@ -114,13 +165,17 @@ def test_run_compose_reset_stops_then_optionally_erases(tmp_path: Path) -> None:
     assert not marker.exists()
 
 
-def test_run_compose_reset_surfaces_unsafe_targets(tmp_path: Path) -> None:
+def test_run_compose_reset_refuses_unsafe_targets_before_stopping_services(
+    tmp_path: Path,
+) -> None:
     config = _config(tmp_path, SERVICE_STATE_DIR=str(tmp_path / "results"))
+    observed: list[tuple[str, ...]] = []
     with pytest.raises(ComposeConfigurationError, match="RESULTS_DIR"):
         run_compose(
             config,
             "reset",
             "core",
             apply=False,
-            runner=lambda _command, _cwd, _environment: 0,
+            runner=lambda command, _cwd, _environment: observed.append(command) or 0,
         )
+    assert observed == []

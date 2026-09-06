@@ -18,6 +18,11 @@ from arxiv_int.readiness.report import CheckStatus, PreflightFinding, PreflightR
 from arxiv_int.runtime.compose import parse_profiles
 from arxiv_int.runtime.config import ConfigurationError, load_runtime_config
 from arxiv_int.runtime.config_model import RuntimeConfig
+from arxiv_int.runtime.containment import (
+    containment_violation,
+    contains,
+    report_protected_roots,
+)
 from arxiv_int.runtime.filesystem import FilesystemEvidence, existing_ancestor, inspect_filesystem
 from arxiv_int.runtime.paths import validate_runtime_paths
 
@@ -158,6 +163,34 @@ def _check_paths(
         )
 
 
+def _destination_refusal(config: RuntimeConfig, destination: Path) -> str | None:
+    """Return why a resolved report destination is unsafe, or None when it is allowed."""
+    results = config.results_dir.resolve()
+    if results == Path(results.anchor):
+        return "RESULTS_DIR may not be a filesystem root"
+    if not contains(results, destination):
+        return "JSON report destination must stay inside RESULTS_DIR"
+    roots = report_protected_roots(config)
+    violation = containment_violation(destination, roots) or containment_violation(results, roots)
+    if violation is not None:
+        return f"JSON report destination overlaps {violation.detail} ({violation.variable})"
+    ancestor = existing_ancestor(destination.parent)
+    if not os.access(ancestor, os.W_OK | os.X_OK):
+        return "JSON report destination is not writable"
+    if destination.exists() and not destination.is_file():
+        return "JSON report destination is not a regular file"
+    return None
+
+
+def _blocked_report(report: PreflightReport, detail: str) -> None:
+    report.add(
+        "report.json",
+        "blocked",
+        detail,
+        action="set RESULTS_DIR or --json-report to a safe writable location",
+    )
+
+
 def _persist_report(
     report: PreflightReport, config: RuntimeConfig, destination: Path
 ) -> Path | None:
@@ -165,25 +198,18 @@ def _persist_report(
     if not resolved.is_absolute():
         resolved = config.project_root / resolved
     resolved = resolved.resolve()
-    results = config.results_dir.resolve()
-    allowed = resolved == results or results in resolved.parents
-    unsafe_results = results == Path(results.anchor) or _overlaps(results, config.project_root)
-    unsafe_results = unsafe_results or any(
-        _overlaps(results, silo.root) for silo in config.archive_silos
-    )
-    ancestor = existing_ancestor(resolved.parent)
-    writable = os.access(ancestor, os.W_OK | os.X_OK)
-    target_is_file = not resolved.exists() or resolved.is_file()
-    if not allowed or unsafe_results or not writable or not target_is_file:
-        report.add(
-            "report.json",
-            "blocked",
-            "JSON report destination is unsafe or unwritable",
-            action="set RESULTS_DIR to a safe writable root",
-        )
+    refusal = _destination_refusal(config, resolved)
+    if refusal is not None:
+        _blocked_report(report, refusal)
         return None
     try:
-        report.write_json(resolved)
+        resolved.parent.mkdir(parents=True, exist_ok=True)
+        final = resolved.parent.resolve() / resolved.name
+        revalidation = _destination_refusal(config, final)
+        if revalidation is not None:
+            _blocked_report(report, revalidation)
+            return None
+        report.write_json(final)
     except OSError as error:
         report.add(
             "report.json",
@@ -192,11 +218,7 @@ def _persist_report(
             action="check RESULTS_DIR permissions and free space",
         )
         return None
-    return resolved
-
-
-def _overlaps(left: Path, right: Path) -> bool:
-    return left == right or left in right.parents or right in left.parents
+    return final
 
 
 def _aggregate_status(findings: tuple[PreflightFinding, ...]) -> CheckStatus:

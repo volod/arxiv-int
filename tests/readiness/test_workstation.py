@@ -202,6 +202,79 @@ def test_report_path_must_stay_under_results(tmp_path: Path) -> None:
     assert any(item.name == "report.json" for item in result.report.findings)
 
 
+def test_report_is_refused_inside_a_proof_or_database_root(tmp_path: Path) -> None:
+    """An invalid roots configuration must not place the JSON report in protected data."""
+    checkout, base = _project(tmp_path)
+    for variable, root in (
+        ("PROOF_ARCHIVE_DIR", tmp_path / "results/proof-archive"),
+        ("PGDATA_DIR", tmp_path / "results/pgdata"),
+    ):
+        root.mkdir(parents=True, exist_ok=True)
+        environment = dict(base)
+        environment[variable] = str(root)
+        destination = root / "reports" / "readiness.json"
+
+        result = run_readiness(
+            project_root=checkout,
+            environment=environment,
+            report_path=destination,
+            probe=FixtureProbe(),
+            inspector=_evidence,
+        )
+
+        assert result.report_path is None
+        assert not destination.exists()
+        blocked = next(item for item in result.report.findings if item.name == "report.json")
+        assert blocked.status == "blocked"
+        assert variable in blocked.detail
+
+
+def test_report_is_refused_when_results_encloses_the_checkout(tmp_path: Path) -> None:
+    root = tmp_path / "results" / "checkout"
+    root.mkdir(parents=True)
+    (root / "pyproject.toml").write_text("[project]\nname='fixture'\n", encoding="utf-8")
+    archive = tmp_path / "archive"
+    archive.mkdir()
+    environment = {
+        "ARCHIVE_DIR": str(archive),
+        "RESULTS_DIR": str(tmp_path / "results"),
+        "PGDATA_DIR": str(tmp_path / "pgdata"),
+    }
+
+    result = run_readiness(
+        project_root=root,
+        environment=environment,
+        probe=FixtureProbe(),
+        inspector=_evidence,
+    )
+
+    assert result.report_path is None
+    blocked = next(item for item in result.report.findings if item.name == "report.json")
+    assert "PROJECT_ROOT" in blocked.detail
+
+
+def test_report_symlinked_out_of_results_is_refused(tmp_path: Path) -> None:
+    root, environment = _project(tmp_path)
+    results = tmp_path / "results"
+    (results / "reports").mkdir(parents=True)
+    outside = tmp_path / "archive" / "smuggled"
+    outside.mkdir()
+    (results / "reports" / "escape").symlink_to(outside, target_is_directory=True)
+
+    result = run_readiness(
+        project_root=root,
+        environment=environment,
+        report_path=results / "reports" / "escape" / "readiness.json",
+        probe=FixtureProbe(),
+        inspector=_evidence,
+    )
+
+    assert result.report_path is None
+    assert not (outside / "readiness.json").exists()
+    blocked = next(item for item in result.report.findings if item.name == "report.json")
+    assert "RESULTS_DIR" in blocked.detail
+
+
 def test_missing_configuration_still_returns_tool_and_resource_findings(tmp_path: Path) -> None:
     root = tmp_path / "checkout"
     root.mkdir()

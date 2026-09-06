@@ -146,7 +146,7 @@ the [task cycle](../../../AGENTS.md) and the [record index](README.md). The
 [foundation checkpoint](../plan.md#review-foundation-and-store-boundaries) now depends on this
 record instead of the removed task.
 
-Next action: the plan's next agent task,
-[`refactor-safe-runtime-root-boundaries`](../plan.md#refactor-safe-runtime-root-boundaries).
+Next action: the plan's next agent task at the time,
+[safe runtime root boundaries](refactor-safe-runtime-root-boundaries.md), since accepted.
 No process, service or temporary scaffold remains; the logs under
 `.data/governance-checks/20260906/` are retained as evidence.

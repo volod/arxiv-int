@@ -10,31 +10,6 @@ ordering, and lifecycle rules belong in the
 
 ### Portable runtime -- `portable-runtime`
 
-#### refactor-safe-runtime-root-boundaries
-
-Unify protected-root checks before any reset deletion or readiness-report write.
-
-- Serves: `portable-runtime` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
-- Agent status: CLEAR
-- Task kind: refactor
-- Audit inputs: [AUD-codebase-01, AUD-codebase-02](records/codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: Runtime and readiness paths documented in [Portable runtime](current/portable-runtime.md).
-- User-visible outcome: Archive, proof, checkout and canonical data stay protected even when
-configuration is
-invalid, a selected reset root contains a source, or a report path enters a protected subtree.
-- Scope boundary: Refactor shared containment policy and fix verified refusal gaps first; no real reset,
-source mutation, broad runtime rewrite or change to ordinary service-stop behavior.
-- Data and artifact paths: `runtime/{paths,service_reset,path_model}.py`, `readiness/run.py` under `src/arxiv_int/`,
-`tests/config/`, `tests/compose/`, `tests/readiness/`, and disposable test roots.
-- Execution path: Reproduce the non-mutating cases in the codebase review; use symmetric ancestor/descendant
-checks for protected roots, action-specific allowed children, derived-root overlap rules and
-pre-write revalidation; reject unsafe reset targets before stopping services.
-- Acceptance gates: Failing regressions cover a reset root containing an archive/checkout/results tree,
-report destinations inside proof/database roots, derived-root aliasing, symlink swaps and invalid
-configurations; safe fixture operations retain their semantics and make ci passes.
-- Documentation target: `docs/impl/current/portable-runtime.md`
-- Review checkpoint: `review-foundation-and-store-boundaries`.
-
 #### refactor-runtime-configuration-parity
 
 Resolve the same configuration through Make, direct CLI and readiness without precedence drift.
@@ -43,7 +18,7 @@ Resolve the same configuration through Make, direct CLI and readiness without pr
 - Agent status: CLEAR
 - Task kind: refactor
 - Audit inputs: [AUD-codebase-08](records/codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: `refactor-safe-runtime-root-boundaries`.
+- Dependencies: [Safe runtime root boundaries](records/refactor-safe-runtime-root-boundaries.md).
 - User-visible outcome: Operator overrides, referenced roots and selected model/port values agree
 across entry
 points, including roots containing spaces and an alternate checkout.
@@ -353,6 +328,7 @@ Review the integrated milestone before pipeline control and corpus adapters.
 - Serves: `canonical-store` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
 - Agent status: CLEAR
 - Task kind: checkpoint
+- Audit inputs: [AUD-safe-runtime-root-boundaries-1](records/refactor-safe-runtime-root-boundaries.md#audit-handoff).
 - Dependencies: `implement-rebuildable-search-and-graph-projections`; `refactor-readiness-probe-safety`;
 `refactor-contract-identity-and-reference-validation`; `enforce-task-record-and-checkpoint-integrity`.
 - User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
@@ -2224,7 +2200,8 @@ Review the integrated milestone before any real copy/move plan authorization.
 - Serves: `archive-organization` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
 - Agent status: CLEAR
 - Task kind: checkpoint
-- Dependencies: `prove-archive-organization-on-provided-artifacts`; `refactor-safe-runtime-root-boundaries`.
+- Dependencies: `prove-archive-organization-on-provided-artifacts`;
+[Safe runtime root boundaries](records/refactor-safe-runtime-root-boundaries.md).
 - User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
 or blocked
 for the named consumers; no-refactoring-needed is a valid conclusion.

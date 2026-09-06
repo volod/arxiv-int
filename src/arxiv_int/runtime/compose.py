@@ -12,7 +12,11 @@ from typing import Literal
 
 from arxiv_int.runtime.config_model import RuntimeConfig
 from arxiv_int.runtime.paths import create_results_layout, validate_runtime_paths
-from arxiv_int.runtime.service_reset import ServiceResetError, reset_service_data
+from arxiv_int.runtime.service_reset import (
+    ServiceResetError,
+    reset_service_data,
+    validate_service_reset,
+)
 
 ComposeAction = Literal["config", "down", "logs", "reset", "status", "up"]
 ComposeRunner = Callable[[tuple[str, ...], Path, Mapping[str, str]], int]
@@ -184,6 +188,10 @@ def run_compose(
             "set POSTGRES_PASSWORD in .env before starting the database"
         )
     if action == "reset":
+        try:
+            validate_service_reset(config)
+        except ServiceResetError as error:
+            raise ComposeConfigurationError(str(error)) from error
         down_status = runner(
             compose_command(config, "down", selected),
             config.project_root,
