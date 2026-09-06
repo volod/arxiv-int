@@ -1,0 +1,50 @@
+metadata:
+  domain: arxiv-int
+  sourceContract: facts
+  canonicalEntity: fact
+fieldMappings:
+  - sourceField: fact_id
+    binding: fact.factId
+    semanticTerm: urn:arxiv-int:term:fact-id
+  - sourceField: subject_object_id
+    binding: fact.subjectObjectId
+    semanticTerm: urn:arxiv-int:term:subject-object-id
+  - sourceField: predicate_id
+    binding: fact.predicateId
+    semanticTerm: urn:arxiv-int:term:predicate-id
+  - sourceField: object_object_id
+    binding: fact.objectObjectId
+    semanticTerm: urn:arxiv-int:term:object-object-id
+  - sourceField: literal_value
+    binding: fact.literalValue
+    semanticTerm: urn:arxiv-int:term:literal-value
+  - sourceField: literal_type
+    binding: fact.literalType
+    semanticTerm: urn:arxiv-int:term:literal-type
+  - sourceField: status
+    binding: fact.status
+    semanticTerm: urn:arxiv-int:term:status
+  - sourceField: confidence
+    binding: fact.confidence
+    semanticTerm: urn:arxiv-int:term:confidence
+  - sourceField: document_id
+    binding: fact.documentId
+    semanticTerm: urn:arxiv-int:term:document-id
+  - sourceField: span_id
+    binding: fact.spanId
+    semanticTerm: urn:arxiv-int:term:span-id
+  - sourceField: chunk_id
+    binding: fact.chunkId
+    semanticTerm: urn:arxiv-int:term:chunk-id
+  - sourceField: identity_snapshot_id
+    binding: fact.identitySnapshotId
+    semanticTerm: urn:arxiv-int:term:identity-snapshot-id
+  - sourceField: extractor_id
+    binding: fact.extractorId
+    semanticTerm: urn:arxiv-int:term:extractor-id
+  - sourceField: generation_id
+    binding: fact.generationId
+    semanticTerm: urn:arxiv-int:term:generation-id
+  - sourceField: contract_version
+    binding: fact.contractVersion
+    semanticTerm: urn:arxiv-int:term:contract-version

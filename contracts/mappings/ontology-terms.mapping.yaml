@@ -1,0 +1,32 @@
+metadata:
+  domain: arxiv-int
+  sourceContract: ontology-terms
+  canonicalEntity: ontology_term
+fieldMappings:
+  - sourceField: term_id
+    binding: ontology_term.termId
+    semanticTerm: urn:arxiv-int:term:term-id
+  - sourceField: uri
+    binding: ontology_term.uri
+    semanticTerm: urn:arxiv-int:term:uri
+  - sourceField: label
+    binding: ontology_term.label
+    semanticTerm: urn:arxiv-int:term:label
+  - sourceField: kind
+    binding: ontology_term.kind
+    semanticTerm: urn:arxiv-int:term:kind
+  - sourceField: domain_uri
+    binding: ontology_term.domainUri
+    semanticTerm: urn:arxiv-int:term:domain-uri
+  - sourceField: range_uri
+    binding: ontology_term.rangeUri
+    semanticTerm: urn:arxiv-int:term:range-uri
+  - sourceField: ontology_version
+    binding: ontology_term.ontologyVersion
+    semanticTerm: urn:arxiv-int:term:ontology-version
+  - sourceField: generation_id
+    binding: ontology_term.generationId
+    semanticTerm: urn:arxiv-int:term:generation-id
+  - sourceField: contract_version
+    binding: ontology_term.contractVersion
+    semanticTerm: urn:arxiv-int:term:contract-version

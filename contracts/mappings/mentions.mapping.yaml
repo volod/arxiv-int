@@ -1,0 +1,29 @@
+metadata:
+  domain: arxiv-int
+  sourceContract: mentions
+  canonicalEntity: mention
+fieldMappings:
+  - sourceField: mention_id
+    binding: mention.mentionId
+    semanticTerm: urn:arxiv-int:term:mention-id
+  - sourceField: document_id
+    binding: mention.documentId
+    semanticTerm: urn:arxiv-int:term:document-id
+  - sourceField: span_id
+    binding: mention.spanId
+    semanticTerm: urn:arxiv-int:term:span-id
+  - sourceField: chunk_id
+    binding: mention.chunkId
+    semanticTerm: urn:arxiv-int:term:chunk-id
+  - sourceField: surface_form
+    binding: mention.surfaceForm
+    semanticTerm: urn:arxiv-int:term:surface-form
+  - sourceField: object_anchor_id
+    binding: mention.objectAnchorId
+    semanticTerm: urn:arxiv-int:term:object-anchor-id
+  - sourceField: generation_id
+    binding: mention.generationId
+    semanticTerm: urn:arxiv-int:term:generation-id
+  - sourceField: contract_version
+    binding: mention.contractVersion
+    semanticTerm: urn:arxiv-int:term:contract-version

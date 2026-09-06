@@ -1,0 +1,78 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:canonical:mention:1.0.0
+name: mention
+status: active
+schema:
+  - name: mention
+    logicalType: object
+    properties:
+      - name: mention_id
+        logicalType: string
+        required: true
+        primaryKey: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: mention.mentionId
+                semanticTerm: "urn:arxiv-int:term:mention-id"
+      - name: document_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: mention.documentId
+                semanticTerm: "urn:arxiv-int:term:document-id"
+      - name: span_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: mention.spanId
+                semanticTerm: "urn:arxiv-int:term:span-id"
+      - name: chunk_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: mention.chunkId
+                semanticTerm: "urn:arxiv-int:term:chunk-id"
+      - name: surface_form
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: mention.surfaceForm
+                semanticTerm: "urn:arxiv-int:term:surface-form"
+      - name: object_anchor_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: mention.objectAnchorId
+                semanticTerm: "urn:arxiv-int:term:object-anchor-id"
+      - name: generation_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: mention.generationId
+                semanticTerm: "urn:arxiv-int:term:generation-id"
+      - name: contract_version
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: mention.contractVersion
+                semanticTerm: "urn:arxiv-int:term:contract-version"

@@ -1,0 +1,94 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:canonical:source_occurrence:1.0.0
+name: source_occurrence
+status: active
+schema:
+  - name: source_occurrence
+    logicalType: object
+    properties:
+      - name: occurrence_id
+        logicalType: string
+        required: true
+        primaryKey: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: source_occurrence.occurrenceId
+                semanticTerm: "urn:arxiv-int:term:occurrence-id"
+      - name: silo_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: source_occurrence.siloId
+                semanticTerm: "urn:arxiv-int:term:silo-id"
+      - name: relative_path
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: source_occurrence.relativePath
+                semanticTerm: "urn:arxiv-int:term:relative-path"
+      - name: scan_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: source_occurrence.scanId
+                semanticTerm: "urn:arxiv-int:term:scan-id"
+      - name: content_hash
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: source_occurrence.contentHash
+                semanticTerm: "urn:arxiv-int:term:content-hash"
+      - name: container_path
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: source_occurrence.containerPath
+                semanticTerm: "urn:arxiv-int:term:container-path"
+      - name: member_path
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: source_occurrence.memberPath
+                semanticTerm: "urn:arxiv-int:term:member-path"
+      - name: status
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: source_occurrence.status
+                semanticTerm: "urn:arxiv-int:term:status"
+      - name: generation_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: source_occurrence.generationId
+                semanticTerm: "urn:arxiv-int:term:generation-id"
+      - name: contract_version
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: source_occurrence.contractVersion
+                semanticTerm: "urn:arxiv-int:term:contract-version"

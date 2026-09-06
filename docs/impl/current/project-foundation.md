@@ -37,7 +37,7 @@ in agreement in both directions.
 
 | Group | State | Declared distributions |
 | --- | --- | --- |
-| `contracts` | populated | `jsonschema` (MIT), `pyyaml` (MIT) |
+| `contracts` | populated | `jsonschema` (MIT), `pydantic` (MIT), `pyyaml` (MIT) |
 | `graph` | populated | `pyshacl` (Apache-2.0), `rdflib` (BSD-3-Clause) |
 | `inference` | populated | `httpx` (BSD-3-Clause) |
 | `lake` | populated | `duckdb` (MIT), `pyarrow` (Apache-2.0) |
@@ -74,11 +74,10 @@ release. The foundational configuration merge and containment helpers have grown
 
 `arxiv_int.contracts` provides an explicit-root file registry, an immutable canonical semantic
 model, deterministic semantic metadata hashes, registered generator dispatch, and schema
-snapshot/change/version/baseline primitives. Rooted reference validation, schema-qualified field
-identity, binding uniqueness, and legacy snapshot migration are documented in
-[Contracts](contracts.md). Later contract-governance work owns project ODCS documents,
-`x-arxiv-int` adapters, concrete physical generators, adjacent-history policy, migrations, and
-live-store checks.
+snapshot/change/version/baseline primitives. The shipped product ODCS registry, `x-arxiv-int`
+bindings, Pydantic loaders, and lint workflow are documented in [Contracts](contracts.md). Later
+contract-governance work owns concrete physical generators, adjacent-history policy, migrations,
+and live-store checks.
 
 ## Evaluation and retrieval primitives
 
@@ -95,7 +94,7 @@ identity capability's Splink integration.
 
 Output-sensitive tooling is pinned exactly: `complexipy`, `mypy`, `pymarkdownlnt`, `radon`, `ruff`,
 and `shellcheck-py`. Formatting, typing, complexity, and Markdown findings therefore do not move
-with a resolver update. `make bootstrap` still installs only the core plus the `dev` extra.
+with a resolver update. `make bootstrap` still installs the core plus the `dev` and `contracts` extras.
 
 ## Domain interfaces
 

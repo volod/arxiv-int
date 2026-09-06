@@ -1,9 +1,37 @@
-# Contract primitives
+# Contracts
 
-`arxiv_int.contracts` owns the dependency-light registry, canonical loader, semantic fingerprint,
-and schema-evolution primitives that later ODCS adapters and generators extend. Product contract
-trees are not shipped yet; readiness reports that absence as ready. These primitives are the
-portable foundation those trees must use.
+Product ODCS `3.1.0` contracts under `contracts/` are the reviewable schema source of truth for
+pipeline entities. `arxiv_int.contracts` loads, fingerprints, and lints that tree through rooted
+references, typed loaders, and schema-qualified evolution primitives.
+
+## Product registry
+
+`contracts/registry.yaml` binds each dataset id to an ODCS file, a physical-to-canonical mapping,
+a canonical entity, and a reviewed semantic metadata hash. Shipped datasets cover documents, spans,
+chunks, objects, aliases, mentions, facts, topics, ontology terms, embeddings, source occurrences,
+transactions, catalogs, anomaly findings, and evaluation items.
+
+`make contracts` syncs the `contracts` extra and runs `arxiv-int contracts lint`, which:
+
+1. validates every `datasets/*.odcs.yaml` against the vendored official ODCS JSON Schema at
+   `contracts/odcs/odcs-json-schema-v3.1.0.json` (Bitol pin `f5bfbb8`);
+2. checks unique ids/versions, rooted references, canonical bindings, relationship targets, and
+   required primary-key identities;
+3. runs Data Contract CLI lint with the same official schema via `uv tool run` when available.
+
+## Project extension
+
+Generation and binding hints live under ODCS `customProperties` with property name `x-arxiv-int`.
+Field bindings nest at `x-arxiv-int.canonicalBinding` (`binding`, `semanticTerm`, plus unknown
+keys). Dataset-level `x-arxiv-int` carries postgres `schema`/`table` (and optional `partitionKey`).
+Legacy top-level `canonicalBinding` properties remain accepted for fixtures.
+
+## Loaders and primitives
+
+Pydantic loaders in `loaders.py` preserve unknown metadata (`extra="allow"`). Rooted reference
+validation, schema-qualified snapshots, semantic fingerprints, and binding uniqueness remain as
+documented below. Readiness loads the shipped registry and verifies reviewed fingerprints when the
+`contracts` feature group is installed.
 
 ## Rooted references
 
@@ -11,41 +39,18 @@ portable foundation those trees must use.
 contract root. Both `FileRegistry` and `load_canonical_model()` resolve ODCS and mapping paths
 through it. References must be non-empty relative paths. Absolute paths, parent traversal, null
 bytes, and symlink targets that resolve outside the root are refused after symlink resolution.
-Valid relative children continue to load unchanged.
-
-## Canonical bindings
-
-`load_canonical_model()` reads `model.yaml` and rooted entity contracts. A present
-`canonicalBinding` custom property must be a mapping with `binding` and `semanticTerm`. Unknown
-keys on that mapping are ignored by the typed field model rather than rejected. Duplicate physical
-field names that both carry bindings, and the same binding string reused by multiple fields, fail
-closed as ambiguous identity.
-
-## Semantic fingerprints
-
-`semantic_metadata_hash()` hashes normalized contract metadata and field mappings. Unknown metadata
-keys remain part of the hash. Known-shaped field mappings without `sourceField`, repeated
-`sourceField` values, and repeated binding strings are refused. Cosmetic `metadata.domain` stays
-excluded. Existing fixture hashes are unchanged for previously valid documents.
 
 ## Schema-qualified snapshots
 
 `schema_snapshot()` emits `fieldIdentity: schema-qualified` and keys every field as
-`{schemaId}.{fieldName}`. Declared schema `name` values are preferred; unnamed schemas use stable
-positional ids such as `#0`. Distinct schemas may share a field name without collapsing. True
-duplicate identities, duplicate schema identities, and properties without names are refused.
-
-Legacy baselines that keyed fields by bare name lack `fieldIdentity`. Comparing them to a
-schema-qualified snapshot without migration reports every field as removed and re-added, which
-`classify_change()` classifies as breaking. `migrate_schema_snapshot(snapshot, schema_id=...)`
-upgrades an unambiguous single-schema legacy snapshot; mixed or already-looking-qualified legacy
-keys are refused. Stored semantic metadata hashes are not rewritten by this structural upgrade.
-Re-freeze or migrate reviewed baselines before compatibility checks.
+`{schemaId}.{fieldName}`. Legacy bare-field baselines migrate through `migrate_schema_snapshot()`;
+unmigrated compares classify as breaking. Stored semantic metadata hashes are not rewritten by that
+structural upgrade.
 
 ## Tests and verification
 
-`tests/contracts/` covers rooted parent/absolute/symlink escapes for registry and canonical loaders,
-schema-qualified snapshots, true duplicates, legacy migration and unmigrated breaking
-consequences, fingerprint unknown-metadata preservation, and duplicate/ambiguous binding refusal.
-Evidence for the identity repair:
+`tests/contracts/` covers primitive containment and identity, product ODCS schema validation,
+registry integrity, typed loader unknown-metadata retention, canonical `x-arxiv-int` bindings, and
+Data Contract CLI lint when the CLI is available. Evidence:
+[canonical contract registry](../records/establish-canonical-contract-registry.md);
 [contract identity and reference validation](../records/refactor-contract-identity-and-reference-validation.md).

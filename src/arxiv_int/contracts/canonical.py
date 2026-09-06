@@ -7,6 +7,7 @@ from types import MappingProxyType
 from typing import Any
 
 from arxiv_int.contracts._yaml import load_mapping
+from arxiv_int.contracts.odcs_ext import canonical_binding
 from arxiv_int.contracts.paths import resolve_rooted_reference
 
 _REQUIRED_BINDING_KEYS = frozenset({"binding", "semanticTerm"})
@@ -69,21 +70,6 @@ class CanonicalModel:
         return term in self.semantic_terms
 
 
-def custom_property(properties: Any, name: str) -> dict[str, Any] | None:
-    """Return a mapping-valued ODCS custom property."""
-    if not isinstance(properties, list):
-        return None
-    for item in properties:
-        if isinstance(item, dict) and item.get("property") == name:
-            value = item.get("value")
-            if value is None:
-                return None
-            if not isinstance(value, dict):
-                raise ValueError(f"custom property '{name}' must be a mapping")
-            return value
-    return None
-
-
 def _require_binding(binding: dict[str, Any], *, entity: str, field_name: str) -> None:
     missing = sorted(
         key for key in _REQUIRED_BINDING_KEYS if key not in binding or binding[key] in (None, "")
@@ -121,7 +107,7 @@ def _bound_field(
     if "name" not in prop:
         raise ValueError(f"entity '{entity}' has a property without a name")
     field_name = str(prop["name"])
-    binding = custom_property(prop.get("customProperties"), binding_property)
+    binding = canonical_binding(prop.get("customProperties"), legacy_property=binding_property)
     if binding is None:
         return None
     field_key = (entity, field_name)

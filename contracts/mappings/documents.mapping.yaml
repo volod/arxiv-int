@@ -1,0 +1,35 @@
+metadata:
+  domain: arxiv-int
+  sourceContract: documents
+  canonicalEntity: document
+fieldMappings:
+  - sourceField: document_id
+    binding: document.documentId
+    semanticTerm: urn:arxiv-int:term:document-id
+  - sourceField: content_hash
+    binding: document.contentHash
+    semanticTerm: urn:arxiv-int:term:content-hash
+  - sourceField: extractor_profile
+    binding: document.extractorProfile
+    semanticTerm: urn:arxiv-int:term:extractor-profile
+  - sourceField: media_type
+    binding: document.mediaType
+    semanticTerm: urn:arxiv-int:term:media-type
+  - sourceField: language
+    binding: document.language
+    semanticTerm: urn:arxiv-int:term:language
+  - sourceField: title
+    binding: document.title
+    semanticTerm: urn:arxiv-int:term:title
+  - sourceField: byte_size
+    binding: document.byteSize
+    semanticTerm: urn:arxiv-int:term:byte-size
+  - sourceField: text_chars
+    binding: document.textChars
+    semanticTerm: urn:arxiv-int:term:text-chars
+  - sourceField: generation_id
+    binding: document.generationId
+    semanticTerm: urn:arxiv-int:term:generation-id
+  - sourceField: contract_version
+    binding: document.contractVersion
+    semanticTerm: urn:arxiv-int:term:contract-version

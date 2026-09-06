@@ -1,0 +1,29 @@
+metadata:
+  domain: arxiv-int
+  sourceContract: catalogs
+  canonicalEntity: catalog_entry
+fieldMappings:
+  - sourceField: catalog_entry_id
+    binding: catalog_entry.catalogEntryId
+    semanticTerm: urn:arxiv-int:term:catalog-entry-id
+  - sourceField: catalog_kind
+    binding: catalog_entry.catalogKind
+    semanticTerm: urn:arxiv-int:term:catalog-kind
+  - sourceField: object_id
+    binding: catalog_entry.objectId
+    semanticTerm: urn:arxiv-int:term:object-id
+  - sourceField: preferred_name
+    binding: catalog_entry.preferredName
+    semanticTerm: urn:arxiv-int:term:preferred-name
+  - sourceField: document_count
+    binding: catalog_entry.documentCount
+    semanticTerm: urn:arxiv-int:term:document-count
+  - sourceField: review_state
+    binding: catalog_entry.reviewState
+    semanticTerm: urn:arxiv-int:term:review-state
+  - sourceField: generation_id
+    binding: catalog_entry.generationId
+    semanticTerm: urn:arxiv-int:term:generation-id
+  - sourceField: contract_version
+    binding: catalog_entry.contractVersion
+    semanticTerm: urn:arxiv-int:term:contract-version

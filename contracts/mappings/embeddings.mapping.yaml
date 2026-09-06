@@ -1,0 +1,32 @@
+metadata:
+  domain: arxiv-int
+  sourceContract: embeddings
+  canonicalEntity: embedding
+fieldMappings:
+  - sourceField: embedding_id
+    binding: embedding.embeddingId
+    semanticTerm: urn:arxiv-int:term:embedding-id
+  - sourceField: target_kind
+    binding: embedding.targetKind
+    semanticTerm: urn:arxiv-int:term:target-kind
+  - sourceField: target_id
+    binding: embedding.targetId
+    semanticTerm: urn:arxiv-int:term:target-id
+  - sourceField: profile_id
+    binding: embedding.profileId
+    semanticTerm: urn:arxiv-int:term:profile-id
+  - sourceField: dimensions
+    binding: embedding.dimensions
+    semanticTerm: urn:arxiv-int:term:dimensions
+  - sourceField: vector_ref
+    binding: embedding.vectorRef
+    semanticTerm: urn:arxiv-int:term:vector-ref
+  - sourceField: model_digest
+    binding: embedding.modelDigest
+    semanticTerm: urn:arxiv-int:term:model-digest
+  - sourceField: generation_id
+    binding: embedding.generationId
+    semanticTerm: urn:arxiv-int:term:generation-id
+  - sourceField: contract_version
+    binding: embedding.contractVersion
+    semanticTerm: urn:arxiv-int:term:contract-version

@@ -19,7 +19,7 @@ The Makefile exposes individual checks and two composed workflows:
 - `make quality` adds branch coverage, Markdown lint, and source/wheel builds.
 
 GitHub Actions runs `make ci-github`, an explicit alias of the same required gate, on Python 3.12
-and 3.13 after `uv sync --locked --extra dev`.
+and 3.13 after `uv sync --locked --extra dev --extra contracts`.
 
 Tests under `tests/quality/` exercise failure cases for the documentation checks rather than only
 asserting the repository passes. `make quality-report` reports source and shell files over the

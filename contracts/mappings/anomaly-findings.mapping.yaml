@@ -1,0 +1,32 @@
+metadata:
+  domain: arxiv-int
+  sourceContract: anomaly-findings
+  canonicalEntity: anomaly_finding
+fieldMappings:
+  - sourceField: finding_id
+    binding: anomaly_finding.findingId
+    semanticTerm: urn:arxiv-int:term:finding-id
+  - sourceField: finding_type
+    binding: anomaly_finding.findingType
+    semanticTerm: urn:arxiv-int:term:finding-type
+  - sourceField: severity
+    binding: anomaly_finding.severity
+    semanticTerm: urn:arxiv-int:term:severity
+  - sourceField: status
+    binding: anomaly_finding.status
+    semanticTerm: urn:arxiv-int:term:status
+  - sourceField: subject_object_id
+    binding: anomaly_finding.subjectObjectId
+    semanticTerm: urn:arxiv-int:term:subject-object-id
+  - sourceField: rule_id
+    binding: anomaly_finding.ruleId
+    semanticTerm: urn:arxiv-int:term:rule-id
+  - sourceField: evidence_summary
+    binding: anomaly_finding.evidenceSummary
+    semanticTerm: urn:arxiv-int:term:evidence-summary
+  - sourceField: generation_id
+    binding: anomaly_finding.generationId
+    semanticTerm: urn:arxiv-int:term:generation-id
+  - sourceField: contract_version
+    binding: anomaly_finding.contractVersion
+    semanticTerm: urn:arxiv-int:term:contract-version

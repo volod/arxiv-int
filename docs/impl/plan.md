@@ -10,40 +10,13 @@ ordering, and lifecycle rules belong in the
 
 ### Contract governance -- `contract-governance`
 
-#### establish-canonical-contract-registry
-
-Define ODCS contracts, a canonical semantic model, dataset registry, and physical-to-canonical
-mappings for the first pipeline entities.
-
-- Serves: `contract-governance` --
-[Contract-first data governance](../design/spec.md#contract-first-data-governance)
-- Agent status: CLEAR
-- Dependencies: The contract primitives and package/CLI identity documented in
-[Project foundation](current/project-foundation.md#contract-primitives).
-[Contract identity and reference validation](records/refactor-contract-identity-and-reference-validation.md).
-- User-visible outcome: Documents, spans, chunks, objects, mentions, facts, topics, ontology terms,
-embeddings, source occurrences, transactions, catalogs, anomaly findings, and evaluation items
-have one reviewable schema source of truth.
-- Scope boundary: Define contracts and semantic bindings; do not create live database tables or
-infer domain-specific ontology terms from the corpus.
-- Data and artifact paths: `contracts/registry.yaml`, `contracts/canonical/`, `contracts/datasets/`,
-`contracts/mappings/`, and `src/arxiv_int/contracts/`.
-- Execution path: Extend the existing registry and canonical-model interfaces with project-specific
-ODCS 3.1 adapters; namespace project hints under `x-arxiv-int`; add Data Contract CLI validation and
-Pydantic loaders that preserve unknown metadata.
-- Acceptance gates: Official ODCS JSON Schema and Data Contract CLI lint pass; ids, versions,
-references, canonical bindings, relationship targets, and required identities are unique and
-complete.
-- Documentation target: `docs/impl/current/contracts.md`
-- Review checkpoint: `review-foundation-and-store-boundaries`.
-
 #### implement-deterministic-schema-generation
 
 Generate physical schemas and model boundaries from ODCS while minimizing custom generator code.
 
 - Serves: `contract-governance` -- [Generation](../design/spec.md#generation)
 - Agent status: CLEAR
-- Dependencies: `establish-canonical-contract-registry`.
+- Dependencies: [Canonical contract registry](records/establish-canonical-contract-registry.md).
 - User-visible outcome: One contract change reproducibly updates Avro, Arrow/Parquet, PostgreSQL
 baseline, search, graph, and structured-output schemas.
 - Scope boundary: Generate baseline artifacts and extension DDL; do not apply migrations to an
@@ -89,7 +62,8 @@ exports that validate the knowledge model.
 
 - Serves: `contract-governance` -- [AGE graph projection](../design/spec.md#age-graph-projection)
 - Agent status: CLEAR
-- Dependencies: `establish-canonical-contract-registry`; representative domain vocabulary can begin
+- Dependencies: [Canonical contract registry](records/establish-canonical-contract-registry.md);
+representative domain vocabulary can begin
 from reviewed fixtures.
 - User-visible outcome: Object/fact semantics are inspectable, versioned, exportable, and testable
 independently of AGE.
@@ -343,7 +317,8 @@ paired evaluation utilities.
 
 - Serves: `evaluation-foundation` -- [Evaluation and acceptance](../design/spec.md#evaluation-and-acceptance)
 - Agent status: CLEAR
-- Dependencies: `establish-canonical-contract-registry`; the evaluation and retrieval primitives
+- Dependencies: [Canonical contract registry](records/establish-canonical-contract-registry.md);
+the evaluation and retrieval primitives
 documented in [Project foundation](current/project-foundation.md#evaluation-and-retrieval-primitives).
 `refactor-evaluation-bundle-validation`.
 - User-visible outcome: Every store/model/pipeline recommendation names the exact frozen items,
@@ -379,7 +354,8 @@ Align foundational stage, extraction and artifact references before concrete ada
 - Agent status: CLEAR
 - Task kind: refactor
 - Audit inputs: [AUD-codebase-13](records/codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: `establish-canonical-contract-registry`; [Contract identity and reference validation](records/refactor-contract-identity-and-reference-validation.md).
+- Dependencies: [Canonical contract registry](records/establish-canonical-contract-registry.md);
+[Contract identity and reference validation](records/refactor-contract-identity-and-reference-validation.md).
 - User-visible outcome: Multi-silo inputs, structured source anchors, generation identities and honest
 stage states
 fit the shared interfaces rather than being hidden in string metadata or invented per adapter.
@@ -406,7 +382,7 @@ with deterministic reuse keys.
 [Resumability, idempotency, and provenance](../design/spec.md#resumability-idempotency-and-provenance)
 - Agent status: CLEAR
 - Dependencies: `create-canonical-relational-schema`; fixture artifact contracts from
-`establish-canonical-contract-registry`.
+[Canonical contract registry](records/establish-canonical-contract-registry.md).
 `refactor-stage-and-artifact-interface-contracts`.
 `review-foundation-and-store-boundaries`.
 - User-visible outcome: Every long operation has inspectable state; an interrupted shard resumes,
@@ -693,7 +669,8 @@ metadata.
 - Serves: `corpus-foundation` -- [Pipeline](../design/spec.md#pipeline)
 - Agent status: RUN NEEDED
 - Dependencies: Runtime roots documented in [Portable runtime](current/portable-runtime.md);
-`establish-canonical-contract-registry`; `implement-stage-dag-cli-and-make-targets`;
+[Canonical contract registry](records/establish-canonical-contract-registry.md);
+`implement-stage-dag-cli-and-make-targets`;
 `implement-evidence-based-pipeline-forecast`.
 - User-visible outcome: The operator can inventory one or more multi-terabyte silos without loading
 them into RAM and can see per-silo coverage, bytes, duplicates, and unsupported/encrypted inputs.
@@ -884,7 +861,7 @@ evaluation labels used to classify archive files.
 [Hierarchical archive classification and optional reorganization](../design/spec.md#hierarchical-archive-classification-and-optional-reorganization)
 - Agent status: RUN NEEDED
 - Research: yes
-- Dependencies: `establish-canonical-contract-registry`;
+- Dependencies: [Canonical contract registry](records/establish-canonical-contract-registry.md);
 `create-evaluation-fixtures-and-metrics`.
 - User-visible outcome: Operators can inspect the exact hierarchy, captions, parent links, licence,
 local extensions, and version behind every file assignment.

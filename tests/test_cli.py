@@ -39,6 +39,38 @@ def test_parser_accepts_readiness_profile_timeout_and_console_only_mode() -> Non
     assert arguments.no_json_report is True
 
 
+def test_parser_accepts_contracts_lint_options() -> None:
+    parser = build_parser()
+    arguments = parser.parse_args(["contracts", "lint", "--skip-datacontract"])
+
+    assert arguments.command == "contracts"
+    assert arguments.contracts_command == "lint"
+    assert arguments.skip_datacontract is True
+
+
+def test_contracts_lint_command_reports_success(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture, tmp_path: Path
+) -> None:
+    from arxiv_int.contracts.lint import ContractLintReport
+
+    monkeypatch.setattr(
+        "arxiv_int.contracts.lint.lint_contracts",
+        lambda root, run_datacontract=True: ContractLintReport((), 15, run_datacontract),
+    )
+    monkeypatch.setattr(
+        "arxiv_int.contracts.lint.contracts_root_for",
+        lambda project_root=None: tmp_path,
+    )
+    monkeypatch.setattr(
+        "arxiv_int.runtime.project_root.find_project_root",
+        lambda explicit=None, environment=None: tmp_path,
+    )
+    caplog.set_level(logging.INFO)
+
+    assert main(["contracts", "lint", "--skip-datacontract"]) == 0
+    assert "contracts lint passed" in caplog.text
+
+
 def test_readiness_and_services_default_to_pipeline_profiles() -> None:
     parser = build_parser()
 

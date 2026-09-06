@@ -1,0 +1,208 @@
+metadata:
+  canonicalModelRef: urn:arxiv-int:model:1.0.0
+semanticTerms:
+  urn:arxiv-int:term:alias-id:
+    valueType: string
+  urn:arxiv-int:term:alias-kind:
+    valueType: string
+  urn:arxiv-int:term:alias-text:
+    valueType: string
+  urn:arxiv-int:term:amount:
+    valueType: number
+  urn:arxiv-int:term:byte-size:
+    valueType: integer
+  urn:arxiv-int:term:catalog-entry-id:
+    valueType: string
+  urn:arxiv-int:term:catalog-kind:
+    valueType: string
+  urn:arxiv-int:term:chunk-id:
+    valueType: string
+  urn:arxiv-int:term:chunker-id:
+    valueType: string
+  urn:arxiv-int:term:cluster-id:
+    valueType: string
+  urn:arxiv-int:term:confidence:
+    valueType: number
+  urn:arxiv-int:term:container-path:
+    valueType: string
+  urn:arxiv-int:term:content-hash:
+    valueType: string
+  urn:arxiv-int:term:contract-version:
+    valueType: string
+  urn:arxiv-int:term:currency:
+    valueType: string
+  urn:arxiv-int:term:dataset-id:
+    valueType: string
+  urn:arxiv-int:term:dimensions:
+    valueType: integer
+  urn:arxiv-int:term:document-count:
+    valueType: integer
+  urn:arxiv-int:term:document-id:
+    valueType: string
+  urn:arxiv-int:term:domain-uri:
+    valueType: string
+  urn:arxiv-int:term:embedding-id:
+    valueType: string
+  urn:arxiv-int:term:end-char:
+    valueType: integer
+  urn:arxiv-int:term:evaluation-item-id:
+    valueType: string
+  urn:arxiv-int:term:event-time:
+    valueType: timestamp
+  urn:arxiv-int:term:evidence-summary:
+    valueType: string
+  urn:arxiv-int:term:extractor-id:
+    valueType: string
+  urn:arxiv-int:term:extractor-profile:
+    valueType: string
+  urn:arxiv-int:term:fact-id:
+    valueType: string
+  urn:arxiv-int:term:finding-id:
+    valueType: string
+  urn:arxiv-int:term:finding-type:
+    valueType: string
+  urn:arxiv-int:term:generation-id:
+    valueType: string
+  urn:arxiv-int:term:gold-ref:
+    valueType: string
+  urn:arxiv-int:term:identity-snapshot-id:
+    valueType: string
+  urn:arxiv-int:term:item-kind:
+    valueType: string
+  urn:arxiv-int:term:kind:
+    valueType: string
+  urn:arxiv-int:term:label:
+    valueType: string
+  urn:arxiv-int:term:language:
+    valueType: string
+  urn:arxiv-int:term:lifecycle-state:
+    valueType: string
+  urn:arxiv-int:term:literal-type:
+    valueType: string
+  urn:arxiv-int:term:literal-value:
+    valueType: string
+  urn:arxiv-int:term:media-type:
+    valueType: string
+  urn:arxiv-int:term:member-path:
+    valueType: string
+  urn:arxiv-int:term:mention-id:
+    valueType: string
+  urn:arxiv-int:term:model-digest:
+    valueType: string
+  urn:arxiv-int:term:normalized-text:
+    valueType: string
+  urn:arxiv-int:term:object-anchor-id:
+    valueType: string
+  urn:arxiv-int:term:object-id:
+    valueType: string
+  urn:arxiv-int:term:object-object-id:
+    valueType: string
+  urn:arxiv-int:term:object-type:
+    valueType: string
+  urn:arxiv-int:term:occurrence-id:
+    valueType: string
+  urn:arxiv-int:term:ontology-version:
+    valueType: string
+  urn:arxiv-int:term:ordinal:
+    valueType: integer
+  urn:arxiv-int:term:page:
+    valueType: integer
+  urn:arxiv-int:term:party-object-id:
+    valueType: string
+  urn:arxiv-int:term:party-subject-id:
+    valueType: string
+  urn:arxiv-int:term:predicate-id:
+    valueType: string
+  urn:arxiv-int:term:preferred-label:
+    valueType: string
+  urn:arxiv-int:term:preferred-name:
+    valueType: string
+  urn:arxiv-int:term:profile-id:
+    valueType: string
+  urn:arxiv-int:term:query-text:
+    valueType: string
+  urn:arxiv-int:term:range-uri:
+    valueType: string
+  urn:arxiv-int:term:relative-path:
+    valueType: string
+  urn:arxiv-int:term:review-state:
+    valueType: string
+  urn:arxiv-int:term:rule-id:
+    valueType: string
+  urn:arxiv-int:term:scan-id:
+    valueType: string
+  urn:arxiv-int:term:scheme-id:
+    valueType: string
+  urn:arxiv-int:term:score:
+    valueType: number
+  urn:arxiv-int:term:severity:
+    valueType: string
+  urn:arxiv-int:term:silo-id:
+    valueType: string
+  urn:arxiv-int:term:span-id:
+    valueType: string
+  urn:arxiv-int:term:split:
+    valueType: string
+  urn:arxiv-int:term:start-char:
+    valueType: integer
+  urn:arxiv-int:term:status:
+    valueType: string
+  urn:arxiv-int:term:subject-object-id:
+    valueType: string
+  urn:arxiv-int:term:surface-form:
+    valueType: string
+  urn:arxiv-int:term:target-id:
+    valueType: string
+  urn:arxiv-int:term:target-kind:
+    valueType: string
+  urn:arxiv-int:term:term-id:
+    valueType: string
+  urn:arxiv-int:term:text:
+    valueType: string
+  urn:arxiv-int:term:text-chars:
+    valueType: integer
+  urn:arxiv-int:term:title:
+    valueType: string
+  urn:arxiv-int:term:topic-assignment-id:
+    valueType: string
+  urn:arxiv-int:term:topic-id:
+    valueType: string
+  urn:arxiv-int:term:transaction-id:
+    valueType: string
+  urn:arxiv-int:term:transaction-type:
+    valueType: string
+  urn:arxiv-int:term:uri:
+    valueType: string
+  urn:arxiv-int:term:vector-ref:
+    valueType: string
+entities:
+  document:
+    contract: odcs/document.odcs.yaml
+  span:
+    contract: odcs/span.odcs.yaml
+  chunk:
+    contract: odcs/chunk.odcs.yaml
+  object:
+    contract: odcs/object.odcs.yaml
+  alias:
+    contract: odcs/alias.odcs.yaml
+  mention:
+    contract: odcs/mention.odcs.yaml
+  fact:
+    contract: odcs/fact.odcs.yaml
+  topic:
+    contract: odcs/topic.odcs.yaml
+  ontology_term:
+    contract: odcs/ontology_term.odcs.yaml
+  embedding:
+    contract: odcs/embedding.odcs.yaml
+  source_occurrence:
+    contract: odcs/source_occurrence.odcs.yaml
+  transaction:
+    contract: odcs/transaction.odcs.yaml
+  catalog_entry:
+    contract: odcs/catalog_entry.odcs.yaml
+  anomaly_finding:
+    contract: odcs/anomaly_finding.odcs.yaml
+  evaluation_item:
+    contract: odcs/evaluation_item.odcs.yaml

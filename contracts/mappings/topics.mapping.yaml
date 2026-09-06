@@ -1,0 +1,29 @@
+metadata:
+  domain: arxiv-int
+  sourceContract: topics
+  canonicalEntity: topic
+fieldMappings:
+  - sourceField: topic_assignment_id
+    binding: topic.topicAssignmentId
+    semanticTerm: urn:arxiv-int:term:topic-assignment-id
+  - sourceField: topic_id
+    binding: topic.topicId
+    semanticTerm: urn:arxiv-int:term:topic-id
+  - sourceField: label
+    binding: topic.label
+    semanticTerm: urn:arxiv-int:term:label
+  - sourceField: scheme_id
+    binding: topic.schemeId
+    semanticTerm: urn:arxiv-int:term:scheme-id
+  - sourceField: document_id
+    binding: topic.documentId
+    semanticTerm: urn:arxiv-int:term:document-id
+  - sourceField: score
+    binding: topic.score
+    semanticTerm: urn:arxiv-int:term:score
+  - sourceField: generation_id
+    binding: topic.generationId
+    semanticTerm: urn:arxiv-int:term:generation-id
+  - sourceField: contract_version
+    binding: topic.contractVersion
+    semanticTerm: urn:arxiv-int:term:contract-version

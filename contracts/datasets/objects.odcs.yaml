@@ -1,0 +1,100 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:contract:objects:1.0.0
+name: objects
+status: active
+domain: arxiv-int
+description:
+  purpose: Canonical knowledge-graph objects with lifecycle and review state.
+team:
+  name: arxiv-int
+  members:
+    - username: contracts@arxiv-int.local
+      role: Owner
+servers:
+  - server: normalized-lake
+    type: local
+    description: Partitioned normalized lake under RESULTS_DIR
+    path: normalized/objects
+    format: parquet
+customProperties:
+  - property: x-arxiv-int
+    value:
+      schema: kg
+      table: objects
+      partitionKey: bucket
+schema:
+  - name: objects
+    physicalName: objects
+    logicalType: object
+    properties:
+      - name: object_id
+        logicalType: string
+        primaryKey: true
+        primaryKeyPosition: 1
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: object.objectId
+                semanticTerm: "urn:arxiv-int:term:object-id"
+      - name: object_type
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: object.objectType
+                semanticTerm: "urn:arxiv-int:term:object-type"
+      - name: preferred_label
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: object.preferredLabel
+                semanticTerm: "urn:arxiv-int:term:preferred-label"
+      - name: lifecycle_state
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: object.lifecycleState
+                semanticTerm: "urn:arxiv-int:term:lifecycle-state"
+      - name: review_state
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: object.reviewState
+                semanticTerm: "urn:arxiv-int:term:review-state"
+      - name: cluster_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: object.clusterId
+                semanticTerm: "urn:arxiv-int:term:cluster-id"
+      - name: generation_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: object.generationId
+                semanticTerm: "urn:arxiv-int:term:generation-id"
+      - name: contract_version
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: object.contractVersion
+                semanticTerm: "urn:arxiv-int:term:contract-version"

@@ -80,6 +80,17 @@ def build_parser() -> argparse.ArgumentParser:
     logs.add_argument("--services", default="", help="comma- or whitespace-separated services")
     logs.add_argument("--follow", action="store_true")
     logs.add_argument("--tail", type=int, default=200)
+    contracts = subcommands.add_parser("contracts", help="validate product ODCS contracts")
+    contract_commands = contracts.add_subparsers(dest="contracts_command", required=True)
+    lint = contract_commands.add_parser(
+        "lint", help="lint ODCS schema, integrity, and Data Contract CLI"
+    )
+    lint.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
+    lint.add_argument(
+        "--skip-datacontract",
+        action="store_true",
+        help="skip Data Contract CLI lint (official JSON Schema still runs)",
+    )
     return parser
 
 
@@ -184,6 +195,31 @@ def _run_readiness(args: argparse.Namespace) -> int:
     return result.report.exit_code
 
 
+def _run_contracts(args: argparse.Namespace) -> int:
+    from arxiv_int.contracts.lint import contracts_root_for, lint_contracts
+    from arxiv_int.runtime.project_root import ProjectRootError, find_project_root
+
+    try:
+        root = find_project_root(args.project_root)
+        report = lint_contracts(
+            contracts_root_for(root),
+            run_datacontract=not args.skip_datacontract,
+        )
+    except (OSError, ProjectRootError, RuntimeError, ValueError) as error:
+        _LOG.error("%s", error)
+        return 1
+    if report.ok:
+        _LOG.info(
+            "contracts lint passed: %d dataset(s); datacontract=%s",
+            report.checked_datasets,
+            report.datacontract_ran,
+        )
+        return 0
+    for finding in report.findings:
+        _LOG.error("%s", finding)
+    return 1
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     """Run the selected command and return a process status."""
     logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -196,6 +232,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_readiness(args)
     if args.command == "services":
         return _run_services(args)
+    if args.command == "contracts":
+        return _run_contracts(args)
     return _run_info()
 
 

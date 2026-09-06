@@ -1,0 +1,103 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:contract:spans:1.0.0
+name: spans
+status: active
+domain: arxiv-int
+description:
+  purpose: Character-anchored spans locating evidence within documents.
+team:
+  name: arxiv-int
+  members:
+    - username: contracts@arxiv-int.local
+      role: Owner
+servers:
+  - server: normalized-lake
+    type: local
+    description: Partitioned normalized lake under RESULTS_DIR
+    path: normalized/spans
+    format: parquet
+customProperties:
+  - property: x-arxiv-int
+    value:
+      schema: corpus
+      table: spans
+      partitionKey: bucket
+schema:
+  - name: spans
+    physicalName: spans
+    logicalType: object
+    properties:
+      - name: span_id
+        logicalType: string
+        primaryKey: true
+        primaryKeyPosition: 1
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: span.spanId
+                semanticTerm: "urn:arxiv-int:term:span-id"
+      - name: document_id
+        logicalType: string
+        relationships:
+          - type: foreignKey
+            to: documents.document_id
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: span.documentId
+                semanticTerm: "urn:arxiv-int:term:document-id"
+      - name: start_char
+        logicalType: integer
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: span.startChar
+                semanticTerm: "urn:arxiv-int:term:start-char"
+      - name: end_char
+        logicalType: integer
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: span.endChar
+                semanticTerm: "urn:arxiv-int:term:end-char"
+      - name: page
+        logicalType: integer
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: span.page
+                semanticTerm: "urn:arxiv-int:term:page"
+      - name: kind
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: span.kind
+                semanticTerm: "urn:arxiv-int:term:kind"
+      - name: generation_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: span.generationId
+                semanticTerm: "urn:arxiv-int:term:generation-id"
+      - name: contract_version
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: span.contractVersion
+                semanticTerm: "urn:arxiv-int:term:contract-version"

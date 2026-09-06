@@ -1,0 +1,168 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:contract:facts:1.0.0
+name: facts
+status: active
+domain: arxiv-int
+description:
+  purpose: Extracted subject-predicate-object facts with evidence anchors and confidence.
+team:
+  name: arxiv-int
+  members:
+    - username: contracts@arxiv-int.local
+      role: Owner
+servers:
+  - server: normalized-lake
+    type: local
+    description: Partitioned normalized lake under RESULTS_DIR
+    path: normalized/facts
+    format: parquet
+customProperties:
+  - property: x-arxiv-int
+    value:
+      schema: kg
+      table: facts
+      partitionKey: bucket
+schema:
+  - name: facts
+    physicalName: facts
+    logicalType: object
+    properties:
+      - name: fact_id
+        logicalType: string
+        primaryKey: true
+        primaryKeyPosition: 1
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: fact.factId
+                semanticTerm: "urn:arxiv-int:term:fact-id"
+      - name: subject_object_id
+        logicalType: string
+        relationships:
+          - type: foreignKey
+            to: objects.object_id
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: fact.subjectObjectId
+                semanticTerm: "urn:arxiv-int:term:subject-object-id"
+      - name: predicate_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: fact.predicateId
+                semanticTerm: "urn:arxiv-int:term:predicate-id"
+      - name: object_object_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: fact.objectObjectId
+                semanticTerm: "urn:arxiv-int:term:object-object-id"
+      - name: literal_value
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: fact.literalValue
+                semanticTerm: "urn:arxiv-int:term:literal-value"
+      - name: literal_type
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: fact.literalType
+                semanticTerm: "urn:arxiv-int:term:literal-type"
+      - name: status
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: fact.status
+                semanticTerm: "urn:arxiv-int:term:status"
+      - name: confidence
+        logicalType: number
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: fact.confidence
+                semanticTerm: "urn:arxiv-int:term:confidence"
+      - name: document_id
+        logicalType: string
+        relationships:
+          - type: foreignKey
+            to: documents.document_id
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: fact.documentId
+                semanticTerm: "urn:arxiv-int:term:document-id"
+      - name: span_id
+        logicalType: string
+        relationships:
+          - type: foreignKey
+            to: spans.span_id
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: fact.spanId
+                semanticTerm: "urn:arxiv-int:term:span-id"
+      - name: chunk_id
+        logicalType: string
+        relationships:
+          - type: foreignKey
+            to: chunks.chunk_id
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: fact.chunkId
+                semanticTerm: "urn:arxiv-int:term:chunk-id"
+      - name: identity_snapshot_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: fact.identitySnapshotId
+                semanticTerm: "urn:arxiv-int:term:identity-snapshot-id"
+      - name: extractor_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: fact.extractorId
+                semanticTerm: "urn:arxiv-int:term:extractor-id"
+      - name: generation_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: fact.generationId
+                semanticTerm: "urn:arxiv-int:term:generation-id"
+      - name: contract_version
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: fact.contractVersion
+                semanticTerm: "urn:arxiv-int:term:contract-version"

@@ -1,0 +1,35 @@
+metadata:
+  domain: arxiv-int
+  sourceContract: source-occurrences
+  canonicalEntity: source_occurrence
+fieldMappings:
+  - sourceField: occurrence_id
+    binding: source_occurrence.occurrenceId
+    semanticTerm: urn:arxiv-int:term:occurrence-id
+  - sourceField: silo_id
+    binding: source_occurrence.siloId
+    semanticTerm: urn:arxiv-int:term:silo-id
+  - sourceField: relative_path
+    binding: source_occurrence.relativePath
+    semanticTerm: urn:arxiv-int:term:relative-path
+  - sourceField: scan_id
+    binding: source_occurrence.scanId
+    semanticTerm: urn:arxiv-int:term:scan-id
+  - sourceField: content_hash
+    binding: source_occurrence.contentHash
+    semanticTerm: urn:arxiv-int:term:content-hash
+  - sourceField: container_path
+    binding: source_occurrence.containerPath
+    semanticTerm: urn:arxiv-int:term:container-path
+  - sourceField: member_path
+    binding: source_occurrence.memberPath
+    semanticTerm: urn:arxiv-int:term:member-path
+  - sourceField: status
+    binding: source_occurrence.status
+    semanticTerm: urn:arxiv-int:term:status
+  - sourceField: generation_id
+    binding: source_occurrence.generationId
+    semanticTerm: urn:arxiv-int:term:generation-id
+  - sourceField: contract_version
+    binding: source_occurrence.contractVersion
+    semanticTerm: urn:arxiv-int:term:contract-version
