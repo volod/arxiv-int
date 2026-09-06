@@ -154,6 +154,23 @@ def test_database_non_overlap_includes_wal_and_tablespaces(tmp_path: Path) -> No
     assert "PG_TABLESPACE_COLD_DIR" in details
 
 
+def test_derived_roots_may_not_alias_one_tree(tmp_path: Path) -> None:
+    """Aliased derived roots would let one reset erase another root's data."""
+    config = _runtime_config(
+        tmp_path,
+        SERVICE_STATE_DIR=str(tmp_path / "shared"),
+        MODEL_CACHE_DIR=str(tmp_path / "shared/models"),
+    )
+
+    validation = validate_runtime_paths(config, inspector=_evidence)
+
+    assert validation.report.status == "blocked"
+    assert any(
+        finding.name == "SERVICE_STATE_DIR" and "MODEL_CACHE_DIR" in finding.detail
+        for finding in validation.report.findings
+    )
+
+
 def test_storage_mismatches_distinguish_refusals_from_warnings(tmp_path: Path) -> None:
     config = _runtime_config(tmp_path)
 

@@ -1,10 +1,12 @@
 """Read-only contract and local inference readiness checks."""
 
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin
 
+from arxiv_int.readiness.http_transport import local_base
 from arxiv_int.readiness.probes import Probe
 from arxiv_int.readiness.report import PreflightReport
 from arxiv_int.runtime.config_model import RuntimeConfig
+from arxiv_int.runtime.inference_config import inference_base_url, selected_backend
 
 
 def check_contracts(report: PreflightReport, config: RuntimeConfig) -> None:
@@ -42,16 +44,37 @@ def check_contracts(report: PreflightReport, config: RuntimeConfig) -> None:
         )
 
 
+def _vllm_values(values: dict[str, str]) -> dict[str, str]:
+    """Use the model identity actually passed to the selected Compose service."""
+    model = (
+        values["GENERATION_MODEL"] if selected_backend(values) == "vllm" else values["VLLM_MODEL"]
+    )
+    return dict(
+        values,
+        INFERENCE_BACKEND="vllm",
+        GENERATION_MODEL=model,
+        EMBEDDING_MODEL="",
+        RERANK_MODEL="",
+    )
+
+
 def check_inference(
-    report: PreflightReport, config: RuntimeConfig, probe: Probe, timeout: float
+    report: PreflightReport,
+    config: RuntimeConfig,
+    probe: Probe,
+    timeout: float,
+    *,
+    vllm_service: bool = False,
 ) -> None:
     """Inspect the configured local inference API and requested model identities."""
     values = dict(config.values)
-    backend = values.get("INFERENCE_BACKEND", "ollama").lower()
+    if vllm_service:
+        values = _vllm_values(values)
+    backend = selected_backend(values)
+    base_url = inference_base_url(values)
     if backend == "ollama":
-        base_url = values.get("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
-        local_base = _local_base(base_url)
-        if local_base is None:
+        endpoint = local_base(base_url or "")
+        if endpoint is None:
             report.add(
                 "inference.endpoint",
                 "blocked",
@@ -59,11 +82,11 @@ def check_inference(
                 action="set OLLAMA_BASE_URL to http://127.0.0.1:11434",
             )
             return
-        result = probe.get_json(urljoin(local_base, "api/tags"), timeout=timeout)
+        result = probe.get_json(urljoin(endpoint, "api/tags"), timeout=timeout)
         models = _ollama_models(result.payload)
         action = "ollama serve"
     elif backend == "vllm":
-        result = probe.get_json("http://127.0.0.1:8000/v1/models", timeout=timeout)
+        result = probe.get_json(urljoin(f"{base_url}/", "v1/models"), timeout=timeout)
         models = _openai_models(result.payload)
         action = "make services-up SERVICE_PROFILES=vllm"
     else:
@@ -74,17 +97,23 @@ def check_inference(
             action="set INFERENCE_BACKEND to ollama or vllm",
         )
         return
-    if result.status != 200:
+    if result.status != 200 or models is None:
         report.add(
             "inference.endpoint",
             "degraded",
-            f"{backend} local API is unavailable ({result.error or result.status})",
+            f"{backend} local API is unavailable ({result.error or ('invalid model response' if models is None else result.status)})",
             action=action,
         )
         return
     report.add(
         "inference.endpoint", "ready", f"{backend} local API responded; {len(models)} model(s)"
     )
+    _check_models(report, values, models, backend, action)
+
+
+def _check_models(
+    report: PreflightReport, values: dict[str, str], models: set[str], backend: str, action: str
+) -> None:
     configured = {
         value
         for name in ("EMBEDDING_MODEL", "GENERATION_MODEL", "RERANK_MODEL")
@@ -111,26 +140,23 @@ def check_inference(
         report.add("inference.models", "ready", "all configured model identities are available")
 
 
-def _local_base(value: str) -> str | None:
-    parsed = urlparse(value)
-    if parsed.scheme not in {"http", "https"} or parsed.hostname not in {"127.0.0.1", "localhost"}:
+def _ollama_models(payload: object | None) -> set[str] | None:
+    return _model_names(payload, "models", ("name", "model"))
+
+
+def _openai_models(payload: object | None) -> set[str] | None:
+    return _model_names(payload, "data", ("id",))
+
+
+def _model_names(payload: object | None, key: str, fields: tuple[str, ...]) -> set[str] | None:
+    if not isinstance(payload, dict) or not isinstance(payload.get(key), list):
         return None
-    return value.rstrip("/") + "/"
-
-
-def _ollama_models(payload: object | None) -> set[str]:
-    if not isinstance(payload, dict) or not isinstance(payload.get("models"), list):
-        return set()
-    return {
-        str(item.get("name") or item.get("model"))
-        for item in payload["models"]
-        if isinstance(item, dict) and (item.get("name") or item.get("model"))
-    }
-
-
-def _openai_models(payload: object | None) -> set[str]:
-    if not isinstance(payload, dict) or not isinstance(payload.get("data"), list):
-        return set()
-    return {
-        str(item["id"]) for item in payload["data"] if isinstance(item, dict) and item.get("id")
-    }
+    names: set[str] = set()
+    for item in payload[key]:
+        if not isinstance(item, dict):
+            return None
+        name = next((item[field] for field in fields if item.get(field)), None)
+        if not isinstance(name, str) or not name.strip():
+            return None
+        names.add(name)
+    return names

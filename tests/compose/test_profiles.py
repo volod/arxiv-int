@@ -117,6 +117,27 @@ def test_rendered_services_publish_ports_on_loopback_only(
             assert port["host_ip"] == "127.0.0.1"
 
 
+def test_rendered_ports_follow_the_resolved_configuration(
+    tmp_path: Path, rendered_topology: tuple[RuntimeConfig, dict[str, object]]
+) -> None:
+    config, services = rendered_topology
+    published = {
+        name: str(service["ports"][0]["published"])
+        for name, service in services.items()
+        if service.get("ports")
+    }
+    defaults = dict(config.values)
+    overridden = _render_config(_runtime_config(tmp_path, VLLM_PORT="8100"), ("vllm",))
+
+    assert published["database"] == defaults["POSTGRES_PORT"] == "5432"
+    assert published["grafana"] == defaults["GRAFANA_PORT"] == "3000"
+    assert published["age-viewer"] == defaults["AGE_VIEWER_PORT"] == "3001"
+    assert published["prometheus"] == defaults["PROMETHEUS_PORT"] == "9090"
+    assert published["cadvisor"] == defaults["CADVISOR_PORT"] == "8080"
+    assert published["vllm"] == defaults["VLLM_PORT"] == "8000"
+    assert str(overridden["services"]["vllm"]["ports"][0]["published"]) == "8100"
+
+
 def test_rendered_vllm_service_pins_gpu_model_and_revision(
     rendered_topology: tuple[RuntimeConfig, dict[str, object]],
 ) -> None:

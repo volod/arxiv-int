@@ -11,8 +11,31 @@ checkout `.env`, and documented defaults in descending precedence. It discovers 
 explicit project root, resolves relative paths and `${VARIABLE}` references from that checkout, and
 returns a typed immutable `RuntimeConfig`. Missing operator roots identify every variable the
 operator must set. Rendering is stable and masks passwords, tokens, secrets, and database URLs.
-`arxiv_int.runtime.config_model` owns the immutable values, while `arxiv_int.runtime.dotenv` keeps
-file parsing dependency-free.
+`arxiv_int.runtime.config_model` owns the immutable values, `arxiv_int.runtime.config_schema` owns
+the documented variable registry -- names, defaults, the service ports and the value rules -- and
+`arxiv_int.runtime.dotenv` owns the file grammar and reference expansion, dependency-free.
+
+Resolution order is fixed: precedence, then documented defaults, then reference expansion, then
+path resolution. Because references expand last, overriding `RESULTS_DIR` from the process
+environment also moves every root that references it, and the same override produces the same roots
+through Make, a direct CLI call and readiness. An explicitly empty value selects the documented
+default; a required operator root left empty is reported as missing. References expand in `*_DIR`
+variables only, so a `$` in a password or URL stays literal. They may nest, and a cycle, an
+undefined name or an empty referenced value is refused by variable name. `.env.example` documents
+the supported subset and the shell syntax that is deliberately not supported.
+
+`arxiv_int.runtime.project_root` owns the one checkout discovery every entry point uses: an
+explicit option, then `PROJECT_ROOT`, then the module's own checkout, then the working directory.
+A declared root that is not a checkout is refused rather than silently replaced, so an alternate
+checkout invoked from a foreign working directory keeps its own roots. Readiness reports a
+non-checkout root as a blocked `config.root` finding instead of failing. `arxiv_int.quality`
+reuses the same ancestor walk with its stricter repository markers.
+
+`arxiv_int.runtime.inference_config` owns the backend selection and the local endpoint, so the
+readiness probe follows the configured `VLLM_PORT` instead of a fixed one. Service ports resolve
+once with the defaults `docker/compose.yaml` declares (`POSTGRES_PORT` 5432, `GRAFANA_PORT` 3000,
+`AGE_VIEWER_PORT` 3001, `PROMETHEUS_PORT` 9090, `CADVISOR_PORT` 8080, `VLLM_PORT` 8000); a
+non-numeric or out-of-range port is refused before any command runs.
 
 The three required operator placements are one or more archive silos, `RESULTS_DIR`, and
 `PGDATA_DIR`. `ARCHIVE_DIR` is the one-silo form with id `default`; additional or alternative silos
@@ -23,20 +46,39 @@ overridden. Optional `PG_WAL_DIR` and `PG_TABLESPACE_<NAME>_DIR` roots remain un
 are no development-only archive aliases or result roots; stage implementations use the normal
 operator paths immediately.
 
-`scripts/shared/common.sh` loads the same checkout `.env` without replacing variables already in
-the process environment. This preserves Make and shell overrides while retaining the adaptive uv
-link mode and repository-local tool-cache behavior.
+`scripts/shared/dotenv.sh`, sourced by `scripts/shared/common.sh`, implements the same documented
+grammar and the same precedence, defaults and reference order in dependency-free bash, because the
+bootstrap runs before the virtual environment exists. It parses the file instead of executing it,
+so a value is never run as shell, and it exports the resolved absolute `*_DIR` values the Python
+entry points then re-resolve identically. Paired fixtures in `tests/config/test_parity.py` hold the
+two implementations to one result for defaults, overrides, nested references, quotes and spaces,
+explicit empty values, invalid input and foreign working directories. Reading resolves without
+mutating the process environment or the checkout; `make bootstrap` remains the only step that
+appends to `.env`.
+
+`make` derives its tool-cache root from the same resolved `DATA_DIR` through
+`arxiv_int_data_root`, so linter, type-checker, test and complexity caches follow the operator's
+selected location instead of a separate checkout-relative default. `DATA_DIR=` on the command line
+still overrides both.
 
 ## Path safety and storage evidence
 
+`arxiv_int.runtime.containment` owns one protected-root policy that every destructive or
+report-writing action reuses. Containment is symmetric: a candidate is refused when it is a
+protected root, lies beneath one, or encloses one. Each root declares whether its strict
+descendants stay allowed, so service-data roots derived from `RESULTS_DIR` remain erasable while
+`RESULTS_DIR` itself and any ancestor of it do not. The module also owns the fail-closed
+`resolve_allowed_path()` resolution used elsewhere in the runtime.
+
 `arxiv_int.runtime.validate_runtime_paths()` operates on resolved real paths, accumulates all
 findings, and does not create directories. It refuses filesystem-root targets; source, results,
-database, WAL, and tablespace overlaps; output inside or around the checkout; symlink-resolved
-escapes; unreadable sources; and unwritable or full destinations. Archive directories may have host
-write permission: read-only is a pipeline access contract, not a filesystem-mode requirement.
-Database roots on a filesystem without PostgreSQL-compatible ownership and exclusive-use semantics
-are blocked. Rotational storage is accepted for database, scratch, and model placements; its measured
-flag is informational. Non-owning service-state placements remain degraded warnings.
+database, WAL, and tablespace overlaps; two derived roots that alias one tree; output inside or
+around the checkout; symlink-resolved escapes; unreadable sources; and unwritable or full
+destinations. Archive directories may have host write permission: read-only is a pipeline access
+contract, not a filesystem-mode requirement. Database roots on a filesystem without
+PostgreSQL-compatible ownership and exclusive-use semantics are blocked. Rotational storage is
+accepted for database, scratch, and model placements; its measured flag is informational. Non-owning
+service-state placements remain degraded warnings.
 
 `arxiv_int.runtime.inspect_filesystem()` records the resolved path, filesystem type, device id,
 rotational flag when the operating system exposes it, accessible free bytes, ownership capability,
@@ -62,7 +104,8 @@ logs configured secrets.
 
 `arxiv-int readiness`, wrapped by `make readiness`, accumulates configuration, tool, RAM/GPU, path,
 filesystem, free-space, Compose health, database extension, migration, contract, local inference API,
-and configured-model checks into one report. Every configured root is represented once with its
+and configured-model checks into one report for the default `pipeline` selection. Every configured
+root in that full audit is represented once with its
 resolved path, required storage class, filesystem type, device id, rotational flag, accessible free
 bytes, and combined placement status. The path check reuses the same validation as runtime startup,
 so an unsupported or non-owning database filesystem is blocked and non-owning service state is
@@ -75,7 +118,12 @@ passwords, secrets, tokens, or database URLs. On an interactive terminal, degrad
 yellow and blocked finding lines are red; redirected output and JSON remain free of terminal escape
 codes. An atomic JSON form with mode `0600` is written to
 `$RESULTS_DIR/reports/readiness.json`; `--json-report` may select another location beneath
-`RESULTS_DIR`, and `--no-json-report` disables persistence.
+`RESULTS_DIR`, and `--no-json-report` disables persistence. The destination is resolved through
+symlinks and checked against the shared protected roots -- the checkout, every archive silo, the
+proof archive, and the database cluster, write-ahead log, and tablespace roots -- so an invalid
+roots configuration blocks persistence instead of writing into protected data. The check is
+repeated after the report directory is created and immediately before the write, so a link swapped
+in between cannot redirect the report.
 
 Console findings are visually separated by environment/tools, host resources, configuration,
 storage, services, database, contracts, inference, and report persistence. Bootstrap additionally
@@ -90,6 +138,19 @@ extension check connects with the configured `POSTGRES_USER` / `POSTGRES_DB` rol
 auth as the container OS UID, because Compose runs the database as `RUNTIME_UID`. The setup and
 remediation workflow is in the [workstation setup guide](../../guide/setup.md).
 
+Readiness passes `PGPASSWORD` by name through the Compose process environment, keeping its value
+out of argv. Query failures use stable diagnostics; reported versions redact the password. Required
+extensions must have installed versions, independently of package availability; graph selection
+also requires AGE. The probe does not install extensions.
+
+Local inference HTTP bypasses proxies, refuses all redirects and credential-bearing URLs, and caps
+JSON bodies at 1 MiB. Socket timeouts and a remaining-budget socket shutdown bound transport reads;
+malformed JSON/model lists and transport failures cannot produce a ready endpoint. Only HTTP/HTTPS
+loopback hosts are accepted; query strings, fragments and invalid ports are refused. `localhost`
+uses literal IPv4 loopback, including HTTPS certificate identity validation. IPv6 `::1` is supported.
+Configured backend ports remain shared with Compose. See the
+[accepted probe-safety record](../records/refactor-readiness-probe-safety.md) for evidence and limits.
+
 ## Local service topology
 
 `docker/compose.yaml` defines one loopback-only bridge topology with explicit profiles. `core` runs
@@ -102,9 +163,28 @@ tensor parallelism; services without CUDA work remain CPU-only.
 
 The operator alias `pipeline` expands to `core ui observability`. It is the default for readiness and
 service Make/CLI commands. The normal inference check targets a running host Ollama service. vLLM is
-an alternate only when `vllm` is explicitly included in `SERVICE_PROFILES` and
-`INFERENCE_BACKEND=vllm` is configured. `graph`, `vllm`, and privileged `cadvisor` remain explicit
-opt-ins.
+explicitly checked when `vllm` is included in `SERVICE_PROFILES`, using the model identity
+passed to Compose even when the pipeline backend remains Ollama. `graph`, `vllm`, and privileged
+`cadvisor` remain explicit opt-ins.
+
+`runtime/service_plan.py` owns the typed service plan, profile map, alias expansion, extension
+requirements and CLI profile help. Rendered Compose fixtures verify that every profile selects the
+same services. Explicit profile arguments override ambient `COMPOSE_PROFILES` values. Empty profile
+requests retain the `pipeline` default; omitting a profile disables its service-specific checks.
+Core-only readiness checks the database without archive, UI or inference availability checks.
+vLLM-only readiness checks its cache, GPU, endpoint and served generation model without requiring a
+database password, database disks or extensions. Combined requests take the union; the full
+`pipeline` topology retains the existing archive, contract and configured-backend audit. All roots
+must still resolve in configuration, and all configured containment boundaries remain enforced.
+
+Compose command construction is pure, with an explicit base builder reused by database probing.
+`config` and `up` retain the common results skeleton, runs and temporary directories, but prepare
+only selected database, model-cache and per-service state directories. Unselected archive mounts
+need not be available. `status`, `down` and `logs` perform no disk inspection or layout preparation.
+Log service arguments must name services in the selected plan; invalid names and negative tails
+are refused before preparation. Reset keeps its existing project-wide root policy. See the
+[accepted service-planning record](../records/refactor-profile-aware-service-planning.md) for
+regressions and verification limits.
 
 `runtime/inference_config.py` resolves generation defaults after configuration precedence:
 `qwen3.8:27b` for Ollama, or `VLLM_MODEL` and `VLLM_MODEL_REVISION` for vLLM. Explicit
@@ -153,35 +233,41 @@ the operator once before `make services-up` can pass the writable-path preflight
 database-bearing profile until `POSTGRES_PASSWORD` is configured. `make services-config` validates
 without starting containers. The vLLM defaults pin v0.26.0 plus the official Qwen3.8 27B FP8 model
 revision, allow 24 GB of CPU offload for a 16 GB GPU host, and cap the initial context at 32,768
-tokens; `.env` can tune tensor parallelism, offload, GPU utilization, and context length.
-`make services-status`, `make logs`, and `make services-down` remain
-available without rerunning the mutating path preflight, so an operator can inspect or stop the
-project even when a runtime disk is unavailable. `make services-down` stops Compose containers and
-keeps bind-mounted roots (`PGDATA_DIR`, `SERVICE_STATE_DIR`, `MODEL_CACHE_DIR`, and optional WAL or
-tablespace directories) intact for the next `make services-up`. `make services-reset` also stops
-containers, then lists those service-data roots; pass `APPLY=1` (or `arxiv-int services reset
---apply`) to erase their contents after stop. Reset refuses the checkout, archive silos,
-`PROOF_ARCHIVE_DIR`, and `RESULTS_DIR` itself. `LOG_SERVICES`, `LOG_TAIL`, and `LOG_FOLLOW=1`
+tokens; `.env` can tune tensor parallelism, offload, GPU utilization, and context length. `make
+services-status`, `make logs`, and `make services-down` remain available without rerunning the
+mutating path preflight, so an operator can inspect or stop the project even when a runtime disk is
+unavailable. `make services-down` stops Compose containers and keeps bind-mounted roots
+(`PGDATA_DIR`, `SERVICE_STATE_DIR`, `MODEL_CACHE_DIR`, and optional WAL or tablespace directories)
+intact for the next `make services-up`. `make services-reset` first resolves and accepts every
+service-data root, then stops containers and lists those roots; pass `APPLY=1` (or `arxiv-int
+services reset --apply`) to erase their contents after stop. An unsafe target is refused before any
+service is stopped. Reset refuses a root that is, contains, or lies inside the checkout, an archive
+silo, or `PROOF_ARCHIVE_DIR`, and refuses `RESULTS_DIR` itself or any ancestor of it. Each target is
+revalidated immediately before deletion, so a directory replaced by a symlink into protected data
+after planning is refused rather than followed. `LOG_SERVICES`, `LOG_TAIL`, and `LOG_FOLLOW=1`
 control bounded log selection. `make graph-up` and `make ui-up` are profile shortcuts; additional or
 combined profiles use `SERVICE_PROFILES="core ui observability"`.
 
 ## Tests and verification
 
-Tests under `tests/config/` cover layer precedence, shell precedence, checkout and current-directory
-independence, paths containing spaces, named silos, derived overrides, variable references,
-redaction, missing values, root and symlink hazards, all root-overlap boundaries, readable source
-permissions, writable proof-directory acceptance, free space, distinct device evidence, results
-layout creation, and
-storage-class refusal versus warning fixtures. Tests under `tests/compose/` render every profile and
-the supported combined topology through Docker Compose without starting services. They cover image
-pins, loopback ports, healthchecks, stop policy, generated WAL and tablespace mounts, writable state
-isolation, read-only provisioning, `pipeline` alias expansion, required-service healthchecks and
-`up --wait`, password refusal, cleanup, quiet redaction, and the Make entry points. Readiness
-operator scenarios cover ready, degraded, and blocked aggregation; command
-timeouts; unavailable services and inference; model presence; unsupported, non-owning, and
-rotational storage; consolidated root evidence; report containment and permissions; distinct exit
-codes; and secret redaction without network access. CLI coverage proves explicit config options and
-redacted output. Configuration and rendered Compose checks cover backend defaults, operator model
-overrides, and separation of Ollama tags from vLLM identifiers. The required
-format, lint, typing, complexity, shell, documentation, plan-integrity, and deterministic test gates
-pass.
+Tests under `tests/config/` cover layer precedence, paired shell/Python resolution and refusal,
+project-root selection, service-port defaults and validation, shell precedence, checkout and
+current-directory independence, paths containing spaces, named silos, derived overrides, variable references,
+redaction, missing values, root and symlink hazards, all root-overlap boundaries, derived-root
+aliasing, readable source permissions, writable proof-directory acceptance, free space, distinct
+device evidence, results layout creation, and storage-class refusal versus warning fixtures. Tests
+under `tests/compose/` render every profile and the supported combined topology through Docker
+Compose without starting services. They cover image pins, loopback ports, healthchecks, stop policy,
+generated WAL and tablespace mounts, writable state isolation, read-only provisioning, `pipeline`
+alias expansion, required-service healthchecks and `up --wait`, password refusal, cleanup, quiet
+redaction, and the Make entry points. Reset coverage includes ancestor and descendant containment
+for the checkout, archive silos and the proof archive, refusal before the stop command runs, and a
+symlink swapped in after planning. Readiness operator scenarios cover ready, degraded, and blocked
+aggregation; command timeouts; unavailable services and inference; model presence; unsupported,
+non-owning, and rotational storage; consolidated root evidence; report containment and permissions;
+distinct exit codes; report refusal inside proof and database roots, around the checkout, and
+through a symlink out of `RESULTS_DIR`; and secret redaction without network access. CLI coverage
+proves explicit config options and redacted output. Configuration and rendered Compose checks cover
+backend defaults, operator model overrides, and separation of Ollama tags from vLLM identifiers. The
+required format, lint, typing, complexity, shell, documentation, plan-integrity, and deterministic
+test gates pass.

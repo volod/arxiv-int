@@ -8,139 +8,6 @@ ordering, and lifecycle rules belong in the
 
 ## Agent Implementation Tasks
 
-### Project foundation -- `project-foundation`
-
-#### enforce-task-record-and-checkpoint-integrity
-
-Make task handoff records and review dependencies verifiable instead of relying on summaries.
-
-- Serves: `project-foundation` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
-- Agent status: CLEAR
-- Task kind: implementation
-- Audit inputs: [AUD-codebase-09](records/codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: [Quality baseline repair](records/restore-quality-gate-baseline.md);
-[Task records](records/README.md).
-- User-visible outcome: Task requirements survive plan removal; missing evidence, unresolved review
-blockers and dangling dependency ids cannot be mistaken for completed prerequisites.
-- Scope boundary: Extend the existing plan parser/checker and summary; no task database, Git rewrite,
-model selection automation, or fabricated records for old tasks.
-- Data and artifact paths: `src/arxiv_int/quality/{plan_model,plan_integrity,plan_summary}.py`, `tests/quality/`,
-`docs/impl/records/`, and `$DATA_DIR/governance-checks/<run-id>/`.
-- Execution path: Preserve complete multiline fields and fenced accepted task snapshots; resolve dependencies
-against open tasks or accepted records, distinguish conditional references, detect cycles, validate
-record/checkpoint/note links and statuses, and make next-task output respect prerequisites.
-- Acceptance gates: Regression fixtures cover lost continuation lines, dangling/archived ids, cycles,
-conditional branches, missing snapshots/evidence, unresolved blocking notes and valid no-refactor reviews;
-existing structure/order checks remain strict and make ci passes.
-- Documentation target: `docs/impl/current/governance.md`
-- Review checkpoint: `review-foundation-and-store-boundaries`.
-
-### Portable runtime -- `portable-runtime`
-
-#### refactor-safe-runtime-root-boundaries
-
-Unify protected-root checks before any reset deletion or readiness-report write.
-
-- Serves: `portable-runtime` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
-- Agent status: CLEAR
-- Task kind: refactor
-- Audit inputs: [AUD-codebase-01, AUD-codebase-02](records/codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: Runtime and readiness paths documented in [Portable runtime](current/portable-runtime.md).
-- User-visible outcome: Archive, proof, checkout and canonical data stay protected even when
-configuration is
-invalid, a selected reset root contains a source, or a report path enters a protected subtree.
-- Scope boundary: Refactor shared containment policy and fix verified refusal gaps first; no real reset,
-source mutation, broad runtime rewrite or change to ordinary service-stop behavior.
-- Data and artifact paths: `runtime/{paths,service_reset,path_model}.py`, `readiness/run.py` under `src/arxiv_int/`,
-`tests/config/`, `tests/compose/`, `tests/readiness/`, and disposable test roots.
-- Execution path: Reproduce the non-mutating cases in the codebase review; use symmetric ancestor/descendant
-checks for protected roots, action-specific allowed children, derived-root overlap rules and
-pre-write revalidation; reject unsafe reset targets before stopping services.
-- Acceptance gates: Failing regressions cover a reset root containing an archive/checkout/results tree,
-report destinations inside proof/database roots, derived-root aliasing, symlink swaps and invalid
-configurations; safe fixture operations retain their semantics and make ci passes.
-- Documentation target: `docs/impl/current/portable-runtime.md`
-- Review checkpoint: `review-foundation-and-store-boundaries`.
-
-#### refactor-runtime-configuration-parity
-
-Resolve the same configuration through Make, direct CLI and readiness without precedence drift.
-
-- Serves: `portable-runtime` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
-- Agent status: CLEAR
-- Task kind: refactor
-- Audit inputs: [AUD-codebase-08](records/codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: `refactor-safe-runtime-root-boundaries`.
-- User-visible outcome: Operator overrides, referenced roots and selected model/port values agree
-across entry
-points, including roots containing spaces and an alternate checkout.
-- Scope boundary: Consolidate configuration ownership and the supported dotenv subset; preserve documented
-precedence, append-sync behavior and local path rules. Do not rewrite the operator environment.
-- Data and artifact paths: `src/arxiv_int/runtime/{config,dotenv,inference_config}.py`, shared root discovery,
-`scripts/shared/common.sh`, Make cache setup, and `tests/config/`.
-- Execution path: Add a paired shell/Python regression for an overridden RESULTS_DIR referenced by RUNS_DIR;
-resolve references after precedence, reject cyclic/missing references, document unsupported syntax,
-and centralize applicable port/backend settings and project-root discovery without parallel parsers.
-- Acceptance gates: Paired fixtures agree for defaults, overrides, nested references, quotes/spaces,
-explicit
-empty values, invalid inputs and foreign working directories; no environment/file mutation occurs
-during reads; cache placement follows the selected DATA_DIR; make ci passes.
-- Documentation target: `docs/impl/current/portable-runtime.md`
-- Review checkpoint: `review-foundation-and-store-boundaries`.
-
-#### refactor-profile-aware-service-planning
-
-Separate service request planning from filesystem preparation and reuse one profile definition.
-
-- Serves: `portable-runtime` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
-- Agent status: CLEAR
-- Task kind: refactor
-- Audit inputs: [AUD-codebase-11](records/codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: `refactor-runtime-configuration-parity`.
-- User-visible outcome: A core or vLLM-only request checks and prepares the selected services and reports
-the same
-selection in Compose, readiness and CLI help.
-- Scope boundary: Keep existing operator commands and documented config/layout effects unless a specified
-defect requires a regression fix; no service startup or data reset against operator roots.
-- Data and artifact paths: `src/arxiv_int/runtime/compose.py`, `src/arxiv_int/readiness/{checks,run,database}.py`,
-`src/arxiv_int/cli.py`, `docker/compose.yaml`, and `tests/compose/`.
-- Execution path: Extract a typed service plan and shared profile/service map; derive
-applicable path, password,
-model and extension checks from it; separate pure command construction from layout creation;
-replace positional command slicing in database probing with an explicit Compose base builder.
-- Acceptance gates: Fixture cases cover core, vLLM-only, combined and disabled profiles,
-non-default ports,
-missing unselected archives/services, unavailable disks during status/down, and bounded command
-arguments; parity with rendered Compose and existing valid commands is preserved; make ci passes.
-- Documentation target: `docs/impl/current/portable-runtime.md`
-- Review checkpoint: `review-foundation-and-store-boundaries`.
-
-#### refactor-readiness-probe-safety
-
-Harden local readiness transport and distinguish installed extensions from available packages.
-
-- Serves: `portable-runtime` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
-- Agent status: CLEAR
-- Task kind: refactor
-- Audit inputs: [AUD-codebase-03, AUD-codebase-04, AUD-codebase-12](records/codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: `refactor-profile-aware-service-planning`.
-- User-visible outcome: Readiness keeps credentials out of process arguments and cannot report
-absent extension
-installation as ready or silently follow an inference probe away from the host.
-- Scope boundary: Repair existing read-only probes and tests; no new inference engine, remote service,
-implicit extension installation, credential rotation or running database mutation.
-- Data and artifact paths: `src/arxiv_int/readiness/{database,inference,probes}.py`,
-probe protocols and
-`tests/readiness/`; only synthetic credential markers in fixtures.
-- Execution path: Pass database credentials through a supported environment/secret boundary without values
-in argv; parse available/installed identities separately; reuse resolved backend ports; bound
-HTTP response bytes, redirects and time, reject credentials in URLs, and normalize transport errors.
-- Acceptance gates: Regression tests assert secret-free command/log/error text, available-but-uninstalled
-extensions fail applicability gates, oversized/malformed responses fail safely, nonlocal redirects
-are refused and configured endpoint ports are honored; fake transports keep tests network-free.
-- Documentation target: `docs/impl/current/portable-runtime.md`
-- Review checkpoint: `review-foundation-and-store-boundaries`.
-
 ### Contract governance -- `contract-governance`
 
 #### refactor-contract-identity-and-reference-validation
@@ -380,7 +247,9 @@ Review the integrated milestone before pipeline control and corpus adapters.
 - Serves: `canonical-store` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
 - Agent status: CLEAR
 - Task kind: checkpoint
-- Dependencies: `implement-rebuildable-search-and-graph-projections`; `refactor-readiness-probe-safety`;
+- Audit inputs: [AUD-safe-runtime-root-boundaries-1](records/refactor-safe-runtime-root-boundaries.md#audit-handoff);
+[AUD-runtime-configuration-parity-1, AUD-runtime-configuration-parity-2](records/refactor-runtime-configuration-parity.md#audit-handoff).
+- Dependencies: `implement-rebuildable-search-and-graph-projections`; [Readiness probe safety](records/refactor-readiness-probe-safety.md);
 `refactor-contract-identity-and-reference-validation`; `enforce-task-record-and-checkpoint-integrity`.
 - User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
 or blocked
@@ -416,7 +285,7 @@ embeddings, health, model identity, timeout, and cancellation.
 - Dependencies: Feature groups and domain interfaces described in
 [Project foundation](current/project-foundation.md#feature-groups); runtime roots documented in
 [Portable runtime](current/portable-runtime.md).
-`refactor-readiness-probe-safety`.
+[Readiness probe safety](records/refactor-readiness-probe-safety.md).
 - User-visible outcome: The same extraction/retrieval code can use the Ollama system service or an
 optional vLLM container through explicit configuration.
 - Scope boundary: Local endpoints only; no hosted fallback, implicit model pull, or systemd
@@ -2251,7 +2120,8 @@ Review the integrated milestone before any real copy/move plan authorization.
 - Serves: `archive-organization` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
 - Agent status: CLEAR
 - Task kind: checkpoint
-- Dependencies: `prove-archive-organization-on-provided-artifacts`; `refactor-safe-runtime-root-boundaries`.
+- Dependencies: `prove-archive-organization-on-provided-artifacts`;
+[Safe runtime root boundaries](records/refactor-safe-runtime-root-boundaries.md).
 - User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
 or blocked
 for the named consumers; no-refactoring-needed is a valid conclusion.

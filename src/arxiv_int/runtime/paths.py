@@ -1,12 +1,12 @@
 """Safe runtime path resolution, inspection, and layout creation."""
 
 import os
-from collections.abc import Callable, Sequence
+from collections.abc import Callable
 from pathlib import Path
-from typing import Literal
 
 from arxiv_int.readiness.report import CheckStatus, PreflightReport
 from arxiv_int.runtime.config_model import RuntimeConfig
+from arxiv_int.runtime.containment import overlaps
 from arxiv_int.runtime.filesystem import (
     DATABASE_FILESYSTEMS,
     FilesystemEvidence,
@@ -15,8 +15,6 @@ from arxiv_int.runtime.filesystem import (
 )
 from arxiv_int.runtime.path_model import PathValidation, RootPlacement, runtime_placements
 
-PathKind = Literal["any", "file", "directory"]
-
 _RESULTS_CHILDREN = ("normalized", "quarantine", "proofs", "exports")
 _DERIVED_VARIABLES = {
     "RUNS_DIR",
@@ -24,30 +22,6 @@ _DERIVED_VARIABLES = {
     "MODEL_CACHE_DIR",
     "TMP_DIR",
 }
-
-
-def resolve_allowed_path(
-    candidate: str | Path,
-    allowed_roots: Sequence[str | Path],
-    *,
-    kind: PathKind = "any",
-) -> Path | None:
-    """Resolve a path through symlinks and fail closed outside allowed roots."""
-    if not allowed_roots:
-        return None
-    resolved = Path(candidate).expanduser().resolve()
-    roots = tuple(Path(root).expanduser().resolve() for root in allowed_roots)
-    if not any(resolved == root or root in resolved.parents for root in roots):
-        return None
-    if kind == "file" and not resolved.is_file():
-        return None
-    if kind == "directory" and not resolved.is_dir():
-        return None
-    return resolved
-
-
-def _overlaps(left: Path, right: Path) -> bool:
-    return left == right or left in right.parents or right in left.parents
 
 
 def _check_targets(
@@ -60,12 +34,25 @@ def _check_targets(
                 "blocked",
                 f"{placement.variable} may not target a filesystem root",
             )
-        if placement.output and _overlaps(placement.path, config.project_root):
+        if placement.output and overlaps(placement.path, config.project_root):
             report.add(
                 placement.variable,
                 "blocked",
                 f"change {placement.variable}; output overlaps the checkout",
             )
+
+
+def _report_pairwise_overlaps(
+    group: list[RootPlacement], report: PreflightReport, remedy: str
+) -> None:
+    for index, left in enumerate(group):
+        for right in group[index + 1 :]:
+            if overlaps(left.path, right.path):
+                report.add(
+                    left.variable,
+                    "blocked",
+                    f"{left.variable} overlaps {right.variable}; {remedy}",
+                )
 
 
 def _check_independent_roots(
@@ -76,14 +63,13 @@ def _check_independent_roots(
         for placement in placements
         if placement.variable not in _DERIVED_VARIABLES | {"PROOF_ARCHIVE_DIR"}
     ]
-    for index, left in enumerate(primary):
-        for right in primary[index + 1 :]:
-            if _overlaps(left.path, right.path):
-                report.add(
-                    left.variable,
-                    "blocked",
-                    f"{left.variable} overlaps {right.variable}; change one root",
-                )
+    _report_pairwise_overlaps(primary, report, "change one root")
+
+
+def _check_derived_aliasing(placements: tuple[RootPlacement, ...], report: PreflightReport) -> None:
+    """Refuse two derived roots that alias one tree, which a reset would erase together."""
+    derived = [item for item in placements if item.variable in _DERIVED_VARIABLES]
+    _report_pairwise_overlaps(derived, report, "change one derived root")
 
 
 def _check_proof_overlap(placements: tuple[RootPlacement, ...], report: PreflightReport) -> None:
@@ -91,7 +77,7 @@ def _check_proof_overlap(placements: tuple[RootPlacement, ...], report: Prefligh
     if proof is None:
         return
     for output in (item for item in placements if item.output):
-        if _overlaps(output.path, proof.path):
+        if overlaps(output.path, proof.path):
             report.add(
                 output.variable,
                 "blocked",
@@ -114,7 +100,7 @@ def _check_derived_roots(
         for root in primary:
             if root.variable in {"RESULTS_DIR", "PROOF_ARCHIVE_DIR"}:
                 continue
-            if _overlaps(output.path, root.path):
+            if overlaps(output.path, root.path):
                 report.add(
                     output.variable,
                     "blocked",
@@ -129,6 +115,7 @@ def _check_dangerous_and_overlapping(
     _check_independent_roots(placements, report)
     _check_proof_overlap(placements, report)
     _check_derived_roots(config, placements, report)
+    _check_derived_aliasing(placements, report)
 
 
 def _output_permission_finding(
@@ -188,6 +175,7 @@ def validate_runtime_paths(
     config: RuntimeConfig,
     *,
     inspector: Callable[[Path], FilesystemEvidence] = inspect_filesystem,
+    variables: frozenset[str] | None = None,
 ) -> PathValidation:
     """Resolve every root and accumulate safety and storage-class findings."""
     report = PreflightReport("runtime paths")
@@ -195,6 +183,8 @@ def validate_runtime_paths(
     _check_dangerous_and_overlapping(config, placements, report)
     inspected: list[tuple[RootPlacement, FilesystemEvidence]] = []
     for placement in placements:
+        if variables is not None and placement.variable not in variables:
+            continue
         evidence = inspector(placement.path)
         inspected.append((placement, evidence))
         permission = _permission_finding(placement, evidence)
@@ -205,22 +195,20 @@ def validate_runtime_paths(
     return PathValidation(tuple(inspected), report)
 
 
-def create_results_layout(config: RuntimeConfig, validation: PathValidation) -> tuple[Path, ...]:
+def create_results_layout(
+    config: RuntimeConfig, validation: PathValidation, *, variables: frozenset[str] | None = None
+) -> tuple[Path, ...]:
     """Create only the documented output skeleton after all path checks pass."""
     validation.report.require_ready()
-    directories = [
-        *(config.results_dir / name for name in _RESULTS_CHILDREN),
-        config.runs_dir,
-        config.service_state_dir,
-        config.model_cache_dir,
-        config.tmp_dir,
-    ]
+    directories = [config.results_dir / name for name in _RESULTS_CHILDREN]
     for directory in directories:
         directory.mkdir(parents=True, exist_ok=True)
-    database_directories = [config.pgdata_dir]
-    if config.pg_wal_dir is not None:
-        database_directories.append(config.pg_wal_dir)
-    database_directories.extend(path for _, path in config.pg_tablespaces)
-    for directory in database_directories:
-        directory.mkdir(mode=0o700, parents=True, exist_ok=True)
-    return tuple((*directories, *database_directories))
+    for placement in runtime_placements(config):
+        if not placement.output or placement.variable == "RESULTS_DIR":
+            continue
+        if variables is not None and placement.variable not in variables:
+            continue
+        mode = 0o700 if placement.storage_class == "database" else 0o777
+        placement.path.mkdir(mode=mode, parents=True, exist_ok=True)
+        directories.append(placement.path)
+    return tuple(directories)

@@ -15,11 +15,17 @@ from arxiv_int.readiness.database import check_database
 from arxiv_int.readiness.inference import check_contracts, check_inference
 from arxiv_int.readiness.probes import LocalProbe, Probe
 from arxiv_int.readiness.report import CheckStatus, PreflightFinding, PreflightReport
-from arxiv_int.runtime.compose import parse_profiles
 from arxiv_int.runtime.config import ConfigurationError, load_runtime_config
 from arxiv_int.runtime.config_model import RuntimeConfig
+from arxiv_int.runtime.containment import (
+    containment_violation,
+    contains,
+    report_protected_roots,
+)
 from arxiv_int.runtime.filesystem import FilesystemEvidence, existing_ancestor, inspect_filesystem
 from arxiv_int.runtime.paths import validate_runtime_paths
+from arxiv_int.runtime.project_root import ProjectRootError, find_project_root
+from arxiv_int.runtime.service_plan import ServicePlan, plan_services
 
 DEFAULT_REPORT_NAME = "readiness.json"
 
@@ -48,10 +54,19 @@ def run_readiness(
         raise ValueError("readiness timeout must be greater than zero")
     active_probe = probe or LocalProbe()
     report = PreflightReport("fresh-copy readiness")
-    root = _project_root(project_root)
+    try:
+        root = find_project_root(project_root, environment)
+    except ProjectRootError as error:
+        report.add(
+            "config.root",
+            "blocked",
+            str(error),
+            action="run make targets from a checkout or set PROJECT_ROOT to one",
+        )
+        return ReadinessResult(report, None)
     check_tools(report, active_probe, root, timeout)
     try:
-        selected_profiles = parse_profiles(profiles)
+        plan = plan_services(profiles)
     except ValueError as error:
         report.add(
             "config.profiles",
@@ -59,13 +74,13 @@ def run_readiness(
             str(error),
             action="set SERVICE_PROFILES to documented profile names",
         )
-        selected_profiles = parse_profiles("pipeline")
+        plan = plan_services("pipeline")
     check_resources(
         report,
         active_probe,
         root,
         timeout,
-        require_gpu="vllm" in selected_profiles,
+        require_gpu="vllm" in plan.services,
     )
     try:
         config = load_runtime_config(project_root=root, environment=environment)
@@ -78,41 +93,37 @@ def run_readiness(
         )
         return ReadinessResult(report, None)
     report.add("config.runtime", "ready", "runtime configuration resolved; secrets are masked")
-    check_password(report, config)
-    _check_paths(report, config, inspector)
-    database_healthy = check_services(report, config, selected_profiles, active_probe, timeout)
+    if plan.database:
+        check_password(report, config)
+    _check_paths(report, config, inspector, plan)
+    database_healthy = check_services(report, config, plan.profiles, active_probe, timeout)
     check_database(
         report,
         config,
-        selected_profiles,
+        plan.profiles,
         active_probe,
         timeout,
         database_healthy=database_healthy,
     )
-    check_contracts(report, config)
-    check_inference(report, config, active_probe, timeout)
+    if plan.pipeline:
+        check_contracts(report, config)
+    if plan.inference:
+        check_inference(report, config, active_probe, timeout, vllm_service="vllm" in plan.services)
     destination = report_path or config.results_dir / "reports" / DEFAULT_REPORT_NAME
     persisted = _persist_report(report, config, destination) if persist else None
     return ReadinessResult(report, persisted)
-
-
-def _project_root(explicit: Path | None) -> Path:
-    if explicit is not None:
-        return explicit.resolve()
-    for start in (Path.cwd(), Path(__file__).resolve()):
-        for candidate in (start, *start.parents):
-            if (candidate / "pyproject.toml").is_file():
-                return candidate
-    return Path.cwd().resolve()
 
 
 def _check_paths(
     report: PreflightReport,
     config: RuntimeConfig,
     inspector: Callable[[Path], FilesystemEvidence],
+    plan: ServicePlan,
 ) -> None:
     try:
-        validation = validate_runtime_paths(config, inspector=inspector)
+        validation = validate_runtime_paths(
+            config, inspector=inspector, variables=plan.path_variables(config, readiness=True)
+        )
     except OSError as error:
         report.add(
             "paths",
@@ -158,6 +169,34 @@ def _check_paths(
         )
 
 
+def _destination_refusal(config: RuntimeConfig, destination: Path) -> str | None:
+    """Return why a resolved report destination is unsafe, or None when it is allowed."""
+    results = config.results_dir.resolve()
+    if results == Path(results.anchor):
+        return "RESULTS_DIR may not be a filesystem root"
+    if not contains(results, destination):
+        return "JSON report destination must stay inside RESULTS_DIR"
+    roots = report_protected_roots(config)
+    violation = containment_violation(destination, roots) or containment_violation(results, roots)
+    if violation is not None:
+        return f"JSON report destination overlaps {violation.detail} ({violation.variable})"
+    ancestor = existing_ancestor(destination.parent)
+    if not os.access(ancestor, os.W_OK | os.X_OK):
+        return "JSON report destination is not writable"
+    if destination.exists() and not destination.is_file():
+        return "JSON report destination is not a regular file"
+    return None
+
+
+def _blocked_report(report: PreflightReport, detail: str) -> None:
+    report.add(
+        "report.json",
+        "blocked",
+        detail,
+        action="set RESULTS_DIR or --json-report to a safe writable location",
+    )
+
+
 def _persist_report(
     report: PreflightReport, config: RuntimeConfig, destination: Path
 ) -> Path | None:
@@ -165,25 +204,18 @@ def _persist_report(
     if not resolved.is_absolute():
         resolved = config.project_root / resolved
     resolved = resolved.resolve()
-    results = config.results_dir.resolve()
-    allowed = resolved == results or results in resolved.parents
-    unsafe_results = results == Path(results.anchor) or _overlaps(results, config.project_root)
-    unsafe_results = unsafe_results or any(
-        _overlaps(results, silo.root) for silo in config.archive_silos
-    )
-    ancestor = existing_ancestor(resolved.parent)
-    writable = os.access(ancestor, os.W_OK | os.X_OK)
-    target_is_file = not resolved.exists() or resolved.is_file()
-    if not allowed or unsafe_results or not writable or not target_is_file:
-        report.add(
-            "report.json",
-            "blocked",
-            "JSON report destination is unsafe or unwritable",
-            action="set RESULTS_DIR to a safe writable root",
-        )
+    refusal = _destination_refusal(config, resolved)
+    if refusal is not None:
+        _blocked_report(report, refusal)
         return None
     try:
-        report.write_json(resolved)
+        resolved.parent.mkdir(parents=True, exist_ok=True)
+        final = resolved.parent.resolve() / resolved.name
+        revalidation = _destination_refusal(config, final)
+        if revalidation is not None:
+            _blocked_report(report, revalidation)
+            return None
+        report.write_json(final)
     except OSError as error:
         report.add(
             "report.json",
@@ -192,11 +224,7 @@ def _persist_report(
             action="check RESULTS_DIR permissions and free space",
         )
         return None
-    return resolved
-
-
-def _overlaps(left: Path, right: Path) -> bool:
-    return left == right or left in right.parents or right in left.parents
+    return final
 
 
 def _aggregate_status(findings: tuple[PreflightFinding, ...]) -> CheckStatus:

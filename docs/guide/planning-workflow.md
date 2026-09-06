@@ -44,10 +44,10 @@ Follow registry order in both lanes. Within each capability: prerequisites, chan
 inputs, required before optional work, cheap deterministic work before expensive runs. Reorder the
 registry and both lanes together when priority changes.
 
-Dependencies must resolve to open tasks or accepted records, with no cycles. Check full multiline
-fields and apply conditional dependencies only to selected branches. `make plan-status` currently
-reports priority alone. `make lint-spec-plan` checks structure/order; manually validate dependencies,
-records, notes and checkpoint references until the enforcement task ships. Fix docs, not the checker.
+Dependencies must resolve to open tasks or accepted records, with no cycles. Write full multiline
+fields and mark conditional dependencies with an explicit branch word so they order nothing.
+`make lint-spec-plan` enforces dependency, record, note and checkpoint resolution; `make plan-status`
+reports the next task whose prerequisites are met. Fix docs, not the checker.
 
 ## Capability changes
 

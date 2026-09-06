@@ -7,6 +7,11 @@ from collections import defaultdict
 from collections.abc import Sequence
 from pathlib import Path
 
+from arxiv_int.quality.plan_graph import (
+    checkpoint_findings,
+    dependency_findings,
+    note_findings,
+)
 from arxiv_int.quality.plan_model import (
     AGENT_SECTION,
     HUMAN_SECTION,
@@ -16,6 +21,7 @@ from arxiv_int.quality.plan_model import (
     read_registry,
     read_tasks,
 )
+from arxiv_int.quality.plan_records import read_records, record_findings
 from arxiv_int.quality.project_root import discover_project_root
 
 _LOG = logging.getLogger(__name__)
@@ -116,6 +122,10 @@ def _task_findings(capabilities: list[Capability], tasks: list[Task]) -> list[st
         findings.extend(_task_identity_findings(task, known, identifiers))
         findings.extend(_task_metadata_findings(task))
         findings.extend(_task_status_findings(task))
+        findings.extend(
+            f"{PLAN_DOC}: `{task.identifier}`: `{name.title()}` is declared twice"
+            for name in task.repeated_fields
+        )
     return findings
 
 
@@ -181,11 +191,17 @@ def integrity_findings(project_root: Path) -> list[str]:
     if not capabilities:
         return [f"{SPEC_DOC}: no capability registry rows found"]
     tasks = read_tasks(plan)
+    records = read_records(project_root)
+    where = str(PLAN_DOC)
     return (
         _registry_findings(capabilities, tasks)
         + _task_findings(capabilities, tasks)
         + _order_findings(capabilities, tasks)
         + _plan_text_findings(plan)
+        + dependency_findings(where, tasks, records)
+        + checkpoint_findings(where, tasks, records)
+        + note_findings(where, tasks, records)
+        + record_findings(project_root)
     )
 
 

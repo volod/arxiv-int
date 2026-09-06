@@ -18,6 +18,7 @@ from arxiv_int.runtime import (
     run_compose,
     validate_runtime_paths,
 )
+from arxiv_int.runtime.service_plan import PROFILE_HELP
 
 _LOG = logging.getLogger(__name__)
 
@@ -41,9 +42,7 @@ def build_parser() -> argparse.ArgumentParser:
         show.add_argument(f"--{option}-dir", default=None)
     readiness = subcommands.add_parser("readiness", help="report workstation readiness")
     readiness.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
-    readiness.add_argument(
-        "--profiles", default="pipeline", help="Compose profiles or alias to inspect"
-    )
+    readiness.add_argument("--profiles", default="pipeline", help=PROFILE_HELP)
     readiness.add_argument(
         "--timeout", type=float, default=3.0, help="per-check timeout in seconds"
     )
@@ -62,13 +61,13 @@ def build_parser() -> argparse.ArgumentParser:
     service_commands = services.add_subparsers(dest="services_command", required=True)
     for action in ("config", "up", "status", "down"):
         service = service_commands.add_parser(action, help=f"{action} the selected services")
-        service.add_argument("--profiles", default="pipeline")
+        service.add_argument("--profiles", default="pipeline", help=PROFILE_HELP)
         service.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
     reset = service_commands.add_parser(
         "reset",
         help="stop services and erase service data roots (dry-run unless --apply)",
     )
-    reset.add_argument("--profiles", default="pipeline")
+    reset.add_argument("--profiles", default="pipeline", help=PROFILE_HELP)
     reset.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
     reset.add_argument(
         "--apply",
@@ -76,7 +75,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="erase PGDATA, service-state, model-cache, and optional WAL/tablespace roots",
     )
     logs = service_commands.add_parser("logs", help="show bounded service logs")
-    logs.add_argument("--profiles", default="pipeline")
+    logs.add_argument("--profiles", default="pipeline", help=PROFILE_HELP)
     logs.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
     logs.add_argument("--services", default="", help="comma- or whitespace-separated services")
     logs.add_argument("--follow", action="store_true")

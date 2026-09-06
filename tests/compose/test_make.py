@@ -37,3 +37,20 @@ def test_make_exposes_service_lifecycle_with_pipeline_as_the_default() -> None:
     assert 'arxiv_int_services up --profiles "core ui"' in _dry_run(
         "services-up", "SERVICE_PROFILES=core ui"
     )
+
+
+def _data_root() -> str:
+    return subprocess.run(
+        ["bash", "-c", 'source "$1"; arxiv_int_data_root', "bash", "scripts/shared/common.sh"],
+        cwd=PROJECT_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+
+def test_make_tool_caches_follow_the_selected_data_dir() -> None:
+    selected = "/tmp/arxiv-int-cache fixture"
+
+    assert f"cache_dir={_data_root()}/cache/pytest" in _dry_run("test")
+    assert f"cache_dir={selected}/cache/pytest" in _dry_run("test", f"DATA_DIR={selected}")

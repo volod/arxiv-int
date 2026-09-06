@@ -25,7 +25,7 @@ Load other guidance when the condition below applies; do not preload the whole d
 
 1. Select one bounded task. Check its full dependencies and relevant records/notes before coding.
    Do not start blocked work.
-   `make plan-status` reports priority, not readiness; record the starting task count.
+   `make plan-status` reports the next task whose prerequisites resolve; record the task count.
 2. Save the full task in `docs/impl/records/<task-id>.md` using the
    [record template](docs/impl/records/template.md). Preserve original text and full scope amendments.
    Identify affected files/interfaces and existing code to reuse; do not silently broaden scope.

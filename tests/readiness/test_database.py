@@ -3,6 +3,8 @@
 from collections.abc import Mapping
 from pathlib import Path
 
+import pytest
+
 from arxiv_int.readiness.database import check_database
 from arxiv_int.readiness.probes import CommandResult
 from arxiv_int.readiness.report import PreflightReport
@@ -15,6 +17,7 @@ class RecordingProbe:
     def __init__(self, result: CommandResult) -> None:
         self.result = result
         self.commands: list[tuple[str, ...]] = []
+        self.environments: list[Mapping[str, str] | None] = []
 
     def which(self, executable: str) -> str | None:
         del executable
@@ -28,7 +31,8 @@ class RecordingProbe:
         environment: Mapping[str, str] | None = None,
         timeout: float,
     ) -> CommandResult:
-        del cwd, environment, timeout
+        del cwd, timeout
+        self.environments.append(environment)
         self.commands.append(command)
         return self.result
 
@@ -79,7 +83,9 @@ def test_extension_probe_uses_configured_role_not_container_os_uid(tmp_path: Pat
     command = probe.commands[0]
     assert command[command.index("-U") + 1] == "fixture_role"
     assert command[command.index("-d") + 1] == "fixture_db"
-    assert "PGPASSWORD=fixture-secret-never-rendered" in command
+    assert "fixture-secret-never-rendered" not in " ".join(command)
+    assert "PGPASSWORD" in command
+    assert probe.environments[0]["PGPASSWORD"] == "fixture-secret-never-rendered"
     assert report.status == "ready"
     assert any(item.name == "database.extensions" for item in report.findings)
 
@@ -101,5 +107,43 @@ def test_extension_probe_failure_omits_password_from_detail(tmp_path: Path) -> N
 
     finding = next(item for item in report.findings if item.name == "database.extensions")
     assert finding.status == "degraded"
-    assert "local user with ID 1000 does not exist" in finding.detail
+    assert finding.detail == "extension version query failed"
     assert "fixture-secret-never-rendered" not in finding.detail
+
+
+@pytest.mark.parametrize(
+    "output", ["pg_search=1/-\nvector=1/-", "pg_search=1/1", "pg_search=1/\nvector=1/1"]
+)
+def test_uninstalled_or_absent_extensions_block(tmp_path: Path, output: str) -> None:
+    report = PreflightReport("database")
+    check_database(
+        report,
+        _config(tmp_path),
+        ("core",),
+        RecordingProbe(CommandResult(0, output)),
+        1,
+        database_healthy=True,
+    )
+    assert report.status == "blocked"
+
+
+@pytest.mark.parametrize("code", [0, 2])
+def test_database_output_never_echoes_credentials(tmp_path: Path, code: int, caplog) -> None:
+    secret = "fixture-secret-never-rendered"
+    report = PreflightReport("database")
+    probe = RecordingProbe(
+        CommandResult(code, f"pg_search=1/{secret}\nvector=1/1", f"error {secret}")
+    )
+    check_database(report, _config(tmp_path), ("core",), probe, 1, database_healthy=True)
+    assert secret not in "\n".join(report.console_lines())
+    assert secret not in caplog.text
+
+
+@pytest.mark.parametrize("profiles,expected", [(("core",), "ready"), (("graph",), "blocked")])
+def test_age_installation_only_required_for_graph(
+    tmp_path: Path, profiles: tuple[str, ...], expected: str
+) -> None:
+    report = PreflightReport("database")
+    probe = RecordingProbe(CommandResult(0, "age=1/-\npg_search=1/1\nvector=1/1"))
+    check_database(report, _config(tmp_path), profiles, probe, 1, database_healthy=True)
+    assert report.status == expected

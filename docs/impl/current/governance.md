@@ -28,14 +28,28 @@ live in the planning workflow instead of being repeated in the plan. This curren
 available behavior and durable results.
 
 `src/arxiv_int/quality/plan_integrity.py` parses the registry and plan. It rejects unknown or
-misfiled capabilities, missing task fields, status-lane mismatches, missing evaluations or current
-links, out-of-order groups, required tasks after optional tasks, malformed ids, and historical plan
-language. `arxiv-int-plan` and `make plan-status` reuse the same parsed model to report counts and
-the first task by registry priority in each lane. They do not resolve dependency readiness.
+misfiled capabilities, missing or repeated task fields, status-lane mismatches, missing evaluations
+or current links, out-of-order groups, required tasks after optional tasks, malformed ids, and
+historical plan language. `arxiv-int-plan` and `make plan-status` reuse the same parsed model to
+report counts and, in each lane, the first registry-priority task whose prerequisites resolve.
 
-Plan-summary tests use isolated fixtures and do not pin the live repository's task counts.
-The integrity checker validates task structure and registry order, not dependency cycles or
-technical completeness. Those require a separate dependency and architecture review.
+`plan_model.py` keeps every continuation line of a multiline field and reparses the fenced task
+snapshot a record preserves, so a prerequisite named on a wrapped line is no longer lost.
+`plan_graph.py` resolves each dependency against an open task or an accepted record, treats a
+clause carrying a branch word (`if`, `when`, `unless`, `only`, `optional`, `conditional`,
+`otherwise`, `depending`) as conditional so it orders nothing, and reports self-dependencies and
+cycles over the remaining required edges. It also resolves every `Review checkpoint` to a declared
+checkpoint task or accepted checkpoint record, and matches `Audit inputs` against the notes a
+record declares in both directions, so an unresolved note without an owning task is reported.
+`plan_records.py` reads `docs/impl/records/` and requires each record to declare its own id, a
+state and an index entry; an accepted record additionally needs its fenced task snapshot, at least
+one acceptance-evidence row and an audit-handoff result, and an accepted checkpoint record must
+state both a refactor verdict -- `no refactor needed` is valid -- and a proceed-or-blocked decision.
+
+Under-detected conditional wording only makes a dependency required, never optional, so the gate
+fails safe. Plan-summary tests use isolated fixtures and do not pin the live repository's task
+counts. The checker validates resolvable structure and declared evidence, not whether the evidence
+behind a gate is technically sufficient; that stays with task-local review and checkpoints.
 
 `src/arxiv_int/quality/doc_links.py` checks repository documentation before a Git commit is
 required. It validates relative file targets and generated heading anchors while ignoring fenced
@@ -53,8 +67,10 @@ remain specific to their content, and each category `README.md` file provides it
 [Codebase review and development handoffs](governance/codebase-review.md) records the subsequent
 implementation audit, focused repair tasks, milestone checkpoints, and full task-record workflow.
 The [record index](../records/README.md) retains task contracts and audit evidence outside the
-forward plan. These documentation rules apply now; automated record/dependency enforcement remains
-future work. The review does not claim that identified code defects have been repaired.
+forward plan. `make lint-spec-plan` now enforces the record, dependency, note and checkpoint rules
+described above; see the
+[record and checkpoint integrity record](../records/enforce-task-record-and-checkpoint-integrity.md).
+The review does not claim that identified code defects have been repaired.
 
 ## Specification and architecture audit
 
@@ -120,9 +136,9 @@ deferred audit task was replaced by concrete ongoing evidence-freshness validati
 | `archive-organization` | 0 | 4 |
 
 A separate review of all multiline dependency fields finds 77 tasks and 196 explicit task-reference
-edges, including conditional branches, with no cycles or dangling task ids. This is a snapshot
-audit, not a new capability of the existing integrity checker. Baseline/final counts, document
-snapshots, the dependency graph, and verification logs are retained under
+edges, including conditional branches, with no cycles or dangling task ids. That was a snapshot
+audit; the same classes of defect are now checked on every run by `make lint-spec-plan`.
+Baseline/final counts, document snapshots, the dependency graph, and verification logs are under
 `.data/spec-plan-audit/20260905/`, using an explicit workspace-local `DATA_DIR=.data` override.
 The configured tooling volume was read-only; the operator's environment file was not changed.
 

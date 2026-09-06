@@ -10,8 +10,8 @@
 Full user request, with only line wrapping added:
 
 > You have updated AGENTS.md with ## Small-task execution and audit handoff, and the file grows
-> significantly. Please analyze AGENTS.md and related instructions, and estimate whether the 
-> weaker reasoning budget or old model can follow the instructions. Make them as laconic as 
+> significantly. Please analyze AGENTS.md and related instructions, and estimate whether the
+> weaker reasoning budget or old model can follow the instructions. Make them as laconic as
 > possible because the > context window of the old model is small, so we will not have context
 > for the code task
 
