@@ -60,7 +60,7 @@ Core-only and vLLM-only requests skip unrelated checks. vLLM selection probes it
 and actual Compose generation model, including when the configured pipeline backend is Ollama;
 embedding/rerank models are not required from that single-model service. Database extension
 requirements come from the plan. Probe credential transport and installed-extension interpretation
-remain owned by [readiness probe safety](../plan.md#refactor-readiness-probe-safety).
+remain owned by [readiness probe safety](refactor-readiness-probe-safety.md).
 
 Changed production modules: `runtime/{service_plan,compose,paths}.py`,
 `readiness/{checks,run,database,inference}.py`, and `cli.py`. No dependencies or operator commands

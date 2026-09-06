@@ -1,15 +1,15 @@
 """Bounded, read-only operating-system and local HTTP probes."""
 
-import json
 import os
 import shutil
 import subprocess
 from collections.abc import Mapping
 from dataclasses import dataclass
+from http.client import HTTPException
 from pathlib import Path
-from typing import Any, Protocol
-from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
+from typing import Protocol
+
+from arxiv_int.readiness.http_transport import fetch_json
 
 
 @dataclass(frozen=True, slots=True)
@@ -94,16 +94,11 @@ class LocalProbe:
         return CommandResult(completed.returncode, completed.stdout, completed.stderr)
 
     def get_json(self, url: str, *, timeout: float) -> HttpResult:
-        request = Request(url, headers={"Accept": "application/json"})
         try:
-            with urlopen(request, timeout=timeout) as response:
-                body = response.read()
-                payload: Any = json.loads(body) if body else None
-                return HttpResult(response.status, payload)
-        except HTTPError as error:
-            return HttpResult(error.code, error=f"HTTP {error.code}")
-        except (URLError, TimeoutError, OSError, json.JSONDecodeError) as error:
-            return HttpResult(None, error=_safe_error(error))
+            status, payload = fetch_json(url, timeout=timeout)
+            return HttpResult(status, payload, None if status == 200 else f"HTTP {status}")
+        except (HTTPException, OSError, ValueError, RecursionError) as error:
+            return HttpResult(None, error=error.__class__.__name__)
 
     def memory_bytes(self) -> int | None:
         page_size = os.sysconf("SC_PAGE_SIZE")
@@ -115,11 +110,3 @@ def _text(value: str | bytes | None) -> str:
     if isinstance(value, bytes):
         return value.decode("utf-8", errors="replace")
     return value or ""
-
-
-def _safe_error(error: BaseException) -> str:
-    """Render an endpoint error without echoing a URL that could contain credentials."""
-    if isinstance(error, URLError):
-        reason = error.reason
-        return reason.__class__.__name__ if isinstance(reason, BaseException) else str(reason)
-    return error.__class__.__name__

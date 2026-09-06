@@ -138,6 +138,19 @@ extension check connects with the configured `POSTGRES_USER` / `POSTGRES_DB` rol
 auth as the container OS UID, because Compose runs the database as `RUNTIME_UID`. The setup and
 remediation workflow is in the [workstation setup guide](../../guide/setup.md).
 
+Readiness passes `PGPASSWORD` by name through the Compose process environment, keeping its value
+out of argv. Query failures use stable diagnostics; reported versions redact the password. Required
+extensions must have installed versions, independently of package availability; graph selection
+also requires AGE. The probe does not install extensions.
+
+Local inference HTTP bypasses proxies, refuses all redirects and credential-bearing URLs, and caps
+JSON bodies at 1 MiB. Socket timeouts and a remaining-budget socket shutdown bound transport reads;
+malformed JSON/model lists and transport failures cannot produce a ready endpoint. Only HTTP/HTTPS
+loopback hosts are accepted; query strings, fragments and invalid ports are refused. `localhost`
+uses literal IPv4 loopback, including HTTPS certificate identity validation. IPv6 `::1` is supported.
+Configured backend ports remain shared with Compose. See the
+[accepted probe-safety record](../records/refactor-readiness-probe-safety.md) for evidence and limits.
+
 ## Local service topology
 
 `docker/compose.yaml` defines one loopback-only bridge topology with explicit profiles. `core` runs

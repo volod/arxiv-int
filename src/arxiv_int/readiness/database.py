@@ -56,7 +56,7 @@ def check_database(
         "exec",
         "-T",
         "-e",
-        f"PGPASSWORD={password}",
+        "PGPASSWORD",
         "database",
         "psql",
         "-U",
@@ -71,14 +71,11 @@ def check_database(
     result = probe.run(
         command,
         cwd=config.project_root,
-        environment=compose_environment(config),
+        environment=dict(compose_environment(config), PGPASSWORD=password),
         timeout=timeout,
     )
     if result.returncode != 0:
         detail = "extension version query failed"
-        stderr = result.stderr.strip()
-        if stderr and password not in stderr:
-            detail = f"{detail}: {stderr.splitlines()[-1]}"
         report.add(
             "database.extensions",
             "degraded",
@@ -86,20 +83,45 @@ def check_database(
             action="make services-up && make readiness",
         )
         return
-    versions = {
-        line.partition("=")[0]: line.partition("=")[2]
-        for line in result.stdout.splitlines()
-        if "=" in line
-    }
-    required = plan.extensions
+    _check_extensions(report, result.stdout, plan.extensions, password)
+
+
+def _check_extensions(
+    report: PreflightReport, output: str, required: frozenset[str], password: str
+) -> None:
+    versions = _extension_versions(output)
     missing = sorted(required - versions.keys())
-    if missing:
+    uninstalled = sorted(name for name in required & versions.keys() if not versions[name][1])
+    if missing or uninstalled:
+        detail = "required extension(s) unavailable: " + ", ".join(missing) if missing else ""
+        if uninstalled:
+            detail += (
+                ("; " if detail else "")
+                + "required extension(s) not installed: "
+                + ", ".join(uninstalled)
+            )
         report.add(
             "database.extensions",
             "blocked",
-            "required extension(s) unavailable: " + ", ".join(missing),
-            action="use the project-pinned database image, then rerun make readiness",
+            detail,
+            action="use the project-pinned database image and registered extension setup, then rerun make readiness",
         )
         return
-    rendered = ", ".join(f"{name}={versions[name]}" for name in sorted(versions))
+    rendered = ", ".join(
+        f"{name}={available}/{installed or '-'}"
+        for name, (available, installed) in sorted(versions.items())
+    )
+    if password:
+        rendered = rendered.replace(password, "[redacted]")
     report.add("database.extensions", "ready", f"available/installed versions: {rendered}")
+
+
+def _extension_versions(output: str) -> dict[str, tuple[str, str | None]]:
+    """Keep available and installed identities distinct; malformed rows are not evidence."""
+    versions: dict[str, tuple[str, str | None]] = {}
+    for line in output.splitlines():
+        name, equals, identity = line.partition("=")
+        available, slash, installed = identity.partition("/")
+        if equals and slash and available and name in {"age", "pg_search", "vector"}:
+            versions[name] = (available, installed if installed and installed != "-" else None)
+    return versions
