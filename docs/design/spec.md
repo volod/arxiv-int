@@ -1743,7 +1743,9 @@ Before store or model promotion, freeze a representative corpus manifest and rev
   quantities, units, totals, allocations, conflicts, and valid empty results.
 
 Gold creation and threshold setting use separate tuning and final partitions. LLM-drafted items do
-not become scoring truth without review.
+not become scoring truth without review. The operator designates one authorized representative
+slice as `PROOF_ARCHIVE_DIR`. Machine-specific paths and private source text stay out of the
+repository.
 
 ### Provided-archive proof runs
 
@@ -1887,7 +1889,7 @@ evidence exist. Registry order is the implementation line used by `plan.md`.
 | 14 | `domain-investigation-artifacts` | planned | Reviewed BOM, relationship, supply-chain, invoice/payment, render, and registry gates pass | [Open work](../impl/plan.md#domain-investigation-artifacts----domain-investigation-artifacts) |
 | 15 | `anomaly-analysis` | planned | Per-detector fixtures, cohort/time guards, review-budget precision, provenance, and bounded triage views pass | [Open work](../impl/plan.md#anomaly-analysis----anomaly-analysis) |
 | 16 | `discovery-visualization` | planned | Topic stability, three catalog parity, and analyst report/search/graph/anomaly drill-down scenarios pass | [Open work](../impl/plan.md#discovery-and-visualization----discovery-visualization) |
-| 17 | `evaluation-evidence` | planned | Artifact-lineage checks and representative scale pilots produce readable, capacity-aware verdicts | [Open work](../impl/plan.md#evaluation-and-evidence----evaluation-evidence) |
+| 17 | `evaluation-evidence` | planned | Artifact-lineage checks and representative scale pilots produce readable, capacity-aware verdicts | [Evaluation](../impl/current/evaluation.md); [Open work](../impl/plan.md#evaluation-and-evidence----evaluation-evidence) |
 | 18 | `operational-recovery` | planned | Security checks, backup/restore drill, disk exhaustion, interruption, and runbook tests pass | [Open work](../impl/plan.md#operational-recovery----operational-recovery) |
 | 19 | `semantic-retrieval` | planned | Selected-tier vector and hybrid candidates receive paired adopt/retain verdicts | [Open work](../impl/plan.md#semantic-retrieval----semantic-retrieval) |
 | 20 | `archive-organization` | planned | Artifact-only dry-run, independent copies, move backup, path accounting, resume, rollback, and lookup pass | [Open work](../impl/plan.md#separate-archive-organization----archive-organization) |

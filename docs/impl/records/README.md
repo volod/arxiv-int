@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0023` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0024` after the rows
 below).
 
 | Record | Scope | Result |
@@ -34,3 +34,4 @@ below).
 | [0020 Retire duplicate dbmate SQL](0020-contract-gov-retire-duplicate-dbmate-sql.md) | Remove leftover `db/` and SQL-dump inventory so Alembic is the only authored schema history | Accepted; `db/` deleted; dump inventory and parallel-history tests removed |
 | [0021 Canonical relational schema](0021-store-create-canonical-relational-schema.md) | Apply Alembic history on the pinned store with partitions, constraints, roles, staging, and adoption | Accepted |
 | [0022 Retryable setup command](0022-runtime-implement-retryable-setup-command.md) | One setup/edit/retry coordinator over atomic env, image, model, service and schema commands | Accepted |
+| [0023 Representative corpus approval](0023-corpus-approve-representative-corpus-and-gold.md) | Operator-designated legally usable representative slice as `PROOF_ARCHIVE_DIR` | Accepted |

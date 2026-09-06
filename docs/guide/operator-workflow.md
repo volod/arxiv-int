@@ -40,7 +40,8 @@ handlers in order. A successful infrastructure audit does not mean the archive p
    ```
 
    Set readable `ARCHIVE_DIR`, writable `RESULTS_DIR`, PostgreSQL-compatible `PGDATA_DIR`, private
-   `POSTGRES_PASSWORD`, `INFERENCE_BACKEND` and explicit model identity. Use the
+   `POSTGRES_PASSWORD`, `INFERENCE_BACKEND` and explicit model identity. For provided-archive proof
+   runs, set readable `PROOF_ARCHIVE_DIR` to the authorized representative slice. Use the
    [storage and readiness guide](setup.md) for root boundaries and backend settings. Edit `.env`,
    not the generated `.venv`. Never overwrite existing configuration with the template.
 

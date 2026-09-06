@@ -710,7 +710,8 @@ current proof bundle.
 - Agent status: RUN NEEDED
 - Dependencies: `implement-normalization-dedupe-and-chunking`;
 `implement-stage-dag-cli-and-make-targets`; `implement-evidence-based-pipeline-forecast`;
-`create-evaluation-fixtures-and-metrics`; `approve-representative-corpus-and-gold`.
+`create-evaluation-fixtures-and-metrics`;
+[Representative corpus approval](records/0023-corpus-approve-representative-corpus-and-gold.md).
 - User-visible outcome: The supplied file silos have inspectable inventory, extraction,
 normalization, duplicate, and chunk artifacts backed by one reproducible proof id.
 - Scope boundary: Read `PROOF_ARCHIVE_DIR` without mutation and stop after `chunk`; do not infer
@@ -876,7 +877,8 @@ Classify the supplied archive and validate its complete hierarchical mapping and
 [Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `implement-hierarchical-file-classification`;
-`prove-pipeline-control-on-provided-archive`; `approve-representative-corpus-and-gold`.
+`prove-pipeline-control-on-provided-archive`;
+[Representative corpus approval](records/0023-corpus-approve-representative-corpus-and-gold.md).
 `implement-evidence-and-source-location-lookup`.
 
 - User-visible outcome: Every supplied file has a UDC-derived or explicit exceptional result, with hierarchy,
@@ -1423,7 +1425,8 @@ Run configured detectors on the provided archive and publish honest quality and 
 - Serves: `anomaly-analysis` -- [Anomaly detection and triage](../design/spec.md#anomaly-detection-and-triage)
 - Agent status: RUN NEEDED
 - Dependencies: `implement-anomaly-review-and-triage-exports`;
-`prove-domain-investigation-artifacts-on-provided-archive`; `approve-representative-corpus-and-gold`.
+`prove-domain-investigation-artifacts-on-provided-archive`;
+[Representative corpus approval](records/0023-corpus-approve-representative-corpus-and-gold.md).
 - User-visible outcome: The archive has cited anomaly candidates, or an explicit no-findings/insufficient-data
 result, with per-detector coverage and an interpretable review workload.
 - Scope boundary: No claims of wrongdoing or anomaly-free data; only bounded authorized source
@@ -1748,7 +1751,8 @@ rebuild on two progressively larger corpus slices.
 - Agent status: RUN NEEDED
 - Research: yes
 - Dependencies: `publish-provided-archive-end-to-end-proof`; `implement-evidence-based-pipeline-forecast`;
-`approve-representative-corpus-and-gold`; `implement-backup-restore-and-rebuild-runbook`;
+[Representative corpus approval](records/0023-corpus-approve-representative-corpus-and-gold.md);
+`implement-backup-restore-and-rebuild-runbook`;
 `test-failure-and-capacity-boundaries`. Optional branches participate only when selected.
 - User-visible outcome: A capacity plan predicts normalized, classification, registered domain
 artifact, heap, lexical, vector, graph, WAL, temp, backup, wall-time, and operator-review costs
@@ -2104,36 +2108,6 @@ follow-ups in the checkpoint record without claiming a wider audit.
 - Review checkpoint: none; this task is the bounded checkpoint. Route follow-ups to explicit task ids.
 
 ## Human-Assisted Tasks
-
-### Corpus foundation -- `corpus-foundation`
-
-#### approve-representative-corpus-and-gold
-
-Select a legally usable, distribution-representative corpus slice and adjudicate the gold
-extraction, classification, dedupe, Russian query, entity, fact, ontology, domain-artifact, anomaly
-cohorts/hard negatives, three catalogs, and
-report samples.
-
-- Serves: `corpus-foundation` -- [Evaluation datasets](../design/spec.md#evaluation-datasets)
-- Agent status: BLOCKED BY HUMAN
-- Dependencies: Inventory summary from `implement-streaming-inventory`; draft fixture tooling from
-`create-evaluation-fixtures-and-metrics`.
-- User-visible outcome: Expensive model/store decisions are evaluated on the archive's real formats,
-languages, noise, and business questions rather than synthetic convenience data, and one approved
-readable path is designated as `PROOF_ARCHIVE_DIR`.
-- Scope boundary: Human selects and reviews bounded samples and confirms permission to process them;
-no full-corpus authorization.
-- Data and artifact paths: Private `$PROOF_ARCHIVE_DIR` used without modification, approved slices,
-local review ledgers under `$RUNS_DIR/<run-id>/review/`, and frozen manifests without copied private
-text or machine-specific paths in Git.
-- Execution path: Produce stratified candidate manifests and draft labels; human reviews source
-spans, file classes and exceptional outcomes, duplicate groups, queries, entities, facts, ontology
-constraints, design/BOM, equipment, suppliers, invoices, and payments; seal tuning/final splits.
-- Acceptance gates: Processing authorization and the readable proof path are explicit; coverage across
-major bytes/file types/languages and high-value questions is documented; reviewer decisions and
-disagreements are recorded; final split remains unopened for tuning.
-- Documentation target: `docs/impl/current/evaluation.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
 
 ### Archive classification -- `archive-classification`
 

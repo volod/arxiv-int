@@ -18,4 +18,5 @@ change. Write behavior, modules, commands, tests, and results at the narrowest l
 | [Contracts](current/contracts.md) | Product ODCS registry, generation, ontology assets, rooted loaders, fingerprints, lint, and dataset quality checks |
 | [Portable runtime](current/portable-runtime.md) | Layered configuration, safe roots, retryable `make setup`, and runtime layout |
 | [Canonical store](current/canonical-store.md) | Pinned ParadeDB + AGE image, HASH-partitioned canonical schemas, roles, staging load, and live adoption |
+| [Evaluation](current/evaluation.md) | Operator-designated proof archive; fixture metrics, proof bundles, and scale pilots remain planned |
 | [Governance](current/governance.md) | Agent adapters, capability registry, plan lanes, integrity checks, specification/codebase audits and durable task records |
