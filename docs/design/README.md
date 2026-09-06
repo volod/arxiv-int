@@ -9,3 +9,6 @@ The registry order is the implementation line followed by the
 build failure.
 
 Current behavior is indexed by [current implementation](../impl/current.md).
+
+The [execution architecture](architecture.md) describes the runtime DAG, module ownership,
+generation publication, and first complete archive-to-report slice.

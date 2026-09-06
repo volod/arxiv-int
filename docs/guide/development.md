@@ -18,7 +18,9 @@ include the resulting `uv.lock` change.
 Optional stacks are installed by feature-group name:
 
 ```bash
-uv pip install 'arxiv-int[lake]'
+source scripts/shared/common.sh
+arxiv_int_load_env
+uv sync --locked --extra dev --extra lake
 make features
 make features STAGE=extract
 ```
@@ -87,7 +89,7 @@ they are small, deterministic, safe to publish, and required for CI.
 | `make format` | Apply Ruff formatting |
 | `make ci` | Run required local and CI checks |
 | `make quality` | Run CI checks, coverage, Markdown lint, and package build |
-| `make plan-status` | Count tasks and show the next agent and human work |
+| `make plan-status` | Count tasks and show lane priority; check dependencies separately |
 | `make lint-spec-plan` | Check the capability registry against the plan |
 | `make lint-doc-links` | Check relative Markdown files and anchors |
 | `make quality-report` | Report files over the soft size limit |
@@ -107,9 +109,9 @@ docs/impl/plan.md          only work that remains, ordered by capability
 docs/impl/current.md       index of behavior available now
 ```
 
-The specification is living. New product behavior is specified and evaluated before it enters the
-plan or production package. When work becomes available, its implementation detail moves out of the
-plan and into the narrowest current-state page.
+Follow the [AGENTS task cycle](../../AGENTS.md#task-cycle). Current pages describe available behavior;
+[task records](../impl/records/README.md) retain full scope and evidence after plan removal.
+Use the [planning workflow](planning-workflow.md) when editing tasks, capabilities or checkpoints.
 
 ## Repository layout
 
@@ -121,6 +123,7 @@ tests/                     mirrored unit and governance tests
 docs/design/               product specification
 docs/impl/plan.md          forward-only work
 docs/impl/current/         available implementation
+docs/impl/records/         complete task contracts, evidence, and audit handoffs
 docs/guide/                contributor workflows
 scripts/shared/            shared shell environment helpers
 .github/workflows/         required CI

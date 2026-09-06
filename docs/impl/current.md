@@ -16,4 +16,4 @@ change. Write behavior, modules, commands, tests, and results at the narrowest l
 | [Developer tooling](current/developer-tooling.md) | Locked setup, Make workflows, CI, quality gates, artifact roots |
 | [Project foundation](current/project-foundation.md) | Distribution, import package, CLI identity, and project metadata |
 | [Portable runtime](current/portable-runtime.md) | Layered configuration, safe roots, storage evidence, and runtime layout |
-| [Governance](current/governance.md) | Agent adapters, capability registry, plan lanes, integrity checks |
+| [Governance](current/governance.md) | Agent adapters, capability registry, plan lanes, integrity checks, specification/codebase audits and durable task records |
