@@ -1,102 +1,96 @@
-# Agent Python Project
+# arxiv-int
 
-A copy-ready Python project skeleton for teams that want coding agents to work from one set of
-rules, one product specification, and one forward implementation plan.
+`arxiv-int` is a local-first knowledge discovery platform for multi-terabyte, mostly
+Russian-language document archives. It is designed to inventory an immutable archive, extract
+contents, topics, entities and relations, and produce searchable knowledge, catalogs, graphs,
+anomaly findings and evidence-bearing reports on one CUDA host.
 
-The repository is usable before customization: it installs an `agent-py` command, includes a
-small typed package, and ships tests plus documentation-integrity checks. Rename the distribution,
-package, and product language when starting a real project; the planning and quality infrastructure
-is designed to stay.
+Configuration, readiness checks, local service management, typed foundation primitives, and
+quality gates exist today. The archive-to-knowledge pipeline is **not runnable yet**. Its stages
+and analyst commands remain in the [forward plan](docs/impl/plan.md). See
+[current implementation](docs/impl/current.md) for available behavior and the
+[specification](docs/design/spec.md) and [architecture](docs/design/architecture.md) for the target.
 
 ## Quick start
 
-Requirements: Git, Make, and [uv](https://docs.astral.sh/uv/).
+### 1. Environment and services -- available now
 
-```bash
-cp -R <skeleton-dir> <new-project-dir>
-cd <new-project-dir>
-git init
-make bootstrap
-make run
-make ci
-```
+Use a Linux host with a CUDA-capable NVIDIA GPU for the eventual complete pipeline. Run the rows
+in order, in the same Bash session; run each command in a cell separately. Installation and model
+downloads need network access during setup. Pipeline processing is designed to stay local afterward.
 
-`make bootstrap` creates `.venv` from the committed lockfile. `make run` exercises the starter CLI.
-`make ci` runs the same required checks as GitHub Actions.
+| Step | Command or action | Check or result |
+| --- | --- | --- |
+| 1. Install prerequisites | Install Git, Make, Python 3.12+, [uv](https://docs.astral.sh/uv/getting-started/installation/), Docker Engine with Compose, and the matching NVIDIA driver. Check `uv --version`, `python3 --version`, `docker compose version`, `docker info`, `nvidia-smi`. | Docker is usable by the invoking user; the GPU is visible. vLLM additionally needs NVIDIA container support. |
+| 2. Get the repository | `git clone https://github.com/volod/arxiv-int.git` then `cd arxiv-int` | Skip cloning for an existing checkout. |
+| 3. Configure roots | Copy `.env.example` to `.env` only if `.env` does not exist; edit `.env`. | Set readable `ARCHIVE_DIR`, writable `RESULTS_DIR`, PostgreSQL-compatible `PGDATA_DIR`, and private `POSTGRES_PASSWORD`. Keep product outputs outside the checkout and source archives; separate database/service data from source/proof roots. See [storage setup](docs/guide/setup.md). |
+| 4. Select inference | Install the host service using the [Ollama Linux instructions](https://docs.ollama.com/linux); run `sudo systemctl start ollama` and `systemctl status ollama`. Set `INFERENCE_BACKEND=ollama` and an explicit `GENERATION_MODEL` in `.env`. | Choose a model that fits the host. The configured default is not evidence of memory fit or extraction quality. |
+| 5. Bootstrap | `make bootstrap` | Syncs the locked development environment, preserves `.env` values, checks package identity, and audits readiness. Follow missing-model/service findings' `next` actions. A blocked audit fails bootstrap; degraded is allowed here. |
+| 6. Prepare the shell | `source .venv/bin/activate` then `source scripts/shared/common.sh` then `arxiv_int_load_env` | Makes `arxiv-int` available and loads configured roots/cache settings before direct `uv` commands. After editing `.env`, use a fresh terminal session and repeat this step from the checkout. |
+| 7. Install available stacks | `uv sync --locked --extra dev --extra contracts --extra lake --extra store --extra inference --extra graph` then `make features` | Installs populated extras from the lockfile. Several stage extras remain reserved; this does not install a finished pipeline. Use `make features STAGE=extract` as stages arrive. |
+| 8. Fetch the model | `ollama pull "${GENERATION_MODEL:?Set GENERATION_MODEL in .env}"` then `ollama list` | Downloads into the host Ollama service's configured storage. The Compose model-cache root does not relocate that host service. |
+| 9. Start services | `make services-config` then `make services-up` then `make services-status` | Validates/prepares the layout and starts the default service set. This is service setup, not a pipeline run. |
+| 10. Audit readiness | `make readiness`; inspect logs with `make logs LOG_TAIL=100` when needed. | Read `$RESULTS_DIR/reports/readiness.json`; fix blocked findings and evaluate degraded ones. Exit codes: ready `0`, blocked `1`, degraded `2`. Service/model presence does not prove pipeline acceptance. |
+| 11. Inspect interfaces | `arxiv-int info`, `arxiv-int features`, `arxiv-int --help`; open `http://127.0.0.1:3000` for Grafana on its default port. | Confirms the installed command and service UI. Product knowledge views and analyst dashboards remain planned. |
 
-## Customize the project
+The service alias `pipeline` means `core ui observability`, separately from the planned
+`investigation` run profile. The optional vLLM backend needs `INFERENCE_BACKEND=vllm`, a matching
+model/revision, and `make services-up SERVICE_PROFILES="pipeline vllm"`; use the same profile value
+for readiness and status. See the [setup guide](docs/guide/setup.md) for overrides. The `graph` and
+`cadvisor` profiles are opt-ins; project-owned AGE/viewer integration remains forward work.
 
-Make these edits as one initial change:
+### 2. Archive to analyst results -- planned, unavailable now
 
-1. Change the name, description, authors, URLs, and script entry in `pyproject.toml`.
-2. Rename `src/agent_py/` and update imports, the mypy path, and tests.
-3. Replace the starter product identity in `src/agent_py/metadata.py`.
-4. Rewrite the purpose, scope, boundaries, and success criteria in `docs/design/spec.md`.
-5. Update the capability registry without deleting the lifecycle and integrity rules.
-6. Replace the generic copyright line in `LICENSE` if your organization requires it.
-7. Run `make lock` and `make quality`.
+This is the complete target sequence. Run it only after the corresponding capabilities ship.
+Replace `RUN_ID`, `DOCUMENT_ID`, and `QUERY` with real values from the run or inspection.
+Runtime outputs go under configured `RESULTS_DIR`/`RUNS_DIR`, never the developer `DATA_DIR`.
 
-Do not put product work directly into the plan before the specification describes its capability
-and evaluation. The workflow is explained in
-[Planning workflow](docs/guide/planning-workflow.md).
+| Step | Target command or action | Expected result to inspect |
+| --- | --- | --- |
+| 1. Forecast | `arxiv-int pipeline forecast --archive-dir "$ARCHIVE_DIR"` | Scope, space/RAM/VRAM budget, model fit, work estimate and blockers. Review limits before starting a large run. |
+| 2. Inspect a stage when developing or diagnosing | `arxiv-int stage inventory --archive-dir "$ARCHIVE_DIR" --results-dir "$RESULTS_DIR"` then `arxiv-int inspect RUN_ID` | Early inventory and errors. Optional for a complete run, which schedules its own stages. |
+| 3. Run the pipeline | `arxiv-int pipeline run --archive-dir "$ARCHIVE_DIR" --results-dir "$RESULTS_DIR" --profile investigation` | Inventory, extraction, normalization, lexical retrieval, classification, NLP/identity, facts, domain artifacts, topics, catalogs, anomalies and reports. Record the returned run id. |
+| 4. Monitor or recover | `arxiv-int run status RUN_ID`; after an interruption, `arxiv-int run resume RUN_ID` | Per-stage progress and checkpoints for that generation. Partial output must not appear complete. |
+| 5. Verify outputs | `arxiv-int run artifacts RUN_ID` then `arxiv-int inspect RUN_ID` | Open the returned `knowledge-base.json` beneath the run root; check required artifact states, coverage, errors, provenance and generation consistency. |
+| 6. Start analysis | Open `reports/index.html` beneath that run's artifact root; `arxiv-int report build RUN_ID` requests report generation. | Coverage, supported findings, topics/content overviews, evidence links and areas needing review. Start here before opening large graphs. |
+| 7. Inspect entity lists | `arxiv-int catalog company --run RUN_ID`, `arxiv-int catalog product --run RUN_ID`, `arxiv-int catalog person --run RUN_ID` | Three catalogs with roles, aliases, unresolved identities, relations and source evidence. |
+| 8. Investigate relations | Follow financial-party, transaction, supply-chain and BOM links from the report; open bounded graph views and exports. | Trace company/person roles through documents and transactions; inspect product revisions, components, quantities/units and gaps. A supply edge is not automatically a BOM component. |
+| 9. Triage anomalies | `arxiv-int anomalies list --run RUN_ID`; open a finding's report link. | Review detector, cohort/baseline, severity and supporting/contradicting evidence. An empty, well-supported result is valid. |
+| 10. Deep dive | `arxiv-int search lexical "QUERY"` then `arxiv-int archive locate DOCUMENT_ID` | Hits with source/page/table anchors and read-only source lookup. Check the search generation against the report; semantic/hybrid search is a separately accepted option. |
+| 11. Refresh the archive | `arxiv-int pipeline update --archive-dir "$ARCHIVE_DIR"` | A new reconciled generation; inspect its status, manifest and report again. Retain the prior run id for comparison. |
 
-## Daily commands
+### 3. Organize an archive -- separate planned utility
 
-| Command | Purpose |
-| --- | --- |
-| `make help` | List supported workflows |
-| `make bootstrap` | Create or update the locked development environment |
-| `make run` | Run the starter CLI |
-| `make test` | Run the unit test suite |
-| `make coverage` | Run tests with the coverage gate |
-| `make format` | Apply Ruff formatting |
-| `make ci` | Run required local and CI checks |
-| `make quality` | Run CI checks, coverage, Markdown lint, and package build |
-| `make plan-status` | Count tasks and show the next agent and human work |
-| `make lint-spec-plan` | Check the capability registry against the plan |
-| `make lint-doc-links` | Check relative Markdown files and anchors |
-| `make quality-report` | Report files over the soft size limit |
+Organization consumes accepted classification artifacts and never runs automatically after analysis.
+Replace `CLASSIFICATION_PATH`, `SILO_ID`, `TARGET_DIR`, and `PLAN_PATH` with reviewed values.
 
-Use Make targets for repeatable workflows. Direct `uv` debugging should first source
-`scripts/shared/common.sh` and run `apy_load_env` so cache and link behavior follows `.env`.
+| Step | Target command | Result |
+| --- | --- | --- |
+| 1. Preview copies | `arxiv-int archive reorganize --classification CLASSIFICATION_PATH --silo SILO_ID --mode copy --target TARGET_DIR` | Dry-run plan with hierarchical directory/file names, unresolved cases, collisions and capacity checks; source files remain intact. |
+| 2. Or preview in-place placement | `arxiv-int archive reorganize --classification CLASSIFICATION_PATH --silo SILO_ID --mode move` | Alternative plan for moving files within the selected silo; review the proposed path changes. |
+| 3. Apply the authorized plan | `arxiv-int archive reorganize --apply --plan PLAN_PATH` | Journaled placement with source-location updates; inspect the journal and sample resulting paths. Resume/rollback use the recorded plan id and documented preconditions. |
 
-## Documentation model
+After the session, the **available** `make services-down` stops containers and preserves service
+data. It does not stop host Ollama; use the host service manager when that is desired.
 
-```text
-docs/design/spec.md        what the product must do and how each capability is evaluated
-          |
-          v
-docs/impl/plan.md          only work that remains, ordered by capability
-          |
-          v
-docs/impl/current.md       index of behavior that exists now
-```
-
-The specification is living, not a fixed scope fence. A newly discovered product need enters the
-specification first, including its boundary and negative-result rule. It then receives a `planned`
-registry row and plan tasks. When the capability lands, its implementation moves out of the plan
-and into the narrowest current-state page, and the registry row becomes `shipped`.
-
-## Agent support
-
-`AGENTS.md` is the canonical policy. `CLAUDE.md`, `GEMINI.md`, `.codex`, and the Cursor rule are
-thin adapters that point to it. Keeping substantive rules in one file prevents tool-specific drift.
-
-## Layout
+## Available commands
 
 ```text
-src/agent_py/              production package
-tests/                     unit and governance tests
-docs/design/               product specification
-docs/impl/plan.md          forward-only work
-docs/impl/current/         delivered behavior
-docs/guide/                contributor workflows
-scripts/shared/            shared shell environment helpers
-.github/workflows/         required CI
+arxiv-int info
+arxiv-int features [--stage STAGE]
+arxiv-int config show --redact
+arxiv-int readiness [--profiles PROFILES] [--timeout SECONDS]
+arxiv-int services --help
 ```
 
-Runtime output belongs under `$DATA_DIR/<method>/<run-id>/`, which defaults to `.data/` and is
-ignored by Git.
+`info` is a packaging and executable-path smoke test. `features` lists optional dependency groups,
+install status and commands, distribution licences, and expected system dependencies.
+Domain commands arrive as their specified capabilities are implemented.
+
+## Development
+
+Start with [AGENTS.md](AGENTS.md). Load its linked guidance only when needed for the selected task.
+Preserve full task scope and evidence in [task records](docs/impl/records/README.md).
 
 ## License
 

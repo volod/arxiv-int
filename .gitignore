@@ -28,6 +28,7 @@ __pycache__/
 .DS_Store
 .idea/
 *.swp
+.vscode/
 
 # Agent-local state; keep the checked-in rule adapters.
 .claude/

@@ -1,0 +1,217 @@
+name: arxiv-int
+
+x-service-defaults: &service-defaults
+  init: true
+  restart: unless-stopped
+  networks:
+    - arxiv-int
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+
+x-database-dependency: &database-dependency
+  database:
+    condition: service_healthy
+    restart: true
+
+services:
+  database:
+    <<: *service-defaults
+    image: paradedb/paradedb:0.25.6-pg17@sha256:044b8cc5b40159714e88e3f546fc74de11cf215c030190cc82c6627015d728ea
+    user: "${RUNTIME_UID:-1000}:${RUNTIME_GID:-1000}"
+    profiles: [core, graph, ui, observability]
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-arxiv_int}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-compose-validation-only}
+      POSTGRES_USER: ${POSTGRES_USER:-arxiv_int}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - type: bind
+        source: ${PGDATA_DIR:?PGDATA_DIR must be resolved by the operator wrapper}
+        target: /var/lib/postgresql/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    stop_grace_period: 1m
+
+  age-viewer:
+    <<: *service-defaults
+    image: arxiv-int/age-viewer:1.0.0
+    user: "${RUNTIME_UID:-1000}:${RUNTIME_GID:-1000}"
+    profiles: [graph]
+    depends_on: *database-dependency
+    ports:
+      - "127.0.0.1:${AGE_VIEWER_PORT:-3001}:3000"
+    volumes:
+      - type: bind
+        source: ${AGE_VIEWER_STATE_DIR:?AGE_VIEWER_STATE_DIR must be resolved by the operator wrapper}
+        target: /src/backend/logs
+    healthcheck:
+      test: [CMD-SHELL, "wget -q -O /dev/null http://127.0.0.1:3000/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    stop_grace_period: 30s
+
+  grafana:
+    <<: *service-defaults
+    image: grafana/grafana:12.4.0@sha256:b0ae311af06228bcfd4a620504b653db80f5b91e94dc3dc2a5b7dab202bcde20
+    user: "${RUNTIME_UID:-1000}:${RUNTIME_GID:-1000}"
+    profiles: [ui]
+    depends_on: *database-dependency
+    environment:
+      GF_DATABASE_TYPE: sqlite3
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      POSTGRES_DB: ${POSTGRES_DB:-arxiv_int}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-compose-validation-only}
+      POSTGRES_USER: ${POSTGRES_USER:-arxiv_int}
+    ports:
+      - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
+    volumes:
+      - type: bind
+        source: ${GRAFANA_STATE_DIR:?GRAFANA_STATE_DIR must be resolved by the operator wrapper}
+        target: /var/lib/grafana
+      - type: bind
+        source: ${PROJECT_ROOT:?PROJECT_ROOT must be resolved by the operator wrapper}/docker/grafana/provisioning
+        target: /etc/grafana/provisioning
+        read_only: true
+      - type: bind
+        source: ${PROJECT_ROOT:?PROJECT_ROOT must be resolved by the operator wrapper}/docker/grafana/dashboards
+        target: /var/lib/arxiv-int/dashboards
+        read_only: true
+    healthcheck:
+      test: [CMD-SHELL, "wget -q -O /dev/null http://127.0.0.1:3000/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    stop_grace_period: 30s
+
+  prometheus:
+    <<: *service-defaults
+    image: prom/prometheus:v3.5.0@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996
+    user: "${RUNTIME_UID:-1000}:${RUNTIME_GID:-1000}"
+    profiles: [observability]
+    depends_on:
+      postgres-exporter:
+        condition: service_healthy
+        restart: true
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-15d}
+    ports:
+      - "127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - type: bind
+        source: ${PROMETHEUS_STATE_DIR:?PROMETHEUS_STATE_DIR must be resolved by the operator wrapper}
+        target: /prometheus
+      - type: bind
+        source: ${PROJECT_ROOT:?PROJECT_ROOT must be resolved by the operator wrapper}/docker/prometheus/prometheus.yml
+        target: /etc/prometheus/prometheus.yml
+        read_only: true
+    healthcheck:
+      test: [CMD-SHELL, "wget -q -O /dev/null http://127.0.0.1:9090/-/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    stop_grace_period: 30s
+
+  postgres-exporter:
+    <<: *service-defaults
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.17.1@sha256:38606faa38c54787525fb0ff2fd6b41b4cfb75d455c1df294927c5f611699b17
+    profiles: [observability]
+    depends_on: *database-dependency
+    environment:
+      # Keep the DSN on one line: YAML folded scalars insert a space at the break.
+      DATA_SOURCE_NAME: postgresql://${POSTGRES_USER:-arxiv_int}:${POSTGRES_PASSWORD:-compose-validation-only}@database:5432/${POSTGRES_DB:-arxiv_int}?sslmode=disable
+    healthcheck:
+      # postgres-exporter has no /health route; /metrics returns 200 while the process is up.
+      test: [CMD-SHELL, "wget -q -O /dev/null http://127.0.0.1:9187/metrics || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    stop_grace_period: 30s
+
+  cadvisor:
+    <<: *service-defaults
+    image: gcr.io/cadvisor/cadvisor:v0.52.1@sha256:f40e65878e25c2e78ea037f73a449527a0fb994e303dc3e34cb6b187b4b91435
+    profiles: [cadvisor]
+    privileged: true
+    command: [--docker_only=true]
+    ports:
+      - "127.0.0.1:${CADVISOR_PORT:-8080}:8080"
+    volumes:
+      - type: bind
+        source: /run
+        target: /run
+        read_only: true
+      - type: bind
+        source: /sys
+        target: /sys
+        read_only: true
+      - type: bind
+        source: /var/lib/docker
+        target: /var/lib/docker
+        read_only: true
+    healthcheck:
+      test: [CMD-SHELL, "wget -q -O /dev/null http://127.0.0.1:8080/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    stop_grace_period: 30s
+
+  vllm:
+    <<: *service-defaults
+    image: vllm/vllm-openai:v0.26.0@sha256:ffb2d59b1c059a5bd8d781320c9f5189de8293693b7d95da54befddaa54abf52
+    user: "${RUNTIME_UID:-1000}:${RUNTIME_GID:-1000}"
+    profiles: [vllm]
+    gpus: all
+    ipc: host
+    environment:
+      HF_HOME: /models/huggingface
+    command:
+      - --model
+      - ${VLLM_MODEL:?VLLM_MODEL must be resolved by the operator wrapper}
+      - --revision
+      - ${VLLM_MODEL_REVISION:?VLLM_MODEL_REVISION must be resolved by the operator wrapper}
+      - --tensor-parallel-size
+      - ${VLLM_TENSOR_PARALLEL_SIZE:-1}
+      - --cpu-offload-gb
+      - ${VLLM_CPU_OFFLOAD_GB:-24}
+      - --gpu-memory-utilization
+      - ${VLLM_GPU_MEMORY_UTILIZATION:-0.9}
+      - --max-model-len
+      - ${VLLM_MAX_MODEL_LEN:-32768}
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+    ports:
+      - "127.0.0.1:${VLLM_PORT:-8000}:8000"
+    volumes:
+      - type: bind
+        source: ${MODEL_CACHE_DIR:?MODEL_CACHE_DIR must be resolved by the operator wrapper}
+        target: /models
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 2m
+    stop_grace_period: 2m
+
+networks:
+  arxiv-int:
+    driver: bridge

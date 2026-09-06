@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from agent_py.quality.doc_links import (
+from arxiv_int.quality.doc_links import (
     anchors,
     broken_links,
     documentation_files,
