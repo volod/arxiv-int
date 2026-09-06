@@ -8,7 +8,7 @@
 - Source: [plan](../plan.md) task `enforce-task-record-and-checkpoint-integrity` at revision
   `e42ef3f` ("Merge pull request #1 from volod/ai-01-specs-tasks"). Working tree clean at start;
   no dirty scope.
-- Audit input: [AUD-codebase-09](codebase-and-workflow-audit.md#audit-handoff).
+- Audit input: [AUD-codebase-09](0001-govern-codebase-and-workflow-audit.md#audit-handoff).
 - Accepted task:
 
 ```markdown
@@ -86,7 +86,7 @@ Detection of conditional wording is deliberately conservative: text that is not 
 branch leaves the dependency required, so the gate over-orders rather than under-orders work.
 
 Incidental repair: two trailing single spaces in the quoted request of
-[compact agent instructions](compact-agent-instructions.md) failed `MD009` and blocked `make
+[compact agent instructions](0002-govern-compact-agent-instructions.md) failed `MD009` and blocked `make
 quality`. Only the trailing whitespace was removed; the quoted wording is unchanged.
 
 Current state: [Governance](../current/governance.md#product-state-transition).
@@ -121,7 +121,7 @@ repository documents and fixtures only.
 ## Audit handoff
 
 `none identified`. Reviewed scope: the five quality modules, their tests, and the plan/record
-documents the gate reads. [AUD-codebase-09](codebase-and-workflow-audit.md#audit-handoff) is
+documents the gate reads. [AUD-codebase-09](0001-govern-codebase-and-workflow-audit.md#audit-handoff) is
 resolved by this record: continuation lines are preserved, dependencies resolve against open tasks
 and accepted records, cycles are detected, and `make plan-status` reports actual eligibility. The
 audit's remaining code findings keep their existing owner tasks.
@@ -147,6 +147,6 @@ the [task cycle](../../../AGENTS.md) and the [record index](README.md). The
 record instead of the removed task.
 
 Next action: the plan's next agent task at the time,
-[safe runtime root boundaries](refactor-safe-runtime-root-boundaries.md), since accepted.
+[safe runtime root boundaries](0005-runtime-refactor-safe-runtime-root-boundaries.md), since accepted.
 No process, service or temporary scaffold remains; the logs under
 `.data/governance-checks/20260906/` are retained as evidence.

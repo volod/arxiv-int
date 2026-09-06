@@ -149,7 +149,7 @@ malformed JSON/model lists and transport failures cannot produce a ready endpoin
 loopback hosts are accepted; query strings, fragments and invalid ports are refused. `localhost`
 uses literal IPv4 loopback, including HTTPS certificate identity validation. IPv6 `::1` is supported.
 Configured backend ports remain shared with Compose. See the
-[accepted probe-safety record](../records/refactor-readiness-probe-safety.md) for evidence and limits.
+[accepted probe-safety record](../records/0008-runtime-refactor-readiness-probe-safety.md) for evidence and limits.
 
 ## Local service topology
 
@@ -183,7 +183,7 @@ only selected database, model-cache and per-service state directories. Unselecte
 need not be available. `status`, `down` and `logs` perform no disk inspection or layout preparation.
 Log service arguments must name services in the selected plan; invalid names and negative tails
 are refused before preparation. Reset keeps its existing project-wide root policy. See the
-[accepted service-planning record](../records/refactor-profile-aware-service-planning.md) for
+[accepted service-planning record](../records/0007-runtime-refactor-profile-aware-service-planning.md) for
 regressions and verification limits.
 
 `runtime/inference_config.py` resolves generation defaults after configuration precedence:

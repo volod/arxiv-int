@@ -64,6 +64,22 @@ def test_a_record_filed_under_another_id_is_reported(tmp_path: Path) -> None:
     assert any("is filed as `filed-elsewhere`" in finding for finding in findings)
 
 
+def test_a_sequenced_record_filename_resolves_by_task_id(tmp_path: Path) -> None:
+    name = "0002-feature-earlier-work"
+    records = {name: record_text("earlier-work", snapshot=SNAPSHOT)}
+
+    assert _findings(tmp_path, records, index={name: records[name]}) == []
+
+
+def test_a_sequenced_record_with_mismatched_task_id_is_reported(tmp_path: Path) -> None:
+    name = "0002-feature-earlier-work"
+    records = {name: record_text("other-work", snapshot=task_block("other-work"))}
+
+    findings = _findings(tmp_path, records, index={name: records[name]})
+
+    assert any("filename task id is `earlier-work`" in finding for finding in findings)
+
+
 def test_an_unindexed_record_is_reported(tmp_path: Path) -> None:
     records = {"earlier-work": record_text("earlier-work", snapshot=SNAPSHOT)}
 

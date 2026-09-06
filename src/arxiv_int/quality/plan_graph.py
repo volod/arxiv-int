@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 from arxiv_int.quality.plan_model import Task
 from arxiv_int.quality.plan_records import NOTE_ID, Record
+from arxiv_int.quality.record_naming import record_identifier_from_stem
 
 TASK_REFERENCE = "task"
 RECORD_REFERENCE = "record"
@@ -31,7 +32,9 @@ class Reference:
 
 def _record_stem(target: str) -> str | None:
     matched = _RECORD_TARGET.match(target)
-    return matched.group("stem") if matched else None
+    if matched is None:
+        return None
+    return record_identifier_from_stem(matched.group("stem"))
 
 
 def dependency_references(value: str) -> list[Reference]:

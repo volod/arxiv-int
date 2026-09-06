@@ -17,7 +17,7 @@ live-store conformance checks.
 
 - Serves: `contract-governance` -- [Evolution and migrations](../design/spec.md#evolution-and-migrations)
 - Agent status: CLEAR
-- Dependencies: [Deterministic schema generation](records/implement-deterministic-schema-generation.md).
+- Dependencies: [Deterministic schema generation](records/0011-contract-gov-implement-deterministic-schema-generation.md).
 - User-visible outcome: Breaking, reindexing, and graph-rebuild consequences are reported before a
 schema change can reach data.
 - Scope boundary: Detect, classify, and prepare migrations; never auto-approve destructive or
@@ -40,7 +40,7 @@ exports that validate the knowledge model.
 
 - Serves: `contract-governance` -- [AGE graph projection](../design/spec.md#age-graph-projection)
 - Agent status: CLEAR
-- Dependencies: [Canonical contract registry](records/establish-canonical-contract-registry.md);
+- Dependencies: [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
 representative domain vocabulary can begin
 from reviewed fixtures.
 - User-visible outcome: Object/fact semantics are inspectable, versioned, exportable, and testable
@@ -67,7 +67,7 @@ supply chains, invoices, payments, and their run-artifact registry entries.
 [Domain investigation artifacts](../design/spec.md#domain-investigation-artifacts)
 - Agent status: CLEAR
 - Dependencies: `establish-versioned-ontology-assets`;
-[Deterministic schema generation](records/implement-deterministic-schema-generation.md).
+[Deterministic schema generation](records/0011-contract-gov-implement-deterministic-schema-generation.md).
 - User-visible outcome: Operators see consistent definitions for `part-of`, supply roles, invoice
 obligations, payment allocations, conflicts, and empty/partial results before graphs are generated.
 - Scope boundary: Define source-asserted investigation semantics and schemas; do not infer missing
@@ -172,11 +172,11 @@ Review the integrated milestone before pipeline control and corpus adapters.
 - Serves: `canonical-store` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
 - Agent status: CLEAR
 - Task kind: checkpoint
-- Audit inputs: [AUD-safe-runtime-root-boundaries-1](records/refactor-safe-runtime-root-boundaries.md#audit-handoff);
-[AUD-runtime-configuration-parity-1, AUD-runtime-configuration-parity-2](records/refactor-runtime-configuration-parity.md#audit-handoff).
+- Audit inputs: [AUD-safe-runtime-root-boundaries-1](records/0005-runtime-refactor-safe-runtime-root-boundaries.md#audit-handoff);
+[AUD-runtime-configuration-parity-1, AUD-runtime-configuration-parity-2](records/0006-runtime-refactor-runtime-configuration-parity.md#audit-handoff).
 - Dependencies: `implement-rebuildable-search-and-graph-projections`;
-[Readiness probe safety](records/refactor-readiness-probe-safety.md);
-[Contract identity and reference validation](records/refactor-contract-identity-and-reference-validation.md);
+[Readiness probe safety](records/0008-runtime-refactor-readiness-probe-safety.md);
+[Contract identity and reference validation](records/0009-contract-gov-refactor-contract-identity-and-reference-validation.md);
 `enforce-task-record-and-checkpoint-integrity`.
 - User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
 or blocked
@@ -212,7 +212,7 @@ embeddings, health, model identity, timeout, and cancellation.
 - Dependencies: Feature groups and domain interfaces described in
 [Project foundation](current/project-foundation.md#feature-groups); runtime roots documented in
 [Portable runtime](current/portable-runtime.md).
-[Readiness probe safety](records/refactor-readiness-probe-safety.md).
+[Readiness probe safety](records/0008-runtime-refactor-readiness-probe-safety.md).
 - User-visible outcome: The same extraction/retrieval code can use the Ollama system service or an
 optional vLLM container through explicit configuration.
 - Scope boundary: Local endpoints only; no hosted fallback, implicit model pull, or systemd
@@ -236,7 +236,7 @@ resource evidence.
 - Serves: `local-inference` --
 [Performance and scalability assumptions](../design/spec.md#performance-and-scalability-assumptions)
 - Agent status: RUN NEEDED
-- Audit inputs: [AUD-codebase-14](records/codebase-and-workflow-audit.md#audit-handoff).
+- Audit inputs: [AUD-codebase-14](records/0001-govern-codebase-and-workflow-audit.md#audit-handoff).
 - Dependencies: `implement-local-inference-adapters`.
 - User-visible outcome: The 16 GB GPU does not thrash between models, and operators see why a model
 ran, offloaded, skipped, or fell back.
@@ -266,8 +266,8 @@ Make existing evidence-bundle validation honor the claimed immutable local artif
 - Serves: `evaluation-foundation` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
 - Agent status: CLEAR
 - Task kind: refactor
-- Audit inputs: [AUD-codebase-05](records/codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: [Quality baseline repair](records/restore-quality-gate-baseline.md);
+- Audit inputs: [AUD-codebase-05](records/0001-govern-codebase-and-workflow-audit.md#audit-handoff).
+- Dependencies: [Quality baseline repair](records/0003-foundation-restore-quality-gate-baseline.md);
 [Evaluation primitives](current/project-foundation.md#evaluation-and-retrieval-primitives).
 - User-visible outcome: A bundle cannot pass verification by reading a matching file outside its own
 tree, and
@@ -295,7 +295,7 @@ paired evaluation utilities.
 
 - Serves: `evaluation-foundation` -- [Evaluation and acceptance](../design/spec.md#evaluation-and-acceptance)
 - Agent status: CLEAR
-- Dependencies: [Canonical contract registry](records/establish-canonical-contract-registry.md);
+- Dependencies: [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
 the evaluation and retrieval primitives
 documented in [Project foundation](current/project-foundation.md#evaluation-and-retrieval-primitives).
 `refactor-evaluation-bundle-validation`.
@@ -331,9 +331,9 @@ Align foundational stage, extraction and artifact references before concrete ada
 - Serves: `pipeline-control` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
 - Agent status: CLEAR
 - Task kind: refactor
-- Audit inputs: [AUD-codebase-13](records/codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: [Canonical contract registry](records/establish-canonical-contract-registry.md);
-[Contract identity and reference validation](records/refactor-contract-identity-and-reference-validation.md).
+- Audit inputs: [AUD-codebase-13](records/0001-govern-codebase-and-workflow-audit.md#audit-handoff).
+- Dependencies: [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
+[Contract identity and reference validation](records/0009-contract-gov-refactor-contract-identity-and-reference-validation.md).
 - User-visible outcome: Multi-silo inputs, structured source anchors, generation identities and honest
 stage states
 fit the shared interfaces rather than being hidden in string metadata or invented per adapter.
@@ -360,7 +360,7 @@ with deterministic reuse keys.
 [Resumability, idempotency, and provenance](../design/spec.md#resumability-idempotency-and-provenance)
 - Agent status: CLEAR
 - Dependencies: `create-canonical-relational-schema`; fixture artifact contracts from
-[Canonical contract registry](records/establish-canonical-contract-registry.md).
+[Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md).
 `refactor-stage-and-artifact-interface-contracts`.
 `review-foundation-and-store-boundaries`.
 - User-visible outcome: Every long operation has inspectable state; an interrupted shard resumes,
@@ -416,7 +416,7 @@ metrics for every stage.
 - Serves: `pipeline-control` --
 [Logging, progress, and observability](../design/spec.md#logging-progress-and-observability)
 - Agent status: CLEAR
-- Audit inputs: [AUD-codebase-15](records/codebase-and-workflow-audit.md#audit-handoff).
+- Audit inputs: [AUD-codebase-15](records/0001-govern-codebase-and-workflow-audit.md#audit-handoff).
 - Dependencies: `implement-stage-dag-cli-and-make-targets`.
 - User-visible outcome: Long runs continuously report processed/remaining items, bytes, throughput,
 ETA, errors, and resource pressure without garbled concurrent output.
@@ -647,7 +647,7 @@ metadata.
 - Serves: `corpus-foundation` -- [Pipeline](../design/spec.md#pipeline)
 - Agent status: RUN NEEDED
 - Dependencies: Runtime roots documented in [Portable runtime](current/portable-runtime.md);
-[Canonical contract registry](records/establish-canonical-contract-registry.md);
+[Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
 `implement-stage-dag-cli-and-make-targets`;
 `implement-evidence-based-pipeline-forecast`.
 - User-visible outcome: The operator can inventory one or more multi-terabyte silos without loading
@@ -681,7 +681,7 @@ Compose Tika, Docling, and OCR/layout fallbacks behind one evidence-preserving e
 [Russian-language and document analysis](../design/spec.md#russian-language-and-document-analysis)
 - Agent status: RUN NEEDED
 - Dependencies: `implement-streaming-inventory`;
-[Deterministic schema generation](records/implement-deterministic-schema-generation.md).
+[Deterministic schema generation](records/0011-contract-gov-implement-deterministic-schema-generation.md).
 - User-visible outcome: Supported documents become normalized source spans with page/table/offset
 evidence; failures are quarantined with actionable reasons.
 - Scope boundary: Integrate existing engines and selection policy; do not build a new parser or
@@ -840,7 +840,7 @@ evaluation labels used to classify archive files.
 [Hierarchical archive classification and optional reorganization](../design/spec.md#hierarchical-archive-classification-and-optional-reorganization)
 - Agent status: RUN NEEDED
 - Research: yes
-- Dependencies: [Canonical contract registry](records/establish-canonical-contract-registry.md);
+- Dependencies: [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
 `create-evaluation-fixtures-and-metrics`.
 - User-visible outcome: Operators can inspect the exact hierarchy, captions, parent links, licence,
 local extensions, and version behind every file assignment.
@@ -2052,7 +2052,7 @@ Review the integrated milestone before any real copy/move plan authorization.
 - Agent status: CLEAR
 - Task kind: checkpoint
 - Dependencies: `prove-archive-organization-on-provided-artifacts`;
-[Safe runtime root boundaries](records/refactor-safe-runtime-root-boundaries.md).
+[Safe runtime root boundaries](records/0005-runtime-refactor-safe-runtime-root-boundaries.md).
 - User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
 or blocked
 for the named consumers; no-refactoring-needed is a valid conclusion.

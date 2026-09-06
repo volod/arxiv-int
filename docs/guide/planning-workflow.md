@@ -63,11 +63,55 @@ checkpoint for a cross-task concern. Never put completion notes, dates, measurem
 
 ## Durable task records
 
-Copy the [template](../impl/records/template.md) at task start; add the record to its
-[index](../impl/records/README.md). Keep the full original task and full amendments after plan removal.
-Records retain evidence and decisions; current pages describe available behavior and link records.
-Future actions belong in the plan, with one owner per note. Keep private source data out of docs.
-If historical task text cannot be recovered, mark it unavailable; never fabricate it.
+Copy the [template](../impl/records/template.md) at task start into a sequenced filename; add the
+record to its [index](../impl/records/README.md). Keep the full original task and full amendments
+after plan removal. Records retain evidence and decisions; current pages describe available behavior
+and link records. Future actions belong in the plan, with one owner per note. Keep private source
+data out of docs. If historical task text cannot be recovered, mark it unavailable; never fabricate
+it.
+
+### Record file naming
+
+Filenames are `NNNN-<group>-<task-id>.md` so a directory listing sorts by implementation order and
+still shows capability group and stable task slug.
+
+1. **Sequence (`NNNN`)** -- four zero-padded digits. At task start, take
+   `max(existing sequences) + 1` under `docs/impl/records/` (or `0001` when none exist). Never reuse
+   or renumber a sequence after the file is created; gaps from abandoned drafts are allowed.
+2. **Group** -- short abbrev for the owning capability (or `govern` for cross-cutting governance /
+   instruction / audit work). Use the table below; add a row when a new capability enters the
+   registry. `make lint-spec-plan` rejects unknown group tokens.
+3. **Task id** -- the unchanged plan slug (`implement-deterministic-schema-generation`). The record
+   body `Id:` field must match this suffix.
+4. **Links** -- point at the full filename, for example
+   `records/0011-contract-gov-implement-deterministic-schema-generation.md`. Dependency resolution
+   keys on the task-id suffix, so labels can stay human-readable.
+5. **Helpers** -- `arxiv_int.quality.record_naming.next_record_sequence` and `build_record_filename`
+   encode the same rules for tooling and tests.
+
+| Capability id | Group abbrev |
+| --- | --- |
+| `project-foundation` | `foundation` |
+| `portable-runtime` | `runtime` |
+| `contract-governance` | `contract-gov` |
+| `canonical-store` | `store` |
+| `local-inference` | `inference` |
+| `evaluation-foundation` | `eval-found` |
+| `pipeline-control` | `pipeline` |
+| `corpus-foundation` | `corpus` |
+| `lexical-retrieval` | `lexical` |
+| `archive-classification` | `archive-cls` |
+| `russian-nlp` | `rus-nlp` |
+| `identity-ontology-graph` | `identity` |
+| `knowledge-extraction` | `knowledge` |
+| `domain-investigation-artifacts` | `domain` |
+| `anomaly-analysis` | `anomaly` |
+| `discovery-visualization` | `discovery` |
+| `evaluation-evidence` | `eval-evid` |
+| `operational-recovery` | `ops` |
+| `semantic-retrieval` | `semantic` |
+| `archive-organization` | `archive-org` |
+| `governance` (meta / audit / instructions) | `govern` |
 
 ## Audit notes and milestone reviews
 

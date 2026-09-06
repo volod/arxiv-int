@@ -128,7 +128,7 @@ note above is carried to `review-foundation-and-store-boundaries`.
 Updates made: `docs/impl/current/portable-runtime.md` describes the shared containment policy, the
 new reset and report refusals, derived-root aliasing, and the extended test coverage; this record is
 linked from the [record index](README.md); the dependency references in
-[Runtime configuration parity](refactor-runtime-configuration-parity.md) and
+[Runtime configuration parity](0006-runtime-refactor-runtime-configuration-parity.md) and
 `review-archive-organization-integrity` now point at
 this record. Plan counts: 91 tasks before, 90 after (agent lane 80 to 79). Capabilities changed:
 none added or removed; `portable-runtime` gains stricter, unified protected-root refusals.

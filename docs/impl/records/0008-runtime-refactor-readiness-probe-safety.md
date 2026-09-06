@@ -106,4 +106,4 @@ and dependency links reference this accepted record. Only satisfied task scope w
 the plan: 88 to 87 tasks, agent lane 77 to 76, human lane unchanged at 11. No capability added or
 removed; existing `portable-runtime` readiness is hardened. The next planned agent task after this
 acceptance was contract identity repair; that work is now accepted in
-[Contract identity and reference validation](refactor-contract-identity-and-reference-validation.md).
+[Contract identity and reference validation](0009-contract-gov-refactor-contract-identity-and-reference-validation.md).

@@ -26,9 +26,11 @@ Load other guidance when the condition below applies; do not preload the whole d
 1. Select one bounded task. Check its full dependencies and relevant records/notes before coding.
    Do not start blocked work.
    `make plan-status` reports the next task whose prerequisites resolve; record the task count.
-2. Save the full task in `docs/impl/records/<task-id>.md` using the
-   [record template](docs/impl/records/template.md). Preserve original text and full scope amendments.
-   Identify affected files/interfaces and existing code to reuse; do not silently broaden scope.
+2. Save the full task in `docs/impl/records/NNNN-<group>-<task-id>.md` using the
+   [record template](docs/impl/records/template.md) and
+   [record naming rules](docs/guide/planning-workflow.md#record-file-naming). Preserve original text
+   and full scope amendments. Identify affected files/interfaces and existing code to reuse; do not
+   silently broaden scope.
 3. Implement and self-review. Update tests for behavior changes; bugs need failing regressions.
    Tests stay deterministic and network-free unless an external run is explicitly declared.
 4. Verify: relevant tests and `make ci` are required. Use `make format`; fix Markdown by hand.

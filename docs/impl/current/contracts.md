@@ -74,6 +74,6 @@ structural upgrade.
 registry integrity, typed loader unknown-metadata retention, canonical `x-arxiv-int` bindings,
 generation adapters, golden fingerprints, Avro round-trip, SQL parse/apply, drift checking, and
 Data Contract CLI lint when the CLI is available. Evidence:
-[deterministic schema generation](../records/implement-deterministic-schema-generation.md);
-[canonical contract registry](../records/establish-canonical-contract-registry.md);
-[contract identity and reference validation](../records/refactor-contract-identity-and-reference-validation.md).
+[deterministic schema generation](../records/0011-contract-gov-implement-deterministic-schema-generation.md);
+[canonical contract registry](../records/0010-contract-gov-establish-canonical-contract-registry.md);
+[contract identity and reference validation](../records/0009-contract-gov-refactor-contract-identity-and-reference-validation.md).

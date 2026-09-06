@@ -25,14 +25,19 @@ def test_a_dependency_named_on_a_continuation_line_is_resolved(tmp_path: Path) -
     assert any("unknown task `also-missing`" in finding for finding in findings)
 
 
-def test_an_accepted_record_satisfies_a_dependency(tmp_path: Path) -> None:
+def test_an_accepted_sequenced_record_satisfies_a_dependency(tmp_path: Path) -> None:
     snapshot = task_block("earlier-work")
     plan = plan_with(
-        task_block(dependencies="[Earlier work](records/earlier-work.md); `earlier-work`.")
+        task_block(
+            dependencies=("[Earlier work](records/0001-feature-earlier-work.md); `earlier-work`.")
+        )
     )
+    record_name = "0001-feature-earlier-work"
 
     findings = _findings(
-        tmp_path, plan, {"earlier-work": record_text("earlier-work", snapshot=snapshot)}
+        tmp_path,
+        plan,
+        {record_name: record_text("earlier-work", snapshot=snapshot)},
     )
 
     assert findings == []

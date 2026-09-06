@@ -3,7 +3,7 @@
 The implementation review found useful, mostly cohesive foundation modules and concrete boundary
 defects that should be repaired before building on them. It did not justify a package-wide rewrite.
 Production code, tests, dependencies, operator configuration, and archives are unchanged by this
-review. The [task record](../../records/codebase-and-workflow-audit.md) retains the full request,
+review. The [task record](../../records/0001-govern-codebase-and-workflow-audit.md) retains the full request,
 review scope, reproducible findings, decisions, and remaining gate failures.
 
 ## Implementation scope inspected
@@ -57,7 +57,7 @@ self-review remains part of every task; model choice alone supplies no quality g
 
 These are documentation requirements available now. The parser ignored continuation lines and
 `make plan-status` reported priority without checking dependency readiness when this review ran;
-[record and checkpoint integrity](../../records/enforce-task-record-and-checkpoint-integrity.md)
+[record and checkpoint integrity](../../records/0004-foundation-enforce-task-record-and-checkpoint-integrity.md)
 has since added record, note, dependency-cycle and checkpoint enforcement. The integrity checker
 was not extended by this review itself.
 
@@ -105,6 +105,6 @@ no human task in their prerequisite closures. This is an audit result, not a shi
 but still fails on pre-existing import formatting/order in `runtime/__init__.py` and Radon D (23)
 in the combined Compose topology test. The subsequent cognitive-complexity subcheck is not reached.
 Those unchanged failures now have a focused repair task; this review does not waive the CI gate.
-The [record](../../records/codebase-and-workflow-audit.md#final-verification-and-next-action) retains
+The [record](../../records/0001-govern-codebase-and-workflow-audit.md#final-verification-and-next-action) retains
 exact commands, outcomes and limits. Runtime services, model/CUDA jobs and provided-archive runs
 were not started. No archive-quality, throughput, model-fit or security-certification claim is made.

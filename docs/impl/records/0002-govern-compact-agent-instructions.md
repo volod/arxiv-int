@@ -70,7 +70,7 @@ does not establish that a future agent will follow them or that record enforceme
 | `git diff --check` and final scope review | Whitespace/ASCII checked; no source, test, dependency or runtime changes |
 
 The CI blockers were owned by the
-[quality baseline repair](restore-quality-gate-baseline.md), which has since resolved them; at the
+[quality baseline repair](0003-foundation-restore-quality-gate-baseline.md), which has since resolved them; at the
 time of this record the Radon failure prevented the following cognitive-complexity subcheck.
 No failed or unrun gate is treated as passed. Full `make quality` and model/CUDA/service runs
 were not performed. No process or service remains from

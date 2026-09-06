@@ -95,7 +95,7 @@ started stack.
 
 `none identified`. Reviewed scope: the two repaired files, the complexity gate wiring in
 `Makefile`, and the diff against `099b223` for unrelated formatting churn (none present;
-`git diff --check` clean). [AUD-codebase-10](codebase-and-workflow-audit.md#audit-handoff) is
+`git diff --check` clean). [AUD-codebase-10](0001-govern-codebase-and-workflow-audit.md#audit-handoff) is
 resolved by this record: the required gate is green, so a later failure is attributable to the
 next change. The audit's remaining code findings keep their existing owner tasks.
 
@@ -110,6 +110,6 @@ and the [record index](README.md). References to the removed plan task now point
 Next action at the time of acceptance: the plan's next agent task,
 `enforce-task-record-and-checkpoint-integrity`, which depended on this baseline and was unblocked
 by it; it is now the accepted
-[record and checkpoint integrity](enforce-task-record-and-checkpoint-integrity.md).
+[record and checkpoint integrity](0004-foundation-enforce-task-record-and-checkpoint-integrity.md).
 No process, service or temporary scaffold remains; the baseline copies under
 `.data/quality-baseline/20260906/` are retained as evidence.

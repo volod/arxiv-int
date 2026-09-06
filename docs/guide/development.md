@@ -123,7 +123,7 @@ tests/                     mirrored unit and governance tests
 docs/design/               product specification
 docs/impl/plan.md          forward-only work
 docs/impl/current/         available implementation
-docs/impl/records/         complete task contracts, evidence, and audit handoffs
+docs/impl/records/         sequenced task records (`NNNN-group-task-id.md`), evidence, audits
 docs/guide/                contributor workflows
 scripts/shared/            shared shell environment helpers
 .github/workflows/         required CI

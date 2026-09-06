@@ -147,4 +147,4 @@ at 172 tests; the complexity gate rejects Radon D-or-worse and cognitive complex
 both subchecks now run to completion. `make quality` adds coverage (90.14%, above the 90.0%
 floor), Markdown lint, and the build. `make build` produces `dist/arxiv_int-0.1.0.tar.gz` and
 `dist/arxiv_int-0.1.0-py3-none-any.whl`. Repair evidence:
-[quality baseline repair](../records/restore-quality-gate-baseline.md).
+[quality baseline repair](../records/0003-foundation-restore-quality-gate-baseline.md).

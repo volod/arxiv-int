@@ -5,6 +5,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from arxiv_int.quality.plan_model import Task, fenced_blocks, parse_task_block, unfenced_lines
+from arxiv_int.quality.record_naming import (
+    KNOWN_GROUP_ABBREVS,
+    parse_record_stem,
+    record_identifier_from_stem,
+)
 
 RECORDS_DIR = Path("docs/impl/records")
 INDEX_NAME = "README.md"
@@ -130,8 +135,10 @@ def read_record(path: Path) -> Record:
     handoff = grouped["handoff"]
     notes = [note for note in (_note(line) for line in handoff) if note is not None]
     handoff_text = "\n".join(handoff)
+    parsed = parse_record_stem(path.stem)
+    fallback_id = parsed.task_id if parsed is not None else path.stem
     return Record(
-        identifier=identifier.group("id") if identifier else path.stem,
+        identifier=identifier.group("id") if identifier else fallback_id,
         path=path,
         state=state.group("state") if state else "",
         snapshot=snapshot,
@@ -146,7 +153,7 @@ def read_record(path: Path) -> Record:
 
 
 def read_records(project_root: Path) -> dict[str, Record]:
-    """Read every durable record, keyed by file stem, excluding index and template."""
+    """Read every durable record, keyed by stable task id, excluding index and template."""
     directory = project_root / RECORDS_DIR
     if not directory.is_dir():
         return {}
@@ -154,17 +161,36 @@ def read_records(project_root: Path) -> dict[str, Record]:
     for path in sorted(directory.glob("*.md")):
         if path.name in (INDEX_NAME, TEMPLATE_NAME):
             continue
-        records[path.stem] = read_record(path)
+        record = read_record(path)
+        records.setdefault(record.identifier, record)
     return records
 
 
 def indexed_records(project_root: Path) -> set[str]:
-    """Return the record file stems linked from the record index."""
+    """Return the task ids linked from the record index."""
     index = project_root / RECORDS_DIR / INDEX_NAME
     if not index.is_file():
         return set()
     targets = _LINK_TARGET.findall(index.read_text(encoding="utf-8"))
-    return {Path(target.partition("#")[0]).stem for target in targets}
+    return {record_identifier_from_stem(Path(target.partition("#")[0]).stem) for target in targets}
+
+
+def _filename_findings(record: Record, where: str) -> list[str]:
+    findings: list[str] = []
+    parsed = parse_record_stem(record.path.stem)
+    if parsed is None:
+        if record.path.stem != record.identifier:
+            findings.append(
+                f"{where}: declares id `{record.identifier}` but is filed as `{record.path.stem}`"
+            )
+        return findings
+    if parsed.task_id != record.identifier:
+        findings.append(
+            f"{where}: declares id `{record.identifier}` but filename task id is `{parsed.task_id}`"
+        )
+    if parsed.group not in KNOWN_GROUP_ABBREVS:
+        findings.append(f"{where}: uses unknown group abbrev `{parsed.group}`")
+    return findings
 
 
 def _accepted_findings(record: Record, where: str) -> list[str]:
@@ -185,26 +211,58 @@ def _accepted_findings(record: Record, where: str) -> list[str]:
     return findings
 
 
+def _scan_record_files(directory: Path) -> tuple[list[Record], list[str]]:
+    findings: list[str] = []
+    seen_sequences: dict[int, str] = {}
+    by_id: dict[str, list[Path]] = {}
+    loaded: list[Record] = []
+    for path in sorted(directory.glob("*.md")):
+        if path.name in (INDEX_NAME, TEMPLATE_NAME):
+            continue
+        record = read_record(path)
+        loaded.append(record)
+        by_id.setdefault(record.identifier, []).append(path)
+        parsed = parse_record_stem(path.stem)
+        if parsed is None:
+            continue
+        prior = seen_sequences.get(parsed.sequence)
+        if prior is not None:
+            findings.append(
+                f"{RECORDS_DIR / path.name}: reuses sequence {parsed.sequence:04d} "
+                f"already used by `{prior}`"
+            )
+        else:
+            seen_sequences[parsed.sequence] = path.name
+    for identifier, paths in sorted(by_id.items()):
+        if len(paths) > 1:
+            names = ", ".join(path.name for path in paths)
+            findings.append(f"{RECORDS_DIR}: duplicate record id `{identifier}` in {names}")
+    return loaded, findings
+
+
+def _record_body_findings(record: Record, indexed: set[str]) -> list[str]:
+    where = f"{RECORDS_DIR / record.path.name}"
+    findings = _filename_findings(record, where)
+    if not record.state:
+        findings.append(f"{where}: declares no `State`")
+    if record.identifier not in indexed:
+        findings.append(f"{where}: is not linked from the record index")
+    findings.extend(
+        f"{where}: audit note `{note.identifier}` names no owner"
+        for note in record.notes
+        if not note.owners
+    )
+    if record.accepted:
+        findings.extend(_accepted_findings(record, where))
+    return findings
+
+
 def record_findings(project_root: Path) -> list[str]:
     """Return every record that cannot stand in for the task text it replaced."""
     if not (project_root / RECORDS_DIR).is_dir():
         return [f"missing required directory: {RECORDS_DIR}"]
-    records = read_records(project_root)
+    loaded, findings = _scan_record_files(project_root / RECORDS_DIR)
     indexed = indexed_records(project_root)
-    findings: list[str] = []
-    for stem, record in sorted(records.items()):
-        where = f"{RECORDS_DIR / record.path.name}"
-        if record.identifier != stem:
-            findings.append(f"{where}: declares id `{record.identifier}` but is filed as `{stem}`")
-        if not record.state:
-            findings.append(f"{where}: declares no `State`")
-        if stem not in indexed:
-            findings.append(f"{where}: is not linked from the record index")
-        findings.extend(
-            f"{where}: audit note `{note.identifier}` names no owner"
-            for note in record.notes
-            if not note.owners
-        )
-        if record.accepted:
-            findings.extend(_accepted_findings(record, where))
+    for record in loaded:
+        findings.extend(_record_body_findings(record, indexed))
     return findings
