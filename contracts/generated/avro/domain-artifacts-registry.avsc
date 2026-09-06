@@ -1,0 +1,82 @@
+{
+  "fields": [
+    {
+      "name": "artifact_id",
+      "type": "string"
+    },
+    {
+      "name": "artifact_type",
+      "type": "string"
+    },
+    {
+      "name": "schema_version",
+      "type": "string"
+    },
+    {
+      "name": "generator_fingerprint",
+      "type": "string"
+    },
+    {
+      "name": "policy_fingerprint",
+      "type": "string"
+    },
+    {
+      "name": "input_fact_snapshot_id",
+      "type": "string"
+    },
+    {
+      "name": "identity_snapshot_id",
+      "type": "string"
+    },
+    {
+      "name": "review_inclusion_rules",
+      "type": "string"
+    },
+    {
+      "name": "uri_or_path",
+      "type": "string"
+    },
+    {
+      "name": "media_type",
+      "type": "string"
+    },
+    {
+      "name": "byte_count",
+      "type": "int"
+    },
+    {
+      "name": "row_count",
+      "type": "int"
+    },
+    {
+      "name": "checksum",
+      "type": "string"
+    },
+    {
+      "name": "evidence_coverage",
+      "type": "bytes"
+    },
+    {
+      "name": "creation_status",
+      "type": "string"
+    },
+    {
+      "name": "failure_reason",
+      "type": "string"
+    },
+    {
+      "name": "run_id",
+      "type": "string"
+    },
+    {
+      "name": "generation_id",
+      "type": "string"
+    },
+    {
+      "name": "contract_version",
+      "type": "string"
+    }
+  ],
+  "name": "domain_artifact_registry",
+  "type": "record"
+}

@@ -148,14 +148,23 @@ def _semantic_matches(graph: Any) -> dict[str, tuple[str, ...]]:
 
 
 def load_ontology_graphs(ontology_root: pathlib.Path | None = None) -> tuple[Any, Any, Any]:
-    """Parse core, mappings, and shapes graphs."""
+    """Parse core/domain vocabulary, mappings, and SHACL shape graphs."""
     require_graph_dependencies()
     root = ontology_root if ontology_root is not None else ontology_root_for()
     manifest = load_manifest(root)
     assets = manifest.get("assets") or {}
     core = _load_graph(root, str(assets.get("core", "core.ttl")))
+    domain = assets.get("domain")
+    if domain:
+        core = core + _load_graph(root, str(domain))
     mappings = _load_graph(root, str(assets.get("mappings", "mappings.ttl")))
+    domain_mappings = assets.get("domainMappings")
+    if domain_mappings:
+        mappings = mappings + _load_graph(root, str(domain_mappings))
     shapes = _load_graph(root, str(assets.get("shapes", "shapes.shacl.ttl")))
+    domain_shapes = assets.get("domainShapes")
+    if domain_shapes:
+        shapes = shapes + _load_graph(root, str(domain_shapes))
     return core, mappings, shapes
 
 

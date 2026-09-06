@@ -1,0 +1,309 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix ai: <https://arxiv-int.local/ns/ontology#> .
+@prefix aic: <https://arxiv-int.local/ns/class/> .
+@prefix aip: <https://arxiv-int.local/ns/pred/> .
+@prefix unit: <https://arxiv-int.local/ns/unit/> .
+
+# Domain investigation vocabulary (additive to foundation ontology 1.0.0).
+# Source-asserted semantics only; no induction of ownership, delivery, or settlement.
+
+########################################
+# Domain classes
+########################################
+
+aic:Design a owl:Class ;
+    rdfs:subClassOf aic:Object ;
+    rdfs:label "Design"@en ;
+    rdfs:label "Proekt"@ru ;
+    ai:termId "class.design" ;
+    ai:status "active" .
+
+aic:Assembly a owl:Class ;
+    rdfs:subClassOf aic:Object ;
+    rdfs:label "Assembly"@en ;
+    rdfs:label "Sborka"@ru ;
+    ai:termId "class.assembly" ;
+    ai:status "active" .
+
+aic:Component a owl:Class ;
+    rdfs:subClassOf aic:Object ;
+    rdfs:label "Component"@en ;
+    rdfs:label "Komponent"@ru ;
+    ai:termId "class.component" ;
+    ai:status "active" .
+
+aic:Order a owl:Class ;
+    rdfs:subClassOf aic:Transaction ;
+    rdfs:label "Order"@en ;
+    rdfs:label "Zakaz"@ru ;
+    ai:termId "class.order" ;
+    ai:status "active" .
+
+aic:Shipment a owl:Class ;
+    rdfs:subClassOf aic:Transaction ;
+    rdfs:label "Shipment"@en ;
+    rdfs:label "Otgruzka"@ru ;
+    ai:termId "class.shipment" ;
+    ai:status "active" .
+
+aic:Invoice a owl:Class ;
+    rdfs:subClassOf aic:Transaction ;
+    rdfs:label "Invoice"@en ;
+    rdfs:label "Schet-faktura"@ru ;
+    ai:termId "class.invoice" ;
+    ai:status "active" .
+
+aic:InvoiceLine a owl:Class ;
+    rdfs:subClassOf aic:Object ;
+    rdfs:label "Invoice line"@en ;
+    rdfs:label "Stroka scheta"@ru ;
+    ai:termId "class.invoice-line" ;
+    ai:status "active" .
+
+aic:Payment a owl:Class ;
+    rdfs:subClassOf aic:Transaction ;
+    rdfs:label "Payment"@en ;
+    rdfs:label "Platezh"@ru ;
+    ai:termId "class.payment" ;
+    ai:status "active" .
+
+aic:CreditNote a owl:Class ;
+    rdfs:subClassOf aic:Transaction ;
+    rdfs:label "Credit note"@en ;
+    rdfs:label "Kredit-nota"@ru ;
+    ai:termId "class.credit-note" ;
+    ai:status "active" .
+
+aic:Allocation a owl:Class ;
+    rdfs:subClassOf aic:Object ;
+    rdfs:label "Allocation"@en ;
+    rdfs:label "Raspredelenie"@ru ;
+    ai:termId "class.allocation" ;
+    ai:status "active" .
+
+aic:CommercialContract a owl:Class ;
+    rdfs:subClassOf aic:Object ;
+    rdfs:label "Commercial contract"@en ;
+    rdfs:label "Dogovor"@ru ;
+    ai:termId "class.commercial-contract" ;
+    ai:status "active" .
+
+########################################
+# Units
+########################################
+
+ai:Unit a owl:Class ;
+    rdfs:label "Unit"@en ;
+    rdfs:label "Edinitsa"@ru ;
+    ai:termId "class.unit" ;
+    ai:status "active" .
+
+unit:piece a ai:Unit ;
+    rdfs:label "piece"@en ;
+    rdfs:label "shtuka"@ru ;
+    ai:quantityKind "count" ;
+    ai:status "active" .
+
+unit:kilogram a ai:Unit ;
+    rdfs:label "kilogram"@en ;
+    rdfs:label "kilogramm"@ru ;
+    ai:quantityKind "mass" ;
+    ai:status "active" .
+
+########################################
+# Structural / BOM predicates
+########################################
+
+aip:partOf a owl:ObjectProperty ;
+    rdfs:label "part of"@en ;
+    rdfs:label "chast"@ru ;
+    ai:termId "pred.part-of" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:Object ;
+    rdfs:range aic:Object ;
+    rdfs:comment "Explicit assembly/component membership. Distinct from references."@en .
+
+aip:references a owl:ObjectProperty ;
+    rdfs:label "references"@en ;
+    rdfs:label "ssylaetsia"@ru ;
+    ai:termId "pred.references" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:Object ;
+    rdfs:range aic:Object ;
+    rdfs:comment "Citation or mention of another object; never implies part-of."@en ;
+    owl:propertyDisjointWith aip:partOf .
+
+aip:alternativeTo a owl:ObjectProperty ;
+    rdfs:label "alternative to"@en ;
+    rdfs:label "alternativa"@ru ;
+    ai:termId "pred.alternative-to" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:Object ;
+    rdfs:range aic:Object .
+
+aip:hasQuantity a owl:DatatypeProperty ;
+    rdfs:label "has quantity"@en ;
+    rdfs:label "kolichestvo"@ru ;
+    ai:termId "pred.has-quantity" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    ai:quantityKind "count" ;
+    ai:canonicalUnit unit:piece ;
+    rdfs:domain aic:Object ;
+    rdfs:range xsd:decimal .
+
+aip:hasUnit a owl:ObjectProperty ;
+    rdfs:label "has unit"@en ;
+    rdfs:label "edinitsa"@ru ;
+    ai:termId "pred.has-unit" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:Object ;
+    rdfs:range ai:Unit .
+
+########################################
+# Party role predicates (time-qualified in facts/qualifiers)
+########################################
+
+aip:supplierOf a owl:ObjectProperty ;
+    rdfs:label "supplier of"@en ;
+    rdfs:label "postavshchik"@ru ;
+    ai:termId "pred.supplier-of" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:Object ;
+    rdfs:range aic:Object .
+
+aip:manufacturerOf a owl:ObjectProperty ;
+    rdfs:label "manufacturer of"@en ;
+    rdfs:label "proizvoditel"@ru ;
+    ai:termId "pred.manufacturer-of" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:Object ;
+    rdfs:range aic:Object .
+
+aip:buyerOf a owl:ObjectProperty ;
+    rdfs:label "buyer of"@en ;
+    rdfs:label "pokupatel"@ru ;
+    ai:termId "pred.buyer-of" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:Object ;
+    rdfs:range aic:Object .
+
+aip:employeeOf a owl:ObjectProperty ;
+    rdfs:label "employee of"@en ;
+    rdfs:label "sotrudnik"@ru ;
+    ai:termId "pred.employee-of" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:NaturalPerson ;
+    rdfs:range aic:LegalEntity .
+
+aip:representativeOf a owl:ObjectProperty ;
+    rdfs:label "representative of"@en ;
+    rdfs:label "predstavitel"@ru ;
+    ai:termId "pred.representative-of" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:NaturalPerson ;
+    rdfs:range aic:LegalEntity .
+
+aip:signatoryFor a owl:ObjectProperty ;
+    rdfs:label "signatory for"@en ;
+    rdfs:label "podpisant"@ru ;
+    ai:termId "pred.signatory-for" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:NaturalPerson ;
+    rdfs:range aic:Object .
+
+aip:accountHolderOf a owl:ObjectProperty ;
+    rdfs:label "account holder of"@en ;
+    rdfs:label "vladelets scheta"@ru ;
+    ai:termId "pred.account-holder-of" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:Object ;
+    rdfs:range aic:Account .
+
+aip:ownsExplicit a owl:ObjectProperty ;
+    rdfs:label "owns (explicit)"@en ;
+    rdfs:label "vladeet (iavno)"@ru ;
+    ai:termId "pred.owns-explicit" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:Object ;
+    rdfs:range aic:Object ;
+    rdfs:comment "Ownership only when the source explicitly asserts it."@en .
+
+aip:ownsCandidate a owl:ObjectProperty ;
+    rdfs:label "owns (candidate)"@en ;
+    rdfs:label "vladeet (kandidat)"@ru ;
+    ai:termId "pred.owns-candidate" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:Object ;
+    rdfs:range aic:Object ;
+    rdfs:comment "Candidate association only; never proves ownership."@en ;
+    owl:propertyDisjointWith aip:ownsExplicit .
+
+########################################
+# Commercial / settlement predicates
+########################################
+
+aip:issuedInvoice a owl:ObjectProperty ;
+    rdfs:label "issued invoice"@en ;
+    rdfs:label "vystavil schet"@ru ;
+    ai:termId "pred.issued-invoice" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:Object ;
+    rdfs:range aic:Invoice .
+
+aip:allocatesTo a owl:ObjectProperty ;
+    rdfs:label "allocates to"@en ;
+    rdfs:label "raspredeliaet na"@ru ;
+    ai:termId "pred.allocates-to" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:Payment ;
+    rdfs:range aic:Invoice .
+
+aip:shippedAs a owl:ObjectProperty ;
+    rdfs:label "shipped as"@en ;
+    rdfs:label "otgruzhen kak"@ru ;
+    ai:termId "pred.shipped-as" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:Shipment ;
+    rdfs:range aic:Object .
+
+aip:amountDateSimilarTo a owl:ObjectProperty ;
+    rdfs:label "amount/date similar to"@en ;
+    rdfs:label "pokhozh po summe/date"@ru ;
+    ai:termId "pred.amount-date-similar-to" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:Object ;
+    rdfs:range aic:Object ;
+    rdfs:comment "Similarity signal only; never proves payment allocation."@en ;
+    owl:propertyDisjointWith aip:allocatesTo .
+
+aip:sameNameAs a owl:ObjectProperty ;
+    rdfs:label "same name as"@en ;
+    rdfs:label "odno imia s"@ru ;
+    ai:termId "pred.same-name-as" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:Object ;
+    rdfs:range aic:Object ;
+    rdfs:comment "Shared surface name is not identity."@en .

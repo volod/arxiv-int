@@ -1,0 +1,190 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:contract:domain-artifacts-relationship-map:1.0.0
+name: domain-artifacts-relationship-map
+status: active
+domain: arxiv-int
+description:
+  purpose: Typed design/party/product relationship edges with evidence and inclusion
+    state.
+team:
+  name: arxiv-int
+  members:
+  - username: contracts@arxiv-int.local
+    role: Owner
+servers:
+- server: normalized-lake
+  type: local
+  description: Partitioned normalized lake under RESULTS_DIR
+  path: normalized/domain-artifacts-relationship-map
+  format: parquet
+customProperties:
+- property: x-arxiv-int
+  value:
+    schema: kg
+    table: relationship_edges
+    partitionKey: bucket
+    graph:
+      edgeLabel: RELATIONSHIP
+      fromField: subject_object_id
+      toField: object_object_id
+      idField: edge_id
+schema:
+- name: relationship_edges
+  physicalName: relationship_edges
+  logicalType: object
+  properties:
+  - name: edge_id
+    logicalType: string
+    primaryKey: true
+    primaryKeyPosition: 1
+    required: true
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_relationship.edgeId
+          semanticTerm: urn:arxiv-int:term:edge-id
+  - name: subject_object_id
+    logicalType: string
+    relationships:
+    - type: foreignKey
+      to: objects.object_id
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_relationship.subjectObjectId
+          semanticTerm: urn:arxiv-int:term:subject-object-id
+  - name: predicate_id
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_relationship.predicateId
+          semanticTerm: urn:arxiv-int:term:predicate-id
+  - name: object_object_id
+    logicalType: string
+    relationships:
+    - type: foreignKey
+      to: objects.object_id
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_relationship.objectObjectId
+          semanticTerm: urn:arxiv-int:term:object-object-id
+  - name: relation_kind
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_relationship.relationKind
+          semanticTerm: urn:arxiv-int:term:relation-kind
+  - name: direction
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_relationship.direction
+          semanticTerm: urn:arxiv-int:term:direction
+  - name: cardinality
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_relationship.cardinality
+          semanticTerm: urn:arxiv-int:term:cardinality
+  - name: review_state
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_relationship.reviewState
+          semanticTerm: urn:arxiv-int:term:review-state
+  - name: inclusion_policy
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_relationship.inclusionPolicy
+          semanticTerm: urn:arxiv-int:term:inclusion-policy
+  - name: conflict_group_id
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_relationship.conflictGroupId
+          semanticTerm: urn:arxiv-int:term:conflict-group-id
+  - name: evidence_fact_ids
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_relationship.evidenceFactIds
+          semanticTerm: urn:arxiv-int:term:evidence-fact-ids
+  - name: document_id
+    logicalType: string
+    relationships:
+    - type: foreignKey
+      to: documents.document_id
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_relationship.documentId
+          semanticTerm: urn:arxiv-int:term:document-id
+  - name: span_id
+    logicalType: string
+    relationships:
+    - type: foreignKey
+      to: spans.span_id
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_relationship.spanId
+          semanticTerm: urn:arxiv-int:term:span-id
+  - name: anchor_kind
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_relationship.anchorKind
+          semanticTerm: urn:arxiv-int:term:anchor-kind
+  - name: confidence
+    logicalType: number
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_relationship.confidence
+          semanticTerm: urn:arxiv-int:term:confidence
+  - name: generation_id
+    logicalType: string
+    required: true
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_relationship.generationId
+          semanticTerm: urn:arxiv-int:term:generation-id
+  - name: contract_version
+    logicalType: string
+    required: true
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_relationship.contractVersion
+          semanticTerm: urn:arxiv-int:term:contract-version

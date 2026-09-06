@@ -1,0 +1,141 @@
+{
+  "contractId": "domain-artifacts-bom",
+  "fields": [
+    {
+      "arrowType": "string",
+      "name": "bom_line_id",
+      "nullable": false,
+      "primaryKey": true
+    },
+    {
+      "arrowType": "string",
+      "name": "bom_id",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "root_object_id",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "parent_object_id",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "child_object_id",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "predicate_id",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "listing_kind",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "float64",
+      "name": "quantity",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "unit",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "alternative_group_id",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "bool",
+      "name": "is_mandatory",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "timestamp[us, tz=UTC]",
+      "name": "effectivity_start",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "timestamp[us, tz=UTC]",
+      "name": "effectivity_end",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "revision_object_id",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "completeness_status",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "bool",
+      "name": "cycle_detected",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "evidence_fact_ids",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "document_id",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "anchor_kind",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "review_state",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "generation_id",
+      "nullable": false,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "contract_version",
+      "nullable": false,
+      "primaryKey": false
+    }
+  ],
+  "format": "parquet",
+  "partitionKey": "bucket",
+  "sourceOdcsId": "urn:arxiv-int:contract:domain-artifacts-bom:1.0.0",
+  "sourceVersion": "1.0.0"
+}

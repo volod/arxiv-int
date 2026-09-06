@@ -1,0 +1,25 @@
+{
+  "assertions": [],
+  "bom_lines": [
+    {
+      "line_id": "1",
+      "parent_id": "root",
+      "child_id": "opt-a",
+      "predicate": "pred.alternative-to",
+      "quantity": 1.0,
+      "unit": "piece",
+      "alternative_group_id": "g1",
+      "is_mandatory": true
+    },
+    {
+      "line_id": "2",
+      "parent_id": "root",
+      "child_id": "opt-b",
+      "predicate": "pred.alternative-to",
+      "quantity": 1.0,
+      "unit": "piece",
+      "alternative_group_id": "g1",
+      "is_mandatory": true
+    }
+  ]
+}

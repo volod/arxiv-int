@@ -1614,7 +1614,7 @@ evidence exist. Registry order is the implementation line used by `plan.md`.
 | --- | ------------------------- | ------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
 | 1 | `project-foundation` | shipped | Fresh copy, rename, locked bootstrap, CLI identity, docs integrity, and CI pass | [Project foundation](../impl/current/project-foundation.md) |
 | 2 | `portable-runtime` | shipped | Multi-SSD path and Compose profile smoke tests pass from two checkout locations | [Portable runtime](../impl/current/portable-runtime.md) |
-| 3 | `contract-governance` | planned | ODCS lint/generation/evolution/Avro/migration/live-store gates pass | [Open work](../impl/plan.md#contract-governance----contract-governance) |
+| 3 | `contract-governance` | shipped | ODCS lint/generation/evolution/Avro/migration/live-store and ontology gates pass | [Contracts](../impl/current/contracts.md) |
 | 4 | `canonical-store` | planned | ParadeDB/pgvector/AGE compatibility, schema, backup, restore, and projection checks pass | [Open work](../impl/plan.md#canonical-store----canonical-store) |
 | 5 | `local-inference` | planned | Ollama/vLLM conformance, structured outputs, model-fit, and local-only endpoint gates pass | [Open work](../impl/plan.md#local-inference----local-inference) |
 | 6 | `evaluation-foundation` | planned | Frozen fixtures, replayable metrics, split guards, and paired verdict utilities pass | [Open work](../impl/plan.md#evaluation-foundation----evaluation-foundation) |

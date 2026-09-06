@@ -23,6 +23,17 @@ def _predicate_uri(catalog: OntologyCatalog, predicate_key: str) -> str:
     return predicate_key
 
 
+def _add_types(graph: Any, node: Any, type_keys: tuple[str, ...], catalog: OntologyCatalog) -> None:
+    from rdflib import URIRef
+    from rdflib.namespace import RDF
+
+    for type_key in type_keys:
+        uri = _class_uri(catalog, type_key)
+        graph.add((node, RDF.type, URIRef(uri)))
+        for ancestor in catalog.subclass_closure(uri):
+            graph.add((node, RDF.type, URIRef(ancestor)))
+
+
 def assertions_to_graph(
     assertions: tuple[FactAssertion, ...] | list[FactAssertion],
     *,
@@ -32,19 +43,17 @@ def assertions_to_graph(
     """Serialize application assertions into an RDF instance graph."""
     require_graph_dependencies()
     from rdflib import Graph, Literal, URIRef
-    from rdflib.namespace import RDF, XSD
+    from rdflib.namespace import XSD
 
     resolved = catalog if catalog is not None else load_ontology_catalog(ontology_root)
     graph = Graph()
     for assertion in assertions:
         subject = URIRef(f"urn:arxiv-int:node:{assertion.subject_id}")
-        for type_key in assertion.subject_types:
-            graph.add((subject, RDF.type, URIRef(_class_uri(resolved, type_key))))
+        _add_types(graph, subject, assertion.subject_types, resolved)
         predicate_ref = URIRef(_predicate_uri(resolved, assertion.predicate))
         if assertion.object_id is not None:
             obj = URIRef(f"urn:arxiv-int:node:{assertion.object_id}")
-            for type_key in assertion.object_types:
-                graph.add((obj, RDF.type, URIRef(_class_uri(resolved, type_key))))
+            _add_types(graph, obj, assertion.object_types, resolved)
             graph.add((subject, predicate_ref, obj))
         elif assertion.literal_value is not None:
             datatype = assertion.literal_datatype or str(XSD.string)

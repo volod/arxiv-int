@@ -8,37 +8,6 @@ ordering, and lifecycle rules belong in the
 
 ## Agent Implementation Tasks
 
-### Contract governance -- `contract-governance`
-
-#### define-domain-investigation-contracts-and-ontology
-
-Define evidence semantics and output contracts for design relationships, bills of materials,
-supply chains, invoices, payments, and their run-artifact registry entries.
-
-- Serves: `contract-governance` --
-[Domain investigation artifacts](../design/spec.md#domain-investigation-artifacts)
-- Agent status: CLEAR
-- Dependencies: [Versioned ontology assets](records/0013-contract-gov-establish-versioned-ontology-assets.md);
-[Deterministic schema generation](records/0011-contract-gov-implement-deterministic-schema-generation.md).
-- User-visible outcome: Operators see consistent definitions for `part-of`, supply roles, invoice
-obligations, payment allocations, conflicts, and empty/partial results before graphs are generated.
-- Scope boundary: Define source-asserted investigation semantics and schemas; do not infer missing
-ownership, delivery, settlement, liability, engineering completeness, or accounting truth.
-- Data and artifact paths: `contracts/datasets/domain-artifacts*.odcs.yaml`,
-`contracts/canonical/`, `ontology/`, generated table/JSON/graph schemas, and domain fixtures.
-- Execution path: Model designs, revisions, assemblies, components, materials, parties, locations,
-natural persons versus legal entities, product/model/revision versus equipment instances, scoped
-identifiers, time-qualified party roles, accounts, orders, shipments, invoices, invoice lines,
-ledger postings, payments, credit notes/reversals, currencies, decimal quantities, allocations, and
-typed relations; define evidence, review/inclusion, arithmetic, conflict, and artifact-status rules.
-- Acceptance gates: Contract and ontology validation pass; positive and negative fixtures separate
-reference from `part-of`, invoice from delivery, and amount/date similarity from payment;
-same-name nonmatches, explicit versus candidate ownership, table/cell/container anchors, BOM
-cycles/alternatives/effectivity, units, currencies, direction, cardinality, and creation statuses
-are unambiguous and versioned.
-- Documentation target: `docs/impl/current/contracts.md`
-- Review checkpoint: `review-foundation-and-store-boundaries`.
-
 ### Canonical store -- `canonical-store`
 
 #### build-pinned-paradedb-age-image
@@ -76,7 +45,7 @@ with partition and provenance constraints.
 - Agent status: CLEAR
 - Dependencies: `build-pinned-paradedb-age-image` can yield either AGE-enabled or AGE-disabled;
 [Evolution and migration policy](records/0012-contract-gov-enforce-evolution-and-migration-policy.md).
-`define-domain-investigation-contracts-and-ontology`.
+[Domain investigation contracts](records/0014-contract-gov-define-domain-investigation-contracts-and-ontology.md).
 
 - User-visible outcome: Canonical documents, assertions, reviews, and run state have constrained,
 queryable tables independent of search and graph projections.
@@ -1074,7 +1043,7 @@ LLM calls for bounded high-value lanes.
 [Canonical object and fact model](../design/spec.md#canonical-object-and-fact-model)
 - Agent status: RUN NEEDED
 - Dependencies: `evaluate-general-and-domain-ner`; `implement-local-inference-adapters`;
-`implement-probabilistic-entity-resolution`; `define-domain-investigation-contracts-and-ontology`;
+`implement-probabilistic-entity-resolution`; [Domain investigation contracts](records/0014-contract-gov-define-domain-investigation-contracts-and-ontology.md);
 `create-canonical-relational-schema`.
 - User-visible outcome: Design/revision, assembly/component, equipment, supplier, order, shipment,
 invoice, payment, date, quantity, and other relations are queryable with exact source evidence and
@@ -1100,7 +1069,7 @@ Extract structured financial records and evidenced legal-entity/person roles bef
 
 - Serves: `knowledge-extraction` -- [Financial, bookkeeping, and party relationship semantics](../design/spec.md#financial-bookkeeping-and-party-relationship-semantics)
 - Agent status: RUN NEEDED
-- Dependencies: `implement-provenance-bearing-fact-extraction`; `define-domain-investigation-contracts-and-ontology`.
+- Dependencies: `implement-provenance-bearing-fact-extraction`; [Domain investigation contracts](records/0014-contract-gov-define-domain-investigation-contracts-and-ontology.md).
 - User-visible outcome: Invoices, payments, bookkeeping postings, corrections and party roles
 become typed
 proposed records with exact table/cell/page evidence and scoped identifiers.
@@ -1124,7 +1093,7 @@ Extract product descriptions, revisions and explicit assembly/component assertio
 
 - Serves: `knowledge-extraction` -- [Product, BOM, and supply-chain semantics](../design/spec.md#product-bom-and-supply-chain-semantics)
 - Agent status: RUN NEEDED
-- Dependencies: `implement-provenance-bearing-fact-extraction`; `define-domain-investigation-contracts-and-ontology`.
+- Dependencies: `implement-provenance-bearing-fact-extraction`; [Domain investigation contracts](records/0014-contract-gov-define-domain-investigation-contracts-and-ontology.md).
 - User-visible outcome: Products, model/revision identifiers, equipment instances, components,
 materials and
 manufacturer claims remain distinguishable and evidence-backed.
@@ -1207,7 +1176,7 @@ and bounded graphs.
 [Domain investigation artifacts](../design/spec.md#domain-investigation-artifacts)
 - Agent status: RUN NEEDED
 - Research: yes
-- Dependencies: `define-domain-investigation-contracts-and-ontology`;
+- Dependencies: [Domain investigation contracts](records/0014-contract-gov-define-domain-investigation-contracts-and-ontology.md);
 `implement-fact-validation-conflict-and-review-overlays`; `implement-probabilistic-entity-resolution`.
 `review-knowledge-and-identity-integrity`.
 - User-visible outcome: Analysts can trace directed legal-entity/person roles, financial events,
@@ -1239,7 +1208,8 @@ Build revision-aware BOM hierarchies and evidence-scoped supply-chain analysis f
 - Serves: `domain-investigation-artifacts` -- [Product, BOM, and supply-chain semantics](../design/spec.md#product-bom-and-supply-chain-semantics)
 - Agent status: RUN NEEDED
 - Dependencies: `implement-fact-validation-conflict-and-review-overlays`;
-`define-domain-investigation-contracts-and-ontology`; `implement-probabilistic-entity-resolution`.
+[Domain investigation contracts](records/0014-contract-gov-define-domain-investigation-contracts-and-ontology.md);
+`implement-probabilistic-entity-resolution`.
 `review-knowledge-and-identity-integrity`.
 - User-visible outcome: An analyst can inspect assemblies, cumulative component requirements when justified,
 supplier/customer paths and concentration within a stated product/time scope.

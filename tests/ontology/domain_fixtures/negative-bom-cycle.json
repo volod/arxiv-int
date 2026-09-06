@@ -1,0 +1,29 @@
+{
+  "assertions": [],
+  "bom_lines": [
+    {
+      "line_id": "1",
+      "parent_id": "a",
+      "child_id": "b",
+      "predicate": "pred.part-of",
+      "quantity": 1.0,
+      "unit": "piece"
+    },
+    {
+      "line_id": "2",
+      "parent_id": "b",
+      "child_id": "c",
+      "predicate": "pred.part-of",
+      "quantity": 1.0,
+      "unit": "piece"
+    },
+    {
+      "line_id": "3",
+      "parent_id": "c",
+      "child_id": "a",
+      "predicate": "pred.part-of",
+      "quantity": 1.0,
+      "unit": "piece"
+    }
+  ]
+}

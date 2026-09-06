@@ -2,6 +2,12 @@
 
 from arxiv_int.ontology.catalog import OntologyCatalog, OntologyClass, OntologyPredicate
 from arxiv_int.ontology.check import OntologyCheckReport, check_ontology
+from arxiv_int.ontology.domain_rules import (
+    AllocationRow,
+    ArtifactRegistryRow,
+    BomLine,
+    validate_domain_assertions,
+)
 from arxiv_int.ontology.evolution import (
     ONTOLOGY_ADDITIVE,
     ONTOLOGY_BREAKING,
@@ -17,6 +23,9 @@ __all__ = [
     "ONTOLOGY_ADDITIVE",
     "ONTOLOGY_BREAKING",
     "ONTOLOGY_IDENTICAL",
+    "AllocationRow",
+    "ArtifactRegistryRow",
+    "BomLine",
     "FactAssertion",
     "OntologyCatalog",
     "OntologyCheckReport",
@@ -28,4 +37,5 @@ __all__ = [
     "load_ontology_catalog",
     "ontology_root_for",
     "validate_assertions",
+    "validate_domain_assertions",
 ]

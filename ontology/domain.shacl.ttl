@@ -1,0 +1,102 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ai: <https://arxiv-int.local/ns/ontology#> .
+@prefix aic: <https://arxiv-int.local/ns/class/> .
+@prefix aip: <https://arxiv-int.local/ns/pred/> .
+
+# Domain SHACL shapes: structural distinctions for investigation predicates.
+
+ai:PartOfShape a sh:NodeShape ;
+    sh:targetSubjectsOf aip:partOf ;
+    sh:class aic:Object ;
+    sh:property [
+        sh:path aip:partOf ;
+        sh:class aic:Object ;
+        sh:minCount 1 ;
+    ] ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "partOf cannot co-occur with references on the same subject-object pair" ;
+        sh:select """
+            SELECT $this ?object WHERE {
+                $this <https://arxiv-int.local/ns/pred/partOf> ?object .
+                $this <https://arxiv-int.local/ns/pred/references> ?object .
+            }
+        """ ;
+    ] .
+
+ai:ReferencesShape a sh:NodeShape ;
+    sh:targetSubjectsOf aip:references ;
+    sh:class aic:Object ;
+    sh:property [
+        sh:path aip:references ;
+        sh:class aic:Object ;
+        sh:minCount 1 ;
+    ] .
+
+ai:OwnsExplicitShape a sh:NodeShape ;
+    sh:targetSubjectsOf aip:ownsExplicit ;
+    sh:property [
+        sh:path aip:ownsExplicit ;
+        sh:class aic:Object ;
+        sh:minCount 1 ;
+    ] ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "ownsExplicit cannot co-occur with ownsCandidate on the same pair" ;
+        sh:select """
+            SELECT $this ?object WHERE {
+                $this <https://arxiv-int.local/ns/pred/ownsExplicit> ?object .
+                $this <https://arxiv-int.local/ns/pred/ownsCandidate> ?object .
+            }
+        """ ;
+    ] .
+
+ai:AllocatesToShape a sh:NodeShape ;
+    sh:targetSubjectsOf aip:allocatesTo ;
+    sh:class aic:Payment ;
+    sh:property [
+        sh:path aip:allocatesTo ;
+        sh:class aic:Invoice ;
+        sh:minCount 1 ;
+    ] ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "allocatesTo cannot co-occur with amountDateSimilarTo on the same pair" ;
+        sh:select """
+            SELECT $this ?object WHERE {
+                $this <https://arxiv-int.local/ns/pred/allocatesTo> ?object .
+                $this <https://arxiv-int.local/ns/pred/amountDateSimilarTo> ?object .
+            }
+        """ ;
+    ] .
+
+ai:EmployeeOfShape a sh:NodeShape ;
+    sh:targetSubjectsOf aip:employeeOf ;
+    sh:class aic:NaturalPerson ;
+    sh:property [
+        sh:path aip:employeeOf ;
+        sh:class aic:LegalEntity ;
+        sh:minCount 1 ;
+    ] .
+
+ai:ShippedAsShape a sh:NodeShape ;
+    sh:targetSubjectsOf aip:shippedAs ;
+    sh:class aic:Shipment ;
+    sh:property [
+        sh:path aip:shippedAs ;
+        sh:class aic:Object ;
+        sh:minCount 1 ;
+    ] .
+
+ai:IssuedInvoiceShape a sh:NodeShape ;
+    sh:targetSubjectsOf aip:issuedInvoice ;
+    sh:class aic:Object ;
+    sh:property [
+        sh:path aip:issuedInvoice ;
+        sh:class aic:Invoice ;
+        sh:minCount 1 ;
+    ] .

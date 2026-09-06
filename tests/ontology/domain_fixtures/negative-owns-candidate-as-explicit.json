@@ -1,0 +1,26 @@
+{
+  "assertions": [
+    {
+      "subject_id": "person-1",
+      "subject_types": [
+        "class.natural-person"
+      ],
+      "predicate": "pred.owns-candidate",
+      "object_id": "co-1",
+      "object_types": [
+        "class.legal-entity"
+      ]
+    },
+    {
+      "subject_id": "person-1",
+      "subject_types": [
+        "class.natural-person"
+      ],
+      "predicate": "pred.owns-explicit",
+      "object_id": "co-1",
+      "object_types": [
+        "class.legal-entity"
+      ]
+    }
+  ]
+}

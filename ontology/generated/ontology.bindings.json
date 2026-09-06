@@ -2,13 +2,38 @@
   "activePredicates": [
     {
       "contractBinding": "fact.predicateId",
+      "termId": "pred.account-holder-of",
+      "uri": "https://arxiv-int.local/ns/pred/accountHolderOf"
+    },
+    {
+      "contractBinding": "fact.predicateId",
       "termId": "pred.alias-of",
       "uri": "https://arxiv-int.local/ns/pred/aliasOf"
     },
     {
       "contractBinding": "fact.predicateId",
+      "termId": "pred.allocates-to",
+      "uri": "https://arxiv-int.local/ns/pred/allocatesTo"
+    },
+    {
+      "contractBinding": "fact.predicateId",
+      "termId": "pred.alternative-to",
+      "uri": "https://arxiv-int.local/ns/pred/alternativeTo"
+    },
+    {
+      "contractBinding": "fact.predicateId",
+      "termId": "pred.amount-date-similar-to",
+      "uri": "https://arxiv-int.local/ns/pred/amountDateSimilarTo"
+    },
+    {
+      "contractBinding": "fact.predicateId",
       "termId": "pred.assigned-to-topic",
       "uri": "https://arxiv-int.local/ns/pred/assignedToTopic"
+    },
+    {
+      "contractBinding": "fact.predicateId",
+      "termId": "pred.buyer-of",
+      "uri": "https://arxiv-int.local/ns/pred/buyerOf"
     },
     {
       "contractBinding": "fact.predicateId",
@@ -22,8 +47,23 @@
     },
     {
       "contractBinding": "fact.predicateId",
+      "termId": "pred.employee-of",
+      "uri": "https://arxiv-int.local/ns/pred/employeeOf"
+    },
+    {
+      "contractBinding": "fact.predicateId",
       "termId": "pred.extracted-from",
       "uri": "https://arxiv-int.local/ns/pred/extractedFrom"
+    },
+    {
+      "contractBinding": "fact.predicateId",
+      "termId": "pred.has-quantity",
+      "uri": "https://arxiv-int.local/ns/pred/hasQuantity"
+    },
+    {
+      "contractBinding": "fact.predicateId",
+      "termId": "pred.has-unit",
+      "uri": "https://arxiv-int.local/ns/pred/hasUnit"
     },
     {
       "contractBinding": "fact.predicateId",
@@ -32,8 +72,18 @@
     },
     {
       "contractBinding": "fact.predicateId",
+      "termId": "pred.issued-invoice",
+      "uri": "https://arxiv-int.local/ns/pred/issuedInvoice"
+    },
+    {
+      "contractBinding": "fact.predicateId",
       "termId": "pred.located-at",
       "uri": "https://arxiv-int.local/ns/pred/locatedAt"
+    },
+    {
+      "contractBinding": "fact.predicateId",
+      "termId": "pred.manufacturer-of",
+      "uri": "https://arxiv-int.local/ns/pred/manufacturerOf"
     },
     {
       "contractBinding": "fact.predicateId",
@@ -42,15 +92,60 @@
     },
     {
       "contractBinding": "fact.predicateId",
+      "termId": "pred.owns-candidate",
+      "uri": "https://arxiv-int.local/ns/pred/ownsCandidate"
+    },
+    {
+      "contractBinding": "fact.predicateId",
+      "termId": "pred.owns-explicit",
+      "uri": "https://arxiv-int.local/ns/pred/ownsExplicit"
+    },
+    {
+      "contractBinding": "fact.predicateId",
+      "termId": "pred.part-of",
+      "uri": "https://arxiv-int.local/ns/pred/partOf"
+    },
+    {
+      "contractBinding": "fact.predicateId",
       "termId": "pred.preferred-name",
       "uri": "https://arxiv-int.local/ns/pred/preferredName"
     },
     {
       "contractBinding": "fact.predicateId",
+      "termId": "pred.references",
+      "uri": "https://arxiv-int.local/ns/pred/references"
+    },
+    {
+      "contractBinding": "fact.predicateId",
+      "termId": "pred.representative-of",
+      "uri": "https://arxiv-int.local/ns/pred/representativeOf"
+    },
+    {
+      "contractBinding": "fact.predicateId",
+      "termId": "pred.same-name-as",
+      "uri": "https://arxiv-int.local/ns/pred/sameNameAs"
+    },
+    {
+      "contractBinding": "fact.predicateId",
+      "termId": "pred.shipped-as",
+      "uri": "https://arxiv-int.local/ns/pred/shippedAs"
+    },
+    {
+      "contractBinding": "fact.predicateId",
+      "termId": "pred.signatory-for",
+      "uri": "https://arxiv-int.local/ns/pred/signatoryFor"
+    },
+    {
+      "contractBinding": "fact.predicateId",
       "termId": "pred.supersedes",
       "uri": "https://arxiv-int.local/ns/pred/supersedes"
+    },
+    {
+      "contractBinding": "fact.predicateId",
+      "termId": "pred.supplier-of",
+      "uri": "https://arxiv-int.local/ns/pred/supplierOf"
     }
   ],
-  "ontologyId": "urn:arxiv-int:ontology:1.0.0",
-  "version": "1.0.0"
+  "ontologyId": "urn:arxiv-int:ontology:1.1.0",
+  "version": "1.1.0"
 }

@@ -1,0 +1,25 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix ai: <https://arxiv-int.local/ns/ontology#> .
+@prefix aic: <https://arxiv-int.local/ns/class/> .
+@prefix aip: <https://arxiv-int.local/ns/pred/> .
+
+# Domain semantic mappings to contract vocabulary terms.
+
+aic:Design skos:relatedMatch <urn:arxiv-int:term:object-id> .
+aic:Assembly skos:relatedMatch <urn:arxiv-int:term:object-id> .
+aic:Component skos:relatedMatch <urn:arxiv-int:term:object-id> .
+aic:Invoice skos:relatedMatch <urn:arxiv-int:term:transaction-id> .
+aic:Payment skos:relatedMatch <urn:arxiv-int:term:transaction-id> .
+aic:Order skos:relatedMatch <urn:arxiv-int:term:transaction-id> .
+aic:Shipment skos:relatedMatch <urn:arxiv-int:term:transaction-id> .
+
+aip:partOf skos:relatedMatch <urn:arxiv-int:term:predicate-id> .
+aip:references skos:relatedMatch <urn:arxiv-int:term:predicate-id> .
+aip:supplierOf skos:relatedMatch <urn:arxiv-int:term:predicate-id> .
+aip:allocatesTo skos:relatedMatch <urn:arxiv-int:term:predicate-id> .
+aip:ownsExplicit skos:relatedMatch <urn:arxiv-int:term:predicate-id> .
+aip:ownsCandidate skos:relatedMatch <urn:arxiv-int:term:predicate-id> .
+aip:amountDateSimilarTo skos:relatedMatch <urn:arxiv-int:term:predicate-id> .
+aip:sameNameAs skos:relatedMatch <urn:arxiv-int:term:preferred-name> .

@@ -1,0 +1,28 @@
+{
+  "apiVersion": "v3.1.0",
+  "artifacts": {
+    "avro/domain-artifacts-bom.avsc": "862e2ff60facb90474b8b87f249bfd0e0ebc953b7a986dc2aecd4363272f492e",
+    "graph/domain-artifacts-bom.sql": "d060758fb9145c77c9ea27d02dd531972a90ae3bbf4dce5fab6c413296f120f7",
+    "jsonschema/domain-artifacts-bom.schema.json": "bc285aa250f22cda3d242c97842c707b49f99aa14eac814825f0865f517b5617",
+    "parquet/domain-artifacts-bom.parquet.json": "d3eaa8816ed47c53d699a143cbc6346d4016469f37f07592aee150848959b46f",
+    "postgres/domain-artifacts-bom.sql": "da35a0caf046f8fcb4cb06b3ff70c7aa51899cf1b70f066ec9f19f3575d6d85d",
+    "postgres/extensions/domain-artifacts-bom.sql": "8335110f0d1ad74bfe83b874e4c853544a1f6860d26966ad57541d6c8e8a70c4",
+    "pydantic/domain-artifacts-bom.py": "e4815b0d145449a276f899c0a7e00414d604bfad624ffb97dea935936037c534"
+  },
+  "canonicalEntity": null,
+  "contractId": "domain-artifacts-bom",
+  "customExtensionKeys": [
+    "graph",
+    "partitionKey",
+    "schema",
+    "table"
+  ],
+  "odcsId": "urn:arxiv-int:contract:domain-artifacts-bom:1.0.0",
+  "odcsVersion": "1.0.0",
+  "postgres": {
+    "partitionKey": "bucket",
+    "schema": "kg",
+    "table": "bom_lines"
+  },
+  "semanticMetadataHash": "0e834538c0a06ef2d2982cbf51dcba914130681a19c34554b53524f65f51bc9f"
+}

@@ -1,0 +1,14 @@
+{
+  "assertions": [],
+  "allocations": [
+    {
+      "row_id": "r1",
+      "match_state": "matched",
+      "invoice_currency": "RUB",
+      "payment_currency": "USD",
+      "amount": 100.0,
+      "allocated_amount": 100.0,
+      "predicate": "pred.allocates-to"
+    }
+  ]
+}

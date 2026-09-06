@@ -66,3 +66,19 @@ def test_lint_contracts_schema_and_integrity_without_datacontract() -> None:
     assert report.ok
     assert report.checked_datasets >= 14
     assert report.datacontract_ran is False
+
+
+def test_domain_artifact_contracts_are_registered() -> None:
+    registry = FileRegistry(_contracts_root())
+    for contract_id in (
+        "domain-artifacts-relationship-map",
+        "domain-artifacts-bom",
+        "domain-artifacts-supply-chain",
+        "domain-artifacts-invoice-payment",
+        "domain-artifacts-registry",
+    ):
+        assert contract_id in registry.contract_ids()
+        registry.verify_semantic_fingerprint(contract_id)
+    model = load_canonical_model(_contracts_root() / "canonical")
+    assert "bom_line" in model.entities()
+    assert model.has_term("urn:arxiv-int:term:creation-status")

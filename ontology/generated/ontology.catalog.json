@@ -30,6 +30,20 @@
       "disjointWith": [],
       "kind": "class",
       "labels": {
+        "en": "Allocation",
+        "ru": "Raspredelenie"
+      },
+      "parents": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "status": "active",
+      "termId": "class.allocation",
+      "uri": "https://arxiv-int.local/ns/class/Allocation"
+    },
+    {
+      "disjointWith": [],
+      "kind": "class",
+      "labels": {
         "en": "Anomaly finding",
         "ru": "Anomalnoe nakhodka"
       },
@@ -37,6 +51,20 @@
       "status": "active",
       "termId": "class.anomaly-finding",
       "uri": "https://arxiv-int.local/ns/class/AnomalyFinding"
+    },
+    {
+      "disjointWith": [],
+      "kind": "class",
+      "labels": {
+        "en": "Assembly",
+        "ru": "Sborka"
+      },
+      "parents": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "status": "active",
+      "termId": "class.assembly",
+      "uri": "https://arxiv-int.local/ns/class/Assembly"
     },
     {
       "disjointWith": [],
@@ -61,6 +89,62 @@
       "status": "active",
       "termId": "class.chunk",
       "uri": "https://arxiv-int.local/ns/class/Chunk"
+    },
+    {
+      "disjointWith": [],
+      "kind": "class",
+      "labels": {
+        "en": "Commercial contract",
+        "ru": "Dogovor"
+      },
+      "parents": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "status": "active",
+      "termId": "class.commercial-contract",
+      "uri": "https://arxiv-int.local/ns/class/CommercialContract"
+    },
+    {
+      "disjointWith": [],
+      "kind": "class",
+      "labels": {
+        "en": "Component",
+        "ru": "Komponent"
+      },
+      "parents": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "status": "active",
+      "termId": "class.component",
+      "uri": "https://arxiv-int.local/ns/class/Component"
+    },
+    {
+      "disjointWith": [],
+      "kind": "class",
+      "labels": {
+        "en": "Credit note",
+        "ru": "Kredit-nota"
+      },
+      "parents": [
+        "https://arxiv-int.local/ns/class/Transaction"
+      ],
+      "status": "active",
+      "termId": "class.credit-note",
+      "uri": "https://arxiv-int.local/ns/class/CreditNote"
+    },
+    {
+      "disjointWith": [],
+      "kind": "class",
+      "labels": {
+        "en": "Design",
+        "ru": "Proekt"
+      },
+      "parents": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "status": "active",
+      "termId": "class.design",
+      "uri": "https://arxiv-int.local/ns/class/Design"
     },
     {
       "disjointWith": [],
@@ -123,6 +207,34 @@
       "status": "active",
       "termId": "class.fact",
       "uri": "https://arxiv-int.local/ns/class/Fact"
+    },
+    {
+      "disjointWith": [],
+      "kind": "class",
+      "labels": {
+        "en": "Invoice",
+        "ru": "Schet-faktura"
+      },
+      "parents": [
+        "https://arxiv-int.local/ns/class/Transaction"
+      ],
+      "status": "active",
+      "termId": "class.invoice",
+      "uri": "https://arxiv-int.local/ns/class/Invoice"
+    },
+    {
+      "disjointWith": [],
+      "kind": "class",
+      "labels": {
+        "en": "Invoice line",
+        "ru": "Stroka scheta"
+      },
+      "parents": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "status": "active",
+      "termId": "class.invoice-line",
+      "uri": "https://arxiv-int.local/ns/class/InvoiceLine"
     },
     {
       "disjointWith": [],
@@ -219,6 +331,34 @@
       "uri": "https://arxiv-int.local/ns/class/OntologyTerm"
     },
     {
+      "disjointWith": [],
+      "kind": "class",
+      "labels": {
+        "en": "Order",
+        "ru": "Zakaz"
+      },
+      "parents": [
+        "https://arxiv-int.local/ns/class/Transaction"
+      ],
+      "status": "active",
+      "termId": "class.order",
+      "uri": "https://arxiv-int.local/ns/class/Order"
+    },
+    {
+      "disjointWith": [],
+      "kind": "class",
+      "labels": {
+        "en": "Payment",
+        "ru": "Platezh"
+      },
+      "parents": [
+        "https://arxiv-int.local/ns/class/Transaction"
+      ],
+      "status": "active",
+      "termId": "class.payment",
+      "uri": "https://arxiv-int.local/ns/class/Payment"
+    },
+    {
       "disjointWith": [
         "https://arxiv-int.local/ns/class/EquipmentInstance"
       ],
@@ -247,6 +387,20 @@
       "status": "active",
       "termId": "class.product-revision",
       "uri": "https://arxiv-int.local/ns/class/ProductRevision"
+    },
+    {
+      "disjointWith": [],
+      "kind": "class",
+      "labels": {
+        "en": "Shipment",
+        "ru": "Otgruzka"
+      },
+      "parents": [
+        "https://arxiv-int.local/ns/class/Transaction"
+      ],
+      "status": "active",
+      "termId": "class.shipment",
+      "uri": "https://arxiv-int.local/ns/class/Shipment"
     },
     {
       "disjointWith": [],
@@ -295,10 +449,44 @@
       "status": "active",
       "termId": "class.transaction",
       "uri": "https://arxiv-int.local/ns/class/Transaction"
+    },
+    {
+      "disjointWith": [],
+      "kind": "class",
+      "labels": {
+        "en": "Unit",
+        "ru": "Edinitsa"
+      },
+      "parents": [],
+      "status": "active",
+      "termId": "class.unit",
+      "uri": "https://arxiv-int.local/ns/ontology#Unit"
     }
   ],
-  "ontologyId": "urn:arxiv-int:ontology:1.0.0",
+  "ontologyId": "urn:arxiv-int:ontology:1.1.0",
   "predicates": [
+    {
+      "canonicalUnit": null,
+      "contractBinding": "fact.predicateId",
+      "deprecated": false,
+      "domains": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "functional": false,
+      "kind": "object",
+      "labels": {
+        "en": "account holder of",
+        "ru": "vladelets scheta"
+      },
+      "quantityKind": null,
+      "ranges": [
+        "https://arxiv-int.local/ns/class/Account"
+      ],
+      "status": "active",
+      "successor": null,
+      "termId": "pred.account-holder-of",
+      "uri": "https://arxiv-int.local/ns/pred/accountHolderOf"
+    },
     {
       "canonicalUnit": null,
       "contractBinding": "fact.predicateId",
@@ -326,6 +514,72 @@
       "contractBinding": "fact.predicateId",
       "deprecated": false,
       "domains": [
+        "https://arxiv-int.local/ns/class/Payment"
+      ],
+      "functional": false,
+      "kind": "object",
+      "labels": {
+        "en": "allocates to",
+        "ru": "raspredeliaet na"
+      },
+      "quantityKind": null,
+      "ranges": [
+        "https://arxiv-int.local/ns/class/Invoice"
+      ],
+      "status": "active",
+      "successor": null,
+      "termId": "pred.allocates-to",
+      "uri": "https://arxiv-int.local/ns/pred/allocatesTo"
+    },
+    {
+      "canonicalUnit": null,
+      "contractBinding": "fact.predicateId",
+      "deprecated": false,
+      "domains": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "functional": false,
+      "kind": "object",
+      "labels": {
+        "en": "alternative to",
+        "ru": "alternativa"
+      },
+      "quantityKind": null,
+      "ranges": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "status": "active",
+      "successor": null,
+      "termId": "pred.alternative-to",
+      "uri": "https://arxiv-int.local/ns/pred/alternativeTo"
+    },
+    {
+      "canonicalUnit": null,
+      "contractBinding": "fact.predicateId",
+      "deprecated": false,
+      "domains": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "functional": false,
+      "kind": "object",
+      "labels": {
+        "en": "amount/date similar to",
+        "ru": "pokhozh po summe/date"
+      },
+      "quantityKind": null,
+      "ranges": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "status": "active",
+      "successor": null,
+      "termId": "pred.amount-date-similar-to",
+      "uri": "https://arxiv-int.local/ns/pred/amountDateSimilarTo"
+    },
+    {
+      "canonicalUnit": null,
+      "contractBinding": "fact.predicateId",
+      "deprecated": false,
+      "domains": [
         "https://arxiv-int.local/ns/class/Object"
       ],
       "functional": false,
@@ -342,6 +596,28 @@
       "successor": null,
       "termId": "pred.assigned-to-topic",
       "uri": "https://arxiv-int.local/ns/pred/assignedToTopic"
+    },
+    {
+      "canonicalUnit": null,
+      "contractBinding": "fact.predicateId",
+      "deprecated": false,
+      "domains": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "functional": false,
+      "kind": "object",
+      "labels": {
+        "en": "buyer of",
+        "ru": "pokupatel"
+      },
+      "quantityKind": null,
+      "ranges": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "status": "active",
+      "successor": null,
+      "termId": "pred.buyer-of",
+      "uri": "https://arxiv-int.local/ns/pred/buyerOf"
     },
     {
       "canonicalUnit": "https://arxiv-int.local/ns/unit/one",
@@ -392,6 +668,28 @@
       "contractBinding": "fact.predicateId",
       "deprecated": false,
       "domains": [
+        "https://arxiv-int.local/ns/class/NaturalPerson"
+      ],
+      "functional": false,
+      "kind": "object",
+      "labels": {
+        "en": "employee of",
+        "ru": "sotrudnik"
+      },
+      "quantityKind": null,
+      "ranges": [
+        "https://arxiv-int.local/ns/class/LegalEntity"
+      ],
+      "status": "active",
+      "successor": null,
+      "termId": "pred.employee-of",
+      "uri": "https://arxiv-int.local/ns/pred/employeeOf"
+    },
+    {
+      "canonicalUnit": null,
+      "contractBinding": "fact.predicateId",
+      "deprecated": false,
+      "domains": [
         "https://arxiv-int.local/ns/class/Fact"
       ],
       "functional": false,
@@ -408,6 +706,50 @@
       "successor": null,
       "termId": "pred.extracted-from",
       "uri": "https://arxiv-int.local/ns/pred/extractedFrom"
+    },
+    {
+      "canonicalUnit": "https://arxiv-int.local/ns/unit/piece",
+      "contractBinding": "fact.predicateId",
+      "deprecated": false,
+      "domains": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "functional": false,
+      "kind": "datatype",
+      "labels": {
+        "en": "has quantity",
+        "ru": "kolichestvo"
+      },
+      "quantityKind": "count",
+      "ranges": [
+        "http://www.w3.org/2001/XMLSchema#decimal"
+      ],
+      "status": "active",
+      "successor": null,
+      "termId": "pred.has-quantity",
+      "uri": "https://arxiv-int.local/ns/pred/hasQuantity"
+    },
+    {
+      "canonicalUnit": null,
+      "contractBinding": "fact.predicateId",
+      "deprecated": false,
+      "domains": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "functional": false,
+      "kind": "object",
+      "labels": {
+        "en": "has unit",
+        "ru": "edinitsa"
+      },
+      "quantityKind": null,
+      "ranges": [
+        "https://arxiv-int.local/ns/ontology#Unit"
+      ],
+      "status": "active",
+      "successor": null,
+      "termId": "pred.has-unit",
+      "uri": "https://arxiv-int.local/ns/pred/hasUnit"
     },
     {
       "canonicalUnit": null,
@@ -441,6 +783,28 @@
       "functional": false,
       "kind": "object",
       "labels": {
+        "en": "issued invoice",
+        "ru": "vystavil schet"
+      },
+      "quantityKind": null,
+      "ranges": [
+        "https://arxiv-int.local/ns/class/Invoice"
+      ],
+      "status": "active",
+      "successor": null,
+      "termId": "pred.issued-invoice",
+      "uri": "https://arxiv-int.local/ns/pred/issuedInvoice"
+    },
+    {
+      "canonicalUnit": null,
+      "contractBinding": "fact.predicateId",
+      "deprecated": false,
+      "domains": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "functional": false,
+      "kind": "object",
+      "labels": {
         "en": "located at",
         "ru": "nakhoditsia v"
       },
@@ -452,6 +816,28 @@
       "successor": null,
       "termId": "pred.located-at",
       "uri": "https://arxiv-int.local/ns/pred/locatedAt"
+    },
+    {
+      "canonicalUnit": null,
+      "contractBinding": "fact.predicateId",
+      "deprecated": false,
+      "domains": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "functional": false,
+      "kind": "object",
+      "labels": {
+        "en": "manufacturer of",
+        "ru": "proizvoditel"
+      },
+      "quantityKind": null,
+      "ranges": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "status": "active",
+      "successor": null,
+      "termId": "pred.manufacturer-of",
+      "uri": "https://arxiv-int.local/ns/pred/manufacturerOf"
     },
     {
       "canonicalUnit": null,
@@ -482,6 +868,72 @@
       "domains": [
         "https://arxiv-int.local/ns/class/Object"
       ],
+      "functional": false,
+      "kind": "object",
+      "labels": {
+        "en": "owns (candidate)",
+        "ru": "vladeet (kandidat)"
+      },
+      "quantityKind": null,
+      "ranges": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "status": "active",
+      "successor": null,
+      "termId": "pred.owns-candidate",
+      "uri": "https://arxiv-int.local/ns/pred/ownsCandidate"
+    },
+    {
+      "canonicalUnit": null,
+      "contractBinding": "fact.predicateId",
+      "deprecated": false,
+      "domains": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "functional": false,
+      "kind": "object",
+      "labels": {
+        "en": "owns (explicit)",
+        "ru": "vladeet (iavno)"
+      },
+      "quantityKind": null,
+      "ranges": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "status": "active",
+      "successor": null,
+      "termId": "pred.owns-explicit",
+      "uri": "https://arxiv-int.local/ns/pred/ownsExplicit"
+    },
+    {
+      "canonicalUnit": null,
+      "contractBinding": "fact.predicateId",
+      "deprecated": false,
+      "domains": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "functional": false,
+      "kind": "object",
+      "labels": {
+        "en": "part of",
+        "ru": "chast"
+      },
+      "quantityKind": null,
+      "ranges": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "status": "active",
+      "successor": null,
+      "termId": "pred.part-of",
+      "uri": "https://arxiv-int.local/ns/pred/partOf"
+    },
+    {
+      "canonicalUnit": null,
+      "contractBinding": "fact.predicateId",
+      "deprecated": false,
+      "domains": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
       "functional": true,
       "kind": "datatype",
       "labels": {
@@ -496,6 +948,50 @@
       "successor": null,
       "termId": "pred.preferred-name",
       "uri": "https://arxiv-int.local/ns/pred/preferredName"
+    },
+    {
+      "canonicalUnit": null,
+      "contractBinding": "fact.predicateId",
+      "deprecated": false,
+      "domains": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "functional": false,
+      "kind": "object",
+      "labels": {
+        "en": "references",
+        "ru": "ssylaetsia"
+      },
+      "quantityKind": null,
+      "ranges": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "status": "active",
+      "successor": null,
+      "termId": "pred.references",
+      "uri": "https://arxiv-int.local/ns/pred/references"
+    },
+    {
+      "canonicalUnit": null,
+      "contractBinding": "fact.predicateId",
+      "deprecated": false,
+      "domains": [
+        "https://arxiv-int.local/ns/class/NaturalPerson"
+      ],
+      "functional": false,
+      "kind": "object",
+      "labels": {
+        "en": "representative of",
+        "ru": "predstavitel"
+      },
+      "quantityKind": null,
+      "ranges": [
+        "https://arxiv-int.local/ns/class/LegalEntity"
+      ],
+      "status": "active",
+      "successor": null,
+      "termId": "pred.representative-of",
+      "uri": "https://arxiv-int.local/ns/pred/representativeOf"
     },
     {
       "canonicalUnit": null,
@@ -524,6 +1020,72 @@
       "contractBinding": "fact.predicateId",
       "deprecated": false,
       "domains": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "functional": false,
+      "kind": "object",
+      "labels": {
+        "en": "same name as",
+        "ru": "odno imia s"
+      },
+      "quantityKind": null,
+      "ranges": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "status": "active",
+      "successor": null,
+      "termId": "pred.same-name-as",
+      "uri": "https://arxiv-int.local/ns/pred/sameNameAs"
+    },
+    {
+      "canonicalUnit": null,
+      "contractBinding": "fact.predicateId",
+      "deprecated": false,
+      "domains": [
+        "https://arxiv-int.local/ns/class/Shipment"
+      ],
+      "functional": false,
+      "kind": "object",
+      "labels": {
+        "en": "shipped as",
+        "ru": "otgruzhen kak"
+      },
+      "quantityKind": null,
+      "ranges": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "status": "active",
+      "successor": null,
+      "termId": "pred.shipped-as",
+      "uri": "https://arxiv-int.local/ns/pred/shippedAs"
+    },
+    {
+      "canonicalUnit": null,
+      "contractBinding": "fact.predicateId",
+      "deprecated": false,
+      "domains": [
+        "https://arxiv-int.local/ns/class/NaturalPerson"
+      ],
+      "functional": false,
+      "kind": "object",
+      "labels": {
+        "en": "signatory for",
+        "ru": "podpisant"
+      },
+      "quantityKind": null,
+      "ranges": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "status": "active",
+      "successor": null,
+      "termId": "pred.signatory-for",
+      "uri": "https://arxiv-int.local/ns/pred/signatoryFor"
+    },
+    {
+      "canonicalUnit": null,
+      "contractBinding": "fact.predicateId",
+      "deprecated": false,
+      "domains": [
         "https://arxiv-int.local/ns/class/Fact"
       ],
       "functional": true,
@@ -540,6 +1102,28 @@
       "successor": null,
       "termId": "pred.supersedes",
       "uri": "https://arxiv-int.local/ns/pred/supersedes"
+    },
+    {
+      "canonicalUnit": null,
+      "contractBinding": "fact.predicateId",
+      "deprecated": false,
+      "domains": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "functional": false,
+      "kind": "object",
+      "labels": {
+        "en": "supplier of",
+        "ru": "postavshchik"
+      },
+      "quantityKind": null,
+      "ranges": [
+        "https://arxiv-int.local/ns/class/Object"
+      ],
+      "status": "active",
+      "successor": null,
+      "termId": "pred.supplier-of",
+      "uri": "https://arxiv-int.local/ns/pred/supplierOf"
     }
   ],
   "semanticMatches": {
@@ -549,11 +1133,20 @@
     "https://arxiv-int.local/ns/class/AnomalyFinding": [
       "urn:arxiv-int:term:finding-id"
     ],
+    "https://arxiv-int.local/ns/class/Assembly": [
+      "urn:arxiv-int:term:object-id"
+    ],
     "https://arxiv-int.local/ns/class/CatalogEntry": [
       "urn:arxiv-int:term:catalog-entry-id"
     ],
     "https://arxiv-int.local/ns/class/Chunk": [
       "urn:arxiv-int:term:chunk-id"
+    ],
+    "https://arxiv-int.local/ns/class/Component": [
+      "urn:arxiv-int:term:object-id"
+    ],
+    "https://arxiv-int.local/ns/class/Design": [
+      "urn:arxiv-int:term:object-id"
     ],
     "https://arxiv-int.local/ns/class/Document": [
       "urn:arxiv-int:term:document-id"
@@ -567,6 +1160,9 @@
     "https://arxiv-int.local/ns/class/Fact": [
       "urn:arxiv-int:term:fact-id"
     ],
+    "https://arxiv-int.local/ns/class/Invoice": [
+      "urn:arxiv-int:term:transaction-id"
+    ],
     "https://arxiv-int.local/ns/class/Mention": [
       "urn:arxiv-int:term:mention-id"
     ],
@@ -575,6 +1171,15 @@
     ],
     "https://arxiv-int.local/ns/class/OntologyTerm": [
       "urn:arxiv-int:term:term-id"
+    ],
+    "https://arxiv-int.local/ns/class/Order": [
+      "urn:arxiv-int:term:transaction-id"
+    ],
+    "https://arxiv-int.local/ns/class/Payment": [
+      "urn:arxiv-int:term:transaction-id"
+    ],
+    "https://arxiv-int.local/ns/class/Shipment": [
+      "urn:arxiv-int:term:transaction-id"
     ],
     "https://arxiv-int.local/ns/class/SourceOccurrence": [
       "urn:arxiv-int:term:occurrence-id"
@@ -589,6 +1194,12 @@
       "urn:arxiv-int:term:transaction-id"
     ],
     "https://arxiv-int.local/ns/pred/aliasOf": [
+      "urn:arxiv-int:term:predicate-id"
+    ],
+    "https://arxiv-int.local/ns/pred/allocatesTo": [
+      "urn:arxiv-int:term:predicate-id"
+    ],
+    "https://arxiv-int.local/ns/pred/amountDateSimilarTo": [
       "urn:arxiv-int:term:predicate-id"
     ],
     "https://arxiv-int.local/ns/pred/assignedToTopic": [
@@ -612,15 +1223,33 @@
     "https://arxiv-int.local/ns/pred/mentions": [
       "urn:arxiv-int:term:predicate-id"
     ],
+    "https://arxiv-int.local/ns/pred/ownsCandidate": [
+      "urn:arxiv-int:term:predicate-id"
+    ],
+    "https://arxiv-int.local/ns/pred/ownsExplicit": [
+      "urn:arxiv-int:term:predicate-id"
+    ],
+    "https://arxiv-int.local/ns/pred/partOf": [
+      "urn:arxiv-int:term:predicate-id"
+    ],
     "https://arxiv-int.local/ns/pred/preferredName": [
       "urn:arxiv-int:term:preferred-name"
+    ],
+    "https://arxiv-int.local/ns/pred/references": [
+      "urn:arxiv-int:term:predicate-id"
     ],
     "https://arxiv-int.local/ns/pred/sameAs": [
       "https://arxiv-int.local/ns/pred/aliasOf"
     ],
+    "https://arxiv-int.local/ns/pred/sameNameAs": [
+      "urn:arxiv-int:term:preferred-name"
+    ],
     "https://arxiv-int.local/ns/pred/supersedes": [
       "urn:arxiv-int:term:fact-id"
+    ],
+    "https://arxiv-int.local/ns/pred/supplierOf": [
+      "urn:arxiv-int:term:predicate-id"
     ]
   },
-  "version": "1.0.0"
+  "version": "1.1.0"
 }

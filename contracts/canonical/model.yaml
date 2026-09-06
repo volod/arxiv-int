@@ -1,7 +1,7 @@
 metadata:
   canonicalModelRef: urn:arxiv-int:model:1.0.0
-  ontologyRef: urn:arxiv-int:ontology:1.0.0
-  ontologyVersion: "1.0.0"
+  ontologyRef: urn:arxiv-int:ontology:1.1.0
+  ontologyVersion: 1.1.0
 semanticTerms:
   urn:arxiv-int:term:alias-id:
     valueType: string
@@ -9,13 +9,37 @@ semanticTerms:
     valueType: string
   urn:arxiv-int:term:alias-text:
     valueType: string
+  urn:arxiv-int:term:allocated-amount:
+    valueType: number
+  urn:arxiv-int:term:allocation-group-id:
+    valueType: string
+  urn:arxiv-int:term:alternative-group-id:
+    valueType: string
   urn:arxiv-int:term:amount:
     valueType: number
+  urn:arxiv-int:term:anchor-kind:
+    valueType: string
+  urn:arxiv-int:term:artifact-id:
+    valueType: string
+  urn:arxiv-int:term:artifact-type:
+    valueType: string
+  urn:arxiv-int:term:bom-id:
+    valueType: string
+  urn:arxiv-int:term:bom-line-id:
+    valueType: string
+  urn:arxiv-int:term:byte-count:
+    valueType: integer
   urn:arxiv-int:term:byte-size:
     valueType: integer
+  urn:arxiv-int:term:cardinality:
+    valueType: string
   urn:arxiv-int:term:catalog-entry-id:
     valueType: string
   urn:arxiv-int:term:catalog-kind:
+    valueType: string
+  urn:arxiv-int:term:checksum:
+    valueType: string
+  urn:arxiv-int:term:child-object-id:
     valueType: string
   urn:arxiv-int:term:chunk-id:
     valueType: string
@@ -23,26 +47,46 @@ semanticTerms:
     valueType: string
   urn:arxiv-int:term:cluster-id:
     valueType: string
+  urn:arxiv-int:term:completeness-status:
+    valueType: string
   urn:arxiv-int:term:confidence:
     valueType: number
+  urn:arxiv-int:term:conflict-group-id:
+    valueType: string
   urn:arxiv-int:term:container-path:
     valueType: string
   urn:arxiv-int:term:content-hash:
     valueType: string
   urn:arxiv-int:term:contract-version:
     valueType: string
+  urn:arxiv-int:term:creation-status:
+    valueType: string
   urn:arxiv-int:term:currency:
     valueType: string
+  urn:arxiv-int:term:cycle-detected:
+    valueType: boolean
   urn:arxiv-int:term:dataset-id:
+    valueType: string
+  urn:arxiv-int:term:debit-credit:
     valueType: string
   urn:arxiv-int:term:dimensions:
     valueType: integer
+  urn:arxiv-int:term:direction:
+    valueType: string
   urn:arxiv-int:term:document-count:
     valueType: integer
   urn:arxiv-int:term:document-id:
     valueType: string
   urn:arxiv-int:term:domain-uri:
     valueType: string
+  urn:arxiv-int:term:due-date:
+    valueType: timestamp
+  urn:arxiv-int:term:edge-id:
+    valueType: string
+  urn:arxiv-int:term:effectivity-end:
+    valueType: timestamp
+  urn:arxiv-int:term:effectivity-start:
+    valueType: timestamp
   urn:arxiv-int:term:embedding-id:
     valueType: string
   urn:arxiv-int:term:end-char:
@@ -51,6 +95,10 @@ semanticTerms:
     valueType: string
   urn:arxiv-int:term:event-time:
     valueType: timestamp
+  urn:arxiv-int:term:evidence-coverage:
+    valueType: number
+  urn:arxiv-int:term:evidence-fact-ids:
+    valueType: string
   urn:arxiv-int:term:evidence-summary:
     valueType: string
   urn:arxiv-int:term:extractor-id:
@@ -59,16 +107,30 @@ semanticTerms:
     valueType: string
   urn:arxiv-int:term:fact-id:
     valueType: string
+  urn:arxiv-int:term:failure-reason:
+    valueType: string
   urn:arxiv-int:term:finding-id:
     valueType: string
   urn:arxiv-int:term:finding-type:
     valueType: string
+  urn:arxiv-int:term:from-object-id:
+    valueType: string
   urn:arxiv-int:term:generation-id:
+    valueType: string
+  urn:arxiv-int:term:generator-fingerprint:
     valueType: string
   urn:arxiv-int:term:gold-ref:
     valueType: string
   urn:arxiv-int:term:identity-snapshot-id:
     valueType: string
+  urn:arxiv-int:term:inclusion-policy:
+    valueType: string
+  urn:arxiv-int:term:input-fact-snapshot-id:
+    valueType: string
+  urn:arxiv-int:term:invoice-object-id:
+    valueType: string
+  urn:arxiv-int:term:is-mandatory:
+    valueType: boolean
   urn:arxiv-int:term:item-kind:
     valueType: string
   urn:arxiv-int:term:kind:
@@ -79,9 +141,15 @@ semanticTerms:
     valueType: string
   urn:arxiv-int:term:lifecycle-state:
     valueType: string
+  urn:arxiv-int:term:line-number:
+    valueType: integer
+  urn:arxiv-int:term:listing-kind:
+    valueType: string
   urn:arxiv-int:term:literal-type:
     valueType: string
   urn:arxiv-int:term:literal-value:
+    valueType: string
+  urn:arxiv-int:term:match-state:
     valueType: string
   urn:arxiv-int:term:media-type:
     valueType: string
@@ -109,9 +177,19 @@ semanticTerms:
     valueType: integer
   urn:arxiv-int:term:page:
     valueType: integer
+  urn:arxiv-int:term:parent-object-id:
+    valueType: string
   urn:arxiv-int:term:party-object-id:
     valueType: string
   urn:arxiv-int:term:party-subject-id:
+    valueType: string
+  urn:arxiv-int:term:path-id:
+    valueType: string
+  urn:arxiv-int:term:payment-date:
+    valueType: timestamp
+  urn:arxiv-int:term:payment-object-id:
+    valueType: string
+  urn:arxiv-int:term:policy-fingerprint:
     valueType: string
   urn:arxiv-int:term:predicate-id:
     valueType: string
@@ -119,19 +197,43 @@ semanticTerms:
     valueType: string
   urn:arxiv-int:term:preferred-name:
     valueType: string
+  urn:arxiv-int:term:product-object-id:
+    valueType: string
   urn:arxiv-int:term:profile-id:
     valueType: string
+  urn:arxiv-int:term:quantity:
+    valueType: number
   urn:arxiv-int:term:query-text:
     valueType: string
   urn:arxiv-int:term:range-uri:
     valueType: string
+  urn:arxiv-int:term:relation-kind:
+    valueType: string
   urn:arxiv-int:term:relative-path:
+    valueType: string
+  urn:arxiv-int:term:review-inclusion-rules:
     valueType: string
   urn:arxiv-int:term:review-state:
     valueType: string
+  urn:arxiv-int:term:revision-object-id:
+    valueType: string
+  urn:arxiv-int:term:role-predicate-id:
+    valueType: string
+  urn:arxiv-int:term:root-object-id:
+    valueType: string
+  urn:arxiv-int:term:row-count:
+    valueType: integer
+  urn:arxiv-int:term:row-id:
+    valueType: string
+  urn:arxiv-int:term:row-kind:
+    valueType: string
   urn:arxiv-int:term:rule-id:
     valueType: string
+  urn:arxiv-int:term:run-id:
+    valueType: string
   urn:arxiv-int:term:scan-id:
+    valueType: string
+  urn:arxiv-int:term:schema-version:
     valueType: string
   urn:arxiv-int:term:scheme-id:
     valueType: string
@@ -151,6 +253,8 @@ semanticTerms:
     valueType: string
   urn:arxiv-int:term:subject-object-id:
     valueType: string
+  urn:arxiv-int:term:supply-stage:
+    valueType: string
   urn:arxiv-int:term:surface-form:
     valueType: string
   urn:arxiv-int:term:target-id:
@@ -165,6 +269,8 @@ semanticTerms:
     valueType: integer
   urn:arxiv-int:term:title:
     valueType: string
+  urn:arxiv-int:term:to-object-id:
+    valueType: string
   urn:arxiv-int:term:topic-assignment-id:
     valueType: string
   urn:arxiv-int:term:topic-id:
@@ -173,7 +279,11 @@ semanticTerms:
     valueType: string
   urn:arxiv-int:term:transaction-type:
     valueType: string
+  urn:arxiv-int:term:unit:
+    valueType: string
   urn:arxiv-int:term:uri:
+    valueType: string
+  urn:arxiv-int:term:uri-or-path:
     valueType: string
   urn:arxiv-int:term:vector-ref:
     valueType: string
@@ -208,3 +318,13 @@ entities:
     contract: odcs/anomaly_finding.odcs.yaml
   evaluation_item:
     contract: odcs/evaluation_item.odcs.yaml
+  domain_relationship:
+    contract: odcs/domain_relationship.odcs.yaml
+  bom_line:
+    contract: odcs/bom_line.odcs.yaml
+  supply_chain_edge:
+    contract: odcs/supply_chain_edge.odcs.yaml
+  invoice_payment_row:
+    contract: odcs/invoice_payment_row.odcs.yaml
+  domain_artifact_registry:
+    contract: odcs/domain_artifact_registry.odcs.yaml

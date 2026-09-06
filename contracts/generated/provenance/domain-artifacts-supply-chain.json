@@ -1,0 +1,28 @@
+{
+  "apiVersion": "v3.1.0",
+  "artifacts": {
+    "avro/domain-artifacts-supply-chain.avsc": "311c15d8b0fc6df2f884ae040fd8ac04dd868cfc87edce9a8a05121080d43093",
+    "graph/domain-artifacts-supply-chain.sql": "05edfe2e53129fb5f4fb7445337c7876e16ba54844d328ba2a94f550df6683db",
+    "jsonschema/domain-artifacts-supply-chain.schema.json": "27ea4a8a87c664d2cd33623f1f64bc39e88081148c3dceb3c25b7eff469e1adf",
+    "parquet/domain-artifacts-supply-chain.parquet.json": "ccd70aa3eebae4ccb9806f00275bb5c4d48bd2676f8287bd8eed21c2fa2f283f",
+    "postgres/domain-artifacts-supply-chain.sql": "899f9d995ed5be52bcdfdea60e838f3cd8b8e02083b747ed4bb2c1fa48e8ce77",
+    "postgres/extensions/domain-artifacts-supply-chain.sql": "e4fa620ef4b7982ec7170854ef8b8fb13b322e99caeaa43fdfeb88362aa80fd3",
+    "pydantic/domain-artifacts-supply-chain.py": "80ecf26db40e54543f654074c64e493d1569b50bc945babc8199bcb53534b7c2"
+  },
+  "canonicalEntity": null,
+  "contractId": "domain-artifacts-supply-chain",
+  "customExtensionKeys": [
+    "graph",
+    "partitionKey",
+    "schema",
+    "table"
+  ],
+  "odcsId": "urn:arxiv-int:contract:domain-artifacts-supply-chain:1.0.0",
+  "odcsVersion": "1.0.0",
+  "postgres": {
+    "partitionKey": "bucket",
+    "schema": "kg",
+    "table": "supply_chain_edges"
+  },
+  "semanticMetadataHash": "33903f91359648be4f3a9cafb82f229bfa61c74430d00988d7c7b52119a54fbc"
+}

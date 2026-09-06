@@ -22,7 +22,7 @@ def test_product_ontology_rdf_parses() -> None:
 
 def test_product_catalog_exposes_active_predicates_with_bindings() -> None:
     catalog = load_ontology_catalog(ontology_root())
-    assert catalog.version == "1.0.0"
+    assert catalog.version == "1.1.0"
     assert catalog.classes
     active = catalog.active_predicates()
     assert active

@@ -77,8 +77,9 @@ model, deterministic semantic metadata hashes, registered generator dispatch, sc
 snapshot/change/version/baseline primitives, deterministic multi-format generation, and evolution
 policy with reviewed baselines and dbmate-shaped migrations. The shipped registry, `x-arxiv-int`
 bindings, loaders, generation tree, and evolution checks are documented in
-[Contracts](contracts.md). Later contract-governance work owns domain investigation ontology
-extensions and applying migrations onto the pinned multi-extension store image.
+[Contracts](contracts.md). Contract-governance ODCS, generation, evolution, and ontology assets are
+documented there; applying migrations onto the pinned multi-extension store image remains
+canonical-store work.
 
 ## Evaluation and retrieval primitives
 

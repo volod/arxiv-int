@@ -1,0 +1,10 @@
+{
+  "assertions": [],
+  "registry": [
+    {
+      "artifact_id": "art-1",
+      "artifact_type": "bill-of-materials",
+      "creation_status": "empty"
+    }
+  ]
+}

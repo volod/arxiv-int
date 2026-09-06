@@ -1,0 +1,28 @@
+{
+  "apiVersion": "v3.1.0",
+  "artifacts": {
+    "avro/domain-artifacts-invoice-payment.avsc": "7f14fd4391218238bc3331331917084aea5571ba0c4728fe0ee9f9d41f0b8193",
+    "graph/domain-artifacts-invoice-payment.sql": "16113d6deb3fdf8e268c30d1bff4b503c9d9d5badbb91a8d3f5fd1d758550733",
+    "jsonschema/domain-artifacts-invoice-payment.schema.json": "bdceab1d5c301201d649db74a7ccdeb6946315548dd6f22fc472b0014d3ef8bc",
+    "parquet/domain-artifacts-invoice-payment.parquet.json": "c2b8960ebff507855c3c7a884467016fef1e69ce8c1f5a56d7b6af0517b96481",
+    "postgres/domain-artifacts-invoice-payment.sql": "5b79cf39fc8841b69680b556873b3cad0971a072727dcb18ec8192754e0e83db",
+    "postgres/extensions/domain-artifacts-invoice-payment.sql": "555505fb5d5ea0801f641f7a3a5697f44f09a3d7ac28f1a333aa43e5f40558f6",
+    "pydantic/domain-artifacts-invoice-payment.py": "b0cbec85eedff47bfb38db7ed41725d4f698033733828fcac469ea0344f5a4df"
+  },
+  "canonicalEntity": null,
+  "contractId": "domain-artifacts-invoice-payment",
+  "customExtensionKeys": [
+    "graph",
+    "partitionKey",
+    "schema",
+    "table"
+  ],
+  "odcsId": "urn:arxiv-int:contract:domain-artifacts-invoice-payment:1.0.0",
+  "odcsVersion": "1.0.0",
+  "postgres": {
+    "partitionKey": "bucket",
+    "schema": "kg",
+    "table": "invoice_payment_rows"
+  },
+  "semanticMetadataHash": "e804bf161026cc914ff628e80d1ad2d64b34222f347a7acac6103e68c28e5a1f"
+}

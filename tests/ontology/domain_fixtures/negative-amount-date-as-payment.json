@@ -1,0 +1,26 @@
+{
+  "assertions": [
+    {
+      "subject_id": "pay-1",
+      "subject_types": [
+        "class.payment"
+      ],
+      "predicate": "pred.amount-date-similar-to",
+      "object_id": "inv-1",
+      "object_types": [
+        "class.invoice"
+      ]
+    },
+    {
+      "subject_id": "pay-1",
+      "subject_types": [
+        "class.payment"
+      ],
+      "predicate": "pred.allocates-to",
+      "object_id": "inv-1",
+      "object_types": [
+        "class.invoice"
+      ]
+    }
+  ]
+}

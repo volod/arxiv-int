@@ -1,0 +1,26 @@
+{
+  "assertions": [
+    {
+      "subject_id": "comp-1",
+      "subject_types": [
+        "class.component"
+      ],
+      "predicate": "pred.references",
+      "object_id": "asm-1",
+      "object_types": [
+        "class.assembly"
+      ]
+    },
+    {
+      "subject_id": "comp-1",
+      "subject_types": [
+        "class.component"
+      ],
+      "predicate": "pred.part-of",
+      "object_id": "asm-1",
+      "object_types": [
+        "class.assembly"
+      ]
+    }
+  ]
+}
