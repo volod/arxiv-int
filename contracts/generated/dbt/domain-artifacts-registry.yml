@@ -1,0 +1,125 @@
+sources:
+  - description: Canonical ctl relations owned by Alembic.
+    name: ctl
+    schema: ctl
+    tables:
+      - columns:
+          - description: artifact_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.artifact_id.type
+                - domain-artifacts-registry.artifact_id.nullability
+                - domain-artifacts-registry.artifact_id.batch_unique
+                - domain-artifacts-registry.artifact_id.unique
+            name: artifact_id
+            tests:
+              - not_null
+              - unique
+          - description: artifact_type must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.artifact_type.type
+            name: artifact_type
+          - description: schema_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.schema_version.type
+            name: schema_version
+          - description: generator_fingerprint must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.generator_fingerprint.type
+            name: generator_fingerprint
+          - description: policy_fingerprint must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.policy_fingerprint.type
+            name: policy_fingerprint
+          - description: input_fact_snapshot_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.input_fact_snapshot_id.type
+            name: input_fact_snapshot_id
+          - description: identity_snapshot_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.identity_snapshot_id.type
+            name: identity_snapshot_id
+          - description: review_inclusion_rules must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.review_inclusion_rules.type
+            name: review_inclusion_rules
+          - description: uri_or_path must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.uri_or_path.type
+            name: uri_or_path
+          - description: media_type must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.media_type.type
+            name: media_type
+          - description: byte_count must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.byte_count.type
+            name: byte_count
+          - description: row_count must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.row_count.type
+            name: row_count
+          - description: checksum must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.checksum.type
+            name: checksum
+          - description: evidence_coverage must match logical type number.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.evidence_coverage.type
+                - domain-artifacts-registry.evidence_coverage.decimal
+            name: evidence_coverage
+          - description: creation_status must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.creation_status.type
+            name: creation_status
+          - description: failure_reason must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.failure_reason.type
+            name: failure_reason
+          - description: run_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.run_id.type
+            name: run_id
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.generation_id.type
+                - domain-artifacts-registry.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.contract_version.type
+                - domain-artifacts-registry.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+        config:
+          meta:
+            arxiv_int_contract_id: domain-artifacts-registry
+        description: Run artifact registry for domain investigation family outputs and creation statuses.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:domain-artifacts-registry:1.0.0"
+          primary_key:
+            - artifact_id
+          rule_catalog_version: 1.0.0
+        name: domain_artifact_registry
+version: 2

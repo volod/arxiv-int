@@ -34,6 +34,15 @@ def test_committed_generated_tree_matches_golden_fingerprints() -> None:
         assert sha256_text(text) == digest, relative
 
 
+def test_committed_tree_includes_quality_catalogs_and_dbt_yaml() -> None:
+    root = _generated_root()
+    registry = FileRegistry(_contracts_root())
+    assert (root / "dbt" / "sources.yml").is_file()
+    for contract_id in registry.contract_ids():
+        assert (root / "quality" / f"{contract_id}.rules.json").is_file()
+        assert (root / "dbt" / f"{contract_id}.yml").is_file()
+
+
 def test_provenance_retains_source_contract_metadata() -> None:
     registry = FileRegistry(_contracts_root())
     for contract_id in registry.contract_ids():

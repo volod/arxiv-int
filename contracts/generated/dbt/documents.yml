@@ -1,0 +1,84 @@
+sources:
+  - description: Canonical corpus relations owned by Alembic.
+    name: corpus
+    schema: corpus
+    tables:
+      - columns:
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - documents.document_id.type
+                - documents.document_id.nullability
+                - documents.document_id.batch_unique
+                - documents.document_id.unique
+            name: document_id
+            tests:
+              - not_null
+              - unique
+          - description: content_hash must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - documents.content_hash.type
+            name: content_hash
+          - description: extractor_profile must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - documents.extractor_profile.type
+            name: extractor_profile
+          - description: media_type must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - documents.media_type.type
+            name: media_type
+          - description: language must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - documents.language.type
+            name: language
+          - description: title must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - documents.title.type
+            name: title
+          - description: byte_size must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - documents.byte_size.type
+            name: byte_size
+          - description: text_chars must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - documents.text_chars.type
+            name: text_chars
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - documents.generation_id.type
+                - documents.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - documents.contract_version.type
+                - documents.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - documents.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: documents
+        description: Normalized document identity and extracted text metadata for the archive corpus.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:documents:1.0.0"
+          primary_key:
+            - document_id
+          rule_catalog_version: 1.0.0
+        name: documents
+version: 2

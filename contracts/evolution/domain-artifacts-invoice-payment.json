@@ -100,7 +100,7 @@
   },
   "fingerprints": {
     "avroSha256": "7f14fd4391218238bc3331331917084aea5571ba0c4728fe0ee9f9d41f0b8193",
-    "generatorVersion": "2.0.0",
+    "generatorVersion": "2.1.0",
     "postgresSha256": "c473ff81f8cd31158df7d487f5b74288f04609073be6ccbc76c5dee3a0cdda58",
     "semanticMetadataHash": "e804bf161026cc914ff628e80d1ad2d64b34222f347a7acac6103e68c28e5a1f"
   },
@@ -325,6 +325,123 @@
       "fingerprints": {
         "avroSha256": "7f14fd4391218238bc3331331917084aea5571ba0c4728fe0ee9f9d41f0b8193",
         "generatorVersion": "2.0.0",
+        "postgresSha256": "c473ff81f8cd31158df7d487f5b74288f04609073be6ccbc76c5dee3a0cdda58",
+        "semanticMetadataHash": "e804bf161026cc914ff628e80d1ad2d64b34222f347a7acac6103e68c28e5a1f"
+      },
+      "odcsId": "urn:arxiv-int:contract:domain-artifacts-invoice-payment:1.0.0",
+      "projections": {
+        "graph": {
+          "edgeLabel": "ALLOCATES",
+          "fromField": "payment_object_id",
+          "idField": "row_id",
+          "toField": "invoice_object_id"
+        }
+      },
+      "version": "1.0.0"
+    },
+    {
+      "contractId": "domain-artifacts-invoice-payment",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "invoice_payment_rows.allocated_amount": {
+          "logicalType": "number",
+          "physicalType": "",
+          "required": false
+        },
+        "invoice_payment_rows.allocation_group_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "invoice_payment_rows.amount": {
+          "logicalType": "number",
+          "physicalType": "",
+          "required": false
+        },
+        "invoice_payment_rows.confidence": {
+          "logicalType": "number",
+          "physicalType": "",
+          "required": false
+        },
+        "invoice_payment_rows.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "invoice_payment_rows.currency": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "invoice_payment_rows.debit_credit": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "invoice_payment_rows.document_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "invoice_payment_rows.due_date": {
+          "logicalType": "timestamp",
+          "physicalType": "",
+          "required": false
+        },
+        "invoice_payment_rows.evidence_fact_ids": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "invoice_payment_rows.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "invoice_payment_rows.invoice_object_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "invoice_payment_rows.line_number": {
+          "logicalType": "integer",
+          "physicalType": "",
+          "required": false
+        },
+        "invoice_payment_rows.match_state": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "invoice_payment_rows.payment_date": {
+          "logicalType": "timestamp",
+          "physicalType": "",
+          "required": false
+        },
+        "invoice_payment_rows.payment_object_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "invoice_payment_rows.review_state": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "invoice_payment_rows.row_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "invoice_payment_rows.row_kind": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "7f14fd4391218238bc3331331917084aea5571ba0c4728fe0ee9f9d41f0b8193",
+        "generatorVersion": "2.1.0",
         "postgresSha256": "c473ff81f8cd31158df7d487f5b74288f04609073be6ccbc76c5dee3a0cdda58",
         "semanticMetadataHash": "e804bf161026cc914ff628e80d1ad2d64b34222f347a7acac6103e68c28e5a1f"
       },

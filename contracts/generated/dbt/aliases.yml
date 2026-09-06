@@ -1,0 +1,74 @@
+sources:
+  - description: Canonical kg relations owned by Alembic.
+    name: kg
+    schema: kg
+    tables:
+      - columns:
+          - description: alias_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - aliases.alias_id.type
+                - aliases.alias_id.nullability
+                - aliases.alias_id.batch_unique
+                - aliases.alias_id.unique
+            name: alias_id
+            tests:
+              - not_null
+              - unique
+          - description: object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - aliases.object_id.type
+                - aliases.object_id.relationship
+            name: object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: alias_text must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - aliases.alias_text.type
+            name: alias_text
+          - description: alias_kind must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - aliases.alias_kind.type
+            name: alias_kind
+          - description: normalized_text must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - aliases.normalized_text.type
+            name: normalized_text
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - aliases.generation_id.type
+                - aliases.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - aliases.contract_version.type
+                - aliases.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - aliases.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: aliases
+        description: Alternate labels and normalized aliases for knowledge-graph objects.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:aliases:1.0.0"
+          primary_key:
+            - alias_id
+          rule_catalog_version: 1.0.0
+        name: aliases
+version: 2

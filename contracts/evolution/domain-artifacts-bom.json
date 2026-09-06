@@ -115,7 +115,7 @@
   },
   "fingerprints": {
     "avroSha256": "862e2ff60facb90474b8b87f249bfd0e0ebc953b7a986dc2aecd4363272f492e",
-    "generatorVersion": "2.0.0",
+    "generatorVersion": "2.1.0",
     "postgresSha256": "2b166bda563eb383c806222afaa5333f6b2845b53abb573fa46064946cb34f70",
     "semanticMetadataHash": "0e834538c0a06ef2d2982cbf51dcba914130681a19c34554b53524f65f51bc9f"
   },
@@ -370,6 +370,138 @@
       "fingerprints": {
         "avroSha256": "862e2ff60facb90474b8b87f249bfd0e0ebc953b7a986dc2aecd4363272f492e",
         "generatorVersion": "2.0.0",
+        "postgresSha256": "2b166bda563eb383c806222afaa5333f6b2845b53abb573fa46064946cb34f70",
+        "semanticMetadataHash": "0e834538c0a06ef2d2982cbf51dcba914130681a19c34554b53524f65f51bc9f"
+      },
+      "odcsId": "urn:arxiv-int:contract:domain-artifacts-bom:1.0.0",
+      "projections": {
+        "graph": {
+          "edgeLabel": "PART_OF",
+          "fromField": "child_object_id",
+          "idField": "bom_line_id",
+          "toField": "parent_object_id"
+        }
+      },
+      "version": "1.0.0"
+    },
+    {
+      "contractId": "domain-artifacts-bom",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "bom_lines.alternative_group_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "bom_lines.anchor_kind": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "bom_lines.bom_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "bom_lines.bom_line_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "bom_lines.child_object_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "bom_lines.completeness_status": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "bom_lines.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "bom_lines.cycle_detected": {
+          "logicalType": "boolean",
+          "physicalType": "",
+          "required": false
+        },
+        "bom_lines.document_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "bom_lines.effectivity_end": {
+          "logicalType": "timestamp",
+          "physicalType": "",
+          "required": false
+        },
+        "bom_lines.effectivity_start": {
+          "logicalType": "timestamp",
+          "physicalType": "",
+          "required": false
+        },
+        "bom_lines.evidence_fact_ids": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "bom_lines.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "bom_lines.is_mandatory": {
+          "logicalType": "boolean",
+          "physicalType": "",
+          "required": false
+        },
+        "bom_lines.listing_kind": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "bom_lines.parent_object_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "bom_lines.predicate_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "bom_lines.quantity": {
+          "logicalType": "number",
+          "physicalType": "",
+          "required": false
+        },
+        "bom_lines.review_state": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "bom_lines.revision_object_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "bom_lines.root_object_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "bom_lines.unit": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "862e2ff60facb90474b8b87f249bfd0e0ebc953b7a986dc2aecd4363272f492e",
+        "generatorVersion": "2.1.0",
         "postgresSha256": "2b166bda563eb383c806222afaa5333f6b2845b53abb573fa46064946cb34f70",
         "semanticMetadataHash": "0e834538c0a06ef2d2982cbf51dcba914130681a19c34554b53524f65f51bc9f"
       },

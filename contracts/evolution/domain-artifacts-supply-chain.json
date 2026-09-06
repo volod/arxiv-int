@@ -90,7 +90,7 @@
   },
   "fingerprints": {
     "avroSha256": "311c15d8b0fc6df2f884ae040fd8ac04dd868cfc87edce9a8a05121080d43093",
-    "generatorVersion": "2.0.0",
+    "generatorVersion": "2.1.0",
     "postgresSha256": "8bd10afca6792a81218d7fc362fa60500958e890466e7882676459b5fad4febc",
     "semanticMetadataHash": "33903f91359648be4f3a9cafb82f229bfa61c74430d00988d7c7b52119a54fbc"
   },
@@ -295,6 +295,113 @@
       "fingerprints": {
         "avroSha256": "311c15d8b0fc6df2f884ae040fd8ac04dd868cfc87edce9a8a05121080d43093",
         "generatorVersion": "2.0.0",
+        "postgresSha256": "8bd10afca6792a81218d7fc362fa60500958e890466e7882676459b5fad4febc",
+        "semanticMetadataHash": "33903f91359648be4f3a9cafb82f229bfa61c74430d00988d7c7b52119a54fbc"
+      },
+      "odcsId": "urn:arxiv-int:contract:domain-artifacts-supply-chain:1.0.0",
+      "projections": {
+        "graph": {
+          "edgeLabel": "SUPPLY",
+          "fromField": "from_object_id",
+          "idField": "edge_id",
+          "toField": "to_object_id"
+        }
+      },
+      "version": "1.0.0"
+    },
+    {
+      "contractId": "domain-artifacts-supply-chain",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "supply_chain_edges.confidence": {
+          "logicalType": "number",
+          "physicalType": "",
+          "required": false
+        },
+        "supply_chain_edges.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "supply_chain_edges.direction": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "supply_chain_edges.document_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "supply_chain_edges.edge_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "supply_chain_edges.event_time": {
+          "logicalType": "timestamp",
+          "physicalType": "",
+          "required": false
+        },
+        "supply_chain_edges.evidence_fact_ids": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "supply_chain_edges.from_object_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "supply_chain_edges.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "supply_chain_edges.path_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "supply_chain_edges.product_object_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "supply_chain_edges.review_state": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "supply_chain_edges.role_predicate_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "supply_chain_edges.stage": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "supply_chain_edges.status": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "supply_chain_edges.to_object_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "supply_chain_edges.transaction_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "311c15d8b0fc6df2f884ae040fd8ac04dd868cfc87edce9a8a05121080d43093",
+        "generatorVersion": "2.1.0",
         "postgresSha256": "8bd10afca6792a81218d7fc362fa60500958e890466e7882676459b5fad4febc",
         "semanticMetadataHash": "33903f91359648be4f3a9cafb82f229bfa61c74430d00988d7c7b52119a54fbc"
       },

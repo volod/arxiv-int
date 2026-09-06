@@ -45,7 +45,7 @@
   },
   "fingerprints": {
     "avroSha256": "5d8fc35c2b860ec053f9027d57b8630acabf853ba5232f57f025ac3c768c254d",
-    "generatorVersion": "2.0.0",
+    "generatorVersion": "2.1.0",
     "postgresSha256": "bd117cccf0f0600191e8df8354cdb90f823b53bb1046666d24526b8be46a3276",
     "semanticMetadataHash": "72bb044006f29893aa53a489944a56b21a090f9b7a85b46f3a41bf55bde4e94d"
   },
@@ -153,6 +153,61 @@
       "fingerprints": {
         "avroSha256": "5d8fc35c2b860ec053f9027d57b8630acabf853ba5232f57f025ac3c768c254d",
         "generatorVersion": "2.0.0",
+        "postgresSha256": "bd117cccf0f0600191e8df8354cdb90f823b53bb1046666d24526b8be46a3276",
+        "semanticMetadataHash": "72bb044006f29893aa53a489944a56b21a090f9b7a85b46f3a41bf55bde4e94d"
+      },
+      "odcsId": "urn:arxiv-int:contract:mentions:1.0.0",
+      "projections": {},
+      "version": "1.0.0"
+    },
+    {
+      "contractId": "mentions",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "mentions.chunk_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "mentions.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "mentions.document_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "mentions.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "mentions.mention_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "mentions.object_anchor_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "mentions.span_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "mentions.surface_form": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "5d8fc35c2b860ec053f9027d57b8630acabf853ba5232f57f025ac3c768c254d",
+        "generatorVersion": "2.1.0",
         "postgresSha256": "bd117cccf0f0600191e8df8354cdb90f823b53bb1046666d24526b8be46a3276",
         "semanticMetadataHash": "72bb044006f29893aa53a489944a56b21a090f9b7a85b46f3a41bf55bde4e94d"
       },

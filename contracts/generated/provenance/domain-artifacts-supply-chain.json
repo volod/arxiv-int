@@ -2,12 +2,14 @@
   "apiVersion": "v3.1.0",
   "artifacts": {
     "avro/domain-artifacts-supply-chain.avsc": "311c15d8b0fc6df2f884ae040fd8ac04dd868cfc87edce9a8a05121080d43093",
+    "dbt/domain-artifacts-supply-chain.yml": "ec023f42fe281d2a382ea849481bf4f446d7ecd1fe9683c1e088c40826279669",
     "graph/domain-artifacts-supply-chain.sql": "05edfe2e53129fb5f4fb7445337c7876e16ba54844d328ba2a94f550df6683db",
     "jsonschema/domain-artifacts-supply-chain.schema.json": "27ea4a8a87c664d2cd33623f1f64bc39e88081148c3dceb3c25b7eff469e1adf",
     "parquet/domain-artifacts-supply-chain.parquet.json": "ccd70aa3eebae4ccb9806f00275bb5c4d48bd2676f8287bd8eed21c2fa2f283f",
     "postgres/domain-artifacts-supply-chain.sql": "8bd10afca6792a81218d7fc362fa60500958e890466e7882676459b5fad4febc",
     "postgres/extensions/domain-artifacts-supply-chain.sql": "07d0620b3b181be25cd7872d682746e25c7aeb41711cbc79c8c86d0d44d5cda8",
-    "pydantic/domain-artifacts-supply-chain.py": "80ecf26db40e54543f654074c64e493d1569b50bc945babc8199bcb53534b7c2"
+    "pydantic/domain-artifacts-supply-chain.py": "80ecf26db40e54543f654074c64e493d1569b50bc945babc8199bcb53534b7c2",
+    "quality/domain-artifacts-supply-chain.rules.json": "375984a726423e11ae1194cfb699d0117f5facf551d8b9ccfcf0dd1c4cc5da84"
   },
   "canonicalEntity": null,
   "contractId": "domain-artifacts-supply-chain",

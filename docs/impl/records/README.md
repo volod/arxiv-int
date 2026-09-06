@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0019` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0020` after the rows
 below).
 
 | Record | Scope | Result |
@@ -26,7 +26,8 @@ below).
 | [0012 Evolution and migration policy](0012-contract-gov-enforce-evolution-and-migration-policy.md) | Reviewed baselines, consequence classes, dbmate migrations, live SQL apply | Accepted; fixtures and `make contracts-evolution` / CI pass |
 | [0013 Versioned ontology assets](0013-contract-gov-establish-versioned-ontology-assets.md) | Controlled vocabulary, RDF/SHACL, bindings, ontology evolution | Accepted; `make ontology-check` / CI pass |
 | [0014 Domain investigation contracts](0014-contract-gov-define-domain-investigation-contracts-and-ontology.md) | Domain artifact ODCS, ontology predicates, fixtures | Accepted; contracts/ontology CI pass |
-| [0015 Data engineering tooling review](0015-govern-review-data-engineering-tooling.md) | Schema/migration implementation review; SQLAlchemy/Alembic, dbt, Polars/Pandera design and prerequisite task routing | Accepted review; 432 tests and documentation gates pass; three implementation tasks remain open |
+| [0015 Data engineering tooling review](0015-govern-review-data-engineering-tooling.md) | Schema/migration implementation review; SQLAlchemy/Alembic, dbt, Polars/Pandera design and prerequisite task routing | Accepted review; 432 tests and documentation gates pass; dbt foundation remains open |
 | [0016 Simple operator entrypoints](0016-govern-design-simple-operator-entrypoints.md) | Design for a retryable setup target and one default archive-to-report command, with implementation owners and acceptance | Active; documentation and verification pending |
-| [0017 Contract schema and migration tooling](0017-contract-gov-refactor-contract-schema-and-migration-tooling.md) | Contract-derived SQLAlchemy metadata, review DDL, immutable Alembic revisions, live catalog comparison and refusal-first legacy adoption | Active; see the record for gates |
+| [0017 Contract schema and migration tooling](0017-contract-gov-refactor-contract-schema-and-migration-tooling.md) | Contract-derived SQLAlchemy metadata, review DDL, immutable Alembic revisions, live catalog comparison and refusal-first legacy adoption | Accepted; offline gates pass; live upgrade remains with the canonical schema task |
 | [0018 Build pinned ParadeDB + AGE image](0018-store-build-pinned-paradedb-age-image.md) | Project-owned ParadeDB/pgvector/AGE image, coexistence probes, graph AGE gate, host-UID bind mounts | Accepted; clean-cache build and disposable probes pass; AGE enabled; `make ci` 530/1 |
+| [0019 Contract data-quality checks](0019-contract-gov-implement-contract-data-quality-checks.md) | Contract-derived Pandera/Polars batch checks, generated dbt YAML, typed results that cannot pass when required checks are missing or unexecuted | Accepted; fixture gates, `make ci`, and `make quality` pass; dbt execution remains with the transformation foundation |

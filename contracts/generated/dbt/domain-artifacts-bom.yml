@@ -1,0 +1,171 @@
+sources:
+  - description: Canonical kg relations owned by Alembic.
+    name: kg
+    schema: kg
+    tables:
+      - columns:
+          - description: bom_line_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.bom_line_id.type
+                - domain-artifacts-bom.bom_line_id.nullability
+                - domain-artifacts-bom.bom_line_id.batch_unique
+                - domain-artifacts-bom.bom_line_id.unique
+            name: bom_line_id
+            tests:
+              - not_null
+              - unique
+          - description: bom_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.bom_id.type
+            name: bom_id
+          - description: root_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.root_object_id.type
+                - domain-artifacts-bom.root_object_id.relationship
+            name: root_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: parent_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.parent_object_id.type
+                - domain-artifacts-bom.parent_object_id.relationship
+            name: parent_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: child_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.child_object_id.type
+                - domain-artifacts-bom.child_object_id.relationship
+            name: child_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: predicate_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.predicate_id.type
+            name: predicate_id
+          - description: listing_kind must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.listing_kind.type
+            name: listing_kind
+          - description: quantity must match logical type number.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.quantity.type
+                - domain-artifacts-bom.quantity.decimal
+                - domain-artifacts-bom.quantity.unit
+            name: quantity
+          - description: unit must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.unit.type
+            name: unit
+          - description: alternative_group_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.alternative_group_id.type
+            name: alternative_group_id
+          - description: is_mandatory must match logical type boolean.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.is_mandatory.type
+            name: is_mandatory
+          - description: effectivity_start must match logical type timestamp.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.effectivity_start.type
+            name: effectivity_start
+          - description: effectivity_end must match logical type timestamp.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.effectivity_end.type
+            name: effectivity_end
+          - description: revision_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.revision_object_id.type
+                - domain-artifacts-bom.revision_object_id.relationship
+            name: revision_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: completeness_status must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.completeness_status.type
+            name: completeness_status
+          - description: cycle_detected must match logical type boolean.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.cycle_detected.type
+            name: cycle_detected
+          - description: evidence_fact_ids must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.evidence_fact_ids.type
+            name: evidence_fact_ids
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.document_id.type
+                - domain-artifacts-bom.document_id.relationship
+            name: document_id
+            tests:
+              - relationships:
+                  field: document_id
+                  to: "source('corpus', 'documents')"
+          - description: anchor_kind must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.anchor_kind.type
+            name: anchor_kind
+          - description: review_state must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.review_state.type
+            name: review_state
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.generation_id.type
+                - domain-artifacts-bom.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.contract_version.type
+                - domain-artifacts-bom.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: domain-artifacts-bom
+        description: Bill-of-materials hierarchy rows with quantities, alternatives, effectivity, and completeness.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:domain-artifacts-bom:1.0.0"
+          primary_key:
+            - bom_line_id
+          rule_catalog_version: 1.0.0
+        name: bom_lines
+version: 2

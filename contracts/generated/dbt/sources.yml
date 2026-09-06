@@ -1,0 +1,1901 @@
+sources:
+  - description: Canonical corpus relations owned by Alembic.
+    name: corpus
+    schema: corpus
+    tables:
+      - columns:
+          - description: chunk_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - chunks.chunk_id.type
+                - chunks.chunk_id.nullability
+                - chunks.chunk_id.batch_unique
+                - chunks.chunk_id.unique
+            name: chunk_id
+            tests:
+              - not_null
+              - unique
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - chunks.document_id.type
+                - chunks.document_id.relationship
+            name: document_id
+            tests:
+              - relationships:
+                  field: document_id
+                  to: "source('corpus', 'documents')"
+          - description: chunker_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - chunks.chunker_id.type
+            name: chunker_id
+          - description: ordinal must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - chunks.ordinal.type
+            name: ordinal
+          - description: text must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - chunks.text.type
+            name: text
+          - description: start_char must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - chunks.start_char.type
+            name: start_char
+          - description: end_char must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - chunks.end_char.type
+            name: end_char
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - chunks.generation_id.type
+                - chunks.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - chunks.contract_version.type
+                - chunks.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - chunks.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: chunks
+        description: Chunker-partitioned text units derived from documents for retrieval and extraction.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:chunks:1.0.0"
+          primary_key:
+            - chunk_id
+          rule_catalog_version: 1.0.0
+        name: chunks
+      - columns:
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - documents.document_id.type
+                - documents.document_id.nullability
+                - documents.document_id.batch_unique
+                - documents.document_id.unique
+            name: document_id
+            tests:
+              - not_null
+              - unique
+          - description: content_hash must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - documents.content_hash.type
+            name: content_hash
+          - description: extractor_profile must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - documents.extractor_profile.type
+            name: extractor_profile
+          - description: media_type must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - documents.media_type.type
+            name: media_type
+          - description: language must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - documents.language.type
+            name: language
+          - description: title must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - documents.title.type
+            name: title
+          - description: byte_size must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - documents.byte_size.type
+            name: byte_size
+          - description: text_chars must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - documents.text_chars.type
+            name: text_chars
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - documents.generation_id.type
+                - documents.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - documents.contract_version.type
+                - documents.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - documents.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: documents
+        description: Normalized document identity and extracted text metadata for the archive corpus.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:documents:1.0.0"
+          primary_key:
+            - document_id
+          rule_catalog_version: 1.0.0
+        name: documents
+      - columns:
+          - description: occurrence_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - source-occurrences.occurrence_id.type
+                - source-occurrences.occurrence_id.nullability
+                - source-occurrences.occurrence_id.batch_unique
+                - source-occurrences.occurrence_id.unique
+            name: occurrence_id
+            tests:
+              - not_null
+              - unique
+          - description: silo_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - source-occurrences.silo_id.type
+            name: silo_id
+          - description: relative_path must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - source-occurrences.relative_path.type
+            name: relative_path
+          - description: scan_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - source-occurrences.scan_id.type
+            name: scan_id
+          - description: content_hash must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - source-occurrences.content_hash.type
+            name: content_hash
+          - description: container_path must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - source-occurrences.container_path.type
+            name: container_path
+          - description: member_path must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - source-occurrences.member_path.type
+            name: member_path
+          - description: status must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - source-occurrences.status.type
+            name: status
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - source-occurrences.generation_id.type
+                - source-occurrences.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - source-occurrences.contract_version.type
+                - source-occurrences.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - source-occurrences.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: source-occurrences
+        description: Silo-relative source locations and scan status for archive bytes.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:source-occurrences:1.0.0"
+          primary_key:
+            - occurrence_id
+          rule_catalog_version: 1.0.0
+        name: source_occurrences
+      - columns:
+          - description: span_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - spans.span_id.type
+                - spans.span_id.nullability
+                - spans.span_id.batch_unique
+                - spans.span_id.unique
+            name: span_id
+            tests:
+              - not_null
+              - unique
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - spans.document_id.type
+                - spans.document_id.relationship
+            name: document_id
+            tests:
+              - relationships:
+                  field: document_id
+                  to: "source('corpus', 'documents')"
+          - description: start_char must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - spans.start_char.type
+            name: start_char
+          - description: end_char must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - spans.end_char.type
+            name: end_char
+          - description: page must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - spans.page.type
+            name: page
+          - description: kind must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - spans.kind.type
+            name: kind
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - spans.generation_id.type
+                - spans.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - spans.contract_version.type
+                - spans.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - spans.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: spans
+        description: Character-anchored spans locating evidence within documents.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:spans:1.0.0"
+          primary_key:
+            - span_id
+          rule_catalog_version: 1.0.0
+        name: spans
+  - description: Canonical ctl relations owned by Alembic.
+    name: ctl
+    schema: ctl
+    tables:
+      - columns:
+          - description: artifact_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.artifact_id.type
+                - domain-artifacts-registry.artifact_id.nullability
+                - domain-artifacts-registry.artifact_id.batch_unique
+                - domain-artifacts-registry.artifact_id.unique
+            name: artifact_id
+            tests:
+              - not_null
+              - unique
+          - description: artifact_type must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.artifact_type.type
+            name: artifact_type
+          - description: schema_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.schema_version.type
+            name: schema_version
+          - description: generator_fingerprint must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.generator_fingerprint.type
+            name: generator_fingerprint
+          - description: policy_fingerprint must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.policy_fingerprint.type
+            name: policy_fingerprint
+          - description: input_fact_snapshot_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.input_fact_snapshot_id.type
+            name: input_fact_snapshot_id
+          - description: identity_snapshot_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.identity_snapshot_id.type
+            name: identity_snapshot_id
+          - description: review_inclusion_rules must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.review_inclusion_rules.type
+            name: review_inclusion_rules
+          - description: uri_or_path must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.uri_or_path.type
+            name: uri_or_path
+          - description: media_type must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.media_type.type
+            name: media_type
+          - description: byte_count must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.byte_count.type
+            name: byte_count
+          - description: row_count must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.row_count.type
+            name: row_count
+          - description: checksum must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.checksum.type
+            name: checksum
+          - description: evidence_coverage must match logical type number.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.evidence_coverage.type
+                - domain-artifacts-registry.evidence_coverage.decimal
+            name: evidence_coverage
+          - description: creation_status must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.creation_status.type
+            name: creation_status
+          - description: failure_reason must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.failure_reason.type
+            name: failure_reason
+          - description: run_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.run_id.type
+            name: run_id
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.generation_id.type
+                - domain-artifacts-registry.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-registry.contract_version.type
+                - domain-artifacts-registry.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+        config:
+          meta:
+            arxiv_int_contract_id: domain-artifacts-registry
+        description: Run artifact registry for domain investigation family outputs and creation statuses.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:domain-artifacts-registry:1.0.0"
+          primary_key:
+            - artifact_id
+          rule_catalog_version: 1.0.0
+        name: domain_artifact_registry
+  - description: Canonical eval relations owned by Alembic.
+    name: eval
+    schema: eval
+    tables:
+      - columns:
+          - description: finding_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - anomaly-findings.finding_id.type
+                - anomaly-findings.finding_id.nullability
+                - anomaly-findings.finding_id.batch_unique
+                - anomaly-findings.finding_id.unique
+            name: finding_id
+            tests:
+              - not_null
+              - unique
+          - description: finding_type must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - anomaly-findings.finding_type.type
+            name: finding_type
+          - description: severity must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - anomaly-findings.severity.type
+            name: severity
+          - description: status must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - anomaly-findings.status.type
+            name: status
+          - description: subject_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - anomaly-findings.subject_object_id.type
+                - anomaly-findings.subject_object_id.relationship
+            name: subject_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: rule_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - anomaly-findings.rule_id.type
+            name: rule_id
+          - description: evidence_summary must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - anomaly-findings.evidence_summary.type
+            name: evidence_summary
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - anomaly-findings.generation_id.type
+                - anomaly-findings.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - anomaly-findings.contract_version.type
+                - anomaly-findings.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+        config:
+          meta:
+            arxiv_int_contract_id: anomaly-findings
+        description: Anomaly findings with severity, status, and evidence summaries for review.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:anomaly-findings:1.0.0"
+          primary_key:
+            - finding_id
+          rule_catalog_version: 1.0.0
+        name: anomaly_findings
+      - columns:
+          - description: evaluation_item_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - evaluation-items.evaluation_item_id.type
+                - evaluation-items.evaluation_item_id.nullability
+                - evaluation-items.evaluation_item_id.batch_unique
+                - evaluation-items.evaluation_item_id.unique
+            name: evaluation_item_id
+            tests:
+              - not_null
+              - unique
+          - description: item_kind must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - evaluation-items.item_kind.type
+            name: item_kind
+          - description: gold_ref must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - evaluation-items.gold_ref.type
+            name: gold_ref
+          - description: split must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - evaluation-items.split.type
+            name: split
+          - description: query_text must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - evaluation-items.query_text.type
+            name: query_text
+          - description: label must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - evaluation-items.label.type
+            name: label
+          - description: dataset_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - evaluation-items.dataset_id.type
+            name: dataset_id
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - evaluation-items.generation_id.type
+                - evaluation-items.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - evaluation-items.contract_version.type
+                - evaluation-items.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+        config:
+          meta:
+            arxiv_int_contract_id: evaluation-items
+        description: Frozen evaluation items with gold references, splits, and labels.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:evaluation-items:1.0.0"
+          primary_key:
+            - evaluation_item_id
+          rule_catalog_version: 1.0.0
+        name: evaluation_items
+  - description: Canonical kg relations owned by Alembic.
+    name: kg
+    schema: kg
+    tables:
+      - columns:
+          - description: alias_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - aliases.alias_id.type
+                - aliases.alias_id.nullability
+                - aliases.alias_id.batch_unique
+                - aliases.alias_id.unique
+            name: alias_id
+            tests:
+              - not_null
+              - unique
+          - description: object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - aliases.object_id.type
+                - aliases.object_id.relationship
+            name: object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: alias_text must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - aliases.alias_text.type
+            name: alias_text
+          - description: alias_kind must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - aliases.alias_kind.type
+            name: alias_kind
+          - description: normalized_text must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - aliases.normalized_text.type
+            name: normalized_text
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - aliases.generation_id.type
+                - aliases.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - aliases.contract_version.type
+                - aliases.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - aliases.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: aliases
+        description: Alternate labels and normalized aliases for knowledge-graph objects.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:aliases:1.0.0"
+          primary_key:
+            - alias_id
+          rule_catalog_version: 1.0.0
+        name: aliases
+      - columns:
+          - description: bom_line_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.bom_line_id.type
+                - domain-artifacts-bom.bom_line_id.nullability
+                - domain-artifacts-bom.bom_line_id.batch_unique
+                - domain-artifacts-bom.bom_line_id.unique
+            name: bom_line_id
+            tests:
+              - not_null
+              - unique
+          - description: bom_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.bom_id.type
+            name: bom_id
+          - description: root_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.root_object_id.type
+                - domain-artifacts-bom.root_object_id.relationship
+            name: root_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: parent_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.parent_object_id.type
+                - domain-artifacts-bom.parent_object_id.relationship
+            name: parent_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: child_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.child_object_id.type
+                - domain-artifacts-bom.child_object_id.relationship
+            name: child_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: predicate_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.predicate_id.type
+            name: predicate_id
+          - description: listing_kind must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.listing_kind.type
+            name: listing_kind
+          - description: quantity must match logical type number.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.quantity.type
+                - domain-artifacts-bom.quantity.decimal
+                - domain-artifacts-bom.quantity.unit
+            name: quantity
+          - description: unit must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.unit.type
+            name: unit
+          - description: alternative_group_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.alternative_group_id.type
+            name: alternative_group_id
+          - description: is_mandatory must match logical type boolean.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.is_mandatory.type
+            name: is_mandatory
+          - description: effectivity_start must match logical type timestamp.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.effectivity_start.type
+            name: effectivity_start
+          - description: effectivity_end must match logical type timestamp.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.effectivity_end.type
+            name: effectivity_end
+          - description: revision_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.revision_object_id.type
+                - domain-artifacts-bom.revision_object_id.relationship
+            name: revision_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: completeness_status must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.completeness_status.type
+            name: completeness_status
+          - description: cycle_detected must match logical type boolean.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.cycle_detected.type
+            name: cycle_detected
+          - description: evidence_fact_ids must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.evidence_fact_ids.type
+            name: evidence_fact_ids
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.document_id.type
+                - domain-artifacts-bom.document_id.relationship
+            name: document_id
+            tests:
+              - relationships:
+                  field: document_id
+                  to: "source('corpus', 'documents')"
+          - description: anchor_kind must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.anchor_kind.type
+            name: anchor_kind
+          - description: review_state must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.review_state.type
+            name: review_state
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.generation_id.type
+                - domain-artifacts-bom.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.contract_version.type
+                - domain-artifacts-bom.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-bom.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: domain-artifacts-bom
+        description: Bill-of-materials hierarchy rows with quantities, alternatives, effectivity, and completeness.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:domain-artifacts-bom:1.0.0"
+          primary_key:
+            - bom_line_id
+          rule_catalog_version: 1.0.0
+        name: bom_lines
+      - columns:
+          - description: catalog_entry_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - catalogs.catalog_entry_id.type
+                - catalogs.catalog_entry_id.nullability
+                - catalogs.catalog_entry_id.batch_unique
+                - catalogs.catalog_entry_id.unique
+            name: catalog_entry_id
+            tests:
+              - not_null
+              - unique
+          - description: catalog_kind must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - catalogs.catalog_kind.type
+            name: catalog_kind
+          - description: object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - catalogs.object_id.type
+                - catalogs.object_id.relationship
+            name: object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: preferred_name must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - catalogs.preferred_name.type
+            name: preferred_name
+          - description: document_count must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - catalogs.document_count.type
+            name: document_count
+          - description: review_state must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - catalogs.review_state.type
+            name: review_state
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - catalogs.generation_id.type
+                - catalogs.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - catalogs.contract_version.type
+                - catalogs.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - catalogs.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: catalogs
+        description: Catalog entries summarizing objects with preferred names and document counts.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:catalogs:1.0.0"
+          primary_key:
+            - catalog_entry_id
+          rule_catalog_version: 1.0.0
+        name: catalog_entries
+      - columns:
+          - description: fact_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.fact_id.type
+                - facts.fact_id.nullability
+                - facts.fact_id.batch_unique
+                - facts.fact_id.unique
+            name: fact_id
+            tests:
+              - not_null
+              - unique
+          - description: subject_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.subject_object_id.type
+                - facts.subject_object_id.relationship
+            name: subject_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: predicate_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.predicate_id.type
+            name: predicate_id
+          - description: object_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.object_object_id.type
+            name: object_object_id
+          - description: literal_value must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.literal_value.type
+            name: literal_value
+          - description: literal_type must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.literal_type.type
+            name: literal_type
+          - description: status must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.status.type
+            name: status
+          - description: confidence must match logical type number.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.confidence.type
+                - facts.confidence.decimal
+            name: confidence
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.document_id.type
+                - facts.document_id.relationship
+            name: document_id
+            tests:
+              - relationships:
+                  field: document_id
+                  to: "source('corpus', 'documents')"
+          - description: span_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.span_id.type
+                - facts.span_id.relationship
+            name: span_id
+            tests:
+              - relationships:
+                  field: span_id
+                  to: "source('corpus', 'spans')"
+          - description: chunk_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.chunk_id.type
+                - facts.chunk_id.relationship
+            name: chunk_id
+            tests:
+              - relationships:
+                  field: chunk_id
+                  to: "source('corpus', 'chunks')"
+          - description: identity_snapshot_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.identity_snapshot_id.type
+            name: identity_snapshot_id
+          - description: extractor_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.extractor_id.type
+            name: extractor_id
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.generation_id.type
+                - facts.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.contract_version.type
+                - facts.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: facts
+        description: Extracted subject-predicate-object facts with evidence anchors and confidence.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:facts:1.0.0"
+          primary_key:
+            - fact_id
+          rule_catalog_version: 1.0.0
+        name: facts
+      - columns:
+          - description: row_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.row_id.type
+                - domain-artifacts-invoice-payment.row_id.nullability
+                - domain-artifacts-invoice-payment.row_id.batch_unique
+                - domain-artifacts-invoice-payment.row_id.unique
+            name: row_id
+            tests:
+              - not_null
+              - unique
+          - description: row_kind must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.row_kind.type
+            name: row_kind
+          - description: invoice_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.invoice_object_id.type
+                - domain-artifacts-invoice-payment.invoice_object_id.relationship
+            name: invoice_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: payment_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.payment_object_id.type
+                - domain-artifacts-invoice-payment.payment_object_id.relationship
+            name: payment_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: line_number must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.line_number.type
+            name: line_number
+          - description: amount must match logical type number.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.amount.type
+                - domain-artifacts-invoice-payment.amount.decimal
+                - domain-artifacts-invoice-payment.amount.unit
+            name: amount
+          - description: allocated_amount must match logical type number.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.allocated_amount.type
+                - domain-artifacts-invoice-payment.allocated_amount.decimal
+                - domain-artifacts-invoice-payment.allocated_amount.unit
+            name: allocated_amount
+          - description: currency must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.currency.type
+            name: currency
+          - description: due_date must match logical type timestamp.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.due_date.type
+            name: due_date
+          - description: payment_date must match logical type timestamp.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.payment_date.type
+            name: payment_date
+          - description: match_state must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.match_state.type
+            name: match_state
+          - description: allocation_group_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.allocation_group_id.type
+            name: allocation_group_id
+          - description: debit_credit must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.debit_credit.type
+            name: debit_credit
+          - description: evidence_fact_ids must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.evidence_fact_ids.type
+            name: evidence_fact_ids
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.document_id.type
+                - domain-artifacts-invoice-payment.document_id.relationship
+            name: document_id
+            tests:
+              - relationships:
+                  field: document_id
+                  to: "source('corpus', 'documents')"
+          - description: review_state must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.review_state.type
+            name: review_state
+          - description: confidence must match logical type number.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.confidence.type
+                - domain-artifacts-invoice-payment.confidence.decimal
+                - domain-artifacts-invoice-payment.confidence.unit
+            name: confidence
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.generation_id.type
+                - domain-artifacts-invoice-payment.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.contract_version.type
+                - domain-artifacts-invoice-payment.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: domain-artifacts-invoice-payment
+        description: Invoice lines, payments, credit notes, ledger postings, and allocation match states.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:domain-artifacts-invoice-payment:1.0.0"
+          primary_key:
+            - row_id
+          rule_catalog_version: 1.0.0
+        name: invoice_payment_rows
+      - columns:
+          - description: mention_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - mentions.mention_id.type
+                - mentions.mention_id.nullability
+                - mentions.mention_id.batch_unique
+                - mentions.mention_id.unique
+            name: mention_id
+            tests:
+              - not_null
+              - unique
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - mentions.document_id.type
+                - mentions.document_id.relationship
+            name: document_id
+            tests:
+              - relationships:
+                  field: document_id
+                  to: "source('corpus', 'documents')"
+          - description: span_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - mentions.span_id.type
+                - mentions.span_id.relationship
+            name: span_id
+            tests:
+              - relationships:
+                  field: span_id
+                  to: "source('corpus', 'spans')"
+          - description: chunk_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - mentions.chunk_id.type
+                - mentions.chunk_id.relationship
+            name: chunk_id
+            tests:
+              - relationships:
+                  field: chunk_id
+                  to: "source('corpus', 'chunks')"
+          - description: surface_form must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - mentions.surface_form.type
+            name: surface_form
+          - description: object_anchor_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - mentions.object_anchor_id.type
+            name: object_anchor_id
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - mentions.generation_id.type
+                - mentions.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - mentions.contract_version.type
+                - mentions.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - mentions.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: mentions
+        description: Surface-form mentions linking documents, spans, and chunks to object anchors.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:mentions:1.0.0"
+          primary_key:
+            - mention_id
+          rule_catalog_version: 1.0.0
+        name: mentions
+      - columns:
+          - description: object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - objects.object_id.type
+                - objects.object_id.nullability
+                - objects.object_id.batch_unique
+                - objects.object_id.unique
+            name: object_id
+            tests:
+              - not_null
+              - unique
+          - description: object_type must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - objects.object_type.type
+            name: object_type
+          - description: preferred_label must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - objects.preferred_label.type
+            name: preferred_label
+          - description: lifecycle_state must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - objects.lifecycle_state.type
+            name: lifecycle_state
+          - description: review_state must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - objects.review_state.type
+            name: review_state
+          - description: cluster_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - objects.cluster_id.type
+            name: cluster_id
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - objects.generation_id.type
+                - objects.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - objects.contract_version.type
+                - objects.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - objects.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: objects
+        description: Canonical knowledge-graph objects with lifecycle and review state.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:objects:1.0.0"
+          primary_key:
+            - object_id
+          rule_catalog_version: 1.0.0
+        name: objects
+      - columns:
+          - description: edge_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.edge_id.type
+                - domain-artifacts-relationship-map.edge_id.nullability
+                - domain-artifacts-relationship-map.edge_id.batch_unique
+                - domain-artifacts-relationship-map.edge_id.unique
+            name: edge_id
+            tests:
+              - not_null
+              - unique
+          - description: subject_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.subject_object_id.type
+                - domain-artifacts-relationship-map.subject_object_id.relationship
+            name: subject_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: predicate_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.predicate_id.type
+            name: predicate_id
+          - description: object_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.object_object_id.type
+                - domain-artifacts-relationship-map.object_object_id.relationship
+            name: object_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: relation_kind must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.relation_kind.type
+            name: relation_kind
+          - description: direction must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.direction.type
+            name: direction
+          - description: cardinality must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.cardinality.type
+            name: cardinality
+          - description: review_state must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.review_state.type
+            name: review_state
+          - description: inclusion_policy must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.inclusion_policy.type
+            name: inclusion_policy
+          - description: conflict_group_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.conflict_group_id.type
+            name: conflict_group_id
+          - description: evidence_fact_ids must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.evidence_fact_ids.type
+            name: evidence_fact_ids
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.document_id.type
+                - domain-artifacts-relationship-map.document_id.relationship
+            name: document_id
+            tests:
+              - relationships:
+                  field: document_id
+                  to: "source('corpus', 'documents')"
+          - description: span_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.span_id.type
+                - domain-artifacts-relationship-map.span_id.relationship
+            name: span_id
+            tests:
+              - relationships:
+                  field: span_id
+                  to: "source('corpus', 'spans')"
+          - description: anchor_kind must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.anchor_kind.type
+            name: anchor_kind
+          - description: confidence must match logical type number.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.confidence.type
+                - domain-artifacts-relationship-map.confidence.decimal
+            name: confidence
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.generation_id.type
+                - domain-artifacts-relationship-map.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.contract_version.type
+                - domain-artifacts-relationship-map.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: domain-artifacts-relationship-map
+        description: Typed design/party/product relationship edges with evidence and inclusion state.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:domain-artifacts-relationship-map:1.0.0"
+          primary_key:
+            - edge_id
+          rule_catalog_version: 1.0.0
+        name: relationship_edges
+      - columns:
+          - description: edge_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.edge_id.type
+                - domain-artifacts-supply-chain.edge_id.nullability
+                - domain-artifacts-supply-chain.edge_id.batch_unique
+                - domain-artifacts-supply-chain.edge_id.unique
+            name: edge_id
+            tests:
+              - not_null
+              - unique
+          - description: path_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.path_id.type
+            name: path_id
+          - description: stage must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.stage.type
+            name: stage
+          - description: from_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.from_object_id.type
+                - domain-artifacts-supply-chain.from_object_id.relationship
+            name: from_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: to_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.to_object_id.type
+                - domain-artifacts-supply-chain.to_object_id.relationship
+            name: to_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: role_predicate_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.role_predicate_id.type
+            name: role_predicate_id
+          - description: product_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.product_object_id.type
+                - domain-artifacts-supply-chain.product_object_id.relationship
+            name: product_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: transaction_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.transaction_id.type
+                - domain-artifacts-supply-chain.transaction_id.relationship
+            name: transaction_id
+            tests:
+              - relationships:
+                  field: transaction_id
+                  to: "source('kg', 'transactions')"
+          - description: direction must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.direction.type
+            name: direction
+          - description: event_time must match logical type timestamp.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.event_time.type
+            name: event_time
+          - description: status must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.status.type
+            name: status
+          - description: evidence_fact_ids must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.evidence_fact_ids.type
+            name: evidence_fact_ids
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.document_id.type
+                - domain-artifacts-supply-chain.document_id.relationship
+            name: document_id
+            tests:
+              - relationships:
+                  field: document_id
+                  to: "source('corpus', 'documents')"
+          - description: review_state must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.review_state.type
+            name: review_state
+          - description: confidence must match logical type number.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.confidence.type
+                - domain-artifacts-supply-chain.confidence.decimal
+            name: confidence
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.generation_id.type
+                - domain-artifacts-supply-chain.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.contract_version.type
+                - domain-artifacts-supply-chain.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: domain-artifacts-supply-chain
+        description: Supply-chain stage edges separating quote, order, invoice, ship, receive, and pay claims.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:domain-artifacts-supply-chain:1.0.0"
+          primary_key:
+            - edge_id
+          rule_catalog_version: 1.0.0
+        name: supply_chain_edges
+      - columns:
+          - description: transaction_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - transactions.transaction_id.type
+                - transactions.transaction_id.nullability
+                - transactions.transaction_id.batch_unique
+                - transactions.transaction_id.unique
+            name: transaction_id
+            tests:
+              - not_null
+              - unique
+          - description: transaction_type must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - transactions.transaction_type.type
+            name: transaction_type
+          - description: amount must match logical type number.
+            meta:
+              arxiv_int_rule_ids:
+                - transactions.amount.type
+                - transactions.amount.decimal
+                - transactions.amount.unit
+            name: amount
+          - description: currency must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - transactions.currency.type
+            name: currency
+          - description: party_subject_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - transactions.party_subject_id.type
+                - transactions.party_subject_id.relationship
+            name: party_subject_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: party_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - transactions.party_object_id.type
+                - transactions.party_object_id.relationship
+            name: party_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - transactions.document_id.type
+                - transactions.document_id.relationship
+            name: document_id
+            tests:
+              - relationships:
+                  field: document_id
+                  to: "source('corpus', 'documents')"
+          - description: event_time must match logical type timestamp.
+            meta:
+              arxiv_int_rule_ids:
+                - transactions.event_time.type
+            name: event_time
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - transactions.generation_id.type
+                - transactions.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - transactions.contract_version.type
+                - transactions.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - transactions.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: transactions
+        description: Financial or exchange transactions linked to parties and source documents.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:transactions:1.0.0"
+          primary_key:
+            - transaction_id
+          rule_catalog_version: 1.0.0
+        name: transactions
+  - description: Canonical ontology relations owned by Alembic.
+    name: ontology
+    schema: ontology
+    tables:
+      - columns:
+          - description: term_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - ontology-terms.term_id.type
+                - ontology-terms.term_id.nullability
+                - ontology-terms.term_id.batch_unique
+                - ontology-terms.term_id.unique
+            name: term_id
+            tests:
+              - not_null
+              - unique
+          - description: uri must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - ontology-terms.uri.type
+            name: uri
+          - description: label must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - ontology-terms.label.type
+            name: label
+          - description: kind must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - ontology-terms.kind.type
+            name: kind
+          - description: domain_uri must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - ontology-terms.domain_uri.type
+            name: domain_uri
+          - description: range_uri must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - ontology-terms.range_uri.type
+            name: range_uri
+          - description: ontology_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - ontology-terms.ontology_version.type
+            name: ontology_version
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - ontology-terms.generation_id.type
+                - ontology-terms.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - ontology-terms.contract_version.type
+                - ontology-terms.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+        config:
+          meta:
+            arxiv_int_contract_id: ontology-terms
+        description: Controlled ontology terms with URIs, labels, and domain or range constraints.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:ontology-terms:1.0.0"
+          primary_key:
+            - term_id
+          rule_catalog_version: 1.0.0
+        name: terms
+  - description: Canonical search relations owned by Alembic.
+    name: search
+    schema: search
+    tables:
+      - columns:
+          - description: embedding_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - embeddings.embedding_id.type
+                - embeddings.embedding_id.nullability
+                - embeddings.embedding_id.batch_unique
+                - embeddings.embedding_id.unique
+            name: embedding_id
+            tests:
+              - not_null
+              - unique
+          - description: target_kind must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - embeddings.target_kind.type
+            name: target_kind
+          - description: target_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - embeddings.target_id.type
+            name: target_id
+          - description: profile_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - embeddings.profile_id.type
+            name: profile_id
+          - description: dimensions must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - embeddings.dimensions.type
+            name: dimensions
+          - description: vector_ref must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - embeddings.vector_ref.type
+            name: vector_ref
+          - description: model_digest must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - embeddings.model_digest.type
+            name: model_digest
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - embeddings.generation_id.type
+                - embeddings.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - embeddings.contract_version.type
+                - embeddings.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - embeddings.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: embeddings
+        description: Vector embedding references for retrieval targets under a profile.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:embeddings:1.0.0"
+          primary_key:
+            - embedding_id
+          rule_catalog_version: 1.0.0
+        name: embeddings
+      - columns:
+          - description: topic_assignment_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - topics.topic_assignment_id.type
+                - topics.topic_assignment_id.nullability
+                - topics.topic_assignment_id.batch_unique
+                - topics.topic_assignment_id.unique
+            name: topic_assignment_id
+            tests:
+              - not_null
+              - unique
+          - description: topic_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - topics.topic_id.type
+            name: topic_id
+          - description: label must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - topics.label.type
+            name: label
+          - description: scheme_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - topics.scheme_id.type
+            name: scheme_id
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - topics.document_id.type
+                - topics.document_id.relationship
+            name: document_id
+            tests:
+              - relationships:
+                  field: document_id
+                  to: "source('corpus', 'documents')"
+          - description: score must match logical type number.
+            meta:
+              arxiv_int_rule_ids:
+                - topics.score.type
+                - topics.score.decimal
+            name: score
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - topics.generation_id.type
+                - topics.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - topics.contract_version.type
+                - topics.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - topics.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: topics
+        description: Topic assignments linking documents to labeled topics under a scheme.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:topics:1.0.0"
+          primary_key:
+            - topic_assignment_id
+          rule_catalog_version: 1.0.0
+        name: topic_assignments
+version: 2

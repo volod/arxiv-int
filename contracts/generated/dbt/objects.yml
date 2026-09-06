@@ -1,0 +1,74 @@
+sources:
+  - description: Canonical kg relations owned by Alembic.
+    name: kg
+    schema: kg
+    tables:
+      - columns:
+          - description: object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - objects.object_id.type
+                - objects.object_id.nullability
+                - objects.object_id.batch_unique
+                - objects.object_id.unique
+            name: object_id
+            tests:
+              - not_null
+              - unique
+          - description: object_type must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - objects.object_type.type
+            name: object_type
+          - description: preferred_label must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - objects.preferred_label.type
+            name: preferred_label
+          - description: lifecycle_state must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - objects.lifecycle_state.type
+            name: lifecycle_state
+          - description: review_state must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - objects.review_state.type
+            name: review_state
+          - description: cluster_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - objects.cluster_id.type
+            name: cluster_id
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - objects.generation_id.type
+                - objects.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - objects.contract_version.type
+                - objects.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - objects.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: objects
+        description: Canonical knowledge-graph objects with lifecycle and review state.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:objects:1.0.0"
+          primary_key:
+            - object_id
+          rule_catalog_version: 1.0.0
+        name: objects
+version: 2

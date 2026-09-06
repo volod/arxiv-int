@@ -45,7 +45,7 @@
   },
   "fingerprints": {
     "avroSha256": "79eeab40a6b6ae013b6473f814d3e1d66e06589c19d00e83cf77db1bc2e02290",
-    "generatorVersion": "2.0.0",
+    "generatorVersion": "2.1.0",
     "postgresSha256": "6b5ecee67e880839f9aa5730cb918403e35cb3ae9460defb7223cd0543cb5dbd",
     "semanticMetadataHash": "7f317a00986dae893ed207882df478882503d7fbde678d9cb7c76d6b681e5151"
   },
@@ -153,6 +153,61 @@
       "fingerprints": {
         "avroSha256": "79eeab40a6b6ae013b6473f814d3e1d66e06589c19d00e83cf77db1bc2e02290",
         "generatorVersion": "2.0.0",
+        "postgresSha256": "6b5ecee67e880839f9aa5730cb918403e35cb3ae9460defb7223cd0543cb5dbd",
+        "semanticMetadataHash": "7f317a00986dae893ed207882df478882503d7fbde678d9cb7c76d6b681e5151"
+      },
+      "odcsId": "urn:arxiv-int:contract:topics:1.0.0",
+      "projections": {},
+      "version": "1.0.0"
+    },
+    {
+      "contractId": "topics",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "topic_assignments.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "topic_assignments.document_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "topic_assignments.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "topic_assignments.label": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "topic_assignments.scheme_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "topic_assignments.score": {
+          "logicalType": "number",
+          "physicalType": "",
+          "required": false
+        },
+        "topic_assignments.topic_assignment_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "topic_assignments.topic_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "79eeab40a6b6ae013b6473f814d3e1d66e06589c19d00e83cf77db1bc2e02290",
+        "generatorVersion": "2.1.0",
         "postgresSha256": "6b5ecee67e880839f9aa5730cb918403e35cb3ae9460defb7223cd0543cb5dbd",
         "semanticMetadataHash": "7f317a00986dae893ed207882df478882503d7fbde678d9cb7c76d6b681e5151"
       },

@@ -2,11 +2,13 @@
   "apiVersion": "v3.1.0",
   "artifacts": {
     "avro/anomaly-findings.avsc": "89bb4de1ea9a600bbb79c855563d8ce4a73feb136edd450894e8dbd2087cbe96",
+    "dbt/anomaly-findings.yml": "74bc57b72360306b217a05f8d719707ebc81173c1c4b5c1b5249642cb51dc051",
     "jsonschema/anomaly-findings.schema.json": "08ca6677c59fd295c3a9125fbef7eb20b8534265001f8f07593c8da5ebd176f0",
     "parquet/anomaly-findings.parquet.json": "c925f8fa2ab5ff6388b17a88d21c96eff5497f38d40569c423e9514acc62ca60",
     "postgres/anomaly-findings.sql": "ca17d49581fb4917847730d2735e644bfcca8e614100d1ac95ca7f8abccb61b6",
     "postgres/extensions/anomaly-findings.sql": "f8632891441c7c4317cdf662da88a850c3318e8617a92ca71938d18d0a616664",
-    "pydantic/anomaly-findings.py": "8b01391b1dd0585e699c8117537c0c4d6f5e3afd2b24a3c8e1795f16f83fd262"
+    "pydantic/anomaly-findings.py": "8b01391b1dd0585e699c8117537c0c4d6f5e3afd2b24a3c8e1795f16f83fd262",
+    "quality/anomaly-findings.rules.json": "7673aec226a58992f64f801a57a22facfa0dd32662a67199851ce933183fc8af"
   },
   "canonicalEntity": null,
   "contractId": "anomaly-findings",

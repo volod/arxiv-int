@@ -179,6 +179,29 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="record docker/postgres/age-compatibility.json from probe results",
     )
+    quality = subcommands.add_parser(
+        "data-quality", help="validate dataset contents against contracts"
+    )
+    quality_commands = quality.add_subparsers(dest="quality_command", required=True)
+    check = quality_commands.add_parser("check", help="validate one dataset batch or snapshot")
+    check.add_argument("dataset", help="contract dataset id")
+    check.add_argument("--run-id", required=True, help="run identifier for quality evidence")
+    check.add_argument("--input", type=Path, required=True, help="parquet, arrow, or JSON table")
+    check.add_argument(
+        "--related",
+        action="append",
+        default=[],
+        metavar="DATASET=PATH",
+        help="related dataset for relationship checks (repeatable)",
+    )
+    check.add_argument("--batch-rows", type=int, default=50000)
+    check.add_argument("--spill-bytes", type=int, default=67108864)
+    check.add_argument("--min-rows", type=int, default=0)
+    check.add_argument("--failure-samples", type=int, default=5)
+    check.add_argument("--skip-snapshot", action="store_true", help="leave global checks not-run")
+    check.add_argument("--publish", action="store_true", help="copy evidence to RUNS_DIR")
+    check.add_argument("--runs-dir", type=Path, default=None)
+    check.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
     return parser
 
 
@@ -419,6 +442,44 @@ def _run_store(args: argparse.Namespace) -> int:
         return 1
 
 
+def _parse_related(values: list[str]) -> dict[str, Path]:
+    related: dict[str, Path] = {}
+    for item in values:
+        dataset, separator, raw_path = item.partition("=")
+        if not separator or not dataset or not raw_path:
+            raise ValueError(f"related dataset must be DATASET=PATH, got {item!r}")
+        related[dataset] = Path(raw_path)
+    return related
+
+
+def _run_data_quality(args: argparse.Namespace) -> int:
+    from arxiv_int.data_quality.commands import run_check
+    from arxiv_int.data_quality.model import ValidationLimits
+    from arxiv_int.runtime.project_root import ProjectRootError
+
+    try:
+        related = _parse_related(args.related)
+        return run_check(
+            args.dataset,
+            run_id=args.run_id,
+            input_path=args.input,
+            related=related,
+            project_root=args.project_root,
+            execute_snapshot=not args.skip_snapshot,
+            publish=args.publish,
+            runs_dir=args.runs_dir,
+            limits=ValidationLimits(
+                batch_rows=args.batch_rows,
+                spill_bytes=args.spill_bytes,
+                failure_samples=args.failure_samples,
+                min_rows=args.min_rows,
+            ),
+        )
+    except (OSError, ProjectRootError, RuntimeError, ValueError) as error:
+        _LOG.error("%s", error)
+        return 1
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     """Run the selected command and return a process status."""
     logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -439,6 +500,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_ontology(args)
     if args.command == "store":
         return _run_store(args)
+    if args.command == "data-quality":
+        return _run_data_quality(args)
     return _run_info()
 
 

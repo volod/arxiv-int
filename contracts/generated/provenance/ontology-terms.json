@@ -2,11 +2,13 @@
   "apiVersion": "v3.1.0",
   "artifacts": {
     "avro/ontology-terms.avsc": "5efec421041548d1fba9feb6e45e75ea65af3cb7830b0ef4b57d700942ef0509",
+    "dbt/ontology-terms.yml": "4ec2fd45441f001fd5073776568b1dcf01f1a48172bbd0efa698cd36ba304505",
     "jsonschema/ontology-terms.schema.json": "6ea5d73aaf78779fc44ecddc84e24f76a11e1ac1a53981a37fc1e726cc26398a",
     "parquet/ontology-terms.parquet.json": "f8f21605fa7a8b3fb89b653303d2368ecb622ce8d6f95306797b3e9728152b31",
     "postgres/extensions/ontology-terms.sql": "d2e50ed1921091744e719aa49ec86d758e29ebd1d7d2e18b7b088b5b6b7da7d0",
     "postgres/ontology-terms.sql": "2b9c70d6a548e652a992c368fd6811da82fb7991eb7458a57542ac8f79973cca",
-    "pydantic/ontology-terms.py": "e193697526f7fe257e853652b60095eeed98b43dc52201221eac34535377bfc4"
+    "pydantic/ontology-terms.py": "e193697526f7fe257e853652b60095eeed98b43dc52201221eac34535377bfc4",
+    "quality/ontology-terms.rules.json": "4d6564a8675f5284a72af3b6fa4c3831145925f598439322829d1d455514b286"
   },
   "canonicalEntity": null,
   "contractId": "ontology-terms",

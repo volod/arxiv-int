@@ -37,11 +37,12 @@ in agreement in both directions.
 
 | Group | State | Declared distributions |
 | --- | --- | --- |
-| `contracts` | populated | `fastavro` (MIT), `jsonschema` (MIT), `pydantic` (MIT), `pyyaml` (MIT), `sqlglot` (MIT) |
+| `contracts` | populated | `fastavro` (MIT), `jsonschema` (MIT), `pydantic` (MIT), `pyyaml` (MIT), `sqlalchemy` (MIT), `sqlglot` (MIT) |
+| `data-quality` | populated | `pandera` (MIT) |
 | `graph` | populated | `pyshacl` (Apache-2.0), `rdflib` (BSD-3-Clause) |
 | `inference` | populated | `httpx` (BSD-3-Clause) |
-| `lake` | populated | `duckdb` (MIT), `pyarrow` (Apache-2.0) |
-| `store` | populated | `psycopg[binary]` (LGPL-3.0-only) |
+| `lake` | populated | `duckdb` (MIT), `polars` (MIT), `pyarrow` (Apache-2.0) |
+| `store` | populated | `alembic` (MIT), `psycopg[binary]` (LGPL-3.0-only) |
 | `embeddings` | reserved for `semantic-retrieval` | none yet |
 | `evaluation` | reserved for `evaluation-foundation` | none yet |
 | `extraction` | reserved for `corpus-foundation` | none yet |

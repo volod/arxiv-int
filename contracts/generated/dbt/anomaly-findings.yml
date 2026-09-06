@@ -1,0 +1,79 @@
+sources:
+  - description: Canonical eval relations owned by Alembic.
+    name: eval
+    schema: eval
+    tables:
+      - columns:
+          - description: finding_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - anomaly-findings.finding_id.type
+                - anomaly-findings.finding_id.nullability
+                - anomaly-findings.finding_id.batch_unique
+                - anomaly-findings.finding_id.unique
+            name: finding_id
+            tests:
+              - not_null
+              - unique
+          - description: finding_type must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - anomaly-findings.finding_type.type
+            name: finding_type
+          - description: severity must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - anomaly-findings.severity.type
+            name: severity
+          - description: status must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - anomaly-findings.status.type
+            name: status
+          - description: subject_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - anomaly-findings.subject_object_id.type
+                - anomaly-findings.subject_object_id.relationship
+            name: subject_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: rule_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - anomaly-findings.rule_id.type
+            name: rule_id
+          - description: evidence_summary must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - anomaly-findings.evidence_summary.type
+            name: evidence_summary
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - anomaly-findings.generation_id.type
+                - anomaly-findings.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - anomaly-findings.contract_version.type
+                - anomaly-findings.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+        config:
+          meta:
+            arxiv_int_contract_id: anomaly-findings
+        description: Anomaly findings with severity, status, and evidence summaries for review.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:anomaly-findings:1.0.0"
+          primary_key:
+            - finding_id
+          rule_catalog_version: 1.0.0
+        name: anomaly_findings
+version: 2

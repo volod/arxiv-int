@@ -13,12 +13,14 @@ READINESS_ALLOW_DEGRADED ?= 0
 MESSAGE ?= contract schema change
 REVISION ?= head
 DOWN_REVISION ?= -1
+DATASET ?= documents
+RUN_ID ?= local
 APPLY ?= 0
 NO_CACHE ?= 0
 WRITE_GATE ?= 0
 COMMON_SH := $(PROJECT_ROOT)/scripts/shared/common.sh
 # One extra set for every syncing target so consecutive targets cannot uninstall each other.
-SYNC_EXTRAS := --extra dev --extra contracts --extra graph --extra store
+SYNC_EXTRAS := --extra dev --extra contracts --extra graph --extra store --extra lake --extra data-quality
 DATA_ROOT := $(shell $(if $(DATA_DIR),DATA_DIR='$(DATA_DIR)') bash -c '. "$$0"; arxiv_int_data_root' '$(COMMON_SH)')
 PYTEST_CACHE := -o cache_dir=$(DATA_ROOT)/cache/pytest
 
@@ -33,7 +35,7 @@ export MYPY_CACHE_DIR := $(DATA_ROOT)/cache/mypy
 	coverage complexity-gate shell-lint-gate lint-md lint-doc-links lint-spec-plan plan-status \
 	contracts contracts-gen contracts-check contracts-evolution \
 	db-revision db-check db-status db-upgrade \
-	db-downgrade db-adopt ontology ontology-gen ontology-check \
+	db-downgrade db-adopt ontology ontology-gen ontology-check data-quality \
 	ci-checks ci ci-github build quality code-quality quality-report
 
 help: ## List available targets
@@ -132,6 +134,14 @@ ontology-check: ## Parse RDF/SHACL, verify bindings, drift, and ontology evoluti
 	@source "$(COMMON_SH)"; arxiv_int_load_env; \
 		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)"; \
 		"$(VENV)/bin/arxiv-int" ontology check
+
+data-quality: ## Validate DATASET contents for RUN_ID (INPUT=... required)
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@test -n "$(INPUT)" || { echo "ERROR: set INPUT to a parquet, arrow, or JSON table"; exit 1; }
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)"; \
+		"$(VENV)/bin/arxiv-int" data-quality check "$(DATASET)" --run-id "$(RUN_ID)" \
+		--input "$(INPUT)" $(if $(RELATED),$(foreach item,$(RELATED),--related $(item)),)
 
 config: ## Resolve, validate, and redact runtime configuration
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }

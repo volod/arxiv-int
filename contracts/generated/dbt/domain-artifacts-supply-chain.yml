@@ -1,0 +1,145 @@
+sources:
+  - description: Canonical kg relations owned by Alembic.
+    name: kg
+    schema: kg
+    tables:
+      - columns:
+          - description: edge_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.edge_id.type
+                - domain-artifacts-supply-chain.edge_id.nullability
+                - domain-artifacts-supply-chain.edge_id.batch_unique
+                - domain-artifacts-supply-chain.edge_id.unique
+            name: edge_id
+            tests:
+              - not_null
+              - unique
+          - description: path_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.path_id.type
+            name: path_id
+          - description: stage must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.stage.type
+            name: stage
+          - description: from_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.from_object_id.type
+                - domain-artifacts-supply-chain.from_object_id.relationship
+            name: from_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: to_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.to_object_id.type
+                - domain-artifacts-supply-chain.to_object_id.relationship
+            name: to_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: role_predicate_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.role_predicate_id.type
+            name: role_predicate_id
+          - description: product_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.product_object_id.type
+                - domain-artifacts-supply-chain.product_object_id.relationship
+            name: product_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: transaction_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.transaction_id.type
+                - domain-artifacts-supply-chain.transaction_id.relationship
+            name: transaction_id
+            tests:
+              - relationships:
+                  field: transaction_id
+                  to: "source('kg', 'transactions')"
+          - description: direction must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.direction.type
+            name: direction
+          - description: event_time must match logical type timestamp.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.event_time.type
+            name: event_time
+          - description: status must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.status.type
+            name: status
+          - description: evidence_fact_ids must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.evidence_fact_ids.type
+            name: evidence_fact_ids
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.document_id.type
+                - domain-artifacts-supply-chain.document_id.relationship
+            name: document_id
+            tests:
+              - relationships:
+                  field: document_id
+                  to: "source('corpus', 'documents')"
+          - description: review_state must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.review_state.type
+            name: review_state
+          - description: confidence must match logical type number.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.confidence.type
+                - domain-artifacts-supply-chain.confidence.decimal
+            name: confidence
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.generation_id.type
+                - domain-artifacts-supply-chain.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.contract_version.type
+                - domain-artifacts-supply-chain.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-supply-chain.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: domain-artifacts-supply-chain
+        description: Supply-chain stage edges separating quote, order, invoice, ship, receive, and pay claims.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:domain-artifacts-supply-chain:1.0.0"
+          primary_key:
+            - edge_id
+          rule_catalog_version: 1.0.0
+        name: supply_chain_edges
+version: 2

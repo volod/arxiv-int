@@ -2,11 +2,13 @@
   "apiVersion": "v3.1.0",
   "artifacts": {
     "avro/documents.avsc": "73b74ccf017b48ed30ba0cdcce3d2df8c5a5ce1181417ebd734ebd6f237ac225",
+    "dbt/documents.yml": "6433f947b61a78fa85b64cafdac3fd61f10a73a172e238b48fcff56817eaed4a",
     "jsonschema/documents.schema.json": "af8f6f831a00248aa06ac58ccafe3c27e6fe2343d04fb214a0cf5a83c317c024",
     "parquet/documents.parquet.json": "7975183f928f7d43cc4b70df3d217f4a80cec063b8b3da851812e9aa9b8a7f6b",
     "postgres/documents.sql": "8e8fbb7e2e6635506a7aa7859128beb97844f8ad554bafe8c88c9c7926efdbc4",
     "postgres/extensions/documents.sql": "8ada96f85b6ccf21b50d0c3c9f7db6ca25f3633b3ea11c2a2c90b99ee78e333a",
     "pydantic/documents.py": "d0b0052649bc348b5bedb992975bcc275571bd42a5053a5c99359eff26c14c93",
+    "quality/documents.rules.json": "4ab0a891527a8ee9e4aaf4921dc0944751438c09dbe99f242b417e03cd989095",
     "search/documents.sql": "45a3c5f5e1baed5e1d3801d9e30108710c4613a100131365efc6b19f1679e00a"
   },
   "canonicalEntity": null,

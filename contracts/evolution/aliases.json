@@ -40,7 +40,7 @@
   },
   "fingerprints": {
     "avroSha256": "7118d07bcdfe528f04cc3bbe5337237c4c97a87ae0799160e0caa2d43eca8258",
-    "generatorVersion": "2.0.0",
+    "generatorVersion": "2.1.0",
     "postgresSha256": "679b22bc706995071b1735267bce8e6ffe8a96f73329371e1a857a0f9a9afac8",
     "semanticMetadataHash": "a561948012ae0f628c1e138304c902213acdd7d7c4d498d8df4b8e1859251d32"
   },
@@ -138,6 +138,56 @@
       "fingerprints": {
         "avroSha256": "7118d07bcdfe528f04cc3bbe5337237c4c97a87ae0799160e0caa2d43eca8258",
         "generatorVersion": "2.0.0",
+        "postgresSha256": "679b22bc706995071b1735267bce8e6ffe8a96f73329371e1a857a0f9a9afac8",
+        "semanticMetadataHash": "a561948012ae0f628c1e138304c902213acdd7d7c4d498d8df4b8e1859251d32"
+      },
+      "odcsId": "urn:arxiv-int:contract:aliases:1.0.0",
+      "projections": {},
+      "version": "1.0.0"
+    },
+    {
+      "contractId": "aliases",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "aliases.alias_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "aliases.alias_kind": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "aliases.alias_text": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "aliases.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "aliases.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "aliases.normalized_text": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "aliases.object_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "7118d07bcdfe528f04cc3bbe5337237c4c97a87ae0799160e0caa2d43eca8258",
+        "generatorVersion": "2.1.0",
         "postgresSha256": "679b22bc706995071b1735267bce8e6ffe8a96f73329371e1a857a0f9a9afac8",
         "semanticMetadataHash": "a561948012ae0f628c1e138304c902213acdd7d7c4d498d8df4b8e1859251d32"
       },

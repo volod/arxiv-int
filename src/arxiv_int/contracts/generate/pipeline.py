@@ -23,7 +23,7 @@ from arxiv_int.contracts.sqlalchemy.model import ContractSchemaModel, load_schem
 
 _LOG = logging.getLogger(__name__)
 
-GENERATOR_VERSION = "2.0.0"
+GENERATOR_VERSION = "2.1.0"
 _CLI_FORMATS = (
     ("avro", "avro", ".avsc", None),
     ("jsonschema", "jsonschema", ".schema.json", None),
@@ -91,6 +91,18 @@ def _contract_artifacts(
         relative = f"graph/{contract_id}.sql"
         fingerprints[relative] = _write(output_root / relative, graph_sql)
 
+    from arxiv_int.data_quality.dbt_yaml import render_contract_dbt_yaml
+    from arxiv_int.data_quality.generate import catalog_document
+    from arxiv_int.data_quality.rules import compile_rule_catalog
+
+    catalog = compile_rule_catalog(model.by_contract(contract_id), model.tables, odcs)
+    relative = f"quality/{contract_id}.rules.json"
+    fingerprints[relative] = _write(
+        output_root / relative, normalize_json(catalog_document(catalog))
+    )
+    relative = f"dbt/{contract_id}.yml"
+    fingerprints[relative] = _write(output_root / relative, render_contract_dbt_yaml(catalog))
+
     semantic_hash = entry.stored_semantic_hash
     if entry.mapping_ref is not None and semantic_hash is None:
         semantic_hash = registry.semantic_fingerprint(contract_id)
@@ -142,18 +154,26 @@ def generate_all_contracts(
         shutil.rmtree(destination)
     destination.mkdir(parents=True, exist_ok=True)
     model = load_schema_model(registry)
+    odcs_by_contract = {
+        contract_id: registry.load_odcs(contract_id) for contract_id in registry.contract_ids()
+    }
     by_contract: dict[str, dict[str, str]] = {}
     for contract_id in registry.contract_ids():
         _LOG.info("generating artifacts for %s", contract_id)
         by_contract[contract_id] = _contract_artifacts(
             registry, contract_id, contracts_root, destination, model
         )
-    baseline = {
+    from arxiv_int.data_quality.dbt_yaml import render_dbt_yaml
+    from arxiv_int.data_quality.generate import DBT_SOURCES_RELATIVE, compile_catalogs
+
+    catalogs = compile_catalogs(model, odcs_by_contract)
+    shared = {
         BASELINE_DDL_RELATIVE: _write(
             destination / BASELINE_DDL_RELATIVE, baseline_ddl(model.metadata)
-        )
+        ),
+        DBT_SOURCES_RELATIVE: _write(destination / DBT_SOURCES_RELATIVE, render_dbt_yaml(catalogs)),
     }
-    manifest_fingerprint = _write_manifest(destination, by_contract, baseline)
+    manifest_fingerprint = _write_manifest(destination, by_contract, shared)
     files = tuple(sorted(path for path in destination.rglob("*") if path.is_file()))
     return GenerationResult(destination, files, manifest_fingerprint)
 

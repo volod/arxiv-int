@@ -107,14 +107,37 @@ consequence class.
 
 These checks do not execute an upgrade against the pinned product image, do not verify
 previous-release-to-head upgrades, and do not compare a migrated operator database. Missing live
-evidence is reported as `not-run`, never as a pass. No dbt project, Polars transformation layer, or
-Pandera dataset-validation adapter is implemented yet.
+evidence is reported as `not-run`, never as a pass. dbt model execution remains with
+[the dbt foundation task](../plan.md#implement-dbt-transformation-foundation).
 
 The [data engineering review](../records/0015-govern-review-data-engineering-tooling.md) records the
-limits this refactor closed and the selected design; the
+selected design; the
 [migration refactor record](../records/0017-contract-gov-refactor-contract-schema-and-migration-tooling.md)
-records the implementation. [Shared data-quality checks](../plan.md#implement-contract-data-quality-checks)
-and the [dbt foundation](../plan.md#implement-dbt-transformation-foundation) own the remaining work.
+records SQLAlchemy/Alembic ownership; the
+[data-quality record](../records/0019-contract-gov-implement-contract-data-quality-checks.md)
+records dataset checks.
+
+## Dataset quality checks
+
+`src/arxiv_int/data_quality/` compiles the same normalized ODCS fields used for SQLAlchemy into a
+stable rule catalog. Generation writes `contracts/generated/quality/<id>.rules.json` and
+`contracts/generated/dbt/{<id>.yml,sources.yml}` beside other physical artifacts; fingerprints
+enter provenance sidecars and `manifest.json`. `GENERATOR_VERSION` is `2.1.0`.
+
+Batch rules (type, nullability, max length, decimal, accepted values, unit companions, and
+in-batch uniqueness) run against eager Polars frames through Pandera/Polars. Snapshot uniqueness
+and relationships are declared as dbt tests and executed by a disk-backed Polars adapter; skipping
+them leaves `not-run` and cannot be publishable. LazyFrame schema-only validation is refused.
+Unknown ODCS `quality` types, engines, or rules fail closed at compile time.
+
+`arxiv-int data-quality check DATASET --run-id RUN_ID --input PATH` and `make data-quality`
+write secret-free evidence under `$DATA_DIR/data-quality/<run-id>/`. `--publish` copies the same
+JSON to `$RUNS_DIR/<run-id>/quality/`. A result is publishable only after required data checks
+executed and passed; missing, unexecuted, failed, or schema-only outcomes stay inspectable and
+blocked. The `data-quality` extra carries Pandera; Polars/PyArrow stay in `lake`. CLI and core
+paths that do not validate data do not import them. Producers attach ontology/SHACL results;
+unattached required semantic checks are explicit `not-run`. Fixture tests make no held-out model
+or real-archive quality claim. Whole-relation dbt execution is not part of this adapter.
 
 ## Versioned ontology assets
 

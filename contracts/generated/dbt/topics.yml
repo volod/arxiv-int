@@ -1,0 +1,80 @@
+sources:
+  - description: Canonical search relations owned by Alembic.
+    name: search
+    schema: search
+    tables:
+      - columns:
+          - description: topic_assignment_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - topics.topic_assignment_id.type
+                - topics.topic_assignment_id.nullability
+                - topics.topic_assignment_id.batch_unique
+                - topics.topic_assignment_id.unique
+            name: topic_assignment_id
+            tests:
+              - not_null
+              - unique
+          - description: topic_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - topics.topic_id.type
+            name: topic_id
+          - description: label must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - topics.label.type
+            name: label
+          - description: scheme_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - topics.scheme_id.type
+            name: scheme_id
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - topics.document_id.type
+                - topics.document_id.relationship
+            name: document_id
+            tests:
+              - relationships:
+                  field: document_id
+                  to: "source('corpus', 'documents')"
+          - description: score must match logical type number.
+            meta:
+              arxiv_int_rule_ids:
+                - topics.score.type
+                - topics.score.decimal
+            name: score
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - topics.generation_id.type
+                - topics.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - topics.contract_version.type
+                - topics.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - topics.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: topics
+        description: Topic assignments linking documents to labeled topics under a scheme.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:topics:1.0.0"
+          primary_key:
+            - topic_assignment_id
+          rule_catalog_version: 1.0.0
+        name: topic_assignments
+version: 2

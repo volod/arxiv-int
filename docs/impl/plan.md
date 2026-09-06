@@ -61,40 +61,6 @@ Missing mandatory providers remain blocked/unavailable, never successful readine
 - Documentation target: `docs/impl/current/portable-runtime.md`
 - Review checkpoint: `review-foundation-and-store-boundaries`.
 
-### Contract governance -- `contract-governance`
-
-#### implement-contract-data-quality-checks
-
-Make contract conformance executable on dataset contents with bounded, descriptive validation
-results shared by all producers.
-
-- Serves: `contract-governance` -- [Data quality](../design/spec.md#data-transformations-and-quality)
-- Agent status: CLEAR
-- Audit inputs: [AUD-data-engineering-tooling-3](records/0015-govern-review-data-engineering-tooling.md#audit-handoff).
-- Dependencies: [Contract schema and migration tooling](records/0017-contract-gov-refactor-contract-schema-and-migration-tooling.md).
-- User-visible outcome: Invalid batches and missing required checks have inspectable reasons and
-cannot be represented as publishable validated output.
-- Scope boundary: Implement reusable Pandera/Polars checks, generated dbt source/test YAML, and typed
-results; reuse domain/SHACL rules. Producer tasks attach their semantics, pipeline tasks enforce
-activation, and `implement-dbt-transformation-foundation` executes whole-relation dbt checks.
-- Data and artifact paths: `src/arxiv_int/data_quality/`, shared contract generation,
-`contracts/generated/{quality,dbt}/`, `tests/data_quality/`, feature/dependency/Make files,
-`$DATA_DIR/data-quality/<run-id>/`, and `$RUNS_DIR/<run-id>/quality/` for published evidence.
-- Execution path: Generate strict schema/type/nullability/value/key checks from the same normalized
-ODCS fields; map supported rules to Pandera and dbt with stable ids. Validate materialized bounded
-Polars batches via PyArrow IO; distinguish batch versus whole-snapshot rules and delegate global
-keys/relationships to declared dbt or disk-backed checks. Emit rule/input/tool fingerprints,
-scope/count/severity/status and redacted failure references through typed results. Keep data-quality
-dependencies optional and avoid importing them into CLI/core paths that do not need them.
-- Acceptance gates: Fixtures cover valid/invalid types, nulls, decimal/unit cases, unknown rules,
-missing checks, duplicate keys split across batches, broken relationships, empty and insufficient
-data, and bounded failure samples. LazyFrame schema-only validation cannot count as data validation;
-unexecuted global checks cannot pass. Generation is stable and retains descriptions; outputs are
-secret-free and memory is bounded by declared batch/spill limits. `make ci` and `make quality` pass;
-fixture validation makes no held-out model or real-archive quality claim.
-- Documentation target: `docs/impl/current/contracts.md`
-- Review checkpoint: `review-foundation-and-store-boundaries`.
-
 ### Canonical store -- `canonical-store`
 
 #### create-canonical-relational-schema
@@ -107,7 +73,7 @@ with partition and provenance constraints.
 - Dependencies: [Pinned ParadeDB + AGE image](records/0018-store-build-pinned-paradedb-age-image.md)
 (AGE-enabled or AGE-disabled);
 [Contract schema and migration tooling](records/0017-contract-gov-refactor-contract-schema-and-migration-tooling.md);
-`implement-contract-data-quality-checks`;
+[Contract data-quality checks](records/0019-contract-gov-implement-contract-data-quality-checks.md);
 [Evolution and migration policy](records/0012-contract-gov-enforce-evolution-and-migration-policy.md).
 [Domain investigation contracts](records/0014-contract-gov-define-domain-investigation-contracts-and-ontology.md).
 
@@ -143,7 +109,8 @@ before projection, catalog, and report builders introduce embedded business SQL.
 - Serves: `canonical-store` -- [Transformations](../design/spec.md#data-transformations-and-quality)
 - Agent status: RUN NEEDED
 - Audit inputs: [AUD-data-engineering-tooling-2](records/0015-govern-review-data-engineering-tooling.md#audit-handoff).
-- Dependencies: `create-canonical-relational-schema`; `implement-contract-data-quality-checks`.
+- Dependencies: `create-canonical-relational-schema`;
+[Contract data-quality checks](records/0019-contract-gov-implement-contract-data-quality-checks.md).
 - User-visible outcome: Named models can be built/tested locally with source lineage and quality
 results; failed builds leave the active generation unchanged.
 - Scope boundary: Establish dbt execution, ownership and synthetic model fixtures; domain tasks own
@@ -331,7 +298,7 @@ paired evaluation utilities.
 
 - Serves: `evaluation-foundation` -- [Evaluation and acceptance](../design/spec.md#evaluation-and-acceptance)
 - Agent status: CLEAR
-- Dependencies: `implement-contract-data-quality-checks`;
+- Dependencies: [Contract data-quality checks](records/0019-contract-gov-implement-contract-data-quality-checks.md);
 [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
 the evaluation and retrieval primitives
 documented in [Project foundation](current/project-foundation.md#evaluation-and-retrieval-primitives).

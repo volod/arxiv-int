@@ -27,9 +27,9 @@ make features STAGE=extract
 
 `make features` lists every group with its status, the pipeline stages that activate it, its
 install command, the licence and purpose of each declared distribution, and the system dependencies
-it expects. Populated groups are `contracts`, `graph`, `inference`, `lake`, and `store`. The
-`embeddings`, `evaluation`, `extraction`, `gpu`, `nlp`, and `ui` groups are declared and reserved
-for the capability that will choose their components.
+it expects. Populated groups are `contracts`, `data-quality`, `graph`, `inference`, `lake`, and
+`store`. The `embeddings`, `evaluation`, `extraction`, `gpu`, `nlp`, and `ui` groups are declared
+and reserved for the capability that will choose their components.
 
 System dependencies are not installed by an extra. The `extraction` group expects a reachable
 Apache Tika server plus `tesseract-ocr` and `ocrmypdf` for the scanned-PDF lane, `store` expects a
@@ -86,6 +86,8 @@ they are small, deterministic, safe to publish, and required for CI.
 | `make services-reset` | Stop containers; list erasable roots (add `APPLY=1` to erase) |
 | `make package-check` | Verify the installed package identity; bootstrap runs it automatically |
 | `make features` | List optional feature groups, licences, and install commands |
+| `make contracts-gen` | Generate committed physical schemas, quality catalogs, and dbt YAML |
+| `make data-quality` | Validate `DATASET` contents for `RUN_ID` (`INPUT=...` required) |
 | `make test` | Run the deterministic unit test suite |
 | `make coverage` | Run tests with the coverage gate |
 | `make format` | Apply Ruff formatting |

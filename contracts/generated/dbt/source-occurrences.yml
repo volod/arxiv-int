@@ -1,0 +1,84 @@
+sources:
+  - description: Canonical corpus relations owned by Alembic.
+    name: corpus
+    schema: corpus
+    tables:
+      - columns:
+          - description: occurrence_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - source-occurrences.occurrence_id.type
+                - source-occurrences.occurrence_id.nullability
+                - source-occurrences.occurrence_id.batch_unique
+                - source-occurrences.occurrence_id.unique
+            name: occurrence_id
+            tests:
+              - not_null
+              - unique
+          - description: silo_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - source-occurrences.silo_id.type
+            name: silo_id
+          - description: relative_path must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - source-occurrences.relative_path.type
+            name: relative_path
+          - description: scan_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - source-occurrences.scan_id.type
+            name: scan_id
+          - description: content_hash must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - source-occurrences.content_hash.type
+            name: content_hash
+          - description: container_path must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - source-occurrences.container_path.type
+            name: container_path
+          - description: member_path must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - source-occurrences.member_path.type
+            name: member_path
+          - description: status must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - source-occurrences.status.type
+            name: status
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - source-occurrences.generation_id.type
+                - source-occurrences.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - source-occurrences.contract_version.type
+                - source-occurrences.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - source-occurrences.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: source-occurrences
+        description: Silo-relative source locations and scan status for archive bytes.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:source-occurrences:1.0.0"
+          primary_key:
+            - occurrence_id
+          rule_catalog_version: 1.0.0
+        name: source_occurrences
+version: 2

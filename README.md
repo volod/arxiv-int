@@ -27,7 +27,7 @@ downloads need network access during setup. Pipeline processing is designed to s
 | 4. Select inference | Install the host service using the [Ollama Linux instructions](https://docs.ollama.com/linux); run `sudo systemctl start ollama` and `systemctl status ollama`. Set `INFERENCE_BACKEND=ollama` and an explicit `GENERATION_MODEL` in `.env`. | Choose a model that fits the host. The configured default is not evidence of memory fit or extraction quality. |
 | 5. Bootstrap | `make bootstrap` | Syncs the locked development environment, preserves `.env` values, checks package identity, and audits readiness. Follow missing-model/service findings' `next` actions. A blocked audit fails bootstrap; degraded is allowed here. |
 | 6. Prepare the shell | `source .venv/bin/activate` then `source scripts/shared/common.sh` then `arxiv_int_load_env` | Makes `arxiv-int` available and loads configured roots/cache settings before direct `uv` commands. After editing `.env`, use a fresh terminal session and repeat this step from the checkout. |
-| 7. Install available stacks | `uv sync --locked --extra dev --extra contracts --extra lake --extra store --extra inference --extra graph` then `make features` | Installs populated extras from the lockfile. Several stage extras remain reserved; this does not install a finished pipeline. Use `make features STAGE=extract` as stages arrive. |
+| 7. Install available stacks | `uv sync --locked --extra dev --extra contracts --extra lake --extra store --extra inference --extra graph --extra data-quality` then `make features` | Installs populated extras from the lockfile. Several stage extras remain reserved; this does not install a finished pipeline. Use `make features STAGE=extract` as stages arrive. |
 | 8. Fetch the model | `ollama pull "${GENERATION_MODEL:?Set GENERATION_MODEL in .env}"` then `ollama list` | Downloads into the host Ollama service's configured storage. The Compose model-cache root does not relocate that host service. |
 | 9. Start services | `make services-config` then `make services-up` then `make services-status` | Validates/prepares the layout and starts the default service set. This is service setup, not a pipeline run. |
 | 10. Audit readiness | `make readiness`; inspect logs with `make logs LOG_TAIL=100` when needed. | Read `$RESULTS_DIR/reports/readiness.json`; fix blocked findings and evaluate degraded ones. Exit codes: ready `0`, blocked `1`, degraded `2`. Service/model presence does not prove pipeline acceptance. |
@@ -81,11 +81,15 @@ arxiv-int features [--stage STAGE]
 arxiv-int config show --redact
 arxiv-int readiness [--profiles PROFILES] [--timeout SECONDS]
 arxiv-int services --help
+arxiv-int contracts --help
+arxiv-int data-quality check DATASET --run-id RUN_ID --input PATH
 ```
 
 `info` is a packaging and executable-path smoke test. `features` lists optional dependency groups,
 install status and commands, distribution licences, and expected system dependencies.
-Domain commands arrive as their specified capabilities are implemented.
+`data-quality check` validates one contract dataset and writes secret-free evidence; a missing or
+unexecuted required check cannot look publishable. Domain commands arrive as their specified
+capabilities are implemented.
 
 ## Development
 

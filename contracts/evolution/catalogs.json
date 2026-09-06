@@ -45,7 +45,7 @@
   },
   "fingerprints": {
     "avroSha256": "7791e662a6a7a9eb9993a34f05c34e5507df1575402eb6842c03184f173a4ed2",
-    "generatorVersion": "2.0.0",
+    "generatorVersion": "2.1.0",
     "postgresSha256": "5f5e155270741caff57731c89f93af43e1434429aeadbef34c9de2d3d4061ae2",
     "semanticMetadataHash": "b22834a1446f8709cb247f26262a511174c1e5dd95f1f40507762c133260e737"
   },
@@ -153,6 +153,61 @@
       "fingerprints": {
         "avroSha256": "7791e662a6a7a9eb9993a34f05c34e5507df1575402eb6842c03184f173a4ed2",
         "generatorVersion": "2.0.0",
+        "postgresSha256": "5f5e155270741caff57731c89f93af43e1434429aeadbef34c9de2d3d4061ae2",
+        "semanticMetadataHash": "b22834a1446f8709cb247f26262a511174c1e5dd95f1f40507762c133260e737"
+      },
+      "odcsId": "urn:arxiv-int:contract:catalogs:1.0.0",
+      "projections": {},
+      "version": "1.0.0"
+    },
+    {
+      "contractId": "catalogs",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "catalog_entries.catalog_entry_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "catalog_entries.catalog_kind": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "catalog_entries.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "catalog_entries.document_count": {
+          "logicalType": "integer",
+          "physicalType": "",
+          "required": false
+        },
+        "catalog_entries.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "catalog_entries.object_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "catalog_entries.preferred_name": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "catalog_entries.review_state": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "7791e662a6a7a9eb9993a34f05c34e5507df1575402eb6842c03184f173a4ed2",
+        "generatorVersion": "2.1.0",
         "postgresSha256": "5f5e155270741caff57731c89f93af43e1434429aeadbef34c9de2d3d4061ae2",
         "semanticMetadataHash": "b22834a1446f8709cb247f26262a511174c1e5dd95f1f40507762c133260e737"
       },

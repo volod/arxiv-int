@@ -2,11 +2,13 @@
   "apiVersion": "v3.1.0",
   "artifacts": {
     "avro/mentions.avsc": "5d8fc35c2b860ec053f9027d57b8630acabf853ba5232f57f025ac3c768c254d",
+    "dbt/mentions.yml": "bea557f51b43f41444a3346e34a43381fb1c6257f69a1f70f6eb11a5a5549c1c",
     "jsonschema/mentions.schema.json": "92ada5b29d53ddfb6aa0287771da1c1594e059c5e0cf896c0bffa236f9e5b789",
     "parquet/mentions.parquet.json": "efcfde331d0ce30cb9a72d7158691190c275be7b9cec301114d69e83adb457b5",
     "postgres/extensions/mentions.sql": "13933d8c5240ed2ee14d66582f693d76cec58d7f962ee333bb0313ce8860feb0",
     "postgres/mentions.sql": "bd117cccf0f0600191e8df8354cdb90f823b53bb1046666d24526b8be46a3276",
-    "pydantic/mentions.py": "0187cd62cf75c5f7423a9ce4aec76051d3e86458c6c5411760a3eb7cb8c2ebee"
+    "pydantic/mentions.py": "0187cd62cf75c5f7423a9ce4aec76051d3e86458c6c5411760a3eb7cb8c2ebee",
+    "quality/mentions.rules.json": "312d2245b2749be31c8b1211f0c2f97614cf9d24717e50f550f7a3c2b647f0be"
   },
   "canonicalEntity": null,
   "contractId": "mentions",

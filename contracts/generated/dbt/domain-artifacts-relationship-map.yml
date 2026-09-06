@@ -1,0 +1,140 @@
+sources:
+  - description: Canonical kg relations owned by Alembic.
+    name: kg
+    schema: kg
+    tables:
+      - columns:
+          - description: edge_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.edge_id.type
+                - domain-artifacts-relationship-map.edge_id.nullability
+                - domain-artifacts-relationship-map.edge_id.batch_unique
+                - domain-artifacts-relationship-map.edge_id.unique
+            name: edge_id
+            tests:
+              - not_null
+              - unique
+          - description: subject_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.subject_object_id.type
+                - domain-artifacts-relationship-map.subject_object_id.relationship
+            name: subject_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: predicate_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.predicate_id.type
+            name: predicate_id
+          - description: object_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.object_object_id.type
+                - domain-artifacts-relationship-map.object_object_id.relationship
+            name: object_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: relation_kind must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.relation_kind.type
+            name: relation_kind
+          - description: direction must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.direction.type
+            name: direction
+          - description: cardinality must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.cardinality.type
+            name: cardinality
+          - description: review_state must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.review_state.type
+            name: review_state
+          - description: inclusion_policy must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.inclusion_policy.type
+            name: inclusion_policy
+          - description: conflict_group_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.conflict_group_id.type
+            name: conflict_group_id
+          - description: evidence_fact_ids must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.evidence_fact_ids.type
+            name: evidence_fact_ids
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.document_id.type
+                - domain-artifacts-relationship-map.document_id.relationship
+            name: document_id
+            tests:
+              - relationships:
+                  field: document_id
+                  to: "source('corpus', 'documents')"
+          - description: span_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.span_id.type
+                - domain-artifacts-relationship-map.span_id.relationship
+            name: span_id
+            tests:
+              - relationships:
+                  field: span_id
+                  to: "source('corpus', 'spans')"
+          - description: anchor_kind must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.anchor_kind.type
+            name: anchor_kind
+          - description: confidence must match logical type number.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.confidence.type
+                - domain-artifacts-relationship-map.confidence.decimal
+            name: confidence
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.generation_id.type
+                - domain-artifacts-relationship-map.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.contract_version.type
+                - domain-artifacts-relationship-map.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-relationship-map.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: domain-artifacts-relationship-map
+        description: Typed design/party/product relationship edges with evidence and inclusion state.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:domain-artifacts-relationship-map:1.0.0"
+          primary_key:
+            - edge_id
+          rule_catalog_version: 1.0.0
+        name: relationship_edges
+version: 2

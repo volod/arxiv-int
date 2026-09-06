@@ -2,11 +2,13 @@
   "apiVersion": "v3.1.0",
   "artifacts": {
     "avro/source-occurrences.avsc": "d28255ef4e366ac163463820fc1f5f41698e74aa448f1900169ce8ca841dd448",
+    "dbt/source-occurrences.yml": "aea3c86aea0e1f7a7b7d2b4be8afbb6b228c4bce7b40fef0f6e28bcc4257deb7",
     "jsonschema/source-occurrences.schema.json": "9976c43e6ff0788c28dd6c32f4f7919a1be42c3db3087573fbce817a179a8e2c",
     "parquet/source-occurrences.parquet.json": "b3a6985b5861a00eb6c51561a13ca054536c55996add6c32bf2d8945d5ea423e",
     "postgres/extensions/source-occurrences.sql": "9fea52bdf113f259029d8c3e2a4923d9f876942f50f4a24af1aaa72cc935cd48",
     "postgres/source-occurrences.sql": "b9e72f338ec7c65c85d1301881d79daaf9d5ef5ee121806e8fe1460549a90d63",
-    "pydantic/source-occurrences.py": "33e3fdf18d3528e24f2bcc0c76578aa908d5c0b3d98a679ee3fe5158bfc74e88"
+    "pydantic/source-occurrences.py": "33e3fdf18d3528e24f2bcc0c76578aa908d5c0b3d98a679ee3fe5158bfc74e88",
+    "quality/source-occurrences.rules.json": "00e53c832aa4065c09cbcac0cc782a8ef8806efe181fd031d7a2e5f59ca0c556"
   },
   "canonicalEntity": null,
   "contractId": "source-occurrences",

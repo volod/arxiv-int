@@ -20,10 +20,11 @@ The Makefile exposes individual checks and two composed workflows:
 - `make quality` adds branch coverage, Markdown lint, and source/wheel builds.
 
 GitHub Actions runs `make ci-github`, an explicit alias of the same required gate, on Python 3.12
-and 3.13 after `uv sync --locked --extra dev --extra contracts --extra graph --extra store`. The
-`store` extra carries Alembic, which owns the migration revision graph checked by `make ci`. Every
-syncing Make target shares one `SYNC_EXTRAS` set so consecutive targets cannot uninstall each
-other's dependencies.
+and 3.13 after `uv sync --locked --extra dev --extra contracts --extra graph --extra store
+--extra lake --extra data-quality`. The `store` extra carries Alembic, which owns the migration
+revision graph checked by `make ci`. The `lake` and `data-quality` extras carry Polars/PyArrow and
+Pandera for contract-derived dataset checks. Every syncing Make target shares one `SYNC_EXTRAS`
+set so consecutive targets cannot uninstall each other's dependencies.
 
 Tests under `tests/quality/` exercise failure cases for the documentation checks rather than only
 asserting the repository passes. `make quality-report` reports source and shell files over the

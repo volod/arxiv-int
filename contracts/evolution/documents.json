@@ -55,7 +55,7 @@
   },
   "fingerprints": {
     "avroSha256": "73b74ccf017b48ed30ba0cdcce3d2df8c5a5ce1181417ebd734ebd6f237ac225",
-    "generatorVersion": "2.0.0",
+    "generatorVersion": "2.1.0",
     "postgresSha256": "8e8fbb7e2e6635506a7aa7859128beb97844f8ad554bafe8c88c9c7926efdbc4",
     "semanticMetadataHash": "310be9094a64330b47ab31641053480fce0d90287febb43b185f9f63b9508bb9"
   },
@@ -190,6 +190,78 @@
       "fingerprints": {
         "avroSha256": "73b74ccf017b48ed30ba0cdcce3d2df8c5a5ce1181417ebd734ebd6f237ac225",
         "generatorVersion": "2.0.0",
+        "postgresSha256": "8e8fbb7e2e6635506a7aa7859128beb97844f8ad554bafe8c88c9c7926efdbc4",
+        "semanticMetadataHash": "310be9094a64330b47ab31641053480fce0d90287febb43b185f9f63b9508bb9"
+      },
+      "odcsId": "urn:arxiv-int:contract:documents:1.0.0",
+      "projections": {
+        "search": {
+          "textFields": [
+            "title"
+          ],
+          "tokenizer": "russian_stem"
+        }
+      },
+      "version": "1.0.0"
+    },
+    {
+      "contractId": "documents",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "documents.byte_size": {
+          "logicalType": "integer",
+          "physicalType": "",
+          "required": false
+        },
+        "documents.content_hash": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "documents.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "documents.document_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "documents.extractor_profile": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "documents.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "documents.language": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "documents.media_type": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "documents.text_chars": {
+          "logicalType": "integer",
+          "physicalType": "",
+          "required": false
+        },
+        "documents.title": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "73b74ccf017b48ed30ba0cdcce3d2df8c5a5ce1181417ebd734ebd6f237ac225",
+        "generatorVersion": "2.1.0",
         "postgresSha256": "8e8fbb7e2e6635506a7aa7859128beb97844f8ad554bafe8c88c9c7926efdbc4",
         "semanticMetadataHash": "310be9094a64330b47ab31641053480fce0d90287febb43b185f9f63b9508bb9"
       },

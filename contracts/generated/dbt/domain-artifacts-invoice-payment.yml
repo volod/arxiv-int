@@ -1,0 +1,150 @@
+sources:
+  - description: Canonical kg relations owned by Alembic.
+    name: kg
+    schema: kg
+    tables:
+      - columns:
+          - description: row_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.row_id.type
+                - domain-artifacts-invoice-payment.row_id.nullability
+                - domain-artifacts-invoice-payment.row_id.batch_unique
+                - domain-artifacts-invoice-payment.row_id.unique
+            name: row_id
+            tests:
+              - not_null
+              - unique
+          - description: row_kind must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.row_kind.type
+            name: row_kind
+          - description: invoice_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.invoice_object_id.type
+                - domain-artifacts-invoice-payment.invoice_object_id.relationship
+            name: invoice_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: payment_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.payment_object_id.type
+                - domain-artifacts-invoice-payment.payment_object_id.relationship
+            name: payment_object_id
+            tests:
+              - relationships:
+                  field: object_id
+                  to: "source('kg', 'objects')"
+          - description: line_number must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.line_number.type
+            name: line_number
+          - description: amount must match logical type number.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.amount.type
+                - domain-artifacts-invoice-payment.amount.decimal
+                - domain-artifacts-invoice-payment.amount.unit
+            name: amount
+          - description: allocated_amount must match logical type number.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.allocated_amount.type
+                - domain-artifacts-invoice-payment.allocated_amount.decimal
+                - domain-artifacts-invoice-payment.allocated_amount.unit
+            name: allocated_amount
+          - description: currency must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.currency.type
+            name: currency
+          - description: due_date must match logical type timestamp.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.due_date.type
+            name: due_date
+          - description: payment_date must match logical type timestamp.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.payment_date.type
+            name: payment_date
+          - description: match_state must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.match_state.type
+            name: match_state
+          - description: allocation_group_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.allocation_group_id.type
+            name: allocation_group_id
+          - description: debit_credit must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.debit_credit.type
+            name: debit_credit
+          - description: evidence_fact_ids must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.evidence_fact_ids.type
+            name: evidence_fact_ids
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.document_id.type
+                - domain-artifacts-invoice-payment.document_id.relationship
+            name: document_id
+            tests:
+              - relationships:
+                  field: document_id
+                  to: "source('corpus', 'documents')"
+          - description: review_state must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.review_state.type
+            name: review_state
+          - description: confidence must match logical type number.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.confidence.type
+                - domain-artifacts-invoice-payment.confidence.decimal
+                - domain-artifacts-invoice-payment.confidence.unit
+            name: confidence
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.generation_id.type
+                - domain-artifacts-invoice-payment.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.contract_version.type
+                - domain-artifacts-invoice-payment.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - domain-artifacts-invoice-payment.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: domain-artifacts-invoice-payment
+        description: Invoice lines, payments, credit notes, ledger postings, and allocation match states.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:domain-artifacts-invoice-payment:1.0.0"
+          primary_key:
+            - row_id
+          rule_catalog_version: 1.0.0
+        name: invoice_payment_rows
+version: 2

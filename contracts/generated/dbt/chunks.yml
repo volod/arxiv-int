@@ -1,0 +1,84 @@
+sources:
+  - description: Canonical corpus relations owned by Alembic.
+    name: corpus
+    schema: corpus
+    tables:
+      - columns:
+          - description: chunk_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - chunks.chunk_id.type
+                - chunks.chunk_id.nullability
+                - chunks.chunk_id.batch_unique
+                - chunks.chunk_id.unique
+            name: chunk_id
+            tests:
+              - not_null
+              - unique
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - chunks.document_id.type
+                - chunks.document_id.relationship
+            name: document_id
+            tests:
+              - relationships:
+                  field: document_id
+                  to: "source('corpus', 'documents')"
+          - description: chunker_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - chunks.chunker_id.type
+            name: chunker_id
+          - description: ordinal must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - chunks.ordinal.type
+            name: ordinal
+          - description: text must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - chunks.text.type
+            name: text
+          - description: start_char must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - chunks.start_char.type
+            name: start_char
+          - description: end_char must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - chunks.end_char.type
+            name: end_char
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - chunks.generation_id.type
+                - chunks.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - chunks.contract_version.type
+                - chunks.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - chunks.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: chunks
+        description: Chunker-partitioned text units derived from documents for retrieval and extraction.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:chunks:1.0.0"
+          primary_key:
+            - chunk_id
+          rule_catalog_version: 1.0.0
+        name: chunks
+version: 2

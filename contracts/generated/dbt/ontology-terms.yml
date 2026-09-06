@@ -1,0 +1,74 @@
+sources:
+  - description: Canonical ontology relations owned by Alembic.
+    name: ontology
+    schema: ontology
+    tables:
+      - columns:
+          - description: term_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - ontology-terms.term_id.type
+                - ontology-terms.term_id.nullability
+                - ontology-terms.term_id.batch_unique
+                - ontology-terms.term_id.unique
+            name: term_id
+            tests:
+              - not_null
+              - unique
+          - description: uri must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - ontology-terms.uri.type
+            name: uri
+          - description: label must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - ontology-terms.label.type
+            name: label
+          - description: kind must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - ontology-terms.kind.type
+            name: kind
+          - description: domain_uri must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - ontology-terms.domain_uri.type
+            name: domain_uri
+          - description: range_uri must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - ontology-terms.range_uri.type
+            name: range_uri
+          - description: ontology_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - ontology-terms.ontology_version.type
+            name: ontology_version
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - ontology-terms.generation_id.type
+                - ontology-terms.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - ontology-terms.contract_version.type
+                - ontology-terms.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+        config:
+          meta:
+            arxiv_int_contract_id: ontology-terms
+        description: Controlled ontology terms with URIs, labels, and domain or range constraints.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:ontology-terms:1.0.0"
+          primary_key:
+            - term_id
+          rule_catalog_version: 1.0.0
+        name: terms
+version: 2
