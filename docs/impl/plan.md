@@ -19,34 +19,6 @@ cannot establish a pass. These requirements also apply to later additive contrac
 
 ### Canonical store -- `canonical-store`
 
-#### implement-rebuildable-search-and-graph-projections
-
-Create projection lifecycle code for ParadeDB, pgvector candidates, and AGE without making any
-projection canonical.
-
-- Serves: `canonical-store` --
-[Search and vector projections](../design/spec.md#search-and-vector-projections)
-- Agent status: CLEAR
-- Dependencies: [Canonical relational schema](records/0021-store-create-canonical-relational-schema.md);
-[dbt transformation foundation](records/0024-store-implement-dbt-transformation-foundation.md).
-- User-visible outcome: Search/vector/graph projections can be built, validated, version-switched,
-and dropped without losing canonical rows.
-- Scope boundary: Implement lifecycle and correctness checks on fixtures; relevance and scale
-promotion belong to later capabilities.
-- Data and artifact paths: `src/arxiv_int/stores/projections/`, Alembic revisions,
-`transformations/models/projections/`,
-`tests/integration/projections/`, and `$RUNS_DIR/<run-id>/manifests/`.
-- Execution path: Add versioned projection metadata, staging builds, row/count/checksum
-reconciliation, sampled SQL/Cypher parity, active-pointer switch, and cleanup planning; preserve
-full evidence relationally. Prepare relational projection inputs in described dbt models with
-source/ref and data tests; keep index DDL and AGE/Cypher in reviewed engine adapters. Use shared
-quality results before activation and typed SQLAlchemy operations for pointer transactions.
-- Acceptance gates: Rebuild from normalized/canonical fixtures yields identical logical ids; failed
-builds never replace active projections; graph-disabled mode supports recursive SQL and open
-exports.
-- Documentation target: `docs/impl/current/canonical-store.md`
-- Review checkpoint: `review-foundation-and-store-boundaries`.
-
 #### review-foundation-and-store-boundaries
 
 Review the integrated milestone before pipeline control and corpus adapters.
@@ -56,7 +28,7 @@ Review the integrated milestone before pipeline control and corpus adapters.
 - Task kind: checkpoint
 - Audit inputs: [AUD-safe-runtime-root-boundaries-1](records/0005-runtime-refactor-safe-runtime-root-boundaries.md#audit-handoff);
 [AUD-runtime-configuration-parity-1, AUD-runtime-configuration-parity-2](records/0006-runtime-refactor-runtime-configuration-parity.md#audit-handoff).
-- Dependencies: `implement-rebuildable-search-and-graph-projections`;
+- Dependencies: [0025](records/0025-store-implement-rebuildable-search-and-graph-projections.md);
 [Retryable setup command](records/0022-runtime-implement-retryable-setup-command.md);
 [Readiness probe safety](records/0008-runtime-refactor-readiness-probe-safety.md);
 [Contract identity and reference validation](records/0009-contract-gov-refactor-contract-identity-and-reference-validation.md);
@@ -453,7 +425,7 @@ and provide safe partial update, full rebuild, and physical-prune paths.
 [Resumability, idempotency, and provenance](../design/spec.md#resumability-idempotency-and-provenance)
 - Agent status: CLEAR
 - Dependencies: `implement-run-ledger-and-atomic-artifacts`;
-`implement-stage-dag-cli-and-make-targets`; `implement-rebuildable-search-and-graph-projections`;
+`implement-stage-dag-cli-and-make-targets`; [0025](records/0025-store-implement-rebuildable-search-and-graph-projections.md);
 `implement-streaming-inventory`.
 - User-visible outcome: Added, changed, renamed, or removed files and later analysis-code changes
 update only affected descendants, while operators can deliberately rebuild everything or reclaim
@@ -702,7 +674,7 @@ facets, and identifier lookup.
 - Serves: `lexical-retrieval` --
 [Search and vector projections](../design/spec.md#search-and-vector-projections)
 - Agent status: RUN NEEDED
-- Dependencies: `implement-rebuildable-search-and-graph-projections`;
+- Dependencies: [0025](records/0025-store-implement-rebuildable-search-and-graph-projections.md);
 `implement-stage-dag-cli-and-make-targets`.
 `review-corpus-and-control-integrity`.
 - User-visible outcome: The full normalized corpus or chosen partition is searchable with
@@ -984,7 +956,8 @@ recursive SQL and open export fallbacks.
 - Agent status: RUN NEEDED
 - Dependencies: `implement-probabilistic-entity-resolution`;
 `implement-fact-validation-conflict-and-review-overlays`;
-`implement-rebuildable-search-and-graph-projections`; [Versioned ontology assets](records/0013-contract-gov-establish-versioned-ontology-assets.md).
+[0025](records/0025-store-implement-rebuildable-search-and-graph-projections.md);
+[Versioned ontology assets](records/0013-contract-gov-establish-versioned-ontology-assets.md).
 - User-visible outcome: Operators can run bounded Cypher traversals and inspect a graph whose nodes
 and edges resolve back to canonical facts and evidence.
 - Scope boundary: Projection and bounded query API only; no Neo4j GDS parity claim and no large text
@@ -1774,7 +1747,7 @@ rebuild metadata.
 - Serves: `operational-recovery` --
 [Operations, backup, and security](../design/spec.md#operations-backup-and-security)
 - Agent status: RUN NEEDED
-- Dependencies: `implement-rebuildable-search-and-graph-projections`;
+- Dependencies: [0025](records/0025-store-implement-rebuildable-search-and-graph-projections.md);
 `harden-local-security-and-no-egress-mode`; `register-and-expose-domain-artifacts`.
 Run the initial restore on disposable fixture/small-proof data before scale pilots.
 - User-visible outcome: A documented command sequence restores canonical state, classifications,

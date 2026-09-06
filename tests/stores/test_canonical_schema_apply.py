@@ -28,7 +28,9 @@ from arxiv_int.stores.postgres.commands import (
 from arxiv_int.stores.postgres.constants import (
     CANONICAL_SCHEMAS,
     HASH_MODULUS,
+    HEAD_REVISION,
     PARTITIONED_TABLES,
+    PROJECTION_METADATA_TABLES,
     STORE_ROLES,
 )
 from arxiv_int.stores.postgres.evidence import write_evidence
@@ -39,7 +41,7 @@ def _root() -> Path:
     return discover_project_root(Path(__file__))
 
 
-def _complete_catalog(revision: str = "0002") -> LiveStoreCatalog:
+def _complete_catalog(revision: str = HEAD_REVISION) -> LiveStoreCatalog:
     return LiveStoreCatalog(
         schemas=(*CANONICAL_SCHEMAS, "staging", "derived"),
         partitioned=tuple(
@@ -51,6 +53,7 @@ def _complete_catalog(revision: str = "0002") -> LiveStoreCatalog:
         staging_tables=("documents",),
         revision=revision,
         extensions=("vector",),
+        control_tables=PROJECTION_METADATA_TABLES,
     )
 
 
@@ -175,7 +178,7 @@ def test_adopt_stamps_complete_overlay(monkeypatch: pytest.MonkeyPatch, tmp_path
     )
     report = adopt_database(_root(), url="postgresql://x", run_id="stamp")
     assert report.ok
-    assert report.stamped_revision == "0002"
+    assert report.stamped_revision == HEAD_REVISION
 
 
 def test_adopt_refuses_partial_overlay(monkeypatch: pytest.MonkeyPatch) -> None:

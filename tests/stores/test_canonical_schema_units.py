@@ -10,7 +10,9 @@ from arxiv_int.quality.project_root import discover_project_root
 from arxiv_int.stores.postgres.constants import (
     CANONICAL_SCHEMAS,
     HASH_MODULUS,
+    HEAD_REVISION,
     PARTITIONED_TABLES,
+    PROJECTION_METADATA_TABLES,
     ROLE_DBT,
     STORE_ROLES,
 )
@@ -77,6 +79,17 @@ def test_revision_0002_freezes_the_partitioned_table_list() -> None:
     assert "arxiv_int_dbt" in text
 
 
+def test_revision_0003_freezes_projection_metadata() -> None:
+    root = discover_project_root(Path(__file__))
+    text = (root / "src/arxiv_int/migrations/versions/0003_projection_metadata.py").read_text(
+        encoding="utf-8"
+    )
+    for table in PROJECTION_METADATA_TABLES:
+        assert f"ctl.{table}" in text
+    assert 'revision: str = "0003"' in text
+    assert "arxiv_int_pipeline" in text
+
+
 def test_store_findings_report_missing_overlay_objects() -> None:
     catalog = LiveStoreCatalog(
         schemas=("corpus",),
@@ -95,7 +108,7 @@ def test_store_findings_report_missing_overlay_objects() -> None:
     assert any("ck_facts_object_xor_literal" in item for item in findings)
     assert any("missing roles" in item for item in findings)
     assert any("staging.documents" in item for item in findings)
-    assert any("expected '0002'" in item for item in findings)
+    assert any(f"expected {HEAD_REVISION!r}" in item for item in findings)
 
 
 def test_store_findings_empty_when_overlay_matches() -> None:
@@ -108,8 +121,9 @@ def test_store_findings_empty_when_overlay_matches() -> None:
         checks=("ck_facts_object_xor_literal", "ck_facts_provenance", "ck_facts_status"),
         roles=STORE_ROLES,
         staging_tables=("documents",),
-        revision="0002",
+        revision=HEAD_REVISION,
         extensions=("vector",),
+        control_tables=PROJECTION_METADATA_TABLES,
     )
     assert store_findings(catalog) == []
 

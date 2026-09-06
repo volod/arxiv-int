@@ -21,6 +21,9 @@ models:
     marts:
       +materialized: table
       +tags: ["fixture", "marts"]
+    projections:
+      +materialized: table
+      +tags: ["projections"]
 
 on-run-start:
   - "SET ROLE arxiv_int_dbt"

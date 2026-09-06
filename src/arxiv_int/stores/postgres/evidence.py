@@ -26,6 +26,7 @@ def catalog_as_dict(catalog: LiveStoreCatalog) -> dict[str, Any]:
         "staging_tables": list(catalog.staging_tables),
         "revision": catalog.revision,
         "extensions": list(catalog.extensions),
+        "control_tables": list(catalog.control_tables),
     }
 
 

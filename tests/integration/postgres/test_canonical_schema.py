@@ -51,12 +51,12 @@ def test_empty_to_head_conformance_and_repeat(tmp_path: Path) -> None:
     with disposable_store(root, tmp_path / "pgdata", pins=pins) as store:
         first = apply_revisions(root, url=store.url, run_id="empty-to-head", revision="head")
         assert first.ok, first.findings
-        assert first.revision == "0002"
+        assert first.revision == "0003"
         second = apply_revisions(root, url=store.url, run_id="repeat-at-head", revision="head")
         assert second.ok, second.findings
-        assert second.revision == "0002"
+        assert second.revision == "0003"
         findings, _payload, revision = inspect_and_compare(root, store.url)
-        assert revision == "0002"
+        assert revision == "0003"
         assert findings == []
         engine = create_engine(store.url)
         try:
@@ -333,5 +333,5 @@ def test_legacy_adoption_preserves_rows_and_refuses_drift(tmp_path: Path) -> Non
             engine.dispose()
         report = adopt_database(root, url=store.url, run_id="full-adopt")
         assert report.ok, report.findings
-        assert report.stamped_revision == "0002"
+        assert report.stamped_revision == "0003"
         assert report.row_counts.get("corpus.documents") == 1

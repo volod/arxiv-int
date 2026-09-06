@@ -26,7 +26,8 @@ and 3.13 after `uv sync --locked --extra dev --extra contracts --extra graph --e
 --extra lake --extra data-quality --extra inference --extra transform`. The `store` extra carries
 Alembic, which owns the migration revision graph checked by `make ci`. The `lake` and
 `data-quality` extras carry Polars/PyArrow and Pandera for contract-derived dataset checks. The
-`transform` extra carries dbt Core and `dbt-postgres` for isolated derived-model runs. Every
+`transform` extra carries dbt Core and `dbt-postgres` for isolated derived-model runs, including
+projection input models. Every
 syncing Make target shares one `SYNC_EXTRAS` set so consecutive targets cannot uninstall each
 other's dependencies.
 

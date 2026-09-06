@@ -73,6 +73,7 @@ arxiv-int services --help
 arxiv-int contracts --help
 arxiv-int data-quality check DATASET --run-id RUN_ID --input PATH
 arxiv-int transform parse|compile|build|test --run-id RUN_ID
+arxiv-int store projections-build|status|cleanup --run-id RUN_ID
 ```
 
 `info` is a packaging and executable-path smoke test. `features` lists optional dependency groups,
@@ -80,6 +81,8 @@ install status and commands, distribution licences, and expected system dependen
 `data-quality check` validates one contract dataset and writes secret-free evidence; a missing or
 unexecuted required check cannot look publishable. `transform` parses, compiles, builds, or tests
 isolated derived dbt models; a failed or unexecuted required live check cannot look like a pass.
+`store projections-*` builds, switches, and cleans ParadeDB/pgvector/AGE projections without making
+them canonical; a failed build cannot replace an active pointer.
 Domain commands arrive as their specified capabilities are implemented.
 
 ## Development

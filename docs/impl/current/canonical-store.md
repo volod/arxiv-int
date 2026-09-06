@@ -2,15 +2,17 @@
 
 The local database service is a project-owned ParadeDB Community derivative that keeps one
 PostgreSQL major, `pg_search`, pgvector, and a pinned Apache AGE build together. Relational schema
-application is in place: Alembic `0001` owns contract tables, and reviewed revision `0002` overlays
-HASH partitions, provenance constraints, roles, staging, and the empty `derived` schema. A local
-dbt project and typed runner build isolated derived generations; projection lifecycle remains a
-later task.
+application is in place: Alembic `0001` owns contract tables, reviewed revision `0002` overlays HASH
+partitions, provenance constraints, roles, staging, and the empty `derived` schema, and revision
+`0003` adds versioned projection metadata. A local dbt project builds isolated derived generations
+and projection inputs. Search, vector, and graph projections are rebuildable and are never
+canonical.
 
 Accepted records:
 [0018 Build pinned ParadeDB + AGE image](../records/0018-store-build-pinned-paradedb-age-image.md);
 [0021 Canonical relational schema](../records/0021-store-create-canonical-relational-schema.md);
-[0024 dbt transformation foundation](../records/0024-store-implement-dbt-transformation-foundation.md).
+[0024 dbt transformation foundation](../records/0024-store-implement-dbt-transformation-foundation.md);
+[0025](../records/0025-store-implement-rebuildable-search-and-graph-projections.md).
 
 ## Image identity
 
@@ -44,11 +46,15 @@ make transform-parse RUN_ID=...    # parse the dbt project without materializing
 make transform-compile RUN_ID=...  # compile selected models
 make transform-build RUN_ID=...    # build and test an isolated derived generation
 make transform-test RUN_ID=...     # run data tests without replacing the active pointer
+make projections-build RUN_ID=...  # KIND=all|lexical|vector|graph; APPLY=1 activates
+make projections-status RUN_ID=... # show active projection pointers
+make projections-cleanup RUN_ID=... # plan retired/failed drops (APPLY=1 executes)
 ```
 
 CLI equivalents: `arxiv-int store build-image`, `arxiv-int store probe-image`,
 `arxiv-int store apply-schema`, and
 `arxiv-int transform parse|compile|build|test --run-id RUN_ID`.
+Projection commands: `arxiv-int store projections-build|status|cleanup --run-id RUN_ID`.
 
 Default probe data lands under
 `$DATA_DIR/postgres-image-probe/<run-id>/pgdata`. Probe containers and Compose database runs use
@@ -62,10 +68,10 @@ beside it. Missing image or URL is `not-run`, never a pass.
 
 ## Canonical schema overlay
 
-Revision `0001` remains the frozen contract-table baseline. Revision `0002` is a store overlay:
-it does not import `arxiv_int.stores.postgres`, and its SHA-256 is pinned in
+Revision `0001` remains the frozen contract-table baseline. Revisions `0002` and `0003` are store
+overlays: they do not import `arxiv_int.stores.postgres`, and their SHA-256 values are pinned in
 `revision_manifest.json`. Runtime helpers in `src/arxiv_int/stores/postgres/` are the operator copy
-of the same names.
+of the same names. Head is `0003`.
 
 Physical HASH partitions use the logical primary key so foreign keys stay valid. Application
 `bucket` is a separate SHA-256 prefix via `ctl.partition_bucket` (first seven hex digits as
@@ -88,7 +94,7 @@ runs shared contract batch quality (with explicit Polars dtypes so omitted nulla
 `StagingRejectedError` before COPY so inherited `NOT NULL` on staging cannot mask the gate.
 
 Live adoption relocates `public.<table>` into the owned schema when the destination is missing,
-refuses partial or drifted catalogs, and stamps `0001` or `0002` from overlay completeness.
+refuses partial or drifted catalogs, and stamps `0001`, `0002`, or `0003` from overlay completeness.
 `ctl.runs` ledger tables remain a later task.
 
 ## Relational transformations
@@ -117,19 +123,59 @@ The committed DAG is synthetic: `stg_documents` (view over `source('corpus','doc
 Live checks skip unless `ARXIV_INT_RUN_DBT=1` and the pinned image is present. Fixture runs do not
 claim corpus-scale or domain quality.
 
+## Search and graph projections
+
+Revision `0003` adds `ctl.projections`, `ctl.projection_active`, `ctl.projection_evidence`, and
+`ctl.projection_cleanup`. Those rows are lifecycle metadata, not canonical documents or facts. The
+pipeline role may create objects in `search`; dbt still cannot write projection metadata.
+
+dbt models under `transformations/models/projections/` use tag `projections` (outside the default
+`tag:fixture tag:quality` select). They materialize isolated
+`derived.<model>__g_<generation>` relations with `source`/`ref` and uniqueness/relationship tests.
+Version tokens reuse the dbt generation sanitizer so input table names match.
+
+Engine adapters then build disposable search objects from those inputs:
+
+- ParadeDB BM25 covering index on `search.lexical_p_<version>` with a Russian stemmer on body/title
+  and a keyword tokenizer on identifiers
+- pgvector HNSW candidate index on `search.vector_p_<version>` when selected embeddings exist
+- compact `search.graph_p_<version>_{vertices,edges}` tables plus an AGE graph `g_<version>` when
+  `age_enabled` is true
+
+Graph-disabled mode still writes the relational tables and GraphML/JSON-LD/Turtle exports under
+`$DATA_DIR/projections/<run-id>/exports/`, and sampled parity uses recursive SQL. AGE `create_graph`
+runs on an autocommit session because it cannot live inside the metadata transaction.
+
+Shared quality results (`projection.row_count`, `projection.logical_id_checksum`,
+`projection.sampled_parity`, `projection.engine_object`) gate activation. Typed SQLAlchemy pointer
+transactions write `ctl.projection_active` only when every requested kind is publishable. Failed or
+incomplete builds leave the active pointer unchanged. Rebuilds from the same canonical fixtures keep
+the same logical ids (chunk, embedding, object). Cleanup plans retired or failed engine objects that
+are not active. Optional `--publish` copies sanitized `projections.json` to
+`$RUNS_DIR/<run-id>/manifests/`.
+
+`APPLY=1` on `make projections-build` passes `--activate`. Live checks skip unless
+`ARXIV_INT_RUN_PROJECTIONS=1` and the pinned image is present. Fixture evidence is not a relevance
+or scale claim.
+
 ## Modules and tests
 
 - `arxiv_int.stores.postgres_image` -- pins, build, probes, compatibility gate, CLI helpers
 - `arxiv_int.stores.postgres` -- apply, inspect, adopt, staging load, HASH bucket helper
 - `arxiv_int.transformations` -- rooted dbt invocation, generation lock, activation, sanitized
   artifacts, and Polars preparation
+- `arxiv_int.stores.projections` -- lifecycle, dbt inputs, ParadeDB/pgvector/AGE adapters, pointer
+  switch, cleanup, and secret-free artifacts
 - `tests/integration/extensions/` -- pin/NOTICE/gate unit coverage; live probes when
   `ARXIV_INT_RUN_EXTENSION_PROBES=1`
 - `tests/stores/` -- overlay unit coverage; apply/adopt `not-run` without a URL or image
+- `tests/stores/projections/` -- identifier, quality, lock, and mocked lifecycle coverage
 - `tests/integration/postgres/` -- declared disposable schema run when
   `ARXIV_INT_RUN_SCHEMA_MIGRATIONS=1`
 - `tests/transformations/` -- parse/compile/lock/activation/artifact units without a live store
 - `tests/integration/dbt/` -- declared disposable dbt run when `ARXIV_INT_RUN_DBT=1`
+- `tests/integration/projections/` -- declared disposable projection run when
+  `ARXIV_INT_RUN_PROJECTIONS=1`
 - Compose profile rendering accepts the project image tag without a registry digest, matching
   other `arxiv-int/*` images
 

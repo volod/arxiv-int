@@ -19,6 +19,7 @@ from arxiv_int.contracts.migrations.runner import (
 )
 from arxiv_int.contracts.sqlalchemy.catalog import compare_live_catalog
 from arxiv_int.contracts.sqlalchemy.model import ContractSchemaModel, load_schema_model_from_root
+from arxiv_int.stores.postgres.constants import HEAD_REVISION, PARTITION_OVERLAY_REVISION
 from arxiv_int.stores.postgres.evidence import catalog_as_dict, write_evidence
 from arxiv_int.stores.postgres.inspect_live import LiveStoreCatalog, inspect_store, store_findings
 
@@ -76,7 +77,7 @@ def relocate_public_tables(connection: Connection, model: ContractSchemaModel) -
 
 
 def _overlay_for_stamp(catalog: LiveStoreCatalog) -> tuple[list[str], str | None]:
-    overlay = store_findings(catalog, require_head=False)
+    overlay = store_findings(catalog, require_head=False, require_projections=False)
     partitioned = bool(catalog.partitioned)
     if not partitioned:
         overlay = [
@@ -91,7 +92,10 @@ def _overlay_for_stamp(catalog: LiveStoreCatalog) -> tuple[list[str], str | None
         return overlay, "0001"
     if overlay:
         return overlay, None
-    return overlay, "0002"
+    projection = store_findings(catalog, require_head=False, require_projections=True)
+    if projection:
+        return overlay, PARTITION_OVERLAY_REVISION
+    return overlay, HEAD_REVISION
 
 
 def adopt_database(

@@ -10,7 +10,9 @@ from arxiv_int.stores.postgres.constants import (
     CANONICAL_SCHEMAS,
     DERIVED_SCHEMA,
     HASH_MODULUS,
+    HEAD_REVISION,
     PARTITIONED_TABLES,
+    PROJECTION_METADATA_TABLES,
     STAGING_SCHEMA,
     STORE_ROLES,
 )
@@ -36,6 +38,7 @@ class LiveStoreCatalog:
     staging_tables: tuple[str, ...]
     revision: str | None
     extensions: tuple[str, ...]
+    control_tables: tuple[str, ...] = ()
 
 
 def _rows(
@@ -104,6 +107,12 @@ def inspect_store(connection: Connection) -> LiveStoreCatalog:
         "SELECT extname || ' ' || extversion FROM pg_extension "
         "WHERE extname IN ('vector', 'pg_search', 'age') ORDER BY 1",
     )
+    control_rows = _rows(
+        connection,
+        "SELECT tablename FROM pg_tables WHERE schemaname = 'ctl' AND tablename IN :names "
+        "ORDER BY 1",
+        {"names": list(PROJECTION_METADATA_TABLES)},
+    )
     partitioned = tuple(
         PartitionSpec(str(row[0]), str(row[1] or ""), int(row[2])) for row in partition_rows
     )
@@ -115,6 +124,7 @@ def inspect_store(connection: Connection) -> LiveStoreCatalog:
         staging_tables=tuple(str(row[0]) for row in staging_rows),
         revision=applied_revision(connection),
         extensions=tuple(str(row[0]) for row in extension_rows),
+        control_tables=tuple(str(row[0]) for row in control_rows),
     )
 
 
@@ -135,7 +145,9 @@ def _partition_findings(catalog: LiveStoreCatalog) -> list[str]:
     return findings
 
 
-def store_findings(catalog: LiveStoreCatalog, *, require_head: bool = True) -> list[str]:
+def store_findings(
+    catalog: LiveStoreCatalog, *, require_head: bool = True, require_projections: bool = True
+) -> list[str]:
     """Return overlay defects after a successful head upgrade."""
     findings: list[str] = []
     expected_schemas = set(CANONICAL_SCHEMAS) | {STAGING_SCHEMA, DERIVED_SCHEMA}
@@ -151,6 +163,12 @@ def store_findings(catalog: LiveStoreCatalog, *, require_head: bool = True) -> l
         findings.append("live catalog is missing roles: " + ", ".join(missing_roles))
     if "documents" not in catalog.staging_tables:
         findings.append("live catalog is missing staging.documents")
-    if require_head and catalog.revision != "0002":
-        findings.append(f"live revision is {catalog.revision!r}, expected '0002'")
+    if require_projections:
+        missing_proj = sorted(set(PROJECTION_METADATA_TABLES) - set(catalog.control_tables))
+        if missing_proj:
+            findings.append(
+                "live catalog is missing projection metadata: " + ", ".join(missing_proj)
+            )
+    if require_head and catalog.revision != HEAD_REVISION:
+        findings.append(f"live revision is {catalog.revision!r}, expected {HEAD_REVISION!r}")
     return findings

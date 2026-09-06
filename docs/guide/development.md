@@ -101,6 +101,9 @@ they are small, deterministic, safe to publish, and required for CI.
 | `make transform-compile` | Compile selected dbt models for `RUN_ID` |
 | `make transform-build` | Build and test an isolated derived generation for `RUN_ID` |
 | `make transform-test` | Run dbt data tests for `RUN_ID` without replacing the active generation |
+| `make projections-build` | Build search/vector/graph projections for `RUN_ID` (`KIND=`, `APPLY=1` activates) |
+| `make projections-status` | Show active projection pointers |
+| `make projections-cleanup` | Plan retired/failed projection drops (`APPLY=1` executes) |
 | `make test` | Run the deterministic unit test suite |
 | `make coverage` | Run tests with the coverage gate |
 | `make format` | Apply Ruff formatting |

@@ -205,6 +205,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     store_inspect.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
     store_inspect.add_argument("--run-id", default=None)
+    from arxiv_int.stores.projections.commands import add_projection_parsers
+
+    add_projection_parsers(store_commands)
 
     quality = subcommands.add_parser(
         "data-quality", help="validate dataset contents against contracts"
@@ -481,6 +484,10 @@ def _run_store(args: argparse.Namespace) -> int:
         if args.store_command == "inspect-schema":
             run_id = args.run_id or f"inspect-{os.getpid()}"
             return run_inspect_schema(root, run_id=run_id)
+        if args.store_command.startswith("projections-"):
+            from arxiv_int.stores.projections.commands import run_projection_command
+
+            return run_projection_command(args)
         pgdata = args.pgdata_dir
         if pgdata is None:
             run_id = f"probe-{os.getpid()}"

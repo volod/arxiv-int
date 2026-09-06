@@ -29,6 +29,8 @@ export MYPY_CACHE_DIR := $(DATA_ROOT)/cache/mypy
 
 .DEFAULT_GOAL := help
 
+KIND ?= all
+
 .PHONY: help bootstrap venv lock package-check features config readiness setup setup-config setup-env \
 	setup-wait setup-schema services-pull models-pull services-config services-up \
 	services-status services-down services-reset logs graph-up ui-up postgres-image postgres-image-probe \
@@ -38,6 +40,7 @@ export MYPY_CACHE_DIR := $(DATA_ROOT)/cache/mypy
 	db-revision db-check db-status db-upgrade \
 	db-downgrade db-adopt db-apply-schema ontology ontology-gen ontology-check data-quality \
 	transform-parse transform-compile transform-build transform-test \
+	projections-build projections-status projections-cleanup \
 	ci-checks ci ci-github build quality code-quality quality-report
 
 help: ## List available targets
@@ -174,6 +177,24 @@ transform-test: ## Run dbt data tests for RUN_ID without replacing the active ge
 	@source "$(COMMON_SH)"; arxiv_int_load_env; \
 		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)"; \
 		"$(VENV)/bin/arxiv-int" transform test --run-id "$(RUN_ID)"
+
+projections-build: ## Build search/vector/graph projections for RUN_ID (KIND=all|lexical|vector|graph)
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
+		"$(VENV)/bin/arxiv-int" store projections-build --run-id "$(RUN_ID)" \
+		$(if $(filter-out all,$(KIND)),--kind "$(KIND)",) \
+		$(if $(filter 1,$(APPLY)),--activate,)
+
+projections-status: ## Show active projection pointers
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
+		"$(VENV)/bin/arxiv-int" store projections-status --run-id "$(RUN_ID)"
+
+projections-cleanup: ## Plan retired/failed projection drops (APPLY=1 executes)
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)"; arxiv_int_load_env; \
+		"$(VENV)/bin/arxiv-int" store projections-cleanup --run-id "$(RUN_ID)" \
+		$(if $(filter 1,$(APPLY)),--apply,)
 
 config: ## Resolve, validate, and redact runtime configuration
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }

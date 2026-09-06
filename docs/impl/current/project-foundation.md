@@ -80,8 +80,8 @@ snapshot/change/version/baseline primitives, deterministic multi-format generati
 policy with reviewed baselines and Alembic Python revisions. The shipped registry, `x-arxiv-int`
 bindings, loaders, generation tree, and evolution checks are documented in
 [Contracts](contracts.md). Contract-governance ODCS, generation, evolution, and ontology assets are
-documented there; live schema overlay on the pinned multi-extension store is recorded in
-[Canonical store](canonical-store.md). Projection lifecycle remains later work.
+documented there; live schema overlay, dbt generations, and rebuildable search/graph projections are
+recorded in [Canonical store](canonical-store.md).
 
 ## Evaluation and retrieval primitives
 

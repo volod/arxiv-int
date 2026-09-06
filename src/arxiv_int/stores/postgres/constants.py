@@ -1,6 +1,6 @@
 """Named identities for the canonical PostgreSQL store overlay.
 
-Revision 0002 freezes the same names as SQL literals. Changing a value here
+Revisions freeze the same names as SQL literals. Changing a value here
 does not change an applied revision; add a new revision instead.
 """
 
@@ -323,3 +323,11 @@ FACT_STATUSES: tuple[str, ...] = (
 
 EMBEDDING_PROFILES_TABLE = "search.embedding_profiles"
 ALEMBIC_VERSION_TABLE = "alembic_version"
+HEAD_REVISION = "0003"
+PARTITION_OVERLAY_REVISION = "0002"
+PROJECTION_METADATA_TABLES: tuple[str, ...] = (
+    "projections",
+    "projection_active",
+    "projection_evidence",
+    "projection_cleanup",
+)
