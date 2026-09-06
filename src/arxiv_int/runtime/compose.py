@@ -150,10 +150,13 @@ def compose_command(
     services: Sequence[str] = (),
     follow: bool = False,
     tail: int = 200,
+    pull: str | None = None,
 ) -> tuple[str, ...]:
     """Return one stable Docker Compose command without shell interpolation."""
     if tail < 0:
         raise ComposeConfigurationError("log tail must be zero or greater")
+    if pull is not None and pull not in {"always", "missing", "never"}:
+        raise ComposeConfigurationError("unsupported Compose pull policy")
     plan = plan_services(profiles, project_root=config.project_root)
     if action not in {"config", "up", "down", "status", "logs"}:
         raise ComposeConfigurationError("unsupported Compose command action")
@@ -164,6 +167,8 @@ def compose_command(
         command.extend(("config", "--quiet"))
     elif action == "up":
         command.extend(("up", "--detach", "--remove-orphans", "--wait"))
+        if pull is not None:
+            command.extend(("--pull", pull))
     elif action == "down":
         command.extend(("down", "--remove-orphans", "--timeout", "60"))
     elif action == "status":
@@ -217,13 +222,16 @@ def run_compose(
     follow: bool = False,
     tail: int = 200,
     apply: bool = False,
+    pull: str | None = None,
     runner: ComposeRunner = _subprocess_runner,
 ) -> int:
     """Preflight mutating requests and run Docker Compose with secrets only in memory."""
     plan = plan_services(profiles, project_root=config.project_root)
     selected = plan.profiles
     if action != "reset":
-        compose_command(config, action, selected, services=services, follow=follow, tail=tail)
+        compose_command(
+            config, action, selected, services=services, follow=follow, tail=tail, pull=pull
+        )
     password = dict(config.values).get("POSTGRES_PASSWORD", "")
     if action == "up" and plan.database and not password:
         raise ComposeConfigurationError(
@@ -246,6 +254,7 @@ def run_compose(
             services=services,
             follow=follow,
             tail=tail,
+            pull=pull,
         )
         return runner(command, config.project_root, compose_environment(config))
     finally:

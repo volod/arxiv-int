@@ -11,6 +11,8 @@ export PROJECT_ROOT
 
 # shellcheck source=scripts/shared/dotenv.sh
 . "$(dirname "${BASH_SOURCE[0]}")/dotenv.sh"
+# shellcheck source=scripts/shared/setup.sh
+. "$(dirname "${BASH_SOURCE[0]}")/setup.sh"
 
 arxiv_int_sync_dotenv() {
   local example_file="$PROJECT_ROOT/.env.example"

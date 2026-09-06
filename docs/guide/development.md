@@ -3,7 +3,8 @@
 ## Setup
 
 Follow [Workstation setup and readiness](setup.md) for system prerequisites, `.env` roots, storage
-requirements, and readiness remediation. The normal contributor bootstrap is:
+requirements, and readiness remediation. The normal operator setup is `make setup`. Contributors
+who only need the locked environment and a readiness audit can use:
 
 ```bash
 make bootstrap
@@ -78,6 +79,7 @@ they are small, deterministic, safe to publish, and required for CI.
 | --- | --- |
 | `make help` | List supported workflows |
 | `make bootstrap` | Append-sync `.env`, update the locked environment, and audit readiness |
+| `make setup` | Retryable environment, model, service and schema preparation |
 | `make readiness` | Emit console and JSON workstation readiness reports |
 | `make services-up` | Start and health-check the default `pipeline` service set |
 | `make postgres-image` | Build the pinned ParadeDB + AGE database image (`NO_CACHE=1` for clean cache) |

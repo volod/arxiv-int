@@ -1,9 +1,9 @@
 # Operator Workflow and Atomic Commands
 
 The short workflow in [README](../../README.md#quick-start) is the target interface.
-`make setup`, `make pipeline`, and the pipeline commands below are **planned, unavailable now**.
-Use [the available manual setup](#manual-setup-available-now) until the setup task passes its gates.
-[Current implementation](../impl/current.md) records available capabilities; the
+`make setup` is available. `make pipeline` and the pipeline commands below are
+**planned, unavailable now**. [Current implementation](../impl/current.md) records available
+capabilities; the
 [operator specification](../design/spec.md#retryable-setup-and-default-pipeline-command) defines
 defaults and acceptance. This guide provides the explicit command chain for diagnosis and development.
 
@@ -28,10 +28,10 @@ Skip cloning for an existing checkout. Run commands from that checkout. For host
 [Linux installation instructions](https://docs.ollama.com/linux) and start/check the service with
 the host service manager. Downloads occur during setup; pipeline processing stays local.
 
-## Manual setup available now
+## Manual setup -- diagnostic expansion
 
-Run each step separately and inspect its result before continuing. These commands do not yet form
-a retry coordinator. A successful infrastructure audit does not mean the archive pipeline exists.
+Run each step separately and inspect its result before continuing. `make setup` calls these same
+handlers in order. A successful infrastructure audit does not mean the archive pipeline exists.
 
 1. Create `.env` only when absent, then edit it:
 
@@ -67,7 +67,7 @@ a retry coordinator. A successful infrastructure audit does not mean the archive
    Use a fresh shell and repeat configuration loading after editing `.env`, since exported values
    take precedence. Direct installed commands below use `.venv/bin/`; activation is unnecessary.
    Reserved extras do not install unimplemented stages. Existing syncing Make targets retain their
-   consolidated development extras; selected runtime-extra preservation belongs to the setup task.
+   consolidated development extras; `make setup` preserves the selected runtime extra union.
 
 4. For the selected host Ollama backend, acquire the configured model:
 
@@ -101,20 +101,11 @@ a retry coordinator. A successful infrastructure audit does not mean the archive
    make ontology-check
    ```
 
-   Supply `ARXIV_INT_MIGRATION_DATABASE_URL` privately in the process environment, matching the
-   selected service host/port/database/user/password. Do not put credentials into shell history or
-   logs. Verify the target and migration policy before applying; an existing unversioned catalog
-   needs the separate reviewed adoption workflow. The guard below refuses an absent URL:
-
-   ```bash
-   : "${ARXIV_INT_MIGRATION_DATABASE_URL:?Select the service database securely}" && \
-     make db-apply-schema RUN_ID=setup-manual
-   .venv/bin/arxiv-int store inspect-schema --run-id setup-manual
-   ```
-
-   Without the guard or explicit URL, `db-apply-schema` can operate on a disposable database.
-   That smoke result cannot prove the configured service has the schema. The planned `setup-schema`
-   command will bind and verify the configured target using the existing store adapters.
+   Prefer `make setup-schema`, which binds to the configured service, refuses a conflicting
+   `ARXIV_INT_MIGRATION_DATABASE_URL`, and never uses a disposable store. Direct `db-apply-schema`
+   still requires an explicit matching URL; without it, that command can operate on a disposable
+   database, which cannot prove the configured service has the schema. An existing unversioned
+   catalog needs the separate reviewed adoption workflow (`make db-adopt`).
 
 7. Recheck readiness and inspect interfaces:
 
@@ -129,30 +120,28 @@ a retry coordinator. A successful infrastructure audit does not mean the archive
    `2`; Make reports failure as nonzero. Follow each finding's next action. Grafana is available at
    `http://127.0.0.1:3000` on its default port; analyst knowledge views remain planned.
 
-## Setup atomic chain -- planned
+## Setup atomic chain
 
-`make setup` will call these same handlers in order, sharing resolved configuration and attempt
+`make setup` calls these handlers in order, sharing resolved configuration and attempt
 context. Each command remains usable independently. Stop at a failed phase, correct its reported
 cause, and retry `make setup`; an unchanged retry reuses verified work and probes readiness again.
 An independent phase validates its own prerequisites and records evidence for later reconciliation.
 
-| Order | Atomic command | Responsibility and availability |
+| Order | Atomic command | Responsibility |
 | --- | --- | --- |
-| 1 | `make setup-config` | Planned: create/append `.env`, validate edits and host prerequisites before `.venv` or product writes; stop for required edits. |
-| 2 | `make setup-env` | Planned: sync the locked union of selected extras once; offline sync from cache with `SETUP_DOWNLOADS=0`. |
-| 3 | `make package-check` | Available: verify the installed package identity. |
-| 4 | `make services-config` | Available: validate/prepare safe roots and Compose configuration. |
-| 5 | `make postgres-image` | Available image builder; setup will add fingerprint/cache reuse and offline refusal to the shared handler. |
-| 6 | `make services-pull` | Planned: acquire/cache-check the other selected pinned service images, preserving the locally built database image. |
-| 7 | `make models-pull` | Planned: acquire/cache-check the selected backend's configured model assets with bounded progress/cancellation. |
-| 8 | `make services-up` | Available: start/wait for selected containers; setup will share download policy and never implicitly pull in offline mode. |
-| 9 | `make setup-wait` | Planned: bounded service transport/model health checks with progress and actionable timeouts; schema initialization follows. |
-| 10 | `make contracts-check`, `make db-check`, `make ontology-check` | Available asset validators; setup will call the same handlers in the prepared environment without repeating dependency sync. |
-| 11 | `make setup-schema` | Planned: bind to the configured service, apply eligible Alembic revisions and inspect its catalog; no disposable fallback or automatic adoption. |
-| 12 | `make readiness` | Available audit; setup will add shared profile requirements, schema/provider availability and final setup status. |
+| 1 | `make setup-config` | Create/append `.env`, validate edits and host prerequisites before `.venv` or product writes; stop for required edits. |
+| 2 | `make setup-env` | Sync the locked union of selected extras once; offline sync from cache with `SETUP_DOWNLOADS=0`. |
+| 3 | `make package-check` | Verify the installed package identity. |
+| 4 | `make services-config` | Validate/prepare safe roots and Compose configuration. |
+| 5 | `make postgres-image` | Reuse or build the pinned database image; offline mode refuses a cache miss. |
+| 6 | `make services-pull` | Acquire/cache-check the other selected pinned service images, preserving the locally built database image. |
+| 7 | `make models-pull` | Acquire/cache-check the selected backend's configured model assets. Cached tags are not a memory-fit or quality result. |
+| 8 | `make services-up` | Start/wait for selected containers; offline mode never implicitly pulls. |
+| 9 | `make setup-wait` | Bounded service transport/model health checks; schema initialization follows. |
+| 10 | `make contracts-check`, `make db-check`, `make ontology-check` | Shipped asset validators, invoked without repeating dependency sync. |
+| 11 | `make setup-schema` | Bind to the configured service, apply eligible Alembic revisions and inspect its catalog; no disposable fallback or automatic adoption. |
+| 12 | `make readiness` | Final audit with shared profile requirements. Missing pipeline providers stay unavailable. |
 
-The setup task owns missing wrappers and integration, reusing the accepted image, migration, quality
-and runtime implementations. No additional schema or transformation engine is introduced.
 Infrastructure health and pipeline implementation availability remain separate. A required missing
 provider cannot become a successful readiness result. Safe reports go to
 `$RESULTS_DIR/reports/{setup,readiness}.json`; tool evidence goes to `$DATA_DIR/setup/<attempt-id>/`.

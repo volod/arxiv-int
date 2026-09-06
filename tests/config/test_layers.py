@@ -44,6 +44,9 @@ def test_runtime_config_uses_cli_then_environment_then_dotenv(tmp_path: Path) ->
     assert config.data_dir == root / ".data"
     assert dict(config.values)["INFERENCE_BACKEND"] == "ollama"
     assert dict(config.values)["GENERATION_MODEL"] == "qwen3.8:27b"
+    assert dict(config.values)["PIPELINE_PROFILE"] == "investigation"
+    assert dict(config.values)["SERVICE_PROFILES"] == "pipeline"
+    assert dict(config.values)["SETUP_DOWNLOADS"] == "1"
 
 
 def test_paths_resolve_from_each_checkout_not_the_current_directory(

@@ -154,7 +154,7 @@ and its two references ([Canonical relational schema](0021-store-create-canonica
 Two plan findings predating this task blocked `make lint-spec-plan` for its whole duration and were
 repaired at the end on the user's explicit instruction, in the work owned by
 `design-simple-operator-entrypoints`: its record now declares `AUD-operator-entrypoints-1` in the
-audit handoff, routed to [implement-retryable-setup-command](../plan.md#implement-retryable-setup-command),
+audit handoff, routed to [Retryable setup command](0022-runtime-implement-retryable-setup-command.md),
 and is linked from the [record index](README.md). No other part of that in-flight task was changed,
 including the owner's own concurrent edit to its original-request text.
 

@@ -168,8 +168,9 @@ def test_ontology_check_and_generate_commands(
 def test_readiness_and_services_default_to_pipeline_profiles() -> None:
     parser = build_parser()
 
-    assert parser.parse_args(["readiness"]).profiles == "pipeline"
-    assert parser.parse_args(["services", "up"]).profiles == "pipeline"
+    assert parser.parse_args(["readiness"]).profiles is None
+    assert parser.parse_args(["services", "up"]).profiles is None
+    assert parser.parse_args(["readiness", "--profiles", "core"]).profiles == "core"
 
 
 def test_services_reset_defaults_to_dry_run_and_accepts_apply() -> None:

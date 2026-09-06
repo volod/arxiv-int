@@ -29,14 +29,12 @@ def test_make_exposes_service_lifecycle_with_pipeline_as_the_default() -> None:
         name in help_text
         for name in ("services-up", "services-status", "services-down", "services-reset", "logs")
     )
-    assert 'arxiv_int_services up --profiles "pipeline"' in _dry_run("services-up")
-    assert 'arxiv_int_services down --profiles "pipeline"' in _dry_run("services-down")
-    assert 'arxiv_int_services reset --profiles "pipeline"' in _dry_run("services-reset")
+    assert "--profiles" not in _dry_run("services-up")
+    assert "--profiles" not in _dry_run("services-down")
+    assert "--profiles" not in _dry_run("services-reset")
     assert "--apply" in _dry_run("services-reset", "APPLY=1")
     assert "--apply" not in _dry_run("services-reset")
-    assert 'arxiv_int_services up --profiles "core ui"' in _dry_run(
-        "services-up", "SERVICE_PROFILES=core ui"
-    )
+    assert '--profiles "core ui"' in _dry_run("services-up", "SERVICE_PROFILES=core ui")
 
 
 def _data_root() -> str:

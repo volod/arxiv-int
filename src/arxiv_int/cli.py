@@ -19,6 +19,11 @@ from arxiv_int.runtime import (
     validate_runtime_paths,
 )
 from arxiv_int.runtime.service_plan import PROFILE_HELP
+from arxiv_int.runtime.setup.commands import (
+    add_setup_parser,
+    resolve_cli_profiles,
+    run_setup_command,
+)
 
 _LOG = logging.getLogger(__name__)
 
@@ -51,7 +56,7 @@ def build_parser() -> argparse.ArgumentParser:
         show.add_argument(f"--{option}-dir", default=None)
     readiness = subcommands.add_parser("readiness", help="report workstation readiness")
     readiness.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
-    readiness.add_argument("--profiles", default="pipeline", help=PROFILE_HELP)
+    readiness.add_argument("--profiles", default=None, help=PROFILE_HELP)
     readiness.add_argument(
         "--timeout", type=float, default=3.0, help="per-check timeout in seconds"
     )
@@ -70,13 +75,13 @@ def build_parser() -> argparse.ArgumentParser:
     service_commands = services.add_subparsers(dest="services_command", required=True)
     for action in ("config", "up", "status", "down"):
         service = service_commands.add_parser(action, help=f"{action} the selected services")
-        service.add_argument("--profiles", default="pipeline", help=PROFILE_HELP)
+        service.add_argument("--profiles", default=None, help=PROFILE_HELP)
         service.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
     reset = service_commands.add_parser(
         "reset",
         help="stop services and erase service data roots (dry-run unless --apply)",
     )
-    reset.add_argument("--profiles", default="pipeline", help=PROFILE_HELP)
+    reset.add_argument("--profiles", default=None, help=PROFILE_HELP)
     reset.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
     reset.add_argument(
         "--apply",
@@ -84,7 +89,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="erase PGDATA, service-state, model-cache, and optional WAL/tablespace roots",
     )
     logs = service_commands.add_parser("logs", help="show bounded service logs")
-    logs.add_argument("--profiles", default="pipeline", help=PROFILE_HELP)
+    logs.add_argument("--profiles", default=None, help=PROFILE_HELP)
     logs.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
     logs.add_argument("--services", default="", help="comma- or whitespace-separated services")
     logs.add_argument("--follow", action="store_true")
@@ -224,6 +229,7 @@ def build_parser() -> argparse.ArgumentParser:
     check.add_argument("--publish", action="store_true", help="copy evidence to RUNS_DIR")
     check.add_argument("--runs-dir", type=Path, default=None)
     check.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
+    add_setup_parser(subcommands)
     return parser
 
 
@@ -292,7 +298,7 @@ def _run_services(args: argparse.Namespace) -> int:
         return run_compose(
             config,
             args.services_command,
-            args.profiles,
+            resolve_cli_profiles(args.profiles, args.project_root),
             services=service_names,
             follow=getattr(args, "follow", False),
             tail=getattr(args, "tail", 200),
@@ -307,7 +313,7 @@ def _run_readiness(args: argparse.Namespace) -> int:
     try:
         result = run_readiness(
             project_root=args.project_root,
-            profiles=args.profiles,
+            profiles=resolve_cli_profiles(args.profiles, args.project_root),
             timeout=args.timeout,
             report_path=args.json_report,
             persist=not args.no_json_report,
@@ -540,6 +546,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_ontology(args)
     if args.command == "store":
         return _run_store(args)
+    if args.command == "setup":
+        return run_setup_command(args)
     if args.command == "data-quality":
         return _run_data_quality(args)
     return _run_info()

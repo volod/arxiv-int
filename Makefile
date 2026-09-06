@@ -5,7 +5,6 @@ VENV := $(PROJECT_ROOT)/.venv
 PY := $(VENV)/bin/python
 PYTHON_VERSION ?= 3.12
 DATA_DIR ?=
-SERVICE_PROFILES ?= pipeline
 LOG_SERVICES ?=
 LOG_TAIL ?= 200
 LOG_FOLLOW ?= 0
@@ -20,7 +19,8 @@ NO_CACHE ?= 0
 WRITE_GATE ?= 0
 COMMON_SH := $(PROJECT_ROOT)/scripts/shared/common.sh
 # One extra set for every syncing target so consecutive targets cannot uninstall each other.
-SYNC_EXTRAS := --extra dev --extra contracts --extra graph --extra store --extra lake --extra data-quality
+SYNC_EXTRAS := --extra dev --extra contracts --extra graph --extra store --extra lake --extra data-quality --extra inference
+PROFILE_ARGS := $(if $(SERVICE_PROFILES),--profiles "$(SERVICE_PROFILES)",)
 DATA_ROOT := $(shell $(if $(DATA_DIR),DATA_DIR='$(DATA_DIR)') bash -c '. "$$0"; arxiv_int_data_root' '$(COMMON_SH)')
 PYTEST_CACHE := -o cache_dir=$(DATA_ROOT)/cache/pytest
 
@@ -29,7 +29,8 @@ export MYPY_CACHE_DIR := $(DATA_ROOT)/cache/mypy
 
 .DEFAULT_GOAL := help
 
-.PHONY: help bootstrap venv lock package-check features config readiness services-config services-up \
+.PHONY: help bootstrap venv lock package-check features config readiness setup setup-config setup-env \
+	setup-wait setup-schema services-pull models-pull services-config services-up \
 	services-status services-down services-reset logs graph-up ui-up postgres-image postgres-image-probe \
 	format format-check lint typecheck test \
 	coverage complexity-gate shell-lint-gate lint-md lint-doc-links lint-spec-plan plan-status \
@@ -156,34 +157,61 @@ config: ## Resolve, validate, and redact runtime configuration
 readiness: ## Audit configuration, storage, tools, services, models, and system readiness
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
 	@source "$(COMMON_SH)"; arxiv_int_load_env; \
-		status=0; "$(VENV)/bin/arxiv-int" readiness --profiles "$(SERVICE_PROFILES)" || status=$$?; \
+		status=0; "$(VENV)/bin/arxiv-int" readiness $(PROFILE_ARGS) || status=$$?; \
 		if [ "$$status" -eq 2 ] && [ "$(READINESS_ALLOW_DEGRADED)" -eq 1 ]; then exit 0; fi; \
 		exit "$$status"
 
+setup-config: ## Create or append .env, name required edits, and check host tools
+	@source "$(COMMON_SH)"; arxiv_int_setup_config
+
+setup-env: ## Sync the locked extra union into .venv (honors SETUP_DOWNLOADS=0)
+	@source "$(COMMON_SH)"; arxiv_int_setup_env $(SYNC_EXTRAS)
+
+services-pull: ## Acquire or cache-check selected service images
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make setup-env' first"; exit 1; }
+	@"$(VENV)/bin/arxiv-int" setup --phase images
+
+models-pull: ## Acquire or cache-check configured model assets
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make setup-env' first"; exit 1; }
+	@"$(VENV)/bin/arxiv-int" setup --phase models
+
+setup-wait: ## Wait for service transport and model health without requiring a schema
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make setup-env' first"; exit 1; }
+	@"$(VENV)/bin/arxiv-int" setup --phase wait
+
+setup-schema: ## Apply eligible Alembic revisions to the configured service only
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make setup-env' first"; exit 1; }
+	@"$(VENV)/bin/arxiv-int" setup --phase schema
+
+setup: ## Retryable environment, model, service and schema preparation
+	@source "$(COMMON_SH)"; arxiv_int_setup_config
+	@source "$(COMMON_SH)"; arxiv_int_setup_env $(SYNC_EXTRAS)
+	@"$(VENV)/bin/arxiv-int" setup
+
 services-config: ## Validate Compose for SERVICE_PROFILES without starting containers
 	@source "$(COMMON_SH)"; arxiv_int_load_env; \
-		arxiv_int_services config --profiles "$(SERVICE_PROFILES)"
+		arxiv_int_services config $(PROFILE_ARGS)
 
-services-up: ## Start and wait for healthy SERVICE_PROFILES (default: pipeline)
+services-up: ## Start and wait for healthy SERVICE_PROFILES (default from .env)
 	@source "$(COMMON_SH)"; arxiv_int_load_env; \
-		arxiv_int_services up --profiles "$(SERVICE_PROFILES)"
+		arxiv_int_services up $(PROFILE_ARGS)
 
 services-status: ## Show local service and health status
 	@source "$(COMMON_SH)"; arxiv_int_load_env; \
-		arxiv_int_services status --profiles "$(SERVICE_PROFILES)"
+		arxiv_int_services status $(PROFILE_ARGS)
 
 services-down: ## Stop the local service project; preserve bind-mounted data
 	@source "$(COMMON_SH)"; arxiv_int_load_env; \
-		arxiv_int_services down --profiles "$(SERVICE_PROFILES)"
+		arxiv_int_services down $(PROFILE_ARGS)
 
 services-reset: ## Stop services; erase service data only when APPLY=1
 	@source "$(COMMON_SH)"; arxiv_int_load_env; \
-		arxiv_int_services reset --profiles "$(SERVICE_PROFILES)" \
+		arxiv_int_services reset $(PROFILE_ARGS) \
 		$(if $(filter 1,$(APPLY)),--apply,)
 
 logs: ## Show bounded logs (LOG_SERVICES=..., LOG_TAIL=..., LOG_FOLLOW=1)
 	@source "$(COMMON_SH)"; arxiv_int_load_env; \
-		arxiv_int_services logs --profiles "$(SERVICE_PROFILES)" \
+		arxiv_int_services logs $(PROFILE_ARGS) \
 		--services "$(LOG_SERVICES)" --tail "$(LOG_TAIL)" \
 		$(if $(filter 1,$(LOG_FOLLOW)),--follow,)
 

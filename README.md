@@ -13,7 +13,7 @@ and analyst commands remain in the [forward plan](docs/impl/plan.md). See
 
 ## Quick start
 
-### 1. Environment and services -- target workflow, planned
+### 1. Environment and services
 
 From a checkout with the [host prerequisites](docs/guide/operator-workflow.md#host-prerequisites-and-checkout)
 installed:
@@ -23,13 +23,12 @@ make setup
 ```
 
 Edit `.env` when requested, then rerun `make setup` until the selected infrastructure is ready.
-Setup will prepare the Python environment, configured models, services and schema, reuse verified
-work on retries, and report what still needs attention. Edit `.env`; `.venv` is managed automatically.
-No activation or manual exports are required.
+Setup prepares the Python environment, configured models, services and schema, reuses verified
+work on retries, and reports what still needs attention. Edit `.env`; `.venv` is managed
+automatically. No activation or manual exports are required. Storage requirements are in the
+[setup guide](docs/guide/setup.md).
 
-This target is **not implemented yet**. The [setup task](docs/impl/plan.md#implement-retryable-setup-command)
-owns it; use the [available manual setup](docs/guide/operator-workflow.md#manual-setup-available-now)
-today. Storage requirements and remediation are in the [setup guide](docs/guide/setup.md).
+Infrastructure-ready is not pipeline-ready. Pipeline stages remain unimplemented.
 
 ### 2. Archive to analyst results -- planned, unavailable now
 
@@ -68,6 +67,7 @@ data. It does not stop host Ollama; use the host service manager when that is de
 arxiv-int info
 arxiv-int features [--stage STAGE]
 arxiv-int config show --redact
+arxiv-int setup [--phase PHASE]
 arxiv-int readiness [--profiles PROFILES] [--timeout SECONDS]
 arxiv-int services --help
 arxiv-int contracts --help

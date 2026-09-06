@@ -4,13 +4,19 @@ Runtime configuration and path behavior lives cohesively under `src/arxiv_int/ru
 top-level package contains only its initializer, CLI entry point, and metadata module; runtime
 implementation details do not expand that namespace.
 
-The available workflow uses `make bootstrap`, explicit model/service preparation, the pinned
-PostgreSQL image builder and store schema commands. `make setup` and `make pipeline` remain planned;
-the [operator workflow](../../guide/operator-workflow.md) distinguishes today's manual commands from
-the proposed atomic chain. The [entrypoint design record](../records/0016-govern-design-simple-operator-entrypoints.md)
-specifies setup/edit/retry, shared command handlers, service-bound schema checks and the
-[remaining setup task](../plan.md#implement-retryable-setup-command). This design adds no runtime
-capability or claim of pipeline readiness.
+`make setup` is the operator entry for environment, model, service and schema preparation. It
+creates a missing `.env`, names required edits, syncs the locked extra union, acquires or
+cache-checks selected images and models, starts services, waits for transport and model health,
+applies eligible Alembic revisions to the configured service only, and re-probes readiness.
+Retries reuse verified fingerprints and still probe services, wait, and readiness. Concurrent
+setup against the same targets is refused. Pipeline stages remain unimplemented:
+infrastructure-ready never means pipeline-available. `make pipeline` stays
+[planned](../plan.md#pipeline-control----pipeline-control). See the
+[operator workflow](../../guide/operator-workflow.md) for the atomic chain and the
+[accepted setup record](../records/0022-runtime-implement-retryable-setup-command.md).
+
+`make bootstrap` remains the contributor path that syncs `.env`/`.venv` and audits readiness
+without starting services or applying schema.
 
 ## Layered configuration
 
@@ -61,8 +67,8 @@ so a value is never run as shell, and it exports the resolved absolute `*_DIR` v
 entry points then re-resolve identically. Paired fixtures in `tests/config/test_parity.py` hold the
 two implementations to one result for defaults, overrides, nested references, quotes and spaces,
 explicit empty values, invalid input and foreign working directories. Reading resolves without
-mutating the process environment or the checkout; `make bootstrap` remains the only step that
-appends to `.env`.
+mutating the process environment or the checkout; `make bootstrap` and `make setup` are the steps
+that append missing `.env` declarations.
 
 `make` derives its tool-cache root from the same resolved `DATA_DIR` through
 `arxiv_int_data_root`, so linter, type-checker, test and complexity caches follow the operator's
@@ -107,6 +113,25 @@ creates the empty runtime layout, and prints redacted resolved values plus stora
 filesystem, device, rotational, and free-space evidence. CLI root options override both the process
 environment and `.env`. The command exits non-zero on missing or unsafe configuration and never
 logs configured secrets.
+
+## Retryable setup
+
+`arxiv-int setup`, wrapped by `make setup`, coordinates independently callable phases under
+`src/arxiv_int/runtime/setup/`. Typed settings `PIPELINE_PROFILE` (default `investigation`),
+`SERVICE_PROFILES` (default `pipeline`), and `SETUP_DOWNLOADS` (default `1`) live in the shared
+schema and `.env`; Make does not default `SERVICE_PROFILES` in a way that shadows `.env`.
+`SETUP_DOWNLOADS=0` syncs and pulls only from local caches.
+
+Atomic Make/CLI commands share the same handlers: `setup-config`, `setup-env`, `services-pull`,
+`models-pull`, `setup-wait`, and `setup-schema`, plus the existing package, Compose config,
+pinned PostgreSQL image, contracts/ontology, services-up, and readiness commands. Schema apply
+derives the loopback URL from `POSTGRES_*`, refuses a conflicting `ARXIV_INT_MIGRATION_DATABASE_URL`,
+never uses a disposable store, and leaves catalog adoption to `make db-adopt`. Setup does not
+install OS packages, reset service data, or start corpus processing.
+
+Redacted per-phase status is printed and written to `$RESULTS_DIR/reports/setup.json`. Tool
+fingerprints live under `$DATA_DIR/setup/`. Fixture or already-cached model tags used during
+setup smoke do not prove production model fit.
 
 ## System readiness
 
@@ -245,7 +270,8 @@ A `PGDATA_DIR` initialized under an older image-default UID (typically 999) must
 the operator once before `make services-up` can pass the writable-path preflight, for example
 `docker run --rm -v "$PGDATA_DIR:/data" alpine chown -R "$(id -u):$(id -g)" /data`.
 
-`make services-up` starts `SERVICE_PROFILES=pipeline` by default, waits for health, and refuses a
+`make services-up` starts the profiles from `.env` (`SERVICE_PROFILES`, default `pipeline`), waits
+for health, and refuses a
 database-bearing profile until `POSTGRES_PASSWORD` is configured. `make services-config` validates
 without starting containers. The vLLM defaults pin v0.26.0 plus the official Qwen3.8 27B FP8 model
 revision, allow 24 GB of CPU offload for a 16 GB GPU host, and cap the initial context at 32,768
@@ -284,6 +310,9 @@ non-owning, and rotational storage; consolidated root evidence; report containme
 distinct exit codes; report refusal inside proof and database roots, around the checkout, and
 through a symlink out of `RESULTS_DIR`; and secret redaction without network access. CLI coverage
 proves explicit config options and redacted output. Configuration and rendered Compose checks cover
-backend defaults, operator model overrides, and separation of Ollama tags from vLLM identifiers. The
-required format, lint, typing, complexity, shell, documentation, plan-integrity, and deterministic
-test gates pass.
+backend defaults, operator model overrides, and separation of Ollama tags from vLLM identifiers.
+Tests under `tests/runtime/setup/` cover dotenv create/append, missing edits, Make/CLI wrappers that
+do not shadow `.env`, schema binding without a disposable fallback, offline image/model cache
+misses, failure propagation, cancellation, concurrent locks, verified-work reuse with a fresh
+readiness probe, and redacted reports. The required format, lint, typing, complexity, shell,
+documentation, plan-integrity, and deterministic test gates pass.

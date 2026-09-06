@@ -76,6 +76,7 @@ def test_base_builder_and_log_command_are_pure(tmp_path: Path) -> None:
     assert compose_command(
         config, "logs", ("core",), services=("database",), tail=0, follow=True
     ) == (*base, "logs", "--no-color", "--tail", "0", "--follow", "database")
+    assert compose_command(config, "up", ("core",), pull="never")[-2:] == ("--pull", "never")
     with pytest.raises(ComposeConfigurationError, match="tail"):
         run_compose(config, "config", "core", tail=-1)
     with pytest.raises(ComposeConfigurationError, match="unknown Compose"):
