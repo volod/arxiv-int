@@ -2,8 +2,8 @@
 
 For the short target workflow and the full command chain, see
 [Operator workflow and atomic commands](operator-workflow.md). `make setup` is the operator
-entry. DAG commands exist; a default investigation run refuses unimplemented stages. Forecast and
-report publication remain planned.
+entry. DAG commands exist; a default investigation run refuses unimplemented stages. The
+forecast command is available; report publication remains planned.
 
 Install Git, Make, uv, Docker with the Compose plugin, and Python 3.12 or newer. From a checkout:
 
@@ -44,7 +44,7 @@ output and the JSON report contain no color control codes.
 Every non-ready finding includes the next configuration change or command. Each configured root has
 one line containing its resolved path, required storage class, filesystem, device id, rotational
 flag, accessible free bytes, and combined readiness assessment. Capacity estimation for a specific
-pipeline scope remains the forecast command's responsibility.
+pipeline scope is the forecast command's responsibility.
 
 The console report is accompanied by an atomic, owner-readable JSON report at
 `$RESULTS_DIR/reports/readiness.json`. An explicit path must still resolve beneath `RESULTS_DIR`:

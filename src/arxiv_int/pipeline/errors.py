@@ -4,6 +4,8 @@
 class PipelineError(RuntimeError):
     """Operator-visible pipeline control failure."""
 
+    exit_code = 1
+
 
 class UnknownStageError(PipelineError):
     """A requested stage name is not in the registry."""

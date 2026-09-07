@@ -8,7 +8,7 @@ anomaly findings and evidence-bearing reports on one CUDA host.
 Configuration, readiness checks, local service management, typed foundation primitives,
 quality gates, a fixture DAG orchestrator, and serialized progress logs exist today. The
 archive-to-knowledge pipeline is
-**not complete**: most corpus stages, forecast, and report publication remain in the
+**not complete**: most corpus stages and report publication remain in the
 [forward plan](docs/impl/plan.md). See
 [current implementation](docs/impl/current.md) for available behavior and the
 [specification](docs/design/spec.md) and [architecture](docs/design/architecture.md) for the target.
@@ -36,16 +36,17 @@ Infrastructure-ready is not pipeline-ready. Concrete corpus stages remain unimpl
 
 After setup, the DAG commands allocate a unique run id and walk the selected profile. The default
 investigation profile still names unimplemented stages, so `make pipeline` fails explicitly rather
-than publishing a knowledge base. Forecast and `run finalize` remain planned.
+than publishing a knowledge base. `run finalize` remains planned.
 
 ```bash
 make run-create
 make pipeline
 ```
 
-`make run-create` prints a `run-<hex>` id. Use that id with `make stage`, `make run-status`, and
-`make resume`; do not pass Make's developer `RUN_ID=local` fallback. Outputs use configured
-operator roots. Resource limits and archive-scope authorization still apply.
+`make run-create` prints a `run-<hex>` id. Use that id with `make forecast`, `make stage`,
+`make run-status`, and `make resume`; do not pass Make's developer `RUN_ID=local` fallback.
+Outputs use configured operator roots. Resource limits and archive-scope authorization still
+apply.
 
 See the [step-by-step operator workflow](docs/guide/operator-workflow.md) for the atomic command
 chain, what is available now, and the remaining planned stages. The aggregate targets reuse those
@@ -79,7 +80,7 @@ arxiv-int data-quality check DATASET --run-id RUN_ID --input PATH
 arxiv-int transform parse|compile|build|test --run-id RUN_ID
 arxiv-int store projections-build|status|cleanup --run-id RUN_ID
 arxiv-int run create|status|resume
-arxiv-int pipeline run|update|rebuild|invalidate
+arxiv-int pipeline forecast|run|update|rebuild|invalidate
 arxiv-int stage STAGE --run-id RUN_ID
 arxiv-int artifacts prune --stale
 ```
@@ -92,8 +93,8 @@ isolated derived dbt models; a failed or unexecuted required live check cannot l
 `store projections-*` builds, switches, and cleans ParadeDB/pgvector/AGE projections without making
 them canonical; a failed build cannot replace an active pointer.
 `run` / `pipeline` / `stage` / `artifacts prune` freeze a unique run id and walk or maintain the
-selected DAG. A default investigation run refuses unimplemented required stages. Forecast and
-knowledge-base publication remain planned.
+selected DAG. A default investigation run refuses unimplemented required stages. Knowledge-base
+publication remains planned.
 Domain commands arrive as their specified capabilities are implemented.
 
 ## Development

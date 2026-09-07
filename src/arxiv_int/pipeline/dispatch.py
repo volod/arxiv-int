@@ -50,13 +50,17 @@ def run_pipeline_command(args: argparse.Namespace) -> int:
         return _artifacts(args)
     except (OSError, PipelineError, ProjectRootError, RuntimeError, ValueError) as error:
         _LOG.error("%s", error)
-        return 1
+        return int(getattr(error, "exit_code", 1))
     finally:
         signal.signal(signal.SIGINT, previous)
 
 
 def _pipeline(args: argparse.Namespace, token: CancelToken) -> int:
     action = args.pipeline_command
+    if action == "forecast":
+        from arxiv_int.pipeline.forecast.commands import run_forecast_command
+
+        return run_forecast_command(args)
     if action == "run":
         context = create_run_context(
             project_root=args.project_root,
@@ -66,6 +70,7 @@ def _pipeline(args: argparse.Namespace, token: CancelToken) -> int:
             from_stage=args.from_stage,
             to_stage=args.to_stage,
         )
+        _refresh_forecast(context)
         return run_dag(
             context,
             from_stage=context.from_stage,
@@ -76,6 +81,7 @@ def _pipeline(args: argparse.Namespace, token: CancelToken) -> int:
     previous_run = _previous_context(args)
     if action == "update":
         context = persist_new_context(update_context(previous_run))
+        _refresh_forecast(context)
         return run_dag(
             context,
             from_stage=args.from_stage,
@@ -84,6 +90,7 @@ def _pipeline(args: argparse.Namespace, token: CancelToken) -> int:
         )
     if action == "rebuild":
         context = persist_new_context(rebuild_context(previous_run))
+        _refresh_forecast(context)
         return run_dag(
             context,
             from_stage=args.from_stage,
@@ -181,3 +188,10 @@ def _latest_run(runs_dir: Path) -> str | None:
     if not found:
         return None
     return max(found, key=lambda path: path.stat().st_mtime).parent.name
+
+
+def _refresh_forecast(context: RunContext) -> None:
+    from arxiv_int.pipeline.forecast.commands import forecast_or_refuse
+
+    config = load_runtime_config(project_root=context.project_root)
+    forecast_or_refuse(context, config, production_registry())

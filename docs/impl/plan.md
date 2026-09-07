@@ -25,53 +25,13 @@ and name ready/pending human decisions and the dependent work that must wait at 
 
 ### Pipeline control -- `pipeline-control`
 
-#### implement-evidence-based-pipeline-forecast
-
-Implement a read-only command that predicts requested work, duration, output/peak storage, and
-free-space safety before a pipeline run.
-
-- Serves: `pipeline-control` --
-[Pre-run forecast and resource refusal](../design/spec.md#pre-run-forecast-and-resource-refusal)
-- Agent status: CLEAR
-- Dependencies: [Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md);
-[Progress logging and resource telemetry](records/0043-pipeline-add-progress-logging-and-resource-telemetry.md);
-runtime storage evidence documented in
-[Portable runtime](current/portable-runtime.md).
-- User-visible outcome: Before starting, an operator sees stage-by-stage cache hits, changed work,
-time and data-size ranges, peak scratch/rebuild needs, accessible disk free space, confidence, and a
-clear ready/degraded/blocked decision.
-- Scope boundary: Perform inventory, sampling, manifest, telemetry, and filesystem checks only; do
-not load heavy models, materialize production artifacts, invent precise estimates, or bypass hard
-space reserves.
-- Data and artifact paths: `src/arxiv_int/pipeline/forecast/`, `configs/capacity/`, forecast JSON
-Schema/contracts, prior run manifests/telemetry, and `$RUNS_DIR/<forecast-id>/forecast/`.
-- Execution path: Implement estimators against fixture manifests before concrete stages; use
-bounded directory
-metadata sampling when no inventory exists, then consume inventory/delta and cache manifests when
-available. Resolve comparable runs and bounded format samples;
-estimate lower/upper output, time, WAL, temp, staging, rebuild, rollback, backup, and
-selected pipeline output costs; the organizer estimates placement independently; deduplicate
-filesystem devices across the archive, results, and
-database roots; read accessible free bytes; emit evidence/coefficient provenance and a fingerprinted
-console/JSON decision; add stage-boundary free-space rechecks. Expose `make forecast RUN_ID=...`
-and the equivalent CLI option to use the created run's frozen inputs and retain its forecast under
-that run. The aggregate command calls the same estimator and refusal handler; standalone forecasts
-remain available without creating a production generation.
-- Acceptance gates: Zero-history fixtures yield conservative low-confidence ranges; estimates replay
-from captured evidence; shared devices are counted once; inaccessible paths and upper-bound peak plus
-reserve shortfalls exit non-zero before heavy work; stale forecasts are rejected; simulated free-space
-loss checkpoints before allocation without accepting partial output. Atomic and aggregate forecast
-decisions agree for the same captured inputs; changed configuration cannot reuse a stale forecast.
-- Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-pipeline-publication-and-reuse-boundaries`.
-
 #### implement-investigation-profile-and-output-manifest
 
 Publish an explicit requested profile and coherent knowledge-base generation with honest completion states.
 
 - Serves: `pipeline-control` -- [End-to-end run and output contract](../design/spec.md#end-to-end-run-and-output-contract)
 - Agent status: CLEAR
-- Dependencies: [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md); `implement-evidence-based-pipeline-forecast`.
+- Dependencies: [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md); [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md).
 - User-visible outcome: The default investigation command names every required output and report
 entry point; a
 lexical-only request is visibly a smaller profile.
@@ -112,7 +72,7 @@ Review fixture orchestration before concrete corpus workers depend on its public
 [Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md);
 [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md);
 [Progress logging and resource telemetry](records/0043-pipeline-add-progress-logging-and-resource-telemetry.md);
-`implement-evidence-based-pipeline-forecast`; `implement-investigation-profile-and-output-manifest`;
+[Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md); `implement-investigation-profile-and-output-manifest`;
 [Inference and evaluation checkpoint](records/0038-eval-found-review-inference-and-evaluation-boundaries.md).
 - User-visible outcome:
 Concrete adapters inherit a checked run/lease/quality/publication boundary.
@@ -232,7 +192,7 @@ planning with the supplied archive and publish the pipeline-control proof bundle
 - Serves: `pipeline-control` --
 [Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
 - Agent status: RUN NEEDED
-- Dependencies: `implement-evidence-based-pipeline-forecast`;
+- Dependencies: [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md);
 `prove-corpus-foundation-on-provided-archive`; [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md);
 `implement-evidence-and-source-location-lookup`.
 - User-visible outcome: The supplied archive demonstrates that unchanged inputs skip heavy work,
@@ -310,7 +270,7 @@ metadata.
 - Dependencies: Runtime roots documented in [Portable runtime](current/portable-runtime.md);
 [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
 [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md);
-`implement-evidence-based-pipeline-forecast`.
+[Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md).
 `review-pipeline-publication-and-reuse-boundaries`.
 - User-visible outcome: The operator can inventory one or more multi-terabyte silos without loading
 them into RAM and can see per-silo coverage, bytes, duplicates, and unsupported/encrypted inputs.
@@ -405,7 +365,7 @@ current proof bundle.
 [Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `implement-normalization-dedupe-and-chunking`;
-[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md); `implement-evidence-based-pipeline-forecast`;
+[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md); [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md);
 [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md);
 [Representative corpus approval](records/0023-corpus-approve-representative-corpus-and-gold.md).
 - User-visible outcome: The supplied file silos have inspectable inventory, extraction,
@@ -1125,7 +1085,7 @@ proof bundle.
 [Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `implement-fact-validation-conflict-and-review-overlays`;
-`prove-russian-nlp-on-provided-archive`; `implement-evidence-based-pipeline-forecast`.
+`prove-russian-nlp-on-provided-archive`; [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md).
 - Human review handoff:
 [approve-fact-review-and-publication-policy](#approve-fact-review-and-publication-policy)
 final measured type thresholds, evidence and review-cost packet.
@@ -1831,7 +1791,7 @@ rebuild on two progressively larger corpus slices.
 [Performance and scalability assumptions](../design/spec.md#performance-and-scalability-assumptions)
 - Agent status: RUN NEEDED
 - Research: yes
-- Dependencies: `publish-provided-archive-end-to-end-proof`; `implement-evidence-based-pipeline-forecast`;
+- Dependencies: `publish-provided-archive-end-to-end-proof`; [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md);
 [Representative corpus approval](records/0023-corpus-approve-representative-corpus-and-gold.md);
 `implement-backup-restore-and-rebuild-runbook`;
 `test-failure-and-capacity-boundaries`. Optional branches participate only when selected.
@@ -1956,7 +1916,7 @@ index, and stale lease behavior before full-corpus authorization.
 - Agent status: RUN NEEDED
 - Dependencies: `implement-backup-restore-and-rebuild-runbook`;
 [Progress logging and resource telemetry](records/0043-pipeline-add-progress-logging-and-resource-telemetry.md);
-`implement-evidence-based-pipeline-forecast`;
+[Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md);
 `implement-incremental-reconciliation-and-stale-pruning`. Organizer failure injection is separate.
 - Human review handoff:
 [accept-recovery-and-security-posture](#accept-recovery-and-security-posture)
@@ -2125,7 +2085,7 @@ measured not-selected verdict.
 [Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `compare-pgvector-paradedb-native-and-fallback-seam`;
-`prove-lexical-retrieval-on-provided-archive`; `implement-evidence-based-pipeline-forecast`.
+`prove-lexical-retrieval-on-provided-archive`; [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md).
 - User-visible outcome: Operators can inspect actual archive embeddings, vector/hybrid results,
 resource cost, and citations, or see why the branch remains disabled with lexical fallback working.
 - Scope boundary: Use only the forecast-approved selected tier and configured local models; do not

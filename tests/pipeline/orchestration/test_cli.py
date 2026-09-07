@@ -6,6 +6,7 @@ from arxiv_int.cli import build_parser, main
 from arxiv_int.pipeline.cli import PRECEDENCE_HELP
 from arxiv_int.pipeline.context import allocate_run_id
 from arxiv_int.pipeline.stages import production_registry, profile_stage_names
+from arxiv_int.runtime.filesystem import FilesystemEvidence
 
 
 def test_signal_handler_cancels_the_token() -> None:
@@ -58,6 +59,26 @@ def test_production_investigation_names_unregistered_required_stages() -> None:
 def test_pipeline_run_refuses_unregistered_investigation_stages(
     tmp_path: Path, monkeypatch: object
 ) -> None:
+    import os
+
+    for name in (
+        "ARCHIVE_DIR",
+        "RESULTS_DIR",
+        "PGDATA_DIR",
+        "RUNS_DIR",
+        "SERVICE_STATE_DIR",
+        "MODEL_CACHE_DIR",
+        "TMP_DIR",
+        "PG_WAL_DIR",
+    ):
+        monkeypatch.delenv(name, raising=False)
+    for name in tuple(os.environ):
+        if name.startswith(("ARCHIVE_SILO_", "PG_TABLESPACE_")):
+            monkeypatch.delenv(name, raising=False)
+    monkeypatch.setattr(
+        "arxiv_int.pipeline.forecast.devices.inspect_filesystem",
+        lambda path: FilesystemEvidence(path, "ext4", "8:1", False, 10**18, True, False),
+    )
     archive = tmp_path / "archive"
     archive.mkdir()
     (archive / "doc.txt").write_text("x", encoding="utf-8")

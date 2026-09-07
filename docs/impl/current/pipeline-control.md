@@ -1,14 +1,15 @@
 # Pipeline Control
 
 Typed stage, source, and artifact references, a generic run ledger, serialized progress
-logging with bounded resource telemetry, and a fixture-first DAG CLI are available. Forecast
-and publication assembly remain
+logging with bounded resource telemetry, a fixture-first DAG CLI, and a read-only pre-run
+forecast are available. Publication assembly remains
 [planned](../plan.md#pipeline-control----pipeline-control).
 
 See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface-contracts.md),
 [record 0041](../records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md),
-[record 0042](../records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md), and
-[record 0043](../records/0043-pipeline-add-progress-logging-and-resource-telemetry.md).
+[record 0042](../records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md),
+[record 0043](../records/0043-pipeline-add-progress-logging-and-resource-telemetry.md), and
+[record 0044](../records/0044-pipeline-implement-evidence-based-pipeline-forecast.md).
 
 ## Stage, source, and artifact seams
 
@@ -138,8 +139,9 @@ new generation and skips cache reuse.
 | Command | Role |
 | --- | --- |
 | `arxiv-int run create` / `make run-create` | Unique run id; freeze `.env` profile and roots |
+| `arxiv-int pipeline forecast` / `make forecast RUN_ID=...` | Read-only time, storage, and free-space decision |
 | `arxiv-int stage STAGE --run-id RUN_ID` / `make stage STAGE=... RUN_ID=...` | One stage; required upstream manifests must already validate |
-| `arxiv-int pipeline run` / `make pipeline` | Create a run and execute the selected profile DAG |
+| `arxiv-int pipeline run` / `make pipeline` | Create a run, forecast, and execute the selected profile DAG |
 | `arxiv-int pipeline update` / `make update` | New generation for archive deltas; unchanged reuse keys cache-hit |
 | `arxiv-int pipeline rebuild` / `make rebuild` | Fresh generation without cache reuse |
 | `arxiv-int pipeline invalidate STAGE --run-id RUN_ID` / `make invalidate` | Logical stale closure; no deletes |
@@ -158,7 +160,43 @@ invalidate, update, rebuild, prune dry-run, quality not-run/fail, and signal can
 Pandera validators and dbt selections run at producer boundaries through `QualityBoundary`; failed
 or not-run checks halt downstream work. The directory-to-report gate waits on concrete stages.
 
-Preflight, forecast, and `run finalize` / knowledge-base publication remain planned.
+Preflight as a registered stage and `run finalize` / knowledge-base publication remain planned.
+
+## Pre-run forecast and resource refusal
+
+`src/arxiv_int/pipeline/forecast/` predicts requested work, duration ranges, output and peak
+storage, and free-space safety without loading models or writing production artifacts. Aggregate
+`pipeline run` / `update` / `rebuild` call the same estimator and refusal handler as the atomic
+command. `make forecast RUN_ID=...` requires a created run id and writes
+`$RUNS_DIR/<run-id>/forecast/decision.json`. Standalone `arxiv-int pipeline forecast` allocates a
+`forecast-<hex>` id, does not write `run-context.json`, and is not a production generation.
+
+Inventory prefers a delta manifest, then an inventory manifest, then bounded directory metadata
+sampling (no file contents). Cache hits come from the reuse index. Comparable telemetry, when
+present, comes from prior `logs/observability-manifest.json` and `progress.jsonl`. Coefficients
+and the 2.5-4.0 amplification envelope live in `configs/capacity/envelope.json` (schema
+`arxiv-int.capacity.envelope.v1`). The decision schema is `arxiv-int.forecast.v1`.
+
+Filesystem roots are inspected and grouped by device id so a shared disk is budgeted once. Cost
+families map to one root each: normalized/artifacts to `RESULTS_DIR`; logs/staging/rollback to
+`RUNS_DIR`; heap/indexes/vectors/graph/rebuild to `PGDATA_DIR`; WAL to `PG_WAL_DIR` or
+`PGDATA_DIR`; temp to `TMP_DIR`. Backups stay zero unless the envelope sets a backup fraction.
+The hard reserve is 1 GiB or 5% of the upper-bound peak, whichever is larger, and is not
+bypassed. Archive organization is excluded (`excluded=archive-organization`).
+
+Decisions are `ready`, `degraded`, `blocked`, or `unknown`. Zero-history, truncated sample, or
+missing telemetry yields `degraded` with `low` confidence and conservative ranges, never an
+invented point duration. A missing GPU for a `gpu_required` stage is `degraded`, not blocked. An
+`unknown` large-stage estimate (input at least 50 GiB and no comparable telemetry) rolls up to
+`blocked` and asks for a bounded pilot. Inaccessible output paths or upper-bound peak plus
+reserve shortfalls exit 3 (`ForecastRefusedError`) before heavy work. Rotational database or
+scratch devices widen the time range and lower confidence.
+
+The orchestrator requires a covering forecast whose config fingerprint, source snapshot,
+envelope, plan coverage, and per-stage cache-hit flags match the current run. Live free bytes
+are rechecked, not fingerprinted. Before each stage, `space_guard` re-reads free space and
+blocks the next allocation when a device falls below peak plus reserve; the stage worker is not
+invoked. A stale or missing forecast raises `StaleForecastError` (also exit 3).
 
 ## Progress logging and resource telemetry
 
@@ -196,5 +234,9 @@ invalidation during produce, force retry, and in-memory isolation from SQLAlchem
 behavior is in `tests/integration/postgres/test_run_ledger.py`. Fixture DAG tests live in
 `tests/pipeline/orchestration/`. Observability tests in `tests/observability/` cover intact
 concurrent log lines, queue overload/shutdown, redaction, stalled versus slow ETA, bounded
-metric labels, and revision `0003` alignment. Fixtures do not prove real-archive extraction
-quality or CUDA worker fit. Forecast and publication activation remain planned.
+metric labels, and revision `0003` alignment. Forecast tests in `tests/pipeline/forecast/` cover
+zero-history ranges, replay, device dedup, cache hits, inaccessible/shortfall refusal, stale
+config, missing/uncovered forecasts, simulated free-space loss without partial manifests,
+inventory/delta versus sample, schema drift, CLI standalone versus `--run-id`, Make dry-run, and
+optional-import isolation. Fixtures do not prove real-archive extraction quality or CUDA worker
+fit. Publication activation remains planned.

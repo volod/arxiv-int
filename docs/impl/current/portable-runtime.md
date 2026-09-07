@@ -11,7 +11,7 @@ applies eligible Alembic revisions to the configured service only, and re-probes
 Retries reuse verified fingerprints and still probe services, wait, and readiness. Concurrent
 setup against the same targets is refused. Typed stage and artifact interfaces, a generic run
 ledger, serialized progress logs, and a fixture DAG CLI exist under
-[Pipeline control](pipeline-control.md). Concrete corpus stages, forecast, and knowledge-base
+[Pipeline control](pipeline-control.md). Concrete corpus stages and knowledge-base
 publication remain [planned](../plan.md#pipeline-control----pipeline-control).
 Infrastructure-ready never means an archive-to-report run is available. See the
 [operator workflow](../../guide/operator-workflow.md) for the atomic chain and the
@@ -109,7 +109,7 @@ service-state placements remain degraded warnings.
 `arxiv_int.runtime.inspect_filesystem()` records the resolved path, filesystem type, device id,
 rotational flag when the operating system exposes it, accessible free bytes, ownership capability,
 and read-only mount state. This evidence is retained with every configured placement and is exposed
-to later readiness, forecast, and run-manifest work. `arxiv_int.runtime.path_model` owns the typed
+to readiness, the pipeline forecast, and later run-manifest work. `arxiv_int.runtime.path_model` owns the typed
 association between each variable, resolved path, and storage class.
 
 After a report has no blocking findings, `create_results_layout()` creates the fixed

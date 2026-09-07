@@ -1,7 +1,7 @@
 """Application handlers for run create, DAG walk, resume, and prune commands."""
 
 import logging
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from pathlib import Path
 
 from arxiv_int.interfaces.sources import SiloRoot
@@ -89,20 +89,33 @@ def run_dag(
     quality: QualityBoundary | None = None,
     cancel: CancelToken | None = None,
     resume: bool = False,
+    space_guard: Callable[[str], None] | None = None,
 ) -> int:
     """Execute or resume a resolved plan against one frozen run."""
     selected = registry or production_registry()
-    orchestrator = Orchestrator(selected, context.runs_dir, quality=quality, cancel=cancel)
     plan = plan_for(selected, context, from_stage=from_stage, to_stage=to_stage)
     if resume:
         status_path = run_dir(context.runs_dir, context.run_id) / "status.json"
         previous = load_status(context.runs_dir, context.run_id) if status_path.is_file() else None
         plan = remaining_plan(plan, previous)
+    guard: Callable[[str], None] | None = space_guard
+    if guard is None:
+        from arxiv_int.pipeline.forecast.commands import bind_forecast
+
+        config = load_runtime_config(project_root=context.project_root)
+        _document, guard = bind_forecast(context, selected, plan, config)
+    orchestrator = Orchestrator(
+        selected,
+        context.runs_dir,
+        quality=quality,
+        cancel=cancel,
+        space_guard=guard,
+    )
     try:
         report = orchestrator.execute_plan(context, plan, force=force)
     except PipelineError as error:
         _LOG.error("%s", error)
-        return 1
+        return int(getattr(error, "exit_code", 1))
     for line in status_lines(report):
         _LOG.info("%s", line)
     return 1 if report.halted else 0

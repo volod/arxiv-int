@@ -2,7 +2,7 @@
 
 The short workflow in [README](../../README.md#quick-start) is the target interface.
 `make setup` is available. DAG create/run/stage/status/resume/update/rebuild/invalidate/prune
-commands exist; they refuse unimplemented required stages. Forecast, `run finalize`, and
+and forecast commands exist; they refuse unimplemented required stages. `run finalize` and
 knowledge-base publication remain **planned**. [Current implementation](../impl/current.md)
 records available capabilities; the
 [operator specification](../design/spec.md#retryable-setup-and-default-pipeline-command) defines
@@ -167,8 +167,8 @@ defaults. Make does not pass `--run-id local` or a hardcoded `--profile investig
 `pipeline` / `run-create`.
 
 The default investigation profile still names unimplemented corpus stages. `make pipeline`
-therefore fails explicitly until those runners ship. Preflight as a registered stage, forecast,
-and `run finalize` / knowledge-base publication remain planned. Partial results must not replace
+therefore fails explicitly until those runners ship. Preflight as a registered stage and
+`run finalize` / knowledge-base publication remain planned. Partial results must not replace
 the last complete generation once publication exists.
 
 For a diagnostic execution, first create the run and copy its returned id into `RUN_ID`:
@@ -177,6 +177,7 @@ For a diagnostic execution, first create the run and copy its returned id into `
 make run-create
 RUN_ID='replace-with-returned-run-id'
 make run-status RUN_ID="$RUN_ID"
+make forecast RUN_ID="$RUN_ID"
 ```
 
 `run-create` records resolved roots, profile and secret-free configuration evidence under
@@ -199,7 +200,7 @@ their capabilities land. `make prune` is a dry-run; `APPLY=1 PLAN_ID=...` is a s
 confirmation and refuses to delete the sole recovery copy.
 
 The target diagnostic order below is one valid linear expansion of the baseline registry, not a
-second executable DAG definition. `forecast` and `run-finalize` remain planned:
+second executable DAG definition. `run-finalize` remains planned:
 
 ```bash
 make stage STAGE=preflight RUN_ID="$RUN_ID"
@@ -234,7 +235,8 @@ and switch the complete knowledge-base generation. Archive organization never jo
 Optional selected stages such as `embed`, `load-vector` and `graph` enter the registry's dependency
 closure before evaluation/reporting. Disabled branches record `not-selected`. Missing required
 stages fail explicitly. An explicit stage command cannot bypass stale inputs. Forecast refusal
-remains planned with the forecast command. Configuration changes require a new run or the declared
+exits 3 when the requested scope is blocked or a stage-boundary recheck loses free space.
+Configuration changes require a new run or the declared
 invalidation/resume policy.
 
 The returned run id identifies the result today. `$RUNS_DIR/<run-id>/knowledge-base.json` and the

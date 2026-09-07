@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0044` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0045` after the rows
 below).
 
 | Record | Scope | Result |
@@ -55,3 +55,4 @@ below).
 | [0041 Run ledger and atomic artifacts](0041-pipeline-implement-run-ledger-and-atomic-artifacts.md) | Run/stage/shard ledger, reuse keys, leases, atomic manifests, Alembic `0002` | Accepted |
 | [0042 Stage DAG CLI and Make targets](0042-pipeline-implement-stage-dag-cli-and-make-targets.md) | Dependency-aware registry, fixture DAG, run/stage/update/resume/invalidate/rebuild/prune CLI and Make | Accepted |
 | [0043 Progress logging and resource telemetry](0043-pipeline-add-progress-logging-and-resource-telemetry.md) | Serialized logs, throttled progress, bounded metrics, `ctl.stage_progress`, Grafana pipeline dashboards | Accepted |
+| [0044 Evidence-based pipeline forecast](0044-pipeline-implement-evidence-based-pipeline-forecast.md) | Read-only pre-run time/storage forecast, device-deduped free-space refusal, and stage-boundary rechecks | Accepted |

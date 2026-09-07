@@ -14,9 +14,10 @@ def add_pipeline_parsers(
     """Register pipeline, stage, run, and artifacts prune commands."""
     pipeline = subcommands.add_parser(
         "pipeline",
-        help="run, update, rebuild, or invalidate a stage DAG",
+        help="forecast, run, update, rebuild, or invalidate a stage DAG",
     )
     pipeline_commands = pipeline.add_subparsers(dest="pipeline_command", required=True)
+    _add_forecast_parser(pipeline_commands)
     _add_run_parser(pipeline_commands)
     _add_range_parser(
         pipeline_commands,
@@ -56,6 +57,25 @@ def add_pipeline_parsers(
     prune.add_argument("--plan", dest="plan_id", default=None)
     prune.add_argument("--runs-dir", type=Path, default=None)
     prune.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
+
+
+def _add_forecast_parser(
+    commands: "argparse._SubParsersAction[argparse.ArgumentParser]",
+) -> None:
+    parser = commands.add_parser(
+        "forecast",
+        help="read-only time, storage, and free-space forecast before heavy work",
+    )
+    parser.add_argument("--archive-dir", type=Path, default=None, help=_DEFAULT_HELP)
+    parser.add_argument("--results-dir", type=Path, default=None, help=_DEFAULT_HELP)
+    parser.add_argument(
+        "--run-id",
+        default=None,
+        help="use a created run's frozen inputs; retain the forecast under that run",
+    )
+    parser.add_argument("--from", dest="from_stage", default=None, help=_RANGE_HELP)
+    parser.add_argument("--to", dest="to_stage", default=None, help=_RANGE_HELP)
+    parser.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
 
 
 def _add_run_parser(

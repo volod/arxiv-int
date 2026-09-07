@@ -24,6 +24,7 @@ from arxiv_int.pipeline.reuse_index import (
 )
 
 _CLOCK = Callable[[], float]
+_GUARD = Callable[[str], None]
 
 
 class Orchestrator:
@@ -38,6 +39,7 @@ class Orchestrator:
         quality: QualityBoundary | None = None,
         clock: _CLOCK | None = None,
         cancel: CancelToken | None = None,
+        space_guard: _GUARD | None = None,
     ) -> None:
         ticks = iter(float(index) for index in range(1, 10_000))
         self._registry = registry
@@ -47,6 +49,7 @@ class Orchestrator:
         self._executor = executor or ShardExecutor(self._ledger, runs_dir, clock=self._clock)
         self._quality = quality or FixtureQuality()
         self._cancel = cancel or CancelToken()
+        self._space_guard = space_guard
         self._index: dict[str, ReuseEntry] = load_reuse_index(runs_dir)
         self._lineage: list[tuple[str, str]] = list(load_lineage(runs_dir))
 
@@ -70,6 +73,8 @@ class Orchestrator:
         for name in plan.execute:
             try:
                 self._cancel.raise_if_cancelled()
+                if self._space_guard is not None:
+                    self._space_guard(name)
                 spec = self._registry.get(name)
                 upstream = tuple(keys[item] for item in spec.depends_on if item in keys)
                 with open_stage_session(context, name) as session:
