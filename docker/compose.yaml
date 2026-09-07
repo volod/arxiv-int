@@ -70,6 +70,8 @@ services:
     depends_on: *database-dependency
     environment:
       GF_DATABASE_TYPE: sqlite3
+      GF_DATABASE_WAL: "true"
+      GF_PLUGINS_PREINSTALL_DISABLED: "true"
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
       POSTGRES_DB: ${POSTGRES_DB:-arxiv_int}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-compose-validation-only}
@@ -88,12 +90,12 @@ services:
         source: ${PROJECT_ROOT:?PROJECT_ROOT must be resolved by the operator wrapper}/docker/grafana/dashboards
         target: /var/lib/arxiv-int/dashboards
         read_only: true
+    # retries cover first-boot SQLite migrations on SERVICE_STATE_DIR (several minutes).
     healthcheck:
       test: [CMD-SHELL, "wget -q -O /dev/null http://127.0.0.1:3000/api/health || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 12
-      start_period: 30s
+      retries: 60
     stop_grace_period: 30s
 
   prometheus:

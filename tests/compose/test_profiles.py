@@ -94,6 +94,35 @@ def rendered_topology(
     return config, services
 
 
+def _compose_duration_seconds(value: object) -> float:
+    if isinstance(value, (int, float)):
+        # docker compose config --format json emits Go durations as nanoseconds.
+        return float(value) / 1_000_000_000 if value >= 1_000_000_000 else float(value)
+    remaining = str(value)
+    total = 0.0
+    for unit, scale in (("h", 3600.0), ("m", 60.0), ("s", 1.0)):
+        if unit not in remaining:
+            continue
+        amount, remaining = remaining.split(unit, 1)
+        total += float(amount) * scale
+    if remaining:
+        raise AssertionError(f"unrecognized duration {value!r}")
+    return total
+
+
+def _healthcheck_wait_seconds(service: Mapping[str, object]) -> float:
+    healthcheck = service["healthcheck"]
+    assert isinstance(healthcheck, dict)
+    interval = _compose_duration_seconds(healthcheck.get("interval", "1s"))
+    retries = int(healthcheck["retries"])
+    start_period = (
+        _compose_duration_seconds(healthcheck["start_period"])
+        if "start_period" in healthcheck
+        else 0.0
+    )
+    return start_period + retries * interval
+
+
 def test_rendered_services_pin_images_and_declare_health_and_stop(
     rendered_topology: tuple[RuntimeConfig, dict[str, object]],
 ) -> None:
@@ -105,6 +134,19 @@ def test_rendered_services_pin_images_and_declare_health_and_stop(
             assert "@sha256:" in service["image"]
         assert service["healthcheck"]["test"]
         assert service["stop_grace_period"]
+
+
+def test_grafana_healthcheck_covers_first_boot_sqlite_migrations(
+    rendered_topology: tuple[RuntimeConfig, dict[str, object]],
+) -> None:
+    _, services = rendered_topology
+    grafana = services["grafana"]
+    environment = grafana["environment"]
+    assert isinstance(environment, dict)
+    assert environment["GF_DATABASE_TYPE"] == "sqlite3"
+    assert environment["GF_DATABASE_WAL"] == "true"
+    assert environment["GF_PLUGINS_PREINSTALL_DISABLED"] == "true"
+    assert _healthcheck_wait_seconds(grafana) >= 10 * 60
 
 
 def test_rendered_services_publish_ports_on_loopback_only(
