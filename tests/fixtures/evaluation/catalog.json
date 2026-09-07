@@ -1,0 +1,191 @@
+{
+  "family": "catalog",
+  "items": [
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "aliases": [
+          "Fixture Co"
+        ],
+        "catalog": "company",
+        "entity_id": "company:acme",
+        "label": "Fixture Company LLC",
+        "roles": [
+          "supplier"
+        ]
+      },
+      "gold_ref": "gold:catalog-company:tuning",
+      "item_id": "catalog-company-tuning",
+      "item_kind": "catalog",
+      "label": "Fixture Company LLC",
+      "negative": {
+        "aliases": [
+          "Fixture Co"
+        ],
+        "catalog": "company",
+        "entity_id": "company:other",
+        "label": "Other Co",
+        "roles": [
+          "supplier"
+        ]
+      },
+      "positive": {
+        "aliases": [
+          "Fixture Co"
+        ],
+        "catalog": "company",
+        "entity_id": "company:acme",
+        "label": "Fixture Company LLC",
+        "roles": [
+          "supplier"
+        ]
+      },
+      "provenance": {
+        "evidence": "identity:company:acme",
+        "source": "fixture://catalogs/company.json"
+      },
+      "query_text": null,
+      "split": "tuning"
+    },
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "aliases": [
+          "Fixture Co"
+        ],
+        "catalog": "company",
+        "entity_id": "company:beta",
+        "label": "Fixture Company Beta",
+        "roles": [
+          "supplier"
+        ]
+      },
+      "gold_ref": "gold:catalog-company:final",
+      "item_id": "catalog-company-final",
+      "item_kind": "catalog",
+      "label": "Fixture Company LLC",
+      "negative": {
+        "aliases": [
+          "Fixture Co"
+        ],
+        "catalog": "company",
+        "entity_id": "company:other",
+        "label": "Other Co",
+        "roles": [
+          "supplier"
+        ],
+        "split_mark": "final"
+      },
+      "positive": {
+        "aliases": [
+          "Fixture Co"
+        ],
+        "catalog": "company",
+        "entity_id": "company:beta",
+        "label": "Fixture Company Beta",
+        "roles": [
+          "supplier"
+        ]
+      },
+      "provenance": {
+        "evidence": "identity:company:acme-final",
+        "source": "fixture://catalogs/company.json"
+      },
+      "query_text": null,
+      "split": "final"
+    },
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "aliases": [
+          "F. Person"
+        ],
+        "catalog": "person",
+        "entity_id": "person:alpha",
+        "label": "Fixture Person Alpha",
+        "roles": [
+          "employee"
+        ]
+      },
+      "gold_ref": "gold:catalog-person:final",
+      "item_id": "catalog-person-final",
+      "item_kind": "catalog",
+      "label": "Fixture Person Alpha",
+      "negative": {
+        "aliases": [
+          "F. Person"
+        ],
+        "catalog": "person",
+        "entity_id": "person:gamma",
+        "label": "Fixture Person Alpha",
+        "roles": [
+          "employee"
+        ]
+      },
+      "positive": {
+        "aliases": [
+          "F. Person"
+        ],
+        "catalog": "person",
+        "entity_id": "person:alpha",
+        "label": "Fixture Person Alpha",
+        "roles": [
+          "employee"
+        ]
+      },
+      "provenance": {
+        "evidence": "identity:person:alpha",
+        "same_name_nonmatch": "person:gamma",
+        "source": "fixture://catalogs/person.json"
+      },
+      "query_text": null,
+      "split": "final"
+    },
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "aliases": [],
+        "catalog": "product",
+        "entity_id": "product:retired",
+        "label": "Retired Pump",
+        "roles": [],
+        "status": "removed"
+      },
+      "gold_ref": "gold:catalog-removed:tuning",
+      "item_id": "catalog-product-removed-tuning",
+      "item_kind": "catalog",
+      "label": "Retired Pump",
+      "negative": {
+        "aliases": [],
+        "catalog": "product",
+        "entity_id": "product:retired",
+        "label": "Retired Pump",
+        "roles": [],
+        "status": "active"
+      },
+      "positive": {
+        "aliases": [],
+        "catalog": "product",
+        "entity_id": "product:retired",
+        "label": "Retired Pump",
+        "roles": [],
+        "status": "removed"
+      },
+      "provenance": {
+        "evidence": "identity:product:retired",
+        "source": "fixture://catalogs/product.json"
+      },
+      "query_text": null,
+      "split": "tuning"
+    }
+  ],
+  "schema_version": 1
+}

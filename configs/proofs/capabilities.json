@@ -1,0 +1,148 @@
+{
+  "capabilities": {
+    "anomaly-analysis": {
+      "proof_kind": "provided-archive",
+      "required_validators": [
+        "artifact-checksums",
+        "stage-validation"
+      ],
+      "usable_stages": [
+        "anomalies"
+      ]
+    },
+    "archive-classification": {
+      "proof_kind": "provided-archive",
+      "required_validators": [
+        "artifact-checksums",
+        "stage-validation"
+      ],
+      "usable_stages": [
+        "classify"
+      ]
+    },
+    "corpus-foundation": {
+      "proof_kind": "provided-archive",
+      "required_validators": [
+        "artifact-checksums",
+        "stage-validation"
+      ],
+      "usable_stages": [
+        "inventory",
+        "extract",
+        "normalize",
+        "dedupe",
+        "chunk"
+      ]
+    },
+    "discovery-visualization": {
+      "proof_kind": "provided-archive",
+      "required_validators": [
+        "artifact-checksums",
+        "stage-validation"
+      ],
+      "usable_stages": [
+        "catalogs",
+        "report"
+      ]
+    },
+    "domain-investigation-artifacts": {
+      "proof_kind": "provided-archive",
+      "required_validators": [
+        "artifact-checksums",
+        "stage-validation"
+      ],
+      "usable_stages": [
+        "domain-artifacts"
+      ]
+    },
+    "evaluation-evidence": {
+      "proof_kind": "provided-archive",
+      "required_validators": [
+        "evaluation-bundle",
+        "artifact-checksums",
+        "stage-validation"
+      ],
+      "usable_stages": [
+        "evaluate",
+        "report"
+      ]
+    },
+    "evaluation-foundation": {
+      "proof_kind": "fixtures",
+      "required_validators": [
+        "evaluation-bundle",
+        "split-leakage",
+        "item-ledger",
+        "identity-export"
+      ],
+      "usable_stages": [
+        "evaluate"
+      ]
+    },
+    "identity-ontology-graph": {
+      "proof_kind": "provided-archive",
+      "required_validators": [
+        "artifact-checksums",
+        "stage-validation"
+      ],
+      "usable_stages": [
+        "entities",
+        "ontology",
+        "graph"
+      ]
+    },
+    "knowledge-extraction": {
+      "proof_kind": "provided-archive",
+      "required_validators": [
+        "artifact-checksums",
+        "stage-validation"
+      ],
+      "usable_stages": [
+        "facts",
+        "validate-facts"
+      ]
+    },
+    "lexical-retrieval": {
+      "proof_kind": "provided-archive",
+      "required_validators": [
+        "artifact-checksums",
+        "stage-validation"
+      ],
+      "usable_stages": [
+        "load-lexical"
+      ]
+    },
+    "pipeline-control": {
+      "proof_kind": "provided-archive",
+      "required_validators": [
+        "artifact-checksums",
+        "stage-validation"
+      ],
+      "usable_stages": [
+        "preflight"
+      ]
+    },
+    "russian-nlp": {
+      "proof_kind": "provided-archive",
+      "required_validators": [
+        "artifact-checksums",
+        "stage-validation"
+      ],
+      "usable_stages": [
+        "nlp"
+      ]
+    },
+    "semantic-retrieval": {
+      "proof_kind": "provided-archive",
+      "required_validators": [
+        "artifact-checksums",
+        "stage-validation"
+      ],
+      "usable_stages": [
+        "embed",
+        "load-vector"
+      ]
+    }
+  },
+  "schema_version": 1
+}

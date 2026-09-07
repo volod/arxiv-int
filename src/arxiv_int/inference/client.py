@@ -8,7 +8,11 @@ from typing import Any
 from arxiv_int.inference import ollama, vllm
 from arxiv_int.inference.completion import CompletionMixin
 from arxiv_int.inference.embeddings import EmbeddingMixin
-from arxiv_int.inference.policy import log_outcome
+from arxiv_int.inference.policy import (
+    DEFAULT_TIMEOUT_SECONDS,
+    HEALTH_TIMEOUT_SECONDS,
+    log_outcome,
+)
 from arxiv_int.inference.profiles import profile_for
 from arxiv_int.inference.transport import (
     MAX_ATTEMPTS,
@@ -19,8 +23,6 @@ from arxiv_int.inference.transport import (
 from arxiv_int.inference.types import HealthStatus, LoadedModel, ModelIdentity
 
 FEATURE = "inference"
-DEFAULT_TIMEOUT_SECONDS = 60.0
-HEALTH_TIMEOUT_SECONDS = 5.0
 
 
 class LocalInferenceClient(CompletionMixin, EmbeddingMixin):

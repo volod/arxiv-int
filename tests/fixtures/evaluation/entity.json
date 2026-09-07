@@ -1,0 +1,120 @@
+{
+  "family": "entity",
+  "items": [
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "left_id": "person:alpha",
+        "match": true,
+        "right_id": "person:alpha-alias",
+        "same_name": false
+      },
+      "gold_ref": "gold:entity-match:tuning",
+      "item_id": "entity-match-tuning",
+      "item_kind": "entity",
+      "label": "person:alpha",
+      "negative": {
+        "predicted_matches": [
+          [
+            "person:alpha",
+            "person:gamma"
+          ]
+        ],
+        "threshold": 0.9
+      },
+      "positive": {
+        "predicted_matches": [
+          [
+            "person:alpha",
+            "person:alpha-alias"
+          ]
+        ],
+        "threshold": 0.9
+      },
+      "provenance": {
+        "evidence": "pair:alpha-alias",
+        "source": "fixture://identity/pairs.json"
+      },
+      "query_text": null,
+      "split": "tuning"
+    },
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "left_id": "person:beta",
+        "match": true,
+        "right_id": "person:beta-alias",
+        "same_name": false
+      },
+      "gold_ref": "gold:entity-match:final",
+      "item_id": "entity-match-final",
+      "item_kind": "entity",
+      "label": "person:alpha",
+      "negative": {
+        "predicted_matches": [
+          [
+            "person:alpha",
+            "person:gamma"
+          ]
+        ],
+        "split_mark": "final",
+        "threshold": 0.9
+      },
+      "positive": {
+        "predicted_matches": [
+          [
+            "person:beta",
+            "person:beta-alias"
+          ]
+        ],
+        "threshold": 0.9
+      },
+      "provenance": {
+        "evidence": "pair:alpha-alias-final",
+        "source": "fixture://identity/pairs.json"
+      },
+      "query_text": null,
+      "split": "final"
+    },
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "left_id": "person:alpha",
+        "match": false,
+        "right_id": "person:gamma",
+        "same_name": true
+      },
+      "gold_ref": "gold:entity-same-name:final",
+      "item_id": "entity-same-name-final",
+      "item_kind": "entity",
+      "label": "Fixture Person",
+      "negative": {
+        "predicted_matches": [
+          [
+            "person:alpha",
+            "person:gamma"
+          ]
+        ],
+        "threshold": 0.9
+      },
+      "positive": {
+        "predicted_matches": [],
+        "threshold": 0.9
+      },
+      "provenance": {
+        "evidence": "pair:alpha-gamma",
+        "same_name": "true",
+        "source": "fixture://identity/same-name.json"
+      },
+      "query_text": null,
+      "split": "final"
+    }
+  ],
+  "schema_version": 1
+}

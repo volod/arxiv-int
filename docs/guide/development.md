@@ -48,7 +48,10 @@ instead of a traceback.
 
 `make ci` is the required fast gate and is the command GitHub Actions runs on Python 3.12 and 3.13.
 It checks formatting, Ruff rules, mypy, complexity, shell scripts, documentation links, specification
-and plan integrity, and tests.
+and plan integrity, and deterministic tests. It does not start Docker. Tests marked `heavy`
+(Compose rendering against the daemon, disposable Postgres apply, live store/dbt/projection/image
+suites) run only with `make test-heavy`. Evolution policy in CI is `make contracts-evolution`,
+which passes `--skip-live-sql`; `make contracts-evolution-live` applies baseline SQL.
 
 `make quality` adds a diagnostic coverage report, Markdown style, and source/wheel builds. Run it
 before release or after changing project infrastructure. A numeric coverage percentage is not an
@@ -99,6 +102,11 @@ they are small, deterministic, safe to publish, and required for CI.
 | `make db-apply-schema` | Apply owned revisions on the URL or a disposable PGDATA; evidence under `$DATA_DIR/migrations` |
 | `make db-adopt` | Stamp a live catalog after equivalence, or report why stamping is refused |
 | `make data-quality` | Validate `DATASET` contents for `RUN_ID` (`INPUT=...` required) |
+| `make eval` | Score frozen evaluation fixtures into `$RUNS_DIR/<run-id>/evaluation` (`RUN_ID=`) |
+| `make proof` | Publish a capability proof (`CAPABILITY=`, `RUN_ID=`) |
+| `make proof-export` | Write identity-obfuscated Git-bound copies (`SOURCE_BUNDLE=`, `MAP=`, `RUN_ID=`) |
+| `make identity-policy-check` | Fail when the committed proof-identity policy drifts |
+| `make evaluation-fixtures-check` | Fail when frozen fixtures or the proof registry drift |
 | `make transform-parse` | Parse the dbt project for `RUN_ID` without materializing relations |
 | `make transform-compile` | Compile selected dbt models for `RUN_ID` |
 | `make transform-build` | Build and test an isolated derived generation for `RUN_ID` |
@@ -106,8 +114,9 @@ they are small, deterministic, safe to publish, and required for CI.
 | `make projections-build` | Build search/vector/graph projections for `RUN_ID` (`KIND=`, `APPLY=1` activates) |
 | `make projections-status` | Show active projection pointers |
 | `make projections-cleanup` | Plan retired/failed projection drops (`APPLY=1` executes) |
-| `make test` | Run the deterministic unit test suite |
-| `make coverage` | Run tests and report coverage (diagnostic, not a percentage floor) |
+| `make test` | Run the deterministic unit test suite (`-m "not heavy"`) |
+| `make test-heavy` | Run Docker and other host-service tests marked `heavy` |
+| `make coverage` | Run unit tests and report coverage (diagnostic, not a percentage floor) |
 | `make format` | Apply Ruff formatting |
 | `make ci` | Run required local and CI checks |
 | `make quality` | Run CI checks, coverage, Markdown lint, and package build |

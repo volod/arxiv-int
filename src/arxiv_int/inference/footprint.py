@@ -141,12 +141,12 @@ def default_footprint_for(identity: ModelIdentity) -> ModelFootprint:
             cpu_ram_gib=24.0,
             allow_cpu=True,
         )
-    if any(size <= 3 for size in sizes):
+    if any(size <= 4 for size in sizes):
         return ModelFootprint(
-            weights_gib=2.2,
-            kv_cache_per_1k_context_gib=0.04,
+            weights_gib=3.1,
+            kv_cache_per_1k_context_gib=0.05,
             runtime_overhead_gib=0.6,
-            cpu_ram_gib=4.0,
+            cpu_ram_gib=6.0,
             allow_cpu=True,
         )
     return ModelFootprint(weights_gib=8.0, allow_cpu=True)

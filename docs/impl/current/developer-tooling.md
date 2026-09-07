@@ -17,11 +17,15 @@ Its functions use the `arxiv_int_` namespace; direct uv investigations begin wit
 The Makefile exposes individual checks and two composed workflows:
 
 - `make ci` runs formatting, linting, typing, Radon and cognitive complexity, shell parsing and
-  ShellCheck, documentation links, spec-plan integrity, contract generation drift, evolution policy,
-  the migration revision graph (`make db-check`), ontology checks, structured-output schema drift,
-  and deterministic tests.
-- `make quality` adds a diagnostic coverage report, Markdown lint, and source/wheel builds.
-  A numeric coverage percentage is not an acceptance gate
+  ShellCheck, documentation links, spec-plan integrity, contract generation drift, evolution policy
+  without disposable Postgres, the migration revision graph (`make db-check`), ontology checks,
+  structured-output schema drift, identity-policy and evaluation-fixture drift, and deterministic
+  tests (`make test` passes `-m "not heavy"`). It does not start Docker.
+- `make test-heavy` runs tests marked `heavy`: live Compose `docker compose config` rendering,
+  disposable Postgres apply of baseline SQL, and declared store/dbt/projection/image suites.
+- `make contracts-evolution-live` applies generated `baseline.sql` on disposable Postgres.
+- `make quality` adds a diagnostic coverage report (also excluding `heavy`), Markdown lint, and
+  source/wheel builds. A numeric coverage percentage is not an acceptance gate
   ([behavior-first test policy](../records/0026-foundation-adopt-behavior-first-test-policy.md)).
 
 GitHub Actions runs `make ci-github`, an explicit alias of the same required gate, on Python 3.12

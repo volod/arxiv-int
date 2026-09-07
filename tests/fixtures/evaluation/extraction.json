@@ -1,0 +1,192 @@
+{
+  "family": "extraction",
+  "items": [
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "anchors": [
+          {
+            "document_id": "doc-text",
+            "end": 24,
+            "page": 1,
+            "start": 0
+          }
+        ],
+        "expected": [
+          "contract number 42"
+        ],
+        "format": "text",
+        "table_cells": []
+      },
+      "gold_ref": "gold:extract-text:tuning",
+      "item_id": "extract-text-tuning",
+      "item_kind": "extraction",
+      "label": null,
+      "negative": {
+        "predicted": [
+          "unrelated title"
+        ],
+        "spans": []
+      },
+      "positive": {
+        "predicted": [
+          "contract number 42"
+        ],
+        "spans": [
+          {
+            "document_id": "doc-text",
+            "end": 24,
+            "page": 1,
+            "start": 0
+          }
+        ]
+      },
+      "provenance": {
+        "evidence": "span:doc-text:0:24",
+        "source": "fixture://extract/text.txt"
+      },
+      "query_text": "extract contract number",
+      "split": "tuning"
+    },
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "anchors": [
+          {
+            "document_id": "doc-text",
+            "end": 24,
+            "page": 1,
+            "start": 0
+          }
+        ],
+        "expected": [
+          "contract number 99"
+        ],
+        "format": "text",
+        "table_cells": []
+      },
+      "gold_ref": "gold:extract-text:final",
+      "item_id": "extract-text-final",
+      "item_kind": "extraction",
+      "label": null,
+      "negative": {
+        "predicted": [
+          "unrelated title"
+        ],
+        "spans": [],
+        "split_mark": "final"
+      },
+      "positive": {
+        "predicted": [
+          "contract number 99"
+        ],
+        "spans": [
+          {
+            "document_id": "doc-text",
+            "end": 24,
+            "page": 1,
+            "start": 0
+          }
+        ]
+      },
+      "provenance": {
+        "evidence": "span:doc-text:0:24-final",
+        "source": "fixture://extract/text.txt"
+      },
+      "query_text": "extract later contract number",
+      "split": "final"
+    },
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "anchors": [
+          {
+            "document_id": "doc-pdf",
+            "end": 18,
+            "page": 2,
+            "start": 4
+          }
+        ],
+        "expected": [
+          "amount 100 kg"
+        ],
+        "format": "pdf",
+        "table_cells": [
+          {
+            "col": 1,
+            "row": 0,
+            "text": "100 kg"
+          }
+        ]
+      },
+      "gold_ref": "gold:extract-pdf:tuning",
+      "item_id": "extract-pdf-table-tuning",
+      "item_kind": "extraction",
+      "label": null,
+      "negative": {
+        "predicted": [
+          "amount 5 kg"
+        ],
+        "spans": []
+      },
+      "positive": {
+        "predicted": [
+          "amount 100 kg"
+        ],
+        "spans": [
+          {
+            "document_id": "doc-pdf",
+            "end": 18,
+            "page": 2,
+            "start": 4
+          }
+        ]
+      },
+      "provenance": {
+        "evidence": "page:2:cell:0,1",
+        "source": "fixture://extract/table.pdf"
+      },
+      "query_text": "extract table amount",
+      "split": "tuning"
+    },
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "anchors": [],
+        "expected": [],
+        "failure": "unreadable",
+        "format": "image",
+        "table_cells": []
+      },
+      "gold_ref": "gold:extract-fail:final",
+      "item_id": "extract-unreadable-final",
+      "item_kind": "extraction",
+      "label": null,
+      "negative": {
+        "failure": null,
+        "predicted": [
+          "hallucinated text"
+        ]
+      },
+      "positive": {
+        "failure": "unreadable",
+        "predicted": []
+      },
+      "provenance": {
+        "evidence": "quarantine:unreadable",
+        "source": "fixture://extract/scan.bin"
+      },
+      "query_text": "extract scanned binary",
+      "split": "final"
+    }
+  ],
+  "schema_version": 1
+}

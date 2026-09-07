@@ -3,7 +3,7 @@
 import argparse
 from pathlib import Path
 
-from arxiv_int.inference.client import HEALTH_TIMEOUT_SECONDS
+from arxiv_int.inference.policy import HEALTH_TIMEOUT_SECONDS
 
 
 def add_inference_parser(

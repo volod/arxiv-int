@@ -252,7 +252,12 @@ External images carry both an exact version and an immutable registry digest. Th
 uses the project-owned `arxiv-int/postgres` tag built from a pinned ParadeDB digest plus Apache AGE;
 see [Canonical store](canonical-store.md). AGE Viewer carries a project-owned version while its image
 build remains downstream work. Every service has a healthcheck
-and a bounded stop grace period. The PostgreSQL exporter healthcheck probes `/metrics` because that
+and a bounded stop grace period. Grafana healthchecks allow ten minutes of retries so
+first-boot SQLite migrations on `SERVICE_STATE_DIR` can finish before Compose `--wait` marks
+the container unhealthy; SQLite WAL is enabled, and plugin preinstall is disabled so startup
+does not download Grafana apps
+([Grafana first-boot health](../records/0037-runtime-allow-grafana-first-boot-health.md)).
+The PostgreSQL exporter healthcheck probes `/metrics` because that
 image has no `/health` route, and its `DATA_SOURCE_NAME` stays on one Compose line so YAML folding
 cannot insert a space before the host. Every published port binds to `127.0.0.1`; vLLM is absent
 unless its profile is selected; cAdvisor does not mount the host root.

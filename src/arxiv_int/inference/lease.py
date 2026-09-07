@@ -116,7 +116,22 @@ class HostGpuLease:
         payload = json.loads(self._current_path.read_text(encoding="utf-8"))
         if not isinstance(payload, dict) or payload.get("status") != "acquired":
             return None
+        if self._lock_file is None and not self._flock_busy():
+            return None
         return record_from_dict(payload)
+
+    def _flock_busy(self) -> bool:
+        self._dir.mkdir(parents=True, exist_ok=True)
+        handle = os.open(self._lock_path, os.O_RDWR | os.O_CREAT, 0o600)
+        try:
+            fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            return True
+        else:
+            fcntl.flock(handle, fcntl.LOCK_UN)
+            return False
+        finally:
+            os.close(handle)
 
     def _wait_thread(self, cancel: Event | None, deadline: float) -> None:
         while True:

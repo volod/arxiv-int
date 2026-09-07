@@ -14,6 +14,7 @@ from arxiv_int.runtime.compose import compose_base_command
 from arxiv_int.runtime.service_plan import PROFILE_SERVICES, plan_services
 
 
+@pytest.mark.heavy
 @pytest.mark.parametrize(
     "profiles", [*PROFILE_SERVICES, "core vllm", "pipeline", "pipeline graph vllm cadvisor"]
 )

@@ -12,6 +12,7 @@ from arxiv_int.stores.postgres_image.pins import load_image_pins
 from arxiv_int.stores.postgres_image.probes import run_extension_probes
 
 pytestmark = [
+    pytest.mark.heavy,
     pytest.mark.skipif(shutil.which("docker") is None, reason="docker unavailable"),
     pytest.mark.skipif(
         os.environ.get("ARXIV_INT_RUN_EXTENSION_PROBES") != "1",

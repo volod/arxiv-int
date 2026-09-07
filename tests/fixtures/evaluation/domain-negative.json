@@ -1,0 +1,105 @@
+{
+  "family": "domain-negative",
+  "items": [
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "implication": "identity",
+        "left_id": "person:alpha",
+        "predicate": "pred.same-name-as",
+        "right_id": "person:gamma",
+        "valid": false
+      },
+      "gold_ref": "gold:domain-same-name:final",
+      "item_id": "domain-same-name-final",
+      "item_kind": "domain-negative",
+      "label": "Fixture Person",
+      "negative": {
+        "implication": "identity",
+        "left_id": "person:alpha",
+        "predicate": "pred.same-name-as",
+        "right_id": "person:gamma",
+        "valid": true
+      },
+      "positive": {
+        "implication": "identity",
+        "left_id": "person:alpha",
+        "predicate": "pred.same-name-as",
+        "right_id": "person:gamma",
+        "valid": false
+      },
+      "provenance": {
+        "evidence": "pred.same-name-as",
+        "source": "fixture://domain/same-name.json"
+      },
+      "query_text": null,
+      "split": "final"
+    },
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "claims_delivery": true,
+        "implication": "delivery",
+        "stage": "invoiced",
+        "valid": false
+      },
+      "gold_ref": "gold:domain-invoice:tuning",
+      "item_id": "domain-invoice-not-delivery-tuning",
+      "item_kind": "domain-negative",
+      "label": null,
+      "negative": {
+        "claims_delivery": true,
+        "implication": "delivery",
+        "stage": "invoiced",
+        "valid": true
+      },
+      "positive": {
+        "claims_delivery": true,
+        "implication": "delivery",
+        "stage": "invoiced",
+        "valid": false
+      },
+      "provenance": {
+        "evidence": "stage:invoiced",
+        "source": "fixture://domain/invoice-stage.json"
+      },
+      "query_text": null,
+      "split": "tuning"
+    },
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "implication": "part-of",
+        "predicate": "pred.references",
+        "valid": false
+      },
+      "gold_ref": "gold:domain-references:final",
+      "item_id": "domain-references-not-part-of-final",
+      "item_kind": "domain-negative",
+      "label": null,
+      "negative": {
+        "implication": "part-of",
+        "predicate": "pred.references",
+        "valid": true
+      },
+      "positive": {
+        "implication": "part-of",
+        "predicate": "pred.references",
+        "valid": false
+      },
+      "provenance": {
+        "evidence": "pred.references",
+        "source": "fixture://domain/references.json"
+      },
+      "query_text": null,
+      "split": "final"
+    }
+  ],
+  "schema_version": 1
+}

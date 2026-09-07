@@ -1,0 +1,138 @@
+{
+  "family": "ontology",
+  "items": [
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "action": "add",
+        "change": "additive",
+        "term_id": "pred.fixture-new"
+      },
+      "gold_ref": "gold:ontology-add:tuning",
+      "item_id": "ontology-add-tuning",
+      "item_kind": "ontology",
+      "label": null,
+      "negative": {
+        "action": "add",
+        "change": "breaking",
+        "term_id": "pred.fixture-new"
+      },
+      "positive": {
+        "action": "add",
+        "change": "additive",
+        "term_id": "pred.fixture-new"
+      },
+      "provenance": {
+        "evidence": "evolution:add:pred.fixture-new",
+        "source": "fixture://ontology/add.json"
+      },
+      "query_text": null,
+      "split": "tuning"
+    },
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "action": "deprecate",
+        "change": "additive",
+        "successor": "pred.fixture-next",
+        "term_id": "pred.fixture-old"
+      },
+      "gold_ref": "gold:ontology-deprecate:final",
+      "item_id": "ontology-deprecate-final",
+      "item_kind": "ontology",
+      "label": null,
+      "negative": {
+        "action": "deprecate",
+        "change": "breaking",
+        "successor": null,
+        "term_id": "pred.fixture-old"
+      },
+      "positive": {
+        "action": "deprecate",
+        "change": "additive",
+        "successor": "pred.fixture-next",
+        "term_id": "pred.fixture-old"
+      },
+      "provenance": {
+        "evidence": "evolution:deprecate:pred.fixture-old",
+        "source": "fixture://ontology/deprecate.json"
+      },
+      "query_text": null,
+      "split": "final"
+    },
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "action": "draft",
+        "allowed": false,
+        "term_id": "pred.fixture-draft"
+      },
+      "gold_ref": "gold:ontology-draft:tuning",
+      "item_id": "ontology-draft-tuning",
+      "item_kind": "ontology",
+      "label": null,
+      "negative": {
+        "action": "draft",
+        "allowed": true,
+        "term_id": "pred.fixture-draft"
+      },
+      "positive": {
+        "action": "draft",
+        "allowed": false,
+        "term_id": "pred.fixture-draft"
+      },
+      "provenance": {
+        "evidence": "evolution:draft:pred.fixture-draft",
+        "source": "fixture://ontology/draft.json"
+      },
+      "query_text": null,
+      "split": "tuning"
+    },
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "action": "contradiction",
+        "allowed": false,
+        "types": [
+          "class.natural-person",
+          "class.legal-entity"
+        ]
+      },
+      "gold_ref": "gold:ontology-contradiction:final",
+      "item_id": "ontology-contradiction-final",
+      "item_kind": "ontology",
+      "label": null,
+      "negative": {
+        "action": "contradiction",
+        "allowed": true,
+        "types": [
+          "class.natural-person",
+          "class.legal-entity"
+        ]
+      },
+      "positive": {
+        "action": "contradiction",
+        "allowed": false,
+        "types": [
+          "class.natural-person",
+          "class.legal-entity"
+        ]
+      },
+      "provenance": {
+        "evidence": "disjoint:person-legal",
+        "source": "fixture://ontology/contradiction.json"
+      },
+      "query_text": null,
+      "split": "final"
+    }
+  ],
+  "schema_version": 1
+}

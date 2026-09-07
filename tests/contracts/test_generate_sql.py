@@ -45,6 +45,7 @@ def test_generated_ddl_is_schema_qualified() -> None:
     assert "CONSTRAINT pk_documents PRIMARY KEY (document_id)" in baseline
 
 
+@pytest.mark.heavy
 def test_baseline_ddl_applies_on_disposable_database() -> None:
     findings = apply_baseline_on_disposable_postgres(_baseline_sql())
     if findings and findings[0].startswith("docker unavailable"):

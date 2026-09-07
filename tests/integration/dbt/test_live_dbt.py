@@ -22,6 +22,7 @@ from arxiv_int.transformations.model import STATUS_FAILED, STATUS_OK, TransformR
 from arxiv_int.transformations.runner import run_transform
 
 pytestmark = [
+    pytest.mark.heavy,
     pytest.mark.skipif(shutil.which("docker") is None, reason="docker unavailable"),
     pytest.mark.skipif(
         os.environ.get("ARXIV_INT_RUN_DBT") != "1",

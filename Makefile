@@ -34,13 +34,15 @@ KIND ?= all
 .PHONY: help bootstrap venv lock package-check features config readiness setup setup-config setup-env \
 	setup-wait setup-schema services-pull models-pull services-config services-up \
 	services-status services-down services-reset logs graph-up ui-up postgres-image postgres-image-probe \
-	format format-check lint typecheck test \
+	format format-check lint typecheck test test-heavy \
 	coverage complexity-gate shell-lint-gate lint-md lint-doc-links lint-spec-plan plan-status \
-	contracts contracts-gen contracts-check contracts-evolution \
+	contracts contracts-gen contracts-check contracts-evolution contracts-evolution-live \
 	db-revision db-check db-status db-upgrade \
 	db-downgrade db-adopt db-apply-schema ontology ontology-gen ontology-check data-quality \
 	transform-parse transform-compile transform-build transform-test \
 	projections-build projections-status projections-cleanup \
+	proof-export identity-policy-check evaluation-fixtures-check inference-schemas-check \
+	eval proof \
 	ci-checks ci ci-github build quality code-quality quality-report
 
 help: ## List available targets
@@ -88,7 +90,13 @@ contracts-check: ## Fail when contracts/generated drifts from regeneration
 		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)" && \
 		"$(VENV)/bin/arxiv-int" contracts check
 
-contracts-evolution: ## Check reviewed baselines, migrations, and evolution policy
+contracts-evolution: ## Check reviewed baselines and migrations without disposable Postgres
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)" && \
+		"$(VENV)/bin/arxiv-int" contracts evolution --skip-live-sql
+
+contracts-evolution-live: ## Evolution policy plus disposable Postgres apply of baseline SQL
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
 	@source "$(COMMON_SH)" && arxiv_int_load_env && \
 		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)" && \
@@ -237,6 +245,36 @@ inference-schemas-check: ## Fail when configs/models/schemas drifts from generat
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
 	@"$(VENV)/bin/arxiv-int" inference schemas check
 
+identity-policy-check: ## Fail when configs/evaluation proof-identity policy drifts
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@"$(VENV)/bin/arxiv-int" evaluation identity-policy check
+
+evaluation-fixtures-check: ## Fail when frozen evaluation fixtures or proof registry drift
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@"$(VENV)/bin/arxiv-int" evaluation fixtures check
+
+eval: ## Score frozen evaluation fixtures (RUN_ID=)
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		"$(VENV)/bin/arxiv-int" evaluation evaluate --run-id "$(RUN_ID)" --runs-dir "$$RUNS_DIR"
+
+proof: ## Publish a capability proof (CAPABILITY= RUN_ID=)
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@test -n "$(CAPABILITY)" || { echo "ERROR: set CAPABILITY"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		"$(VENV)/bin/arxiv-int" evaluation proof publish --capability "$(CAPABILITY)" \
+		--run-id "$(RUN_ID)" --results-dir "$$RESULTS_DIR" --runs-dir "$$RUNS_DIR"
+
+proof-export: ## Export identity-obfuscated copies (SOURCE_BUNDLE= MAP="a=b" RUN_ID=)
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@test -n "$(SOURCE_BUNDLE)" || { echo "ERROR: set SOURCE_BUNDLE to a verified run bundle"; exit 1; }
+	@test -n "$(MAP)" || { echo "ERROR: set MAP to ARTIFACT=DEST pairs"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		"$(VENV)/bin/arxiv-int" evaluation export-proof --source-bundle "$(SOURCE_BUNDLE)" \
+		--run-id "$(RUN_ID)" $(foreach item,$(MAP),--map $(item)) \
+		$(if $(DESTINATION_ROOT),--destination-root "$(DESTINATION_ROOT)",) \
+		$(if $(RECEIPT),--receipt "$(RECEIPT)",)
+
 inference-resources: ## Show host GPU VRAM, power, and RAM
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
 	@"$(VENV)/bin/arxiv-int" inference resources
@@ -321,11 +359,14 @@ lint: ## Run Ruff lint checks
 typecheck: ## Run mypy over production code
 	@"$(VENV)/bin/mypy" --python-version "$(PYTHON_VERSION)"
 
-test: ## Run deterministic unit tests
-	@"$(PY)" -m pytest $(PYTEST_CACHE)
+test: ## Run deterministic unit tests (excludes heavy Docker/host checks)
+	@"$(PY)" -m pytest $(PYTEST_CACHE) -m "not heavy"
+
+test-heavy: ## Run Docker and other host-service tests marked heavy
+	@"$(PY)" -m pytest $(PYTEST_CACHE) -m heavy
 
 coverage: ## Run tests and report coverage (diagnostic; no percentage floor)
-	@"$(PY)" -m pytest $(PYTEST_CACHE) --cov=arxiv_int --cov-report=term-missing
+	@"$(PY)" -m pytest $(PYTEST_CACHE) -m "not heavy" --cov=arxiv_int --cov-report=term-missing
 
 complexity-gate: ## Fail on Radon D-or-worse or cognitive complexity above 15
 	@output="$$($(VENV)/bin/radon cc src tests -s -n D)"; \
@@ -354,7 +395,7 @@ lint-spec-plan: ## Check capability registry, task structure, status, and orderi
 plan-status: ## Count tasks by lane/status and show the next eligible work
 	@"$(VENV)/bin/arxiv-int-plan" --root "$(PROJECT_ROOT)"
 
-ci-checks: format-check lint typecheck complexity-gate shell-lint-gate lint-doc-links lint-spec-plan contracts-check contracts-evolution db-check ontology-check inference-schemas-check
+ci-checks: format-check lint typecheck complexity-gate shell-lint-gate lint-doc-links lint-spec-plan contracts-check contracts-evolution db-check ontology-check inference-schemas-check identity-policy-check evaluation-fixtures-check
 
 ci: ci-checks test ## Run the required local and GitHub CI gate
 

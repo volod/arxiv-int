@@ -191,15 +191,16 @@ or scale claim.
 - `arxiv_int.stores.projections` -- lifecycle, dbt inputs, ParadeDB/pgvector/AGE adapters, pointer
   switch, cleanup, and secret-free artifacts
 - `tests/integration/extensions/` -- pin/NOTICE/gate unit coverage; live probes when
-  `ARXIV_INT_RUN_EXTENSION_PROBES=1`
+  `ARXIV_INT_RUN_EXTENSION_PROBES=1` (pytest `heavy`, not `make ci`)
 - `tests/stores/` -- store boundary unit coverage; apply/adopt `not-run` without a URL or image
 - `tests/stores/projections/` -- identifier, quality, lock, and mocked lifecycle coverage
 - `tests/integration/postgres/` -- declared disposable schema run when
-  `ARXIV_INT_RUN_SCHEMA_MIGRATIONS=1`
+  `ARXIV_INT_RUN_SCHEMA_MIGRATIONS=1` (pytest `heavy`, not `make ci`)
 - `tests/transformations/` -- parse/compile/lock/activation/artifact units without a live store
 - `tests/integration/dbt/` -- declared disposable dbt run when `ARXIV_INT_RUN_DBT=1`
+  (pytest `heavy`, not `make ci`)
 - `tests/integration/projections/` -- declared disposable projection run when
-  `ARXIV_INT_RUN_PROJECTIONS=1`
+  `ARXIV_INT_RUN_PROJECTIONS=1` (pytest `heavy`, not `make ci`)
 - Compose profile rendering accepts the project image tag without a registry digest, matching
   other `arxiv-int/*` images
 

@@ -16,46 +16,12 @@ Each producer owns its domain models/checks and uses the shared implementations 
 queries, COPY, extension DDL, and Cypher retain the narrow exceptions defined in the specification.
 Proof tasks retain tool/rule/model fingerprints and required quality outcomes; a skipped validator
 cannot establish a pass. These requirements also apply to later additive contract/migration work.
-
-### Evaluation foundation -- `evaluation-foundation`
-
-#### create-evaluation-fixtures-and-metrics
-
-Build immutable extraction, classification, Russian retrieval, semantic, entity, fact, ontology,
-graph, domain-artifact, company/product/person catalog, anomaly and reporting fixtures plus
-paired evaluation utilities.
-
-- Serves: `evaluation-foundation` -- [Evaluation and acceptance](../design/spec.md#evaluation-and-acceptance)
-- Agent status: CLEAR
-- Dependencies: [Contract data-quality checks](records/0019-contract-gov-implement-contract-data-quality-checks.md);
-[Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
-the evaluation and retrieval primitives
-documented in [Project foundation](current/project-foundation.md#evaluation-and-retrieval-primitives).
-[Evaluation bundle validation](records/0033-eval-found-refactor-evaluation-bundle-validation.md).
-- User-visible outcome: Every store/model/pipeline recommendation names the exact frozen items,
-metrics, thresholds, and run artifacts that support it, and every usable stage can publish the same
-proof-bundle shape.
-- Scope boundary: Provide deterministic fixtures and measurement; human gold review remains in the
-human lane.
-- Data and artifact paths: `tests/fixtures/`, `eval.*`, `src/arxiv_int/evaluation/`,
-`configs/evaluation/`, `configs/proofs/`, `Makefile`, `$RUNS_DIR/<run-id>/evaluation/`, and
-`$RESULTS_DIR/proofs/`.
-- Execution path: Extend the existing metrics for recall@k, MRR, evidence intactness, p95, paired
-bootstrap, extraction/span, hierarchical classification, linkage, financial/BOM arithmetic,
-catalog parity, anomaly cohorts/false positives/review-budget
-precision, domain artifact, graph parity,
-resource cost, and adopt/retain/inconclusive verdicts; register the
-`evaluate` stage body that writes the immutable evaluation bundle; add a typed proof manifest,
-stage-to-validator registry, redaction, fingerprint freshness, proof summary helpers, and a shared
-`make proof CAPABILITY=...` dispatcher.
-Reuse shared data-quality result identities and fixtures for missing/global checks; keep
-held-out accuracy metrics separate from Pandera/dbt structural validation.
-- Acceptance gates: Split leakage and provenance checks pass; bootstrap seeds and item ledgers
-replay; missing evidence refuses a verdict; metrics have positive/negative fixtures; proof bundles
-reject stale fingerprints, missing artifact checksums, unvalidated usable stages, and private paths
-or corpus content in repository summaries; proof target discovery and unknown capability tests pass.
-- Documentation target: `docs/impl/current/evaluation-foundation.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
+Git-bound proof copies follow [identity obfuscation](../design/spec.md#identity-obfuscation-for-committed-proof-artifacts);
+local proof data and human-review packets keep original identities. Each proof task declares its
+export file list or records that no Git-bound source artifact is produced.
+`Human review handoff` marks an agent producer of human-evaluation evidence; it is not approval or
+a prerequisite on the producer. Follow the [handoff workflow](../guide/planning-workflow.md#human-review-handoffs)
+and name ready/pending human decisions and the dependent work that must wait at task completion.
 
 ### Pipeline control -- `pipeline-control`
 
@@ -69,6 +35,7 @@ Align foundational stage, extraction and artifact references before concrete ada
 - Audit inputs: [AUD-codebase-13](records/0001-govern-codebase-and-workflow-audit.md#audit-handoff).
 - Dependencies: [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
 [Contract identity and reference validation](records/0009-contract-gov-refactor-contract-identity-and-reference-validation.md).
+[Inference and evaluation checkpoint](records/0038-eval-found-review-inference-and-evaluation-boundaries.md).
 - User-visible outcome: Multi-silo inputs, structured source anchors, generation identities and honest
 stage states
 fit the shared interfaces rather than being hidden in string metadata or invented per adapter.
@@ -86,7 +53,7 @@ Pandera/dbt implementation imports in optional adapters.
 generations of one partition, conditional GPU/UI features and failure/partial states; public
 compatibility decisions are recorded; no optional heavy imports enter core; make ci passes.
 - Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
+- Review checkpoint: `review-pipeline-publication-and-reuse-boundaries`.
 
 #### implement-run-ledger-and-atomic-artifacts
 
@@ -119,7 +86,7 @@ no partial output is accepted; unchanged rerun validates manifests and does not 
 worker; a changed owned fingerprint marks exactly the reachable closure stale; forced retry creates
 a new attempt without overwriting evidence.
 - Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
+- Review checkpoint: `review-pipeline-publication-and-reuse-boundaries`.
 
 #### implement-stage-dag-cli-and-make-targets
 
@@ -158,7 +125,7 @@ inputs; failure halts downstream work in both paths. Unregistered required
 stages and stale upstream snapshots fail explicitly. The directory-to-report gate exercises concrete
 stages after they become available.
 - Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
+- Review checkpoint: `review-pipeline-publication-and-reuse-boundaries`.
 
 #### add-progress-logging-and-resource-telemetry
 
@@ -184,7 +151,7 @@ manifests.
 corpus text; stalled worker and ETA states are distinguishable; metric labels have bounded
 cardinality.
 - Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
+- Review checkpoint: `review-pipeline-publication-and-reuse-boundaries`.
 
 #### implement-evidence-based-pipeline-forecast
 
@@ -223,7 +190,7 @@ reserve shortfalls exit non-zero before heavy work; stale forecasts are rejected
 loss checkpoints before allocation without accepting partial output. Atomic and aggregate forecast
 decisions agree for the same captured inputs; changed configuration cannot reuse a stale forecast.
 - Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
+- Review checkpoint: `review-pipeline-publication-and-reuse-boundaries`.
 
 #### implement-investigation-profile-and-output-manifest
 
@@ -259,7 +226,41 @@ runs read `.env` in fresh shells; the explicit atomic chain yields equivalent lo
 lineage, quality and final states. Missing setup/required stages refuse execution, optional disabled
 branches stay explicit, and interruption preserves one resumable generation.
 - Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
+- Review checkpoint: `review-pipeline-publication-and-reuse-boundaries`.
+
+#### review-pipeline-publication-and-reuse-boundaries
+
+Review fixture orchestration before concrete corpus workers depend on its publication protocol.
+
+- Serves: `pipeline-control` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
+- Agent status: CLEAR
+- Task kind: checkpoint
+- Dependencies: `refactor-stage-and-artifact-interface-contracts`; `implement-run-ledger-and-atomic-artifacts`;
+`implement-stage-dag-cli-and-make-targets`; `add-progress-logging-and-resource-telemetry`;
+`implement-evidence-based-pipeline-forecast`; `implement-investigation-profile-and-output-manifest`;
+[Inference and evaluation checkpoint](records/0038-eval-found-review-inference-and-evaluation-boundaries.md).
+- User-visible outcome:
+Concrete adapters inherit a checked run/lease/quality/publication boundary.
+- Scope boundary:
+Fixture DAG and disposable store integration only; source delta/prune and archive proofs stay in
+the later corpus/control checkpoint, avoiding a dependency on workers this checkpoint gates.
+Review integrated behavior, not just test totals; no speculative rewrite or model promotion.
+- Data and artifact paths: Accepted producer records, current fixtures and retained proof evidence;
+`$DATA_DIR/architecture-review/<run-id>/`.
+- Execution path:
+Trace aggregate versus atomic execution, frozen parameters, exact-generation quality, file/database
+publication order, concurrent reuse, forced attempts, expired leases, cancellation and reserve loss.
+Inject failure around the active-pointer switch; reconcile logs, ledger and visible artifacts.
+Map each producer invariant to evidence; add missing behavior regressions at stable seams.
+- Acceptance gates:
+Equivalent commands produce equivalent logical manifests; missing/global checks, stale forecasts,
+partial or failed stages never activate. Cache hits skip heavy work; interrupted publication
+preserves one resumable attempt and the prior complete generation.
+Record refactor/no-refactor and proceed/proceed-with-nonblocking-notes/blocked verdicts. Plan a
+focused prerequisite repair for any blocker and keep this checkpoint open until it passes.
+Run `make ci`; coverage is diagnostic. Route each nonblocking note to one explicit owner.
+- Documentation target: `docs/impl/current/pipeline-control.md`
+- Review checkpoint: none; this is the bounded checkpoint.
 
 #### add-stage-artifact-inspection
 
@@ -357,7 +358,7 @@ planning with the supplied archive and publish the pipeline-control proof bundle
 [Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `implement-evidence-based-pipeline-forecast`;
-`prove-corpus-foundation-on-provided-archive`; `create-evaluation-fixtures-and-metrics`;
+`prove-corpus-foundation-on-provided-archive`; [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md);
 `implement-evidence-and-source-location-lookup`.
 - User-visible outcome: The supplied archive demonstrates that unchanged inputs skip heavy work,
 deltas update only affected artifacts, stale data retracts safely, insufficient space blocks early,
@@ -375,6 +376,9 @@ extra disposable stale generation.
 shards for each delta, correct tombstones and active rows, targeted code invalidation, non-zero
 resource refusal before allocation, clean-rebuild parity, protected-data prune refusal, and no write
 to the supplied archive.
+Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
+obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
+unchanged. Retain separate raw-proof and transformed-export fingerprints.
 - Documentation target: `docs/impl/current/pipeline-control.md`
 - Review checkpoint: `review-corpus-and-control-integrity`.
 
@@ -387,7 +391,8 @@ Review the integrated milestone before lexical loading, classification and NLP c
 - Task kind: checkpoint
 - Dependencies: `implement-normalization-dedupe-and-chunking`;
 `implement-evidence-and-source-location-lookup`; `implement-investigation-profile-and-output-manifest`;
-`add-progress-logging-and-resource-telemetry`; `create-evaluation-fixtures-and-metrics`.
+`add-progress-logging-and-resource-telemetry`; [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
+`review-pipeline-publication-and-reuse-boundaries`; `implement-incremental-reconciliation-and-stale-pruning`.
 - User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
 or blocked
 for the named consumers; no-refactoring-needed is a valid conclusion.
@@ -430,6 +435,7 @@ metadata.
 [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
 `implement-stage-dag-cli-and-make-targets`;
 `implement-evidence-based-pipeline-forecast`.
+`review-pipeline-publication-and-reuse-boundaries`.
 - User-visible outcome: The operator can inventory one or more multi-terabyte silos without loading
 them into RAM and can see per-silo coverage, bytes, duplicates, and unsupported/encrypted inputs.
 - Scope boundary: Read files and archive-member metadata only; no text extraction and no
@@ -524,7 +530,7 @@ current proof bundle.
 - Agent status: RUN NEEDED
 - Dependencies: `implement-normalization-dedupe-and-chunking`;
 `implement-stage-dag-cli-and-make-targets`; `implement-evidence-based-pipeline-forecast`;
-`create-evaluation-fixtures-and-metrics`;
+[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md);
 [Representative corpus approval](records/0023-corpus-approve-representative-corpus-and-gold.md).
 - User-visible outcome: The supplied file silos have inspectable inventory, extraction,
 normalization, duplicate, and chunk artifacts backed by one reproducible proof id.
@@ -538,6 +544,9 @@ cache decisions plus resource/timing evidence.
 - Acceptance gates: Every usable corpus stage is `passed` or contract-valid `empty`; every inventory
 item is accounted for; artifacts and source anchors validate; the unchanged rerun executes no heavy
 extraction/normalization work; failures keep the task open.
+Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
+obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
+unchanged. Retain separate raw-proof and transformed-export fingerprints.
 - Documentation target: `docs/impl/current/corpus-foundation.md`
 - Review checkpoint: `review-corpus-and-control-integrity`.
 
@@ -569,7 +578,7 @@ operations, separate from business transformations.
 concurrent index build/rebuild remains observable; query and index failures have actionable
 diagnostics.
 - Documentation target: `docs/impl/current/lexical-retrieval.md`
-- Review checkpoint: `review-investigation-and-report-integrity`.
+- Review checkpoint: `review-retrieval-and-classification-boundaries`.
 
 #### calibrate-russian-tokenization-and-bm25
 
@@ -581,7 +590,7 @@ and query normalization on a held-out Russian query set.
 - Agent status: RUN NEEDED
 - Research: yes
 - Dependencies: `build-paradedb-lexical-load-and-query-path`;
-`create-evaluation-fixtures-and-metrics` may begin with a minimal retrieval fixture.
+[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 - User-visible outcome: The default Russian lexical profile is backed by recall, MRR, evidence
 intactness, latency, and index-size evidence rather than an English default.
 - Scope boundary: Compare declared tokenizer/query profiles; do not tune on the final split or
@@ -594,7 +603,7 @@ mixed-language cases; use paired bootstrap verdicts.
 - Acceptance gates: One profile receives `adopt`, `retain baseline`, or `inconclusive`; final
 metrics and costs cite immutable runs; profile changes name required reindex work.
 - Documentation target: `docs/impl/current/lexical-retrieval.md`
-- Review checkpoint: `review-investigation-and-report-integrity`.
+- Review checkpoint: `review-retrieval-and-classification-boundaries`.
 
 #### prove-lexical-retrieval-on-provided-archive
 
@@ -605,6 +614,7 @@ Build and query the lexical projection for the supplied archive and publish its 
 - Agent status: RUN NEEDED
 - Dependencies: `calibrate-russian-tokenization-and-bm25`;
 `prove-pipeline-control-on-provided-archive`.
+`review-retrieval-and-classification-boundaries`.
 - User-visible outcome: Supplied documents are searchable through the selected Russian lexical
 profile, with filters, snippets, identifiers, and citations that resolve to source evidence.
 - Scope boundary: Prove lexical load/query behavior and declared evaluation queries; do not claim
@@ -617,6 +627,9 @@ and record load/index cache decisions.
 - Acceptance gates: Projection and source counts reconcile; required queries return valid evidence
 under declared metrics; index/query manifests validate; unchanged rerun does not rebuild or reload
 unchanged partitions; failures or missing citations keep the task open.
+Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
+obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
+unchanged. Retain separate raw-proof and transformed-export fingerprints.
 - Documentation target: `docs/impl/current/lexical-retrieval.md`
 - Review checkpoint: `review-investigation-and-report-integrity`.
 
@@ -632,7 +645,17 @@ evaluation labels used to classify archive files.
 - Agent status: RUN NEEDED
 - Research: yes
 - Dependencies: [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
-`create-evaluation-fixtures-and-metrics`.
+[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
+- Human review handoff:
+[approve-classification-policy](#approve-classification-policy)
+vocabulary, thresholds and exception examples.
+Packet: `$RUNS_DIR/<run-id>/review/classification/`.
+Draft contribution; the linked proof and other human prerequisites still apply.
+Blocked consumer:
+`publish-provided-archive-end-to-end-proof`
+and `approve-archive-organization-plan`.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: accept/revise the hierarchy, thresholds and exceptional outcomes, or retain unclassified.
 - User-visible outcome: Operators can inspect the exact hierarchy, captions, parent links, licence,
 local extensions, and version behind every file assignment.
 - Scope boundary: Use the distributable UDC Summary or an operator-provided licensed MRF snapshot;
@@ -649,7 +672,7 @@ missing attribution, and stale snapshots fail validation; the Summary-only basel
 licence secret; unavailable deep schedules yield a documented Summary baseline rather than guessed
 classes.
 - Documentation target: `docs/impl/current/archive-classification.md`
-- Review checkpoint: `review-investigation-and-report-integrity`.
+- Review checkpoint: `review-retrieval-and-classification-boundaries`.
 
 #### implement-hierarchical-file-classification
 
@@ -664,6 +687,16 @@ UDC-derived classes or one explicit exceptional outcome.
 `implement-normalization-dedupe-and-chunking`; `implement-stage-dag-cli-and-make-targets`.
 Reviewed real-corpus quality is accepted by the separate proof/human tasks.
 `review-corpus-and-control-integrity`.
+- Human review handoff:
+[approve-classification-policy](#approve-classification-policy)
+vocabulary, thresholds and exception examples.
+Packet: `$RUNS_DIR/<run-id>/review/classification/`.
+Draft contribution; the linked proof and other human prerequisites still apply.
+Blocked consumer:
+`publish-provided-archive-end-to-end-proof`
+and `approve-archive-organization-plan`.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: accept/revise the hierarchy, thresholds and exceptional outcomes, or retain unclassified.
 - User-visible outcome: Each source file has a searchable, evidence-backed hierarchical assignment,
 while random text and extraction failures remain visibly `unclassified` or `unreadable`.
 - Scope boundary: Produce mappings and review candidates only; do not move source files, classify
@@ -681,7 +714,40 @@ evidence; exact and ancestor-aware precision/recall, hierarchical distance, cali
 coverage, exceptional-outcome confusion, reproducibility, throughput, and memory meet predeclared
 gates. A high `unclassified` or `unreadable` rate is a valid reported result.
 - Documentation target: `docs/impl/current/archive-classification.md`
-- Review checkpoint: `review-investigation-and-report-integrity`.
+- Review checkpoint: `review-retrieval-and-classification-boundaries`.
+
+#### review-retrieval-and-classification-boundaries
+
+Review searchable/classifiable corpus accounting before archive quality and policy review.
+
+- Serves: `archive-classification` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
+- Agent status: CLEAR
+- Task kind: checkpoint
+- Dependencies: `review-corpus-and-control-integrity`; `calibrate-russian-tokenization-and-bm25`;
+`establish-versioned-udc-derived-scheme`; `implement-hierarchical-file-classification`;
+`implement-evidence-and-source-location-lookup`.
+- User-visible outcome:
+Retrieval and classification proofs consume coherent source, vocabulary and query identities.
+- Scope boundary:
+Inspect fixture/store integration and retained calibration evidence before the provided-archive
+proofs. This review neither accepts a classification policy nor authorizes file placement.
+Review integrated behavior, not just test totals; no speculative rewrite or model promotion.
+- Data and artifact paths: Accepted producer records, current fixtures and retained proof evidence;
+`$DATA_DIR/architecture-review/<run-id>/`.
+- Execution path:
+Trace source/chunk/query ids, Russian normalized versus literal identifiers, hierarchy/ancestor
+metrics, excluded/unreadable/unclassified denominators, stale mappings, duplicate source occurrence
+lookup and empty results. Verify candidate policy packets expose errors and exact fingerprints.
+Map each producer invariant to evidence; add missing behavior regressions at stable seams.
+- Acceptance gates:
+Indexed, excluded and failed rows reconcile; snippets and class assignments resolve to sources;
+unknown classes and low-confidence assignments stay exceptional; changed tokenizer/vocabulary
+invalidates affected outputs. No relevance or classification-quality claim follows from counts.
+Record refactor/no-refactor and proceed/proceed-with-nonblocking-notes/blocked verdicts. Plan a
+focused prerequisite repair for any blocker and keep this checkpoint open until it passes.
+Run `make ci`; coverage is diagnostic. Route each nonblocking note to one explicit owner.
+- Documentation target: `docs/impl/current/archive-classification.md`
+- Review checkpoint: none; this is the bounded checkpoint.
 
 #### prove-archive-classification-on-provided-archive
 
@@ -694,7 +760,17 @@ Classify the supplied archive and validate its complete hierarchical mapping and
 `prove-pipeline-control-on-provided-archive`;
 [Representative corpus approval](records/0023-corpus-approve-representative-corpus-and-gold.md).
 `implement-evidence-and-source-location-lookup`.
-
+`review-retrieval-and-classification-boundaries`.
+- Human review handoff:
+[approve-classification-policy](#approve-classification-policy)
+final errors, calibration, coverage and policy decision packet.
+Packet: `$RUNS_DIR/<run-id>/review/classification/`.
+Ready after this proof passes.
+Blocked consumer:
+`publish-provided-archive-end-to-end-proof`
+and `approve-archive-organization-plan`.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: accept/revise the hierarchy, thresholds and exceptional outcomes, or retain unclassified.
 - User-visible outcome: Every supplied file has a UDC-derived or explicit exceptional result, with hierarchy,
 confidence, evidence/failure reasons, and initial source lookup.
 - Scope boundary: Run classification and source-manifest validation only; archive placement and its dry-run
@@ -707,6 +783,9 @@ fingerprints, and physical/virtual source accounting; rerun unchanged and record
 - Acceptance gates: Every physical inventory item has one complete result; virtual members retain container
 links; source references and calibration metrics validate; supplied bytes remain unchanged; the
 identical rerun invokes no heavy classifier; proof artifacts and checksums are complete.
+Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
+obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
+unchanged. Retain separate raw-proof and transformed-export fingerprints.
 - Documentation target: `docs/impl/current/archive-classification.md`
 - Review checkpoint: `review-investigation-and-report-integrity`.
 
@@ -748,7 +827,7 @@ organizations, locations, equipment, models, suppliers, materials, standards, an
 - Agent status: RUN NEEDED
 - Research: yes
 - Dependencies: `build-russian-language-morphology-and-terminology-lane`;
-`create-evaluation-fixtures-and-metrics`.
+[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 - User-visible outcome: Entity mentions carry type, confidence, original source span, model/version,
 and an understood per-type error rate.
 - Scope boundary: Detect mentions; canonical merging belongs to identity resolution and acceptance
@@ -787,10 +866,55 @@ dictionary/model cache hits.
 - Acceptance gates: All usable NLP outputs validate and resolve to source spans; unsupported and
 ambiguous cases are counted; configured metrics are reported by present stratum; unchanged rerun
 performs no heavy NER or morphology work; incomplete evidence keeps the task open.
+Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
+obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
+unchanged. Retain separate raw-proof and transformed-export fingerprints.
 - Documentation target: `docs/impl/current/russian-nlp.md`
 - Review checkpoint: `review-knowledge-and-identity-integrity`.
 
 ### Identity, ontology, and graph -- `identity-ontology-graph`
+
+#### implement-ontology-snapshots-and-geotemporal-contracts
+
+Bind evolving ontology and source-asserted place/time semantics to reproducible stage inputs.
+
+- Serves: `identity-ontology-graph` -- [Ontology design](../design/spec.md#ontology-design);
+[Geotemporal assertions](../design/spec.md#geotemporal-assertions).
+- Agent status: CLEAR
+- Dependencies: [Versioned ontology assets](records/0013-contract-gov-establish-versioned-ontology-assets.md);
+[Domain contracts](records/0014-contract-gov-define-domain-investigation-contracts-and-ontology.md);
+`implement-stage-dag-cli-and-make-targets`; [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
+- Human review handoff:
+[approve-entity-merge-and-ontology-policy](#approve-entity-merge-and-ontology-policy)
+ontology/geotemporal candidate semantics and compatibility examples;
+include ontology drafts from `review/ontology/`; merge curves come from the resolution producer.
+Packet: `$RUNS_DIR/<run-id>/review/identity-ontology/`.
+Draft contribution; the linked proof and other human prerequisites still apply.
+Blocked consumer:
+`prove-domain-investigation-artifacts-on-provided-archive`.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: approve/revise merge thresholds, ontology terms and geotemporal interpretation;
+keep drafts unpublished.
+- User-visible outcome: Every fact/graph/report run names one immutable ontology interpretation and
+preserves asserted time/place uncertainty; new terms can be reviewed without changing active meaning.
+- Scope boundary: Register the existing `ontology` configuration stage, versioned draft proposals,
+and typed geotemporal contracts/validators. Reuse Location and domain terms; no autonomous axiom
+acceptance, remote geocoder, GIS platform or extra database extension. Published vocabulary stays
+separate from candidates; unknown terms stay proposed/unmapped until human review.
+- Data and artifact paths: `ontology/`, `contracts/`, `src/arxiv_int/ontology/`, mirrored tests,
+additive Alembic revisions where required, `$RUNS_DIR/<run-id>/{ontology,review/ontology}/`.
+- Execution path: Seal term/mapping/shape/policy fingerprints; retain prior snapshots and explicit
+replacement/deprecation mappings; bind ontology identity into validation and projection reuse keys.
+Define source-valid versus recorded time, timezone/precision/open intervals, asserted locations,
+CRS/axis/units/uncertainty and domain revision/effectivity qualifiers. Implement shared checks and
+stage outputs; consumers reuse them. Emit draft-term and compatibility examples for human review.
+- Acceptance gates: Additive terms preserve prior replay; changed active meaning, mixed/stale
+snapshots and draft leakage refuse publication. Subclass-compatible consumers work; disjoint types
+fail. Partial dates/unknown CRS stay uncertain; inverted intervals and invalid coordinates fail;
+shared addresses do not merge people/companies; temporal role and product revision boundaries are
+replayable. Schema changes follow existing contract/evolution/migration gates.
+- Documentation target: `docs/impl/current/identity-ontology-graph.md`
+- Review checkpoint: `review-knowledge-and-identity-integrity`.
 
 #### implement-probabilistic-entity-resolution
 
@@ -801,7 +925,19 @@ operating points.
 [Analysis, graph, and visualization behavior](../design/spec.md#analysis-graph-and-visualization-behavior)
 - Agent status: RUN NEEDED
 - Dependencies: `evaluate-general-and-domain-ner`; [Canonical relational schema](records/0021-store-create-canonical-relational-schema.md);
-`create-evaluation-fixtures-and-metrics`.
+[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
+`implement-ontology-snapshots-and-geotemporal-contracts`.
+- Human review handoff:
+[approve-entity-merge-and-ontology-policy](#approve-entity-merge-and-ontology-policy)
+merge curves and ontology/geo-time candidate semantics;
+include ontology drafts from `review/ontology/`.
+Packet: `$RUNS_DIR/<run-id>/review/identity-ontology/`.
+Draft contribution; the linked proof and other human prerequisites still apply.
+Blocked consumer:
+`prove-domain-investigation-artifacts-on-provided-archive`.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: approve/revise merge thresholds, ontology terms and geotemporal interpretation;
+keep drafts unpublished.
 - User-visible outcome: Aliases such as organization names, suppliers, equipment models, and
 transliterations resolve to canonical objects with match evidence and uncertainty.
 - Scope boundary: Propose or apply reversible cluster overlays; never rewrite source mentions or
@@ -812,7 +948,8 @@ auto-merge below the approved precision threshold.
 mention/fact anchors
 through versioned merge/split overlays. Clusters are overlays over domain objects, not new ontology
 classes; helper linkage tables stay hidden from catalogs and analyst graph labels per
-[Ontology design](../design/spec.md#ontology-design). Use the selected maintained Splink release directly behind
+[Ontology design](../design/spec.md#ontology-design).
+Use the selected maintained Splink release directly behind
 the local seam with DuckDB; define
 blocking and comparison specs; train/calibrate from reviewer labels; persist the model, thresholds,
 pair probabilities, and cluster algorithm.
@@ -823,6 +960,8 @@ relationship and stable-key tests; persist review decisions through typed transa
 remain proposals until reviewed; only an approved policy may apply automatic merges; replay does
 not refit; uncertain/rejected pairs remain separate; rollback restores the
 prior cluster view.
+Time-bounded roles and shared/ambiguous locations cannot merge unrelated identities;
+merge/split replay preserves source anchors, ontology snapshot and asserted validity.
 - Documentation target: `docs/impl/current/identity-ontology-graph.md`
 - Review checkpoint: `review-knowledge-and-identity-integrity`.
 
@@ -857,6 +996,8 @@ projection commands and quality results gate the active-pointer transaction.
 lookup succeeds for every sampled edge; AGE-disabled mode exports the same logical graph; failed
 build leaves prior graph active. Analyst-facing labels contain published domain classes only;
 helper types are absent from catalogs and graph entry points.
+Pinned ontology labels and source-valid/recorded-time/place filters agree with SQL. Draft/deprecated
+term handling is explicit, stale snapshots cannot activate, and unknown place/time is not fabricated.
 - Documentation target: `docs/impl/current/identity-ontology-graph.md`
 - Review checkpoint: `review-knowledge-and-identity-integrity`.
 
@@ -870,6 +1011,16 @@ supplied-archive proof bundle.
 - Agent status: RUN NEEDED
 - Dependencies: `build-and-validate-age-projection`;
 `prove-knowledge-extraction-on-provided-archive`.
+- Human review handoff:
+[approve-entity-merge-and-ontology-policy](#approve-entity-merge-and-ontology-policy)
+sealed merge/ontology/geo-time review packet.
+Packet: `$RUNS_DIR/<run-id>/review/identity-ontology/`.
+Ready after this proof and its named producer inputs pass.
+Blocked consumer:
+`prove-domain-investigation-artifacts-on-provided-archive`.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: approve/revise merge thresholds, ontology terms and geotemporal interpretation;
+keep drafts unpublished.
 - User-visible outcome: Supplied-archive objects, aliases, candidate clusters, ontology terms, and
 bounded graph paths are inspectable with reversible decisions and source evidence.
 - Scope boundary: Use approved or explicitly proposed review states; do not silently merge uncertain
@@ -885,6 +1036,9 @@ and producer/consumer typing on sampled catalog and graph labels.
 - Acceptance gates: Cluster and ontology validators pass at declared policies; graph/fallback counts
 and sampled paths agree with canonical facts; every sampled edge has evidence; unchanged rerun avoids
 heavy linkage and graph rebuild; failed projection never replaces the prior active version.
+Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
+obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
+unchanged. Retain separate raw-proof and transformed-export fingerprints.
 - Documentation target: `docs/impl/current/identity-ontology-graph.md`
 - Review checkpoint: `review-knowledge-and-identity-integrity`.
 
@@ -898,6 +1052,7 @@ Review the integrated milestone before domain projection builders.
 - Dependencies: `build-and-validate-age-projection`;
 `implement-fact-validation-conflict-and-review-overlays`;
 `extract-financial-and-bookkeeping-records`; `extract-product-and-assembly-records`.
+`implement-ontology-snapshots-and-geotemporal-contracts`.
 - User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
 or blocked
 for the named consumers; no-refactoring-needed is a valid conclusion.
@@ -919,6 +1074,10 @@ replay representative existing tests/validators; add tests for important integri
 and business-logic cases that the stage's now-stable interfaces still miss; reconcile every
 routed note; record concrete findings with evidence, severity, affected consumers and one
 disposition each.
+Review dynamic ontology proposal/publish/deprecate and invalidation/replay boundaries. Verify
+source-valid versus recorded time, partial dates/timezones, location/CRS uncertainty, role changes
+and product revision/effectivity across facts, SQL and AGE. Distinguish party/account/transaction,
+product model/revision/equipment instance and explicit assembly relations; do not expose helper types.
 - Acceptance gates: Every producer requirement and open note has an evidence-backed disposition;
 verify the
 listed invariants and make ci. Important stabilized cases in this stage have tests or an
@@ -926,6 +1085,9 @@ evidence-backed conclusion that existing tests already cover them; a coverage pe
 a gate. Create a focused prerequisite refactor task for any blocking finding
 and keep this checkpoint open until it passes; preserve valid negative results and nonblocking
 follow-ups in the checkpoint record without claiming a wider audit.
+An additive ontology change preserves old-snapshot answers; stale or incompatible meanings refuse;
+geotemporal filters agree across engines. Same-name/shared-address entities stay separable; temporal
+coincidence and amount/model similarity cannot invent domain relations or accepted facts.
 - Documentation target: `docs/impl/current/identity-ontology-graph.md`
 - Review checkpoint: none; this task is the bounded checkpoint. Route follow-ups to explicit task ids.
 
@@ -943,6 +1105,16 @@ LLM calls for bounded high-value lanes.
 [Local inference adapters](records/0031-inference-implement-local-inference-adapters.md);
 `implement-probabilistic-entity-resolution`; [Domain investigation contracts](records/0014-contract-gov-define-domain-investigation-contracts-and-ontology.md);
 [Canonical relational schema](records/0021-store-create-canonical-relational-schema.md).
+`implement-ontology-snapshots-and-geotemporal-contracts`.
+- Human review handoff:
+[approve-fact-review-and-publication-policy](#approve-fact-review-and-publication-policy)
+per-type outcomes, conflicts, interval/place ambiguity and proposed inclusion states.
+Packet: `$RUNS_DIR/<run-id>/review/facts/`.
+Draft contribution; the linked proof and other human prerequisites still apply.
+Blocked consumer:
+`prove-domain-investigation-artifacts-on-provided-archive`.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: choose auto-accepted/proposed/review-required fact types and conflict treatment.
 - User-visible outcome: Design/revision, assembly/component, equipment, supplier, order, shipment,
 invoice, payment, date, quantity, and other relations are queryable with exact source evidence and
 extraction provenance.
@@ -959,6 +1131,9 @@ Reuse existing ontology predicates; do not invent equivalent terms or write disj
 domain/range slots ([Ontology design](../design/spec.md#ontology-design)).
 Use generated structured-output validation followed by shared Pandera batch checks; preserve
 evidence/semantic validators and write proposed rows through typed SQLAlchemy/COPY adapters.
+Consume the pinned ontology and shared geotemporal contracts. Preserve source-valid and recorded
+time separately; keep timezone/precision/place uncertainty and raw assertion provenance. An unknown
+term or ambiguous place/time remains proposed/unknown, never a newly accepted ontology axiom.
 - Acceptance gates: Malformed, unsupported, uncited, and span-mismatched outputs are retained as
 typed failures, not facts; per-type precision/recall and citation validity are measured; rerun is
 idempotent.
@@ -1029,6 +1204,15 @@ reversible review state.
 - Dependencies: `implement-provenance-bearing-fact-extraction`;
 `extract-financial-and-bookkeeping-records`; `extract-product-and-assembly-records`;
 [Versioned ontology assets](records/0013-contract-gov-establish-versioned-ontology-assets.md).
+- Human review handoff:
+[approve-fact-review-and-publication-policy](#approve-fact-review-and-publication-policy)
+per-type outcomes, conflicts, interval/place ambiguity and proposed inclusion states.
+Packet: `$RUNS_DIR/<run-id>/review/facts/`.
+Draft contribution; the linked proof and other human prerequisites still apply.
+Blocked consumer:
+`prove-domain-investigation-artifacts-on-provided-archive`.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: choose auto-accepted/proposed/review-required fact types and conflict treatment.
 - User-visible outcome: Conflicting claims and uncertain facts remain visible and reviewable instead
 of being silently collapsed into one value.
 - Scope boundary: Validate and group; human acceptance thresholds and domain truth judgments remain
@@ -1045,9 +1229,14 @@ domain/range or a declared superclass handler and reject disjoint types
 Reuse generated Pandera checks and existing ontology/domain predicates; express relational
 duplicate/conflict groups and active review views as described dbt models with data tests. Keep
 immutable review-event writes in typed SQLAlchemy transactions.
+Reuse the ontology-stage geotemporal validators for interval, timezone, CRS/axis and uncertainty
+semantics; no duplicate interpretation in extraction, SQL or graph. Pin rule/ontology snapshots in
+review events and invalidate affected views on evolution while retaining historical replay.
 - Acceptance gates: Synthetic and gold contradictions are found with measured precision; every
 active status derives from an audit event; rejected/superseded facts retain evidence; rules are
 versioned and replayable. Domain/range fixtures accept subclass instances and reject disjoint types.
+Test open/partial/inverted time, unknown/invalid coordinates, conflicting location evidence and
+role/revision boundary cases; as-of results distinguish source-valid from recorded time.
 - Documentation target: `docs/impl/current/knowledge-extraction.md`
 - Review checkpoint: `review-knowledge-and-identity-integrity`.
 
@@ -1061,6 +1250,15 @@ proof bundle.
 - Agent status: RUN NEEDED
 - Dependencies: `implement-fact-validation-conflict-and-review-overlays`;
 `prove-russian-nlp-on-provided-archive`; `implement-evidence-based-pipeline-forecast`.
+- Human review handoff:
+[approve-fact-review-and-publication-policy](#approve-fact-review-and-publication-policy)
+final measured type thresholds, evidence and review-cost packet.
+Packet: `$RUNS_DIR/<run-id>/review/facts/`.
+Ready after this proof passes.
+Blocked consumer:
+`prove-domain-investigation-artifacts-on-provided-archive`.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: choose auto-accepted/proposed/review-required fact types and conflict treatment.
 - User-visible outcome: Proposed design, commercial, and general facts from supplied files are
 inspectable with exact evidence, validation findings, conflicts, and extractor/model provenance.
 - Scope boundary: Exercise only forecast-approved deterministic and local-model lanes; do not
@@ -1074,6 +1272,9 @@ cache decisions.
 - Acceptance gates: Every emitted fact passes shape and evidence validation or remains a typed
 failure; conflicts and review states are preserved; present-type metrics and coverage are reported;
 unchanged rerun does not invoke heavy extraction; proof checksums and fingerprints validate.
+Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
+obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
+unchanged. Retain separate raw-proof and transformed-export fingerprints.
 - Documentation target: `docs/impl/current/knowledge-extraction.md`
 - Review checkpoint: `review-knowledge-and-identity-integrity`.
 
@@ -1091,6 +1292,16 @@ and bounded graphs.
 - Dependencies: [Domain investigation contracts](records/0014-contract-gov-define-domain-investigation-contracts-and-ontology.md);
 `implement-fact-validation-conflict-and-review-overlays`; `implement-probabilistic-entity-resolution`.
 `review-knowledge-and-identity-integrity`.
+- Human review handoff:
+[approve-domain-artifact-semantics-and-inclusion](#approve-domain-artifact-semantics-and-inclusion)
+family semantics, graph/table reconciliation, valid-empty/conflict and inclusion examples.
+Packet: `$RUNS_DIR/<run-id>/review/domain-artifacts/`.
+Draft contribution; the linked proof and other human prerequisites still apply.
+Blocked consumer:
+`accept-operator-discovery-workflows`
+and `publish-provided-archive-end-to-end-proof`.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: approve per-family semantics/inclusion, or retain partial/review-only/disabled families.
 - User-visible outcome: Analysts can trace directed legal-entity/person roles, financial events,
 invoice balances
 and payment allocation candidates to their source evidence.
@@ -1113,8 +1324,10 @@ from payment,
 no over-allocation silently accepted, partial/reversed/multi-invoice payments, source arithmetic,
 uncertainty, exact evidence and graph/table parity. Empty requires processed eligible inputs;
 unsupported or failed extraction remains partial/failed. Archive proof is separate from fixtures.
+Party roles use asserted validity and the pinned ontology/identity snapshot; shared addresses,
+nearby dates and equal amounts cannot establish identity, delivery or settlement without evidence.
 - Documentation target: `docs/impl/current/domain-investigation-artifacts.md`
-- Review checkpoint: `review-investigation-and-report-integrity`.
+- Review checkpoint: `review-domain-artifact-and-triage-boundaries`.
 
 #### build-product-bom-and-supply-chain-artifacts
 
@@ -1126,6 +1339,16 @@ Build revision-aware BOM hierarchies and evidence-scoped supply-chain analysis f
 [Domain investigation contracts](records/0014-contract-gov-define-domain-investigation-contracts-and-ontology.md);
 `implement-probabilistic-entity-resolution`.
 `review-knowledge-and-identity-integrity`.
+- Human review handoff:
+[approve-domain-artifact-semantics-and-inclusion](#approve-domain-artifact-semantics-and-inclusion)
+family semantics, graph/table reconciliation, valid-empty/conflict and inclusion examples.
+Packet: `$RUNS_DIR/<run-id>/review/domain-artifacts/`.
+Draft contribution; the linked proof and other human prerequisites still apply.
+Blocked consumer:
+`accept-operator-discovery-workflows`
+and `publish-provided-archive-end-to-end-proof`.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: approve per-family semantics/inclusion, or retain partial/review-only/disabled families.
 - User-visible outcome: An analyst can inspect assemblies, cumulative component requirements when justified,
 supplier/customer paths and concentration within a stated product/time scope.
 - Scope boundary: Use only explicit component and commercial-stage evidence; do not complete
@@ -1144,8 +1367,11 @@ needed; validate export batches through Pandera and reuse existing domain rules.
 quantities, mixed
 units, alternatives, conflicting revisions and incomplete supplier coverage; tables/graphs match,
 derivations resolve, outputs are bounded and repeatable; marketing-only descriptions allow empty BOM.
+Pin ontology, identity and revision/effectivity scope; cross-revision components and temporally
+incompatible supplier roles remain conflicts/unknown. Mention, co-location and marketing similarity
+never imply assembly membership or actual supply.
 - Documentation target: `docs/impl/current/domain-investigation-artifacts.md`
-- Review checkpoint: `review-investigation-and-report-integrity`.
+- Review checkpoint: `review-domain-artifact-and-triage-boundaries`.
 
 #### register-and-expose-domain-artifacts
 
@@ -1157,6 +1383,16 @@ creating another source of truth.
 - Agent status: CLEAR
 - Dependencies: `build-party-and-transaction-artifacts`;
 `build-product-bom-and-supply-chain-artifacts`; `implement-run-ledger-and-atomic-artifacts`.
+- Human review handoff:
+[approve-domain-artifact-semantics-and-inclusion](#approve-domain-artifact-semantics-and-inclusion)
+family semantics, graph/table reconciliation, valid-empty/conflict and inclusion examples.
+Packet: `$RUNS_DIR/<run-id>/review/domain-artifacts/`.
+Draft contribution; the linked proof and other human prerequisites still apply.
+Blocked consumer:
+`accept-operator-discovery-workflows`
+and `publish-provided-archive-end-to-end-proof`.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: approve per-family semantics/inclusion, or retain partial/review-only/disabled families.
 - User-visible outcome: Every run reaching the domain-artifact stage lists which special artifacts
 were produced, partial, empty, or failed and provides a verified local path plus evidence/coverage
 summary for each.
@@ -1175,7 +1411,7 @@ model lineage and shared quality evidence to each artifact fingerprint before pu
 row resolves to checksum-valid files and source evidence; missing or corrupt output prevents
 publication; unchanged reruns reuse ids; CLI/API and manifest/SQL registries agree.
 - Documentation target: `docs/impl/current/domain-investigation-artifacts.md`
-- Review checkpoint: `review-investigation-and-report-integrity`.
+- Review checkpoint: `review-domain-artifact-and-triage-boundaries`.
 
 #### prove-domain-investigation-artifacts-on-provided-archive
 
@@ -1187,6 +1423,18 @@ the supplied archive and publish its proof bundle.
 - Agent status: RUN NEEDED
 - Dependencies: `register-and-expose-domain-artifacts`;
 `prove-identity-ontology-graph-on-provided-archive`.
+`review-domain-artifact-and-triage-boundaries`; `approve-entity-merge-and-ontology-policy`;
+`approve-fact-review-and-publication-policy`.
+- Human review handoff:
+[approve-domain-artifact-semantics-and-inclusion](#approve-domain-artifact-semantics-and-inclusion)
+sealed per-family metrics and decision packet.
+Packet: `$RUNS_DIR/<run-id>/review/domain-artifacts/`.
+Ready after this proof and its required fact/ontology decisions pass.
+Blocked consumer:
+`accept-operator-discovery-workflows`
+and `publish-provided-archive-end-to-end-proof`.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: approve per-family semantics/inclusion, or retain partial/review-only/disabled families.
 - User-visible outcome: The run artifact registry exposes each applicable supplied-archive domain
 view, its table/graph files, evidence coverage, conflicts, review policy, and production status.
 - Scope boundary: Generate only evidence-supported bounded views; accept contract-valid `empty` or
@@ -1200,6 +1448,9 @@ projection/render cache hits.
 - Acceptance gates: Every configured family is honestly `produced`, `partial`, or `empty` with a
 valid reason; no failed output is registered as successful; evidence and policy resolve for every
 element; identical rerun performs no heavy extraction, projection, or rendering.
+Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
+obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
+unchanged. Retain separate raw-proof and transformed-export fingerprints.
 - Documentation target: `docs/impl/current/domain-investigation-artifacts.md`
 - Review checkpoint: `review-investigation-and-report-integrity`.
 
@@ -1211,7 +1462,17 @@ Create deterministic constraint and bounded statistical detectors with evidence 
 
 - Serves: `anomaly-analysis` -- [Anomaly detection and triage](../design/spec.md#anomaly-detection-and-triage)
 - Agent status: CLEAR
-- Dependencies: `register-and-expose-domain-artifacts`; `create-evaluation-fixtures-and-metrics`.
+- Dependencies: `register-and-expose-domain-artifacts`; [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
+- Human review handoff:
+[approve-anomaly-triage-policy](#approve-anomaly-triage-policy)
+detector coverage, hard negatives, review replay and proposed budgets.
+Packet: `$RUNS_DIR/<run-id>/review/anomalies/`.
+Draft contribution; the linked proof and other human prerequisites still apply.
+Blocked consumer:
+`accept-operator-discovery-workflows`
+and `publish-provided-archive-end-to-end-proof`.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: enable, retain constraints only, revise or disable each detector and its review budget.
 - User-visible outcome: Analysts receive explainable data, financial, relationship/supply-chain
 and BOM findings
 with observed versus expected values and coverage limits.
@@ -1231,7 +1492,7 @@ correctness, minimum
 cohort and temporal-leakage guards, source/derivation validity, deterministic grouping, and bounded
 memory; per-detector accuracy and review-budget metrics use predeclared thresholds.
 - Documentation target: `docs/impl/current/anomaly-analysis.md`
-- Review checkpoint: `review-investigation-and-report-integrity`.
+- Review checkpoint: `review-domain-artifact-and-triage-boundaries`.
 
 #### implement-anomaly-review-and-triage-exports
 
@@ -1240,6 +1501,16 @@ Publish findings, reversible review events and bounded explanation views for ana
 - Serves: `anomaly-analysis` -- [Anomaly detection and triage](../design/spec.md#anomaly-detection-and-triage)
 - Agent status: CLEAR
 - Dependencies: `implement-explainable-anomaly-detectors`; `implement-incremental-reconciliation-and-stale-pruning`.
+- Human review handoff:
+[approve-anomaly-triage-policy](#approve-anomaly-triage-policy)
+detector coverage, hard negatives, review replay and proposed budgets.
+Packet: `$RUNS_DIR/<run-id>/review/anomalies/`.
+Draft contribution; the linked proof and other human prerequisites still apply.
+Blocked consumer:
+`accept-operator-discovery-workflows`
+and `publish-provided-archive-end-to-end-proof`.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: enable, retain constraints only, revise or disable each detector and its review budget.
 - User-visible outcome: Analysts can filter and inspect flags, see why each ranked, and record explained/dismissed
 outcomes without changing evidence.
 - Scope boundary: Reuse canonical review/artifact interfaces; no new truth store, autonomous accusations,
@@ -1255,7 +1526,39 @@ and export batch validation in the shared Pandera adapter.
 rank/filter definitions and skipped/insufficient counts are present; empty outputs validate; exports
 and canonical counts agree; changed evidence cannot inherit a misleading resolved state.
 - Documentation target: `docs/impl/current/anomaly-analysis.md`
-- Review checkpoint: `review-investigation-and-report-integrity`.
+- Review checkpoint: `review-domain-artifact-and-triage-boundaries`.
+
+#### review-domain-artifact-and-triage-boundaries
+
+Review domain semantics, registry publication and triage accounting before report integration.
+
+- Serves: `anomaly-analysis` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
+- Agent status: CLEAR
+- Task kind: checkpoint
+- Dependencies: `review-knowledge-and-identity-integrity`; `register-and-expose-domain-artifacts`;
+`implement-explainable-anomaly-detectors`; `implement-anomaly-review-and-triage-exports`.
+- User-visible outcome:
+Reports and human packets inherit consistent evidenced domain relations and honest anomaly states.
+- Scope boundary:
+Review fixtures and existing producer evidence; do not accept domain policies, certify financial
+truth, or require nonempty anomaly findings. Archive proofs and human judgments remain separate.
+Review integrated behavior, not just test totals; no speculative rewrite or model promotion.
+- Data and artifact paths: Accepted producer records, current fixtures and retained proof evidence;
+`$DATA_DIR/architecture-review/<run-id>/`.
+- Execution path:
+Trace party/account roles, product model/revision/instance, BOM alternatives/units/effectivity,
+invoice arithmetic and payment allocation against exact fact evidence. Check pinned ontology and
+geotemporal joins, registry/graph/table parity, triage denominators and review replay after changes.
+Map each producer invariant to evidence; add missing behavior regressions at stable seams.
+- Acceptance gates:
+No mention or similarity becomes part-of/supplier/paid; wrong revision/time joins fail; empty,
+partial and conflicted outputs retain meaning. Missing evidence or failed validation blocks
+publication; no unsupported anomaly allegation appears. Candidate review packets reconcile to data.
+Record refactor/no-refactor and proceed/proceed-with-nonblocking-notes/blocked verdicts. Plan a
+focused prerequisite repair for any blocker and keep this checkpoint open until it passes.
+Run `make ci`; coverage is diagnostic. Route each nonblocking note to one explicit owner.
+- Documentation target: `docs/impl/current/anomaly-analysis.md`
+- Review checkpoint: none; this is the bounded checkpoint.
 
 #### prove-anomaly-analysis-on-provided-archive
 
@@ -1266,6 +1569,17 @@ Run configured detectors on the provided archive and publish honest quality and 
 - Dependencies: `implement-anomaly-review-and-triage-exports`;
 `prove-domain-investigation-artifacts-on-provided-archive`;
 [Representative corpus approval](records/0023-corpus-approve-representative-corpus-and-gold.md).
+`review-domain-artifact-and-triage-boundaries`.
+- Human review handoff:
+[approve-anomaly-triage-policy](#approve-anomaly-triage-policy)
+sealed enable/constraints-only/revise/disable packet.
+Packet: `$RUNS_DIR/<run-id>/review/anomalies/`.
+Ready after this proof passes.
+Blocked consumer:
+`accept-operator-discovery-workflows`
+and `publish-provided-archive-end-to-end-proof`.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: enable, retain constraints only, revise or disable each detector and its review budget.
 - User-visible outcome: The archive has cited anomaly candidates, or an explicit no-findings/insufficient-data
 result, with per-detector coverage and an interpretable review workload.
 - Scope boundary: No claims of wrongdoing or anomaly-free data; only bounded authorized source
@@ -1280,6 +1594,9 @@ and capture cache hits, time and memory; report retain-constraints or not-select
 verdict; hard
 negatives, cohort leakage and review burden are reported; findings/empty outputs validate; no
 heavy work on the identical rerun and no private source content in repository summaries.
+Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
+obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
+unchanged. Retain separate raw-proof and transformed-export fingerprints.
 - Documentation target: `docs/impl/current/anomaly-analysis.md`
 - Review checkpoint: `review-investigation-and-report-integrity`.
 
@@ -1351,7 +1668,16 @@ company/product/person catalogs and the analyst entry report through CLI and a s
 `register-and-expose-domain-artifacts`; `build-company-product-and-person-catalogs`;
 `implement-anomaly-review-and-triage-exports`; `implement-investigation-profile-and-output-manifest`.
 `implement-evidence-and-source-location-lookup`.
-
+`review-domain-artifact-and-triage-boundaries`.
+- Human review handoff:
+[accept-operator-discovery-workflows](#accept-operator-discovery-workflows)
+scenario instructions, entry points and evidence/state drill-down examples.
+Packet: `$RUNS_DIR/<run-id>/acceptance/`.
+Draft contribution; the linked proof and other human prerequisites still apply.
+Blocked consumer:
+`publish-provided-archive-end-to-end-proof`.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: accept the cited investigation scenarios or record blocking usability/domain failures.
 - User-visible outcome: An operator can find evidence, inspect objects and facts, traverse
 relations, open the portable `reports/index.html`, see important supported findings and coverage, and
 drill through catalogs, anomalies, BOM, supply-chain, invoice/payment and relation graphs to source
@@ -1374,6 +1700,9 @@ are embedded in Python strings or dashboard query text.
 injection and path tests pass; large/unbounded requests are refused; exports conform to generated
 contracts; report manifest and pinned canonical snapshots agree; source snippets cannot execute
 HTML/scripts or direct model/tool actions; portable report works without Grafana/AGE Viewer.
+Time/place filters expose uncertainty and source-valid versus recorded scope; ontology/identity
+snapshots are visible. Domain labels and same-name entities remain distinct across catalogs,
+graphs, tables and source drill-down.
 - Documentation target: `docs/impl/current/discovery-visualization.md`
 - Review checkpoint: `review-investigation-and-report-integrity`.
 
@@ -1387,6 +1716,15 @@ store.
 - Agent status: RUN NEEDED
 - Dependencies: `build-search-graph-and-report-interfaces`; Compose profiles documented in
 [Portable runtime](current/portable-runtime.md).
+- Human review handoff:
+[accept-operator-discovery-workflows](#accept-operator-discovery-workflows)
+scenario instructions, entry points and evidence/state drill-down examples.
+Packet: `$RUNS_DIR/<run-id>/acceptance/`.
+Draft contribution; the linked proof and other human prerequisites still apply.
+Blocked consumer:
+`publish-provided-archive-end-to-end-proof`.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: accept the cited investigation scenarios or record blocking usability/domain failures.
 - User-visible outcome: Local dashboards show pipeline progress, topics, entities, facts, conflicts,
 and bounded graph views; AGE Viewer supports exploratory Cypher when enabled.
 - Scope boundary: Provision read-only local tools; no internet exposure, corpus-bearing telemetry
@@ -1416,6 +1754,15 @@ archive artifacts and publish the discovery proof bundle.
 - Dependencies: `build-search-graph-and-report-interfaces`;
 `prove-domain-investigation-artifacts-on-provided-archive`; `prove-anomaly-analysis-on-provided-archive`;
 `prove-lexical-retrieval-on-provided-archive`. Viewer smoke is conditional on selecting that profile.
+- Human review handoff:
+[accept-operator-discovery-workflows](#accept-operator-discovery-workflows)
+executable scenario packet, results and issue ledger.
+Packet: `$RUNS_DIR/<run-id>/acceptance/`.
+Ready after this proof and the listed policy decisions; name any still pending.
+Blocked consumer:
+`publish-provided-archive-end-to-end-proof`.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: accept the cited investigation scenarios or record blocking usability/domain failures.
 - User-visible outcome: Operators can navigate supplied-archive topics, searches, objects, facts,
 graphs, and domain reports through bounded interfaces whose displayed evidence can be verified.
 - Scope boundary: Prove local read-only scenarios and available profiles; do not expose services
@@ -1431,6 +1778,9 @@ limits, exports, dashboards/views, and unchanged-rerun cache decisions.
 - Acceptance gates: Every executed scenario resolves to bounded, policy-labelled source evidence;
 exports and configured views validate; unavailable optional profiles have working fallbacks;
 unchanged rerun avoids heavy topic/report recomputation; unresolved failures keep proof open.
+Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
+obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
+unchanged. Retain separate raw-proof and transformed-export fingerprints.
 - Documentation target: `docs/impl/current/discovery-visualization.md`
 - Review checkpoint: `review-investigation-and-report-integrity`.
 
@@ -1481,7 +1831,8 @@ justifies it.
 - Agent status: RUN NEEDED
 - Dependencies: `build-search-graph-and-report-interfaces`;
 [Local inference adapters](records/0031-inference-implement-local-inference-adapters.md);
-[Model resource scheduler](records/0032-inference-implement-model-resource-scheduler.md). Lexical retrieval suffices; selected vectors are conditional.
+[Model resource scheduler](records/0032-inference-implement-model-resource-scheduler.md).
+Lexical retrieval suffices; selected vectors are conditional.
 - User-visible outcome: Analysts may ask questions over selected evidence and receive cited
 answers or explicit
 abstention without leaving the host.
@@ -1509,7 +1860,7 @@ current-state evidence references.
 - Serves: `evaluation-evidence` --
 [Implementation boundaries](../design/spec.md#implementation-boundaries)
 - Agent status: CLEAR
-- Dependencies: `create-evaluation-fixtures-and-metrics`; `implement-run-ledger-and-atomic-artifacts`.
+- Dependencies: [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md); `implement-run-ledger-and-atomic-artifacts`.
 - User-visible outcome: A stale run cannot continue to support a changed published claim.
 - Scope boundary: Build ongoing evidence validation; routine review of each change remains part of that
 change, not a deferred audit. Do not invent missing benchmarks.
@@ -1531,7 +1882,7 @@ Exercise the complete investigation command on a mixed deterministic fixture and
 - Serves: `evaluation-evidence` -- [End-to-end run and output contract](../design/spec.md#end-to-end-run-and-output-contract)
 - Agent status: CLEAR
 - Dependencies: `build-search-graph-and-report-interfaces`; `implement-hierarchical-file-classification`;
-`implement-investigation-profile-and-output-manifest`; `create-evaluation-fixtures-and-metrics`.
+`implement-investigation-profile-and-output-manifest`; [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 - User-visible outcome: One directory-to-report command proves every required family is wired
 through real baseline
 stage adapters, independent of optional vectors, viewers and archive organization.
@@ -1565,8 +1916,11 @@ usable pipeline stage and artifact family.
 `prove-archive-classification-on-provided-archive`; `prove-discovery-and-visualization-on-provided-archive`;
 `prove-anomaly-analysis-on-provided-archive`;
 [Model resource scheduler](records/0032-inference-implement-model-resource-scheduler.md);
-`create-evaluation-fixtures-and-metrics`. Semantic proof is required only for a selected vector branch.
+[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md). Semantic proof is required only for a selected vector branch.
 `review-investigation-and-report-integrity`.
+`approve-classification-policy`; `approve-entity-merge-and-ontology-policy`;
+`approve-fact-review-and-publication-policy`; `approve-domain-artifact-semantics-and-inclusion`;
+`approve-anomaly-triage-policy`; `accept-operator-discovery-workflows`.
 - User-visible outcome: One command/report shows which pipeline stages have current proof on the
 supplied file silos, which artifacts they produced, which optional branches were not selected, and
 how every result resolves to evidence.
@@ -1586,6 +1940,9 @@ optional disabled
 branches cite selection reasons and fallbacks (measured verdicts for comparative claims); the end-to-end
 report exposes all failures/coverage gaps; unchanged evaluation/report work is reused; private paths
 and corpus content are absent from repository documentation.
+Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
+obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
+unchanged. Retain separate raw-proof and transformed-export fingerprints.
 - Documentation target: `docs/impl/current/evaluation.md`
 - Review checkpoint: `review-production-readiness-and-recovery`.
 
@@ -1602,6 +1959,16 @@ rebuild on two progressively larger corpus slices.
 [Representative corpus approval](records/0023-corpus-approve-representative-corpus-and-gold.md);
 `implement-backup-restore-and-rebuild-runbook`;
 `test-failure-and-capacity-boundaries`. Optional branches participate only when selected.
+`review-recovery-before-scale-pilots`.
+- Human review handoff:
+[authorize-full-corpus-run](#authorize-full-corpus-run)
+pilot ranges, pins, scope, stop conditions and proposed decision.
+Packet: `$RUNS_DIR/<run-id>/authorization/`.
+Packet prepared here; approval remains pending `review-production-readiness-and-recovery` and human prerequisites.
+Blocked consumer:
+full-corpus execution (not another implicit agent implementation task).
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: authorize-next, resize/reconfigure, subset-only or stop for the exact pins and budget.
 - User-visible outcome: A capacity plan predicts normalized, classification, registered domain
 artifact, heap, lexical, vector, graph, WAL, temp, backup, wall-time, and operator-review costs
 before the full archive runs.
@@ -1633,6 +2000,15 @@ container mounts, and a network-denied run mode.
 [Canonical relational schema](records/0021-store-create-canonical-relational-schema.md);
 [Local inference adapters](records/0031-inference-implement-local-inference-adapters.md);
 `build-search-graph-and-report-interfaces`. Organizer hardening is accepted in its own capability.
+- Human review handoff:
+[accept-recovery-and-security-posture](#accept-recovery-and-security-posture)
+access/retention checklist, restore inventory, reproduction commands and residual risks.
+Packet: `$RUNS_DIR/<run-id>/review/recovery/`.
+Draft contribution; the linked proof and other human prerequisites still apply.
+Blocked consumer:
+`review-recovery-before-scale-pilots`.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: witness restore and accept/reject the exact posture and residual risks.
 - User-visible outcome: The local stack can process prepared inputs without unintended network
 access or writable archive access, with bounded read-only evidence and report queries.
 
@@ -1648,7 +2024,7 @@ document instructions cannot trigger tools, source writes, unbounded queries or 
 UI role mutations fail; secrets/corpus snippets
 do not appear in logs; dependency/image scan findings are triaged without suppressing gates.
 - Documentation target: `docs/impl/current/operations.md`
-- Review checkpoint: `review-production-readiness-and-recovery`.
+- Review checkpoint: `review-recovery-before-scale-pilots`.
 
 #### implement-backup-restore-and-rebuild-runbook
 
@@ -1661,6 +2037,15 @@ rebuild metadata.
 - Dependencies: [0025](records/0025-store-implement-rebuildable-search-and-graph-projections.md);
 `harden-local-security-and-no-egress-mode`; `register-and-expose-domain-artifacts`.
 Run the initial restore on disposable fixture/small-proof data before scale pilots.
+- Human review handoff:
+[accept-recovery-and-security-posture](#accept-recovery-and-security-posture)
+access/retention checklist, restore inventory, reproduction commands and residual risks.
+Packet: `$RUNS_DIR/<run-id>/review/recovery/`.
+Draft contribution; the linked proof and other human prerequisites still apply.
+Blocked consumer:
+`review-recovery-before-scale-pilots`.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: witness restore and accept/reject the exact posture and residual risks.
 - User-visible outcome: A documented command sequence restores canonical state, classifications,
 move/source lookup, and artifact registries, then validates or rebuilds search and graph projections
 on a clean target path.
@@ -1683,7 +2068,7 @@ a backup missing a configured WAL or tablespace root fails as incomplete rather 
 partial cluster; missing/corrupt backup parts fail before mutation; recovery time/space are recorded;
 original data remains untouched.
 - Documentation target: `docs/impl/current/operations.md`
-- Review checkpoint: `review-production-readiness-and-recovery`.
+- Review checkpoint: `review-recovery-before-scale-pilots`.
 
 #### test-failure-and-capacity-boundaries
 
@@ -1696,6 +2081,15 @@ index, and stale lease behavior before full-corpus authorization.
 - Dependencies: `implement-backup-restore-and-rebuild-runbook`;
 `add-progress-logging-and-resource-telemetry`; `implement-evidence-based-pipeline-forecast`;
 `implement-incremental-reconciliation-and-stale-pruning`. Organizer failure injection is separate.
+- Human review handoff:
+[accept-recovery-and-security-posture](#accept-recovery-and-security-posture)
+seal
+`$RUNS_DIR/<run-id>/review/recovery/` with restore/failure evidence and residual-risk decisions.
+Ready after this task and its security/restore prerequisites pass;
+blocks `review-recovery-before-scale-pilots`.
+Also contributes capacity/stop-condition evidence to [authorize-full-corpus-run](#authorize-full-corpus-run);
+that decision remains pending pilots and the production checkpoint. Print both states.
+Decision: witness restore and accept/reject the exact posture and residual risks.
 - User-visible outcome: Known failures stop safely, preserve evidence, and provide a tested
 resume/rebuild action instead of corrupting state.
 - Scope boundary: Controlled disposable fixtures and pilot paths only; no destructive testing
@@ -1709,7 +2103,40 @@ cleanup plans, source lookup, and recovery.
 bounded; invalid indexes/projections never become active; forecast and each large-stage recheck
 refuse before the configured safety margin is consumed; stale cleanup never removes protected data.
 - Documentation target: `docs/impl/current/operations.md`
-- Review checkpoint: `review-production-readiness-and-recovery`.
+- Review checkpoint: `review-recovery-before-scale-pilots`.
+
+#### review-recovery-before-scale-pilots
+
+Review recovery and refusal behavior before pilot scale increases exposure and resource cost.
+
+- Serves: `operational-recovery` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
+- Agent status: CLEAR
+- Task kind: checkpoint
+- Dependencies: `harden-local-security-and-no-egress-mode`; `implement-backup-restore-and-rebuild-runbook`;
+`test-failure-and-capacity-boundaries`; `publish-provided-archive-end-to-end-proof`;
+`accept-recovery-and-security-posture`.
+- User-visible outcome:
+Pilot runs start with a verified restore boundary, current limits and a recorded human posture decision.
+- Scope boundary:
+Use completed disposable/small-proof recovery and failure evidence. This precedes scale pilots;
+the later production checkpoint evaluates their measured results and cannot be replaced here.
+Review integrated behavior, not just test totals; no speculative rewrite or model promotion.
+- Data and artifact paths: Accepted producer records, current fixtures and retained proof evidence;
+`$DATA_DIR/architecture-review/<run-id>/`.
+- Execution path:
+Trace backup inventory versus rebuildable projections, ontology/identity/review snapshots,
+source lookup, clean-target restore, power/process failure claims, no-egress and space/WAL reserves.
+Verify the human acceptance names the exact evidence and residual risks; changed pins invalidate it.
+Map each producer invariant to evidence; add missing behavior regressions at stable seams.
+- Acceptance gates:
+Restored facts, policy/ontology versions and historical geotemporal answers reconcile; cancellation
+and low-space refusal preserve active data. Missing/stale restore evidence or human acceptance
+blocks scale pilots; no full-corpus authorization follows from this checkpoint.
+Record refactor/no-refactor and proceed/proceed-with-nonblocking-notes/blocked verdicts. Plan a
+focused prerequisite repair for any blocker and keep this checkpoint open until it passes.
+Run `make ci`; coverage is diagnostic. Route each nonblocking note to one explicit owner.
+- Documentation target: `docs/impl/current/operations.md`
+- Review checkpoint: none; this is the bounded checkpoint.
 
 #### review-production-readiness-and-recovery
 
@@ -1720,6 +2147,16 @@ Review the integrated milestone before full-corpus authorization.
 - Task kind: checkpoint
 - Dependencies: `run-representative-scale-pilots`; `test-failure-and-capacity-boundaries`;
 `implement-backup-restore-and-rebuild-runbook`.
+`review-recovery-before-scale-pilots`.
+- Human review handoff:
+[authorize-full-corpus-run](#authorize-full-corpus-run)
+reviewed pilot/recovery verdict and exact decision packet.
+Packet: `$RUNS_DIR/<run-id>/authorization/`.
+After this checkpoint, report ready or list remaining policy decisions; never authorize automatically.
+Blocked consumer:
+full-corpus execution (not another implicit agent implementation task).
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: authorize-next, resize/reconfigure, subset-only or stop for the exact pins and budget.
 - User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
 or blocked
 for the named consumers; no-refactoring-needed is a valid conclusion.
@@ -1787,7 +2224,7 @@ same selected tier; exercise the Qdrant escape-hatch interface without deploying
 [Promotion and fallback gates](../design/spec.md#promotion-and-fallback-gates)
 - Agent status: RUN NEEDED
 - Research: yes
-- Dependencies: `implement-selective-embedding-pipeline`; `create-evaluation-fixtures-and-metrics`.
+- Dependencies: `implement-selective-embedding-pipeline`; [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 - User-visible outcome: The project has a measured vector/hybrid choice or an explicit lexical-only
 decision, plus a bounded fallback if Postgres cannot meet requirements.
 - Scope boundary: Compare recall, filtering, fusion, lifecycle, and cost; do not add Qdrant unless
@@ -1825,6 +2262,9 @@ record that model inference and index build are reused.
 - Acceptance gates: A usable branch has checksum-valid vectors/indexes, cited queries, measured
 quality/cost verdict, and no heavy work on identical rerun. `not-selected` is valid only with the
 declared measured negative result and verified lexical fallback; other failures keep the task open.
+Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
+obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
+unchanged. Retain separate raw-proof and transformed-export fingerprints.
 - Documentation target: `docs/impl/current/semantic-retrieval.md`
 - Review checkpoint: `review-semantic-branch-integrity`.
 
@@ -1879,6 +2319,15 @@ organization in both copy-to-target and in-place move modes.
 for move recovery semantics; use disposable roots for acceptance.
 `implement-evidence-and-source-location-lookup`.
 
+- Human review handoff:
+[approve-archive-organization-plan](#approve-archive-organization-plan)
+dry-run plan/diff, source lookup, rollback and mode instructions.
+Packet: `$RUNS_DIR/<run-id>/archive-reorganization/`.
+Draft contribution; the linked proof and other human prerequisites still apply.
+Blocked consumer:
+`execute-authorized-archive-reorganization`.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: apply, mapping-only, revise or stop for the exact plan, mode and scope.
 - User-visible outcome: An authorized operator can build a classified tree of short meaningful ASCII
 class directories -- copied to a target disk by default, or moved in place when that is the intent --
 and still resolve every knowledge source to its initial and current path.
@@ -1926,6 +2375,15 @@ Prove the organizer consumes pipeline exports independently and produces safe re
 - Serves: `archive-organization` -- [Separate archive organization utility](../design/spec.md#separate-archive-organization-utility)
 - Agent status: RUN NEEDED
 - Dependencies: `implement-audited-archive-reorganization`; `prove-archive-classification-on-provided-archive`.
+- Human review handoff:
+[approve-archive-organization-plan](#approve-archive-organization-plan)
+provide
+`$RUNS_DIR/<run-id>/archive-reorganization/` plan/diff, fingerprints, source lookup and recovery drill.
+After the proof, checkpoint and classification decision pass, report ready for apply/mapping-only/revise/stop.
+Also prepare the exact command, target/mode/backup checks and rollback instructions for
+[execute-authorized-archive-reorganization](#execute-authorized-archive-reorganization).
+Execution remains blocked by the human plan decision; never interpret a draft packet as authorization.
+Decision: apply, mapping-only, revise or stop for the exact plan, mode and scope.
 - User-visible outcome: The operator can inspect copy and move plans and resolve source paths
 without starting
 model, search, or graph services.
@@ -1941,6 +2399,9 @@ edit a placed file and prove rollback refuses to remove it.
 collision handling;
 no provided source changes; no model/database dependency; source hashes, lookup, and recovery
 match the contract; missing backup blocks move application without blocking copy planning.
+Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
+obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
+unchanged. Retain separate raw-proof and transformed-export fingerprints.
 - Documentation target: `docs/impl/current/archive-organization.md`
 - Review checkpoint: `review-archive-organization-integrity`.
 
@@ -1954,6 +2415,15 @@ Review the integrated milestone before any real copy/move plan authorization.
 - Audit inputs: [AUD-safe-runtime-root-boundaries-1](records/0005-runtime-refactor-safe-runtime-root-boundaries.md#audit-handoff).
 - Dependencies: `prove-archive-organization-on-provided-artifacts`;
 [Safe runtime root boundaries](records/0005-runtime-refactor-safe-runtime-root-boundaries.md).
+- Human review handoff:
+[approve-archive-organization-plan](#approve-archive-organization-plan)
+provide
+`$RUNS_DIR/<run-id>/archive-reorganization/` plan/diff, fingerprints, source lookup and recovery drill.
+After the proof, checkpoint and classification decision pass, report ready for apply/mapping-only/revise/stop.
+Also prepare the exact command, target/mode/backup checks and rollback instructions for
+[execute-authorized-archive-reorganization](#execute-authorized-archive-reorganization).
+Execution remains blocked by the human plan decision; never interpret a draft packet as authorization.
+Decision: apply, mapping-only, revise or stop for the exact plan, mode and scope.
 - User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
 or blocked
 for the named consumers; no-refactoring-needed is a valid conclusion.
@@ -2020,6 +2490,7 @@ report meaning.
 - Dependencies: `prove-identity-ontology-graph-on-provided-archive`; held-out linkage curves from
 `implement-probabilistic-entity-resolution`; ontology review package from
 [Versioned ontology assets](records/0013-contract-gov-establish-versioned-ontology-assets.md).
+`implement-ontology-snapshots-and-geotemporal-contracts`.
 - User-visible outcome: Auto-merge thresholds and ontology semantics reflect the owner's precision
 tolerance and domain meaning.
 - Scope boundary: Approve bounded policies and terms; no manual editing of source mentions or
@@ -2031,6 +2502,9 @@ definitions, domain/range, and constraint examples; record decisions as versione
 and ontology commits.
 Review terms against domain meaning, hidden helpers, the rule of three, additive extension, and
 producer/consumer typing.
+Review draft/published term differences, compatibility/deprecation mappings, geotemporal type and
+uncertainty examples, source-valid versus recorded scope, and cross-version answer changes.
+Acceptance publishes a new pinned interpretation; rejection leaves candidate terms unpublished.
 - Acceptance gates: Auto-merge precision floor and review band are explicit; disputed terms remain
 draft; every accepted change has rollback/deprecation behavior. New terms meet the rule of three
 or a required specification type; helper/non-semantic objects are not published as classes.
@@ -2073,8 +2547,8 @@ payment artifacts before they are presented as accepted investigation results.
 - Serves: `domain-investigation-artifacts` --
 [Domain investigation artifacts](../design/spec.md#domain-investigation-artifacts)
 - Agent status: HUMAN-GATED
-- Dependencies: `prove-domain-investigation-artifacts-on-provided-archive`; approved fact and
-identity/ontology policies; per-family final evaluation results.
+- Dependencies: `prove-domain-investigation-artifacts-on-provided-archive`;
+`approve-fact-review-and-publication-policy`; `approve-entity-merge-and-ontology-policy`.
 - User-visible outcome: Operators can distinguish evidence-backed `part-of`, supplier, invoiced,
 paid, partial, disputed, and unmatched states using domain-approved meanings.
 - Scope boundary: Approve measured semantics, inclusion states, and display language; do not repair
@@ -2087,6 +2561,8 @@ labels; record per-family thresholds, allowed review states, warnings, and rollb
 - Acceptance gates: Every enabled family has approved semantics and inclusion rules; weak families
 remain partial, review-only, or disabled; conflicts/unresolved links stay visible; policy version is
 present in each registry row and render.
+Revision/effectivity and time-bounded party/location roles are explicit; domain distinctions and
+non-implication examples are reviewed against the exact ontology snapshot.
 - Documentation target: `docs/impl/current/domain-investigation-artifacts.md`
 - Review checkpoint: `review-investigation-and-report-integrity`.
 
@@ -2128,8 +2604,9 @@ and filters.
 - Agent status: HUMAN-GATED
 - Dependencies: `build-search-graph-and-report-interfaces`;
 `provision-local-dashboards-and-age-viewer` only for a selected viewer;
-`prove-discovery-and-visualization-on-provided-archive`; approved fact, identity, and
-domain-artifact policies; `approve-anomaly-triage-policy`.
+`prove-discovery-and-visualization-on-provided-archive`; `approve-fact-review-and-publication-policy`;
+`approve-entity-merge-and-ontology-policy`; `approve-domain-artifact-semantics-and-inclusion`;
+`approve-anomaly-triage-policy`.
 - User-visible outcome: The available interfaces answer the actual investigation questions without
 requiring knowledge of internal table layouts.
 - Scope boundary: Usability and domain correctness review on bounded tasks; not a public UI
@@ -2153,10 +2630,12 @@ archive and which optional profiles are included.
 - Serves: `evaluation-evidence` -- [Required acceptance gates](../design/spec.md#required-acceptance-gates)
 - Agent status: HUMAN-GATED
 - Dependencies: `run-representative-scale-pilots`; `test-failure-and-capacity-boundaries`;
-`accept-recovery-and-security-posture`; approved discovery, classification, fact, identity, ontology,
-domain-artifact and anomaly policies. Archive placement authorization is independent.
-`review-production-readiness-and-recovery`.
+`accept-recovery-and-security-posture`; `accept-operator-discovery-workflows`;
+`approve-classification-policy`; `approve-fact-review-and-publication-policy`;
+`approve-entity-merge-and-ontology-policy`; `approve-domain-artifact-semantics-and-inclusion`;
+`approve-anomaly-triage-policy`; `review-production-readiness-and-recovery`.
 `review-semantic-branch-integrity` only if the semantic branch is selected.
+Archive placement authorization is independent.
 - User-visible outcome: The multi-terabyte run begins with an explicit disk/time/risk budget and
 selected lexical/vector/graph/model profiles, or is intentionally limited.
 - Scope boundary: Authorization only; it does not weaken safety margins or imply cloud/HA scope.

@@ -1,0 +1,163 @@
+{
+  "family": "classification",
+  "items": [
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "alternate": [
+          "62"
+        ],
+        "path": [
+          "6",
+          "62",
+          "621"
+        ],
+        "primary": "621"
+      },
+      "gold_ref": "gold:class-hierarchy:tuning",
+      "item_id": "class-hierarchy-tuning",
+      "item_kind": "classification",
+      "label": "621",
+      "negative": {
+        "path": [
+          "5",
+          "51"
+        ],
+        "primary": "51"
+      },
+      "positive": {
+        "path": [
+          "6",
+          "62",
+          "621"
+        ],
+        "primary": "621"
+      },
+      "provenance": {
+        "evidence": "inventory:file-1",
+        "source": "fixture://classify/drawing.pdf"
+      },
+      "query_text": null,
+      "split": "tuning"
+    },
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "alternate": [
+          "621.3"
+        ],
+        "path": [
+          "6",
+          "62",
+          "621",
+          "621.3"
+        ],
+        "primary": "621.3"
+      },
+      "gold_ref": "gold:class-hierarchy:final",
+      "item_id": "class-hierarchy-final",
+      "item_kind": "classification",
+      "label": "621",
+      "negative": {
+        "path": [
+          "5",
+          "51"
+        ],
+        "primary": "51",
+        "split_mark": "final"
+      },
+      "positive": {
+        "alternate": [
+          "621.3"
+        ],
+        "path": [
+          "6",
+          "62",
+          "621",
+          "621.3"
+        ],
+        "primary": "621.3"
+      },
+      "provenance": {
+        "evidence": "inventory:file-1-final",
+        "source": "fixture://classify/drawing.pdf"
+      },
+      "query_text": null,
+      "split": "final"
+    },
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "alternate": [],
+        "path": [
+          "unclassified"
+        ],
+        "primary": "unclassified"
+      },
+      "gold_ref": "gold:class-unclassified:final",
+      "item_id": "class-unclassified-final",
+      "item_kind": "classification",
+      "label": "unclassified",
+      "negative": {
+        "path": [
+          "6",
+          "62"
+        ],
+        "primary": "62"
+      },
+      "positive": {
+        "path": [
+          "unclassified"
+        ],
+        "primary": "unclassified"
+      },
+      "provenance": {
+        "evidence": "inventory:file-unknown",
+        "source": "fixture://classify/unknown.bin"
+      },
+      "query_text": null,
+      "split": "final"
+    },
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "alternate": [],
+        "path": [
+          "unreadable"
+        ],
+        "primary": "unreadable"
+      },
+      "gold_ref": "gold:class-unreadable:tuning",
+      "item_id": "class-unreadable-tuning",
+      "item_kind": "classification",
+      "label": "unreadable",
+      "negative": {
+        "path": [
+          "6"
+        ],
+        "primary": "6"
+      },
+      "positive": {
+        "path": [
+          "unreadable"
+        ],
+        "primary": "unreadable"
+      },
+      "provenance": {
+        "evidence": "inventory:file-corrupt",
+        "source": "fixture://classify/corrupt.pdf"
+      },
+      "query_text": null,
+      "split": "tuning"
+    }
+  ],
+  "schema_version": 1
+}

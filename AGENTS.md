@@ -45,6 +45,9 @@ Load other guidance when the condition below applies; do not preload the whole d
    On acceptance, update narrow current-state docs and indexes, link the record, replace removed
    task references with accepted-record links, then remove only satisfied scope from the plan.
    Run `make lint-doc-links` and `make lint-spec-plan`; report task counts and capability changes.
+   For tasks marked `Human review handoff`, report the human task id, packet path, readiness,
+   inspection command, required decision and next blocked consumer. Do not start dependent work
+   before that decision is recorded; name missing prerequisites instead of implying approval.
    Inspect `git status`; stop your processes/services, remove temporary scaffolds, and retain evidence.
 
 ## Read when needed

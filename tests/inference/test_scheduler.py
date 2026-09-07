@@ -15,6 +15,7 @@ from arxiv_int.inference.scheduler import ModelResourceScheduler, scheduler_path
 from arxiv_int.inference.scheduling import ModelRequirement, OccupancySnapshot, place_requirement
 from tests.inference.fakes import FakeState, default_models, serve
 
+SMALL_MODEL = "gemma3:4b"
 LARGE = ModelFootprint(
     weights_gib=16.8,
     kv_cache_per_1k_context_gib=0.18,
@@ -23,10 +24,10 @@ LARGE = ModelFootprint(
     allow_cpu=True,
 )
 SMALL = ModelFootprint(
-    weights_gib=2.2,
-    kv_cache_per_1k_context_gib=0.04,
+    weights_gib=3.1,
+    kv_cache_per_1k_context_gib=0.05,
     runtime_overhead_gib=0.6,
-    cpu_ram_gib=4.0,
+    cpu_ram_gib=6.0,
     allow_cpu=True,
 )
 
@@ -64,7 +65,7 @@ def _scheduler(
 
 def test_small_model_fits_cuda_and_large_gpu_only_is_actionable() -> None:
     snapshot = _host()
-    small_req = ModelRequirement("llama3.2:3b", backend="ollama")
+    small_req = ModelRequirement(SMALL_MODEL, backend="ollama")
     large_req = ModelRequirement("qwen3.8:27b", backend="ollama", allow_cpu=False)
     small = place_requirement(small_req, snapshot, estimate_footprint(SMALL), OccupancySnapshot())
     large = place_requirement(large_req, snapshot, estimate_footprint(LARGE), OccupancySnapshot())
@@ -89,13 +90,13 @@ def test_reclaimable_ollama_vram_enables_cuda() -> None:
     snapshot = _host(free_gib=1.0)
     occupancy = OccupancySnapshot(ollama_loaded=("other",), ollama_vram_gib=14.0)
     allowed = place_requirement(
-        ModelRequirement("llama3.2:3b", allow_unload=True),
+        ModelRequirement(SMALL_MODEL, allow_unload=True),
         snapshot,
         estimate_footprint(SMALL),
         occupancy,
     )
     blocked = place_requirement(
-        ModelRequirement("llama3.2:3b", allow_unload=False, allow_cpu=False),
+        ModelRequirement(SMALL_MODEL, allow_unload=False, allow_cpu=False),
         snapshot,
         estimate_footprint(SMALL),
         occupancy,
@@ -107,13 +108,13 @@ def test_reclaimable_ollama_vram_enables_cuda() -> None:
 
 def test_already_loaded_target_is_kept_not_unloaded() -> None:
     placement = place_requirement(
-        ModelRequirement("llama3.2:3b"),
+        ModelRequirement(SMALL_MODEL),
         _host(free_gib=12.0),
         estimate_footprint(SMALL),
         OccupancySnapshot(
-            ollama_loaded=("llama3.2:3b",),
-            ollama_vram_gib=2.4,
-            ollama_resident=(("llama3.2:3b", 2.4),),
+            ollama_loaded=(SMALL_MODEL,),
+            ollama_vram_gib=3.3,
+            ollama_resident=((SMALL_MODEL, 3.3),),
         ),
     )
     assert placement.device == "cuda"
@@ -122,7 +123,7 @@ def test_already_loaded_target_is_kept_not_unloaded() -> None:
 
 def test_ram_shortfall_rejects_even_when_vram_fits() -> None:
     placement = place_requirement(
-        ModelRequirement("llama3.2:3b", cpu_ram_gib=40.0, allow_cpu=False),
+        ModelRequirement(SMALL_MODEL, cpu_ram_gib=40.0, allow_cpu=False),
         _host(ram_gib=20.0),
         estimate_footprint(SMALL),
         OccupancySnapshot(),
@@ -134,13 +135,13 @@ def test_ram_shortfall_rejects_even_when_vram_fits() -> None:
 def test_vllm_occupancy_blocks_ollama_without_service_control() -> None:
     occupancy = OccupancySnapshot(vllm_ready=True)
     blocked = place_requirement(
-        ModelRequirement("llama3.2:3b", allow_cpu=False),
+        ModelRequirement(SMALL_MODEL, allow_cpu=False),
         _host(),
         estimate_footprint(SMALL),
         occupancy,
     )
     fallback = place_requirement(
-        ModelRequirement("llama3.2:3b", allow_cpu=True),
+        ModelRequirement(SMALL_MODEL, allow_cpu=True),
         _host(),
         estimate_footprint(SMALL),
         occupancy,

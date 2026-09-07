@@ -98,3 +98,13 @@ def test_zero_wait_conflict_is_explicit(tmp_path: Path) -> None:
         lease.acquire(_row("other"), wait_seconds=0.0)
     finished.set()
     thread.join(timeout=2.0)
+
+
+def test_exception_without_cancel_releases_the_lease(tmp_path: Path) -> None:
+    lease = HostGpuLease(tmp_path)
+    with pytest.raises(RuntimeError, match="boom"), lease.hold(_row("held"), wait_seconds=1.0):
+        raise RuntimeError("boom")
+    with lease.hold(_row(model_id="after"), wait_seconds=1.0) as held:
+        assert held.model_id == "after"
+        assert lease.current() is not None
+        assert lease.current().model_id == "after"

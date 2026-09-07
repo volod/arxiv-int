@@ -1,0 +1,187 @@
+{
+  "family": "geotemporal",
+  "items": [
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "crs": "EPSG:4326",
+        "latitude": 55.75,
+        "longitude": 37.62,
+        "recorded_time": "2021-06-01",
+        "role_end": "2020-12-31",
+        "role_start": "2018-01-01",
+        "source_valid_end": "2020-01-01",
+        "source_valid_start": "2019-01-01",
+        "unknown_crs": false
+      },
+      "gold_ref": "gold:geo-time:tuning",
+      "item_id": "geo-valid-vs-recorded-tuning",
+      "item_kind": "geotemporal",
+      "label": null,
+      "negative": {
+        "crs": "EPSG:4326",
+        "latitude": 55.75,
+        "longitude": 37.62,
+        "recorded_time": "2021-06-01",
+        "role_end": "2020-12-31",
+        "role_start": "2018-01-01",
+        "source_valid_end": "2020-01-01",
+        "source_valid_start": "2021-06-01",
+        "unknown_crs": false
+      },
+      "positive": {
+        "crs": "EPSG:4326",
+        "latitude": 55.75,
+        "longitude": 37.62,
+        "recorded_time": "2021-06-01",
+        "role_end": "2020-12-31",
+        "role_start": "2018-01-01",
+        "source_valid_end": "2020-01-01",
+        "source_valid_start": "2019-01-01",
+        "unknown_crs": false
+      },
+      "provenance": {
+        "as_of": "2019-06-01",
+        "evidence": "valid-time:2019/2020",
+        "source": "fixture://geo/role.json"
+      },
+      "query_text": null,
+      "split": "tuning"
+    },
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "crs": null,
+        "latitude": null,
+        "longitude": null,
+        "place": "ambiguous-station",
+        "recorded_time": "2021-06-01",
+        "source_valid_start": "2019",
+        "unknown_crs": true
+      },
+      "gold_ref": "gold:geo-crs:final",
+      "item_id": "geo-unknown-crs-final",
+      "item_kind": "geotemporal",
+      "label": null,
+      "negative": {
+        "crs": "EPSG:4326",
+        "latitude": 0.0,
+        "longitude": 0.0,
+        "place": "ambiguous-station",
+        "recorded_time": "2021-06-01",
+        "source_valid_start": "2019",
+        "unknown_crs": false
+      },
+      "positive": {
+        "crs": null,
+        "latitude": null,
+        "longitude": null,
+        "place": "ambiguous-station",
+        "recorded_time": "2021-06-01",
+        "source_valid_start": "2019",
+        "unknown_crs": true
+      },
+      "provenance": {
+        "evidence": "place:ambiguous-station",
+        "source": "fixture://geo/place.json"
+      },
+      "query_text": null,
+      "split": "final"
+    },
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "as_of": "2020-07-01",
+        "product_id": "product:pump",
+        "revision": "B",
+        "revision_a_end": "2020-06-30",
+        "revision_b_start": "2020-07-01"
+      },
+      "gold_ref": "gold:geo-effectivity:final",
+      "item_id": "geo-effectivity-final",
+      "item_kind": "geotemporal",
+      "label": null,
+      "negative": {
+        "as_of": "2020-07-01",
+        "product_id": "product:pump",
+        "revision": "A",
+        "revision_a_end": "2020-06-30",
+        "revision_b_start": "2020-07-01"
+      },
+      "positive": {
+        "as_of": "2020-07-01",
+        "product_id": "product:pump",
+        "revision": "B",
+        "revision_a_end": "2020-06-30",
+        "revision_b_start": "2020-07-01"
+      },
+      "provenance": {
+        "evidence": "effectivity:product:pump:B",
+        "source": "fixture://geo/revision.json"
+      },
+      "query_text": null,
+      "split": "final"
+    },
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "as_of": "2021-06-01",
+        "crs": "EPSG:4326",
+        "latitude": 55.75,
+        "longitude": 37.62,
+        "recorded_time": "2021-06-01",
+        "role_active": false,
+        "role_end": "2020-12-31",
+        "role_start": "2018-01-01",
+        "source_valid_end": "2020-01-01",
+        "source_valid_start": "2019-01-01",
+        "unknown_crs": false
+      },
+      "gold_ref": "gold:geo-role:tuning",
+      "item_id": "geo-role-interval-tuning",
+      "item_kind": "geotemporal",
+      "label": null,
+      "negative": {
+        "as_of": "2021-06-01",
+        "crs": "EPSG:4326",
+        "latitude": 55.75,
+        "longitude": 37.62,
+        "recorded_time": "2021-06-01",
+        "role_active": true,
+        "role_end": "2020-12-31",
+        "role_start": "2018-01-01",
+        "source_valid_end": "2020-01-01",
+        "source_valid_start": "2019-01-01",
+        "unknown_crs": false
+      },
+      "positive": {
+        "as_of": "2021-06-01",
+        "crs": "EPSG:4326",
+        "latitude": 55.75,
+        "longitude": 37.62,
+        "recorded_time": "2021-06-01",
+        "role_active": false,
+        "role_end": "2020-12-31",
+        "role_start": "2018-01-01",
+        "source_valid_end": "2020-01-01",
+        "source_valid_start": "2019-01-01",
+        "unknown_crs": false
+      },
+      "provenance": {
+        "evidence": "role-interval:2018/2020",
+        "source": "fixture://geo/role.json"
+      },
+      "query_text": null,
+      "split": "tuning"
+    }
+  ],
+  "schema_version": 1
+}

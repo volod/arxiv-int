@@ -28,6 +28,17 @@ State the unresolved operator problem. Append `(optional)` to the heading only f
 
 Use `Task kind: refactor` or `Task kind: checkpoint` when applicable. `Research: yes` allows a
 supported negative result; it does not replace status or acceptance gates.
+Add `Human review handoff` to every agent task that produces or assembles human-evaluation inputs;
+use the [handoff contract](#human-review-handoffs) below. The field is a forward handoff, not a
+dependency on the approval it enables.
+
+Proof/dataset tasks declare local originals separately from any Git-bound export file list.
+Committed source-derived fixtures, labels, answers, figures and metadata must use the shared
+[identity obfuscation policy](../design/spec.md#identity-obfuscation-for-committed-proof-artifacts).
+Name its implementation prerequisite, deterministic/format/reference/leak gates and export
+fingerprints; local-only proof and human packets retain original identities. No-export is valid.
+Ontology/geotemporal/domain fixtures must preserve pinned semantics and expected relationships after
+obfuscation; altered text anchors and checksums must be rebuilt, not copied from the raw bundle.
 
 ## Task lanes
 
@@ -37,6 +48,47 @@ supported negative result; it does not replace status or acceptance gates.
 | Agent Implementation Tasks | `RUN NEEDED` | A declared heavier run |
 | Human-Assisted Tasks | `BLOCKED BY HUMAN` | Unavailable human-provided input/access |
 | Human-Assisted Tasks | `HUMAN-GATED` | Human judgment, authorization or spending authority |
+
+### Human review handoffs
+
+Mark every producer of a human task's required artifacts, including draft contributors and the
+proof/checkpoint that assembles the final packet. Use explicit human task links; the human task's
+`Dependencies` lists the producer ids and all required earlier human decisions. An agent proof
+must not depend on approval of the packet it creates. Fixture builders may use visibly proposed
+policies; promotion, accepted-output proof, scale or placement consumers carry the actual approval
+dependency. Conditional viewer/semantic/move requirements stay explicit.
+
+Each `Human review handoff` names:
+
+- the human task id and the packet path under the existing run/review or acceptance root;
+- the producer's contribution and whether it completes the packet or leaves other inputs pending;
+- the decision requested, inspection/reproduction instructions and downstream tasks that must wait.
+
+The complete packet includes immutable artifact/code/contract/model/ontology/policy fingerprints,
+scope and coverage, validation/metric results, representative positive/negative/ambiguous cases,
+candidate thresholds or inclusion rules, residual gaps and costs, and the decision-record location.
+Prepare everything the agent can produce before requesting judgment. If another prerequisite or
+decision is missing, report it explicitly; a useful draft is not a ready approval packet.
+Changed inputs make an earlier decision stale for the changed scope. Record the new review rather
+than silently carrying approval forward. Local packets use original identities; only Git-bound
+copies apply the export policy.
+
+At completion, the agent's final response must include this concrete handoff for each marked task:
+
+```text
+Human review required: <human-task-id and title>
+Status: ready | pending <named inputs/decisions> | stale | not-applicable <branch reason>
+Review: <packet path, fingerprint, and command or entry point>
+Decision: <specific accept/revise/reject or authorized alternatives; decision-record path>
+Blocked next work: <task ids and the scope that must wait>
+```
+
+Also record the handoff in the task record and rerun `make plan-status`. Report the actual next
+eligible task, not a presumed one. A passed producer/checkpoint is not a human decision. Do not
+continue a dependent agent task or execute a placement/full-corpus action before its required
+decision exists for the same fingerprints. Independent eligible work may continue; do not claim
+the whole plan is blocked when only one branch waits. If no agent successor is planned, name the
+blocked operation (for example full-corpus execution) without inventing another implementation task.
 
 ## Ordering
 
@@ -135,6 +187,14 @@ Keep proof/human gates separate; missing private labels do not block independent
 Create a bounded review round for changed public contracts, duplicated policy, repeated regressions,
 or integration risk after a checkpoint closes. Use a new id, explicit inputs/gates and a prior-record
 link. Do not create generic recurring audits or infer quality from model choice.
+
+Place reviews before the first consumer of a newly integrated boundary, including before expensive
+proofs or scale pilots when their prerequisite behavior can be checked cheaply. Name exact producers,
+cross-module invariants, positive/main-corner/negative evidence and gated consumers. Add required
+`Dependencies` edges to those consumers: a producer's `Review checkpoint` field alone is not a gate.
+Do not make a checkpoint depend on the consumer it must release. Dynamic ontology snapshots,
+geotemporal interpretation and domain distinctions are integration invariants, not a reason to add
+an unrelated ontology learner or GIS stack.
 
 ## Completion transition
 

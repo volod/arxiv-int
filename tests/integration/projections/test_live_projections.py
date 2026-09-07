@@ -20,6 +20,7 @@ from arxiv_int.stores.projections.paths import export_dir, projection_artifact_d
 from arxiv_int.stores.projections.registry import active_projection_id
 
 pytestmark = [
+    pytest.mark.heavy,
     pytest.mark.skipif(shutil.which("docker") is None, reason="docker unavailable"),
     pytest.mark.skipif(
         os.environ.get("ARXIV_INT_RUN_PROJECTIONS") != "1",

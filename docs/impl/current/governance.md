@@ -61,6 +61,20 @@ The failure cases and the repository-wide assertions live under `tests/quality/`
 workflow and full task template live in
 [Planning workflow](../../guide/planning-workflow.md).
 
+The [checkpoint and handoff revision](../records/0034-foundation-strengthen-checkpoints-and-human-proof-handoffs.md)
+adds earlier bounded reviews before pipeline consumers, archive quality proofs, report integration
+and scale pilots. Remaining tasks carry explicit approval dependencies and `Human review handoff`
+fields identifying draft/final packet producers. AGENTS and the workflow require the completing
+agent to report the human task, ready/pending state, packet/inspection path, decision and blocked
+consumer. `make plan-status` resolves dependency readiness; it does not itself judge packet quality
+or print these completion handoffs. Human judgment is not replaced by the structural checker.
+
+The specification now defines Git-only deterministic identity obfuscation and pinned dynamic
+ontology/geotemporal/domain semantics. The Git-bound exporter is implemented in
+[record 0035](../records/0035-eval-found-implement-committed-proof-identity-obfuscation.md);
+ontology/geotemporal contracts remain planned. Accepted records 0029-0033 and their runtime
+behavior are preserved.
+
 Documentation category directories use singular names: `design/`, `guide/`, and `impl/`. Page names
 remain specific to their content, and each category `README.md` file provides its local index.
 
