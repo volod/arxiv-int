@@ -77,10 +77,15 @@ handlers in order. A successful infrastructure audit does not mean the archive p
    ollama pull "${GENERATION_MODEL:?Set GENERATION_MODEL in .env}"
    make models-list
    make ollama-check
+   make inference-resources
+   make inference-fit MODEL=llama3.2:3b
    ```
 
    Ollama uses its host service storage; `MODEL_CACHE_DIR` does not relocate that service. Model
-   presence is not a memory-fit or quality result. For vLLM, use the configured model/revision and
+   presence is not a memory-fit or quality result. `make inference-resources` reports GPU VRAM,
+   power, and RAM. `make inference-fit` says whether the selected model fits this host, including
+   weights, KV cache, context, batch, overhead, and CPU/database RAM, and whether it would run on
+   CUDA, fall back to CPU, or be rejected. For vLLM, use the configured model/revision and
    include `vllm` in the service profile for each current service/readiness invocation.
 
 5. Build the pinned database image, validate roots/Compose, and start the selected services:

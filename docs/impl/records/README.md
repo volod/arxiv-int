@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0032` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0033` after the rows
 below).
 
 | Record | Scope | Result |
@@ -43,3 +43,4 @@ below).
 | [0029 Retire separate proof-archive root](0029-runtime-retire-separate-proof-archive-root.md) | Remove `PROOF_ARCHIVE_DIR`; proof runs use `ARCHIVE_DIR` and ordinary commands | Accepted |
 | [0030 Pandera Polars concat pin](0030-contract-gov-upgrade-pandera-polars-concat-compat.md) | Pin Pandera 0.33.1 so staging null checks do not emit Polars concat deprecation | Accepted |
 | [0031 Local inference adapters](0031-inference-implement-local-inference-adapters.md) | Provider-neutral Ollama/vLLM client for chat, structured output, embeddings, health, identity, timeout, and cancel | Accepted |
+| [0032 Model resource scheduler](0032-inference-implement-model-resource-scheduler.md) | Host-wide GPU lease, footprint fit, Ollama unload, requested vLLM control, and resource telemetry | Accepted |

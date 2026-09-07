@@ -74,7 +74,7 @@ class EmbeddingMixin:
         return result
 
     def unload(self, model_id: str, *, cancel: Event | None = None) -> None:
-        """Drop an Ollama model from VRAM. vLLM unload is owned by the scheduler task."""
+        """Drop an Ollama model from VRAM. vLLM unload uses the scheduler service controller."""
         if self.name != "ollama":
             raise TransportError(
                 "architecture_unsupported", "vLLM unload is not an inference request"

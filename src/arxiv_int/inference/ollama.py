@@ -7,6 +7,7 @@ from arxiv_int.inference.types import (
     CAPABILITY_CHAT,
     CAPABILITY_EMBEDDINGS,
     CAPABILITY_STRUCTURED,
+    LoadedModel,
     ModelIdentity,
     StreamChunk,
 )
@@ -17,6 +18,7 @@ CHAT_PATH = "/api/chat"
 GENERATE_PATH = "/api/generate"
 EMBED_PATH = "/api/embed"
 SHOW_PATH = "/api/show"
+PS_PATH = "/api/ps"
 UNLOAD_KEEP_ALIVE = "0"
 
 
@@ -65,6 +67,23 @@ def show_payload(model_id: str) -> dict[str, Any]:
 def unload_payload(model_id: str) -> dict[str, Any]:
     """Ask Ollama to drop a loaded model without generating tokens."""
     return {"model": model_id, "keep_alive": UNLOAD_KEEP_ALIVE, "prompt": "", "stream": False}
+
+
+def parse_ps(payload: object) -> tuple[LoadedModel, ...]:
+    """Parse /api/ps resident models and their VRAM footprints."""
+    if not isinstance(payload, dict) or not isinstance(payload.get("models"), list):
+        raise ValueError("invalid Ollama process list")
+    loaded: list[LoadedModel] = []
+    for item in payload["models"]:
+        if not isinstance(item, dict):
+            raise ValueError("invalid Ollama process list")
+        name = item.get("name") or item.get("model")
+        if not isinstance(name, str) or not name.strip():
+            raise ValueError("invalid Ollama process list")
+        vram = item.get("size_vram", item.get("size", 0))
+        vram_gib = float(vram) / (1024**3) if isinstance(vram, (int, float)) else 0.0
+        loaded.append(LoadedModel(name, vram_gib))
+    return tuple(loaded)
 
 
 def parse_tags(payload: object) -> tuple[ModelIdentity, ...]:

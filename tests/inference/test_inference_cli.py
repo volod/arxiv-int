@@ -15,7 +15,13 @@ def test_parser_accepts_inference_commands() -> None:
     assert parser.parse_args(["inference", "models"]).inference_command == "models"
     identity = parser.parse_args(["inference", "identity", "--model", "fixture-chat"])
     assert identity.model == "fixture-chat"
-    assert parser.parse_args(["inference", "schemas", "check"]).schemas_command == "check"
+    assert parser.parse_args(["inference", "resources"]).inference_command == "resources"
+    fit = parser.parse_args(["inference", "fit", "--model", "llama3.2:3b", "--no-allow-cpu"])
+    assert fit.inference_command == "fit"
+    assert fit.allow_cpu is False
+    schedule = parser.parse_args(["inference", "schedule", "--run-id", "demo", "--context", "1024"])
+    assert schedule.run_id == "demo"
+    assert schedule.context == 1024
 
 
 def test_schema_check_command_reports_drift(

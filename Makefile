@@ -237,6 +237,19 @@ inference-schemas-check: ## Fail when configs/models/schemas drifts from generat
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
 	@"$(VENV)/bin/arxiv-int" inference schemas check
 
+inference-resources: ## Show host GPU VRAM, power, and RAM
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@"$(VENV)/bin/arxiv-int" inference resources
+
+inference-fit: ## Estimate whether MODEL (default GENERATION_MODEL) fits this host
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@"$(VENV)/bin/arxiv-int" inference fit $(if $(MODEL),--model "$(MODEL)")
+
+inference-schedule: ## Acquire the host GPU lease for MODEL and record telemetry
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@"$(VENV)/bin/arxiv-int" inference schedule --run-id "$(RUN_ID)" \
+		$(if $(MODEL),--model "$(MODEL)")
+
 setup-wait: ## Wait for service transport and model health without requiring a schema
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make setup-env' first"; exit 1; }
 	@"$(VENV)/bin/arxiv-int" setup --phase wait

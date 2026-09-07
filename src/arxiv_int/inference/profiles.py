@@ -1,8 +1,9 @@
-"""Declared local model identities and capabilities under configs/models."""
+"""Declared local model identities, capabilities, and resource footprints."""
 
 import json
 from pathlib import Path
 
+from arxiv_int.inference.footprint import ModelFootprint, footprint_from_mapping
 from arxiv_int.inference.types import KNOWN_CAPABILITIES, ModelIdentity
 
 REGISTRY_PATH = Path("configs") / "models" / "registry.json"
@@ -10,18 +11,48 @@ REGISTRY_PATH = Path("configs") / "models" / "registry.json"
 
 def load_profiles(project_root: Path) -> tuple[ModelIdentity, ...]:
     """Load optional registry identities; unknown live models still work via discovery."""
+    return tuple(identity for identity, _footprint in _load_registry(project_root))
+
+
+def load_footprints(project_root: Path) -> dict[tuple[str, str], ModelFootprint]:
+    """Load declared GPU/RAM envelopes keyed by backend and model id."""
+    footprints: dict[tuple[str, str], ModelFootprint] = {}
+    for identity, footprint in _load_registry(project_root):
+        if footprint is not None:
+            footprints[(identity.backend, identity.model_id)] = footprint
+    return footprints
+
+
+def profile_for(
+    profiles: tuple[ModelIdentity, ...], backend: str, model_id: str
+) -> ModelIdentity | None:
+    """Return a registry profile matching backend and model id."""
+    for profile in profiles:
+        if profile.backend == backend and profile.model_id == model_id:
+            return profile
+    return None
+
+
+def _load_registry(project_root: Path) -> tuple[tuple[ModelIdentity, ModelFootprint | None], ...]:
     path = project_root / REGISTRY_PATH
     if not path.is_file():
         return ()
     document = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(document, dict) or not isinstance(document.get("models"), list):
         raise ValueError("configs/models/registry.json must contain a models array")
-    return tuple(_parse_profile(item) for item in document["models"])
+    return tuple(_parse_entry(item) for item in document["models"])
 
 
-def _parse_profile(item: object) -> ModelIdentity:
+def _parse_entry(item: object) -> tuple[ModelIdentity, ModelFootprint | None]:
     if not isinstance(item, dict):
         raise ValueError("each model profile must be an object")
+    identity = _parse_identity(item)
+    raw_footprint = item.get("footprint")
+    footprint = footprint_from_mapping(raw_footprint) if raw_footprint is not None else None
+    return identity, footprint
+
+
+def _parse_identity(item: dict[str, object]) -> ModelIdentity:
     model_id = item.get("id")
     backend = item.get("backend")
     if not isinstance(model_id, str) or not model_id.strip():
@@ -45,13 +76,3 @@ def _parse_profile(item: object) -> ModelIdentity:
         capabilities=capabilities,
         detail="registry",
     )
-
-
-def profile_for(
-    profiles: tuple[ModelIdentity, ...], backend: str, model_id: str
-) -> ModelIdentity | None:
-    """Return a registry profile matching backend and model id."""
-    for profile in profiles:
-        if profile.backend == backend and profile.model_id == model_id:
-            return profile
-    return None

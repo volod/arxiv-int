@@ -18,8 +18,16 @@ def run_inference_command(args: argparse.Namespace, cancel: Event | None = None)
     try:
         if args.inference_command == "schemas":
             return _run_schemas(args)
+        if args.inference_command == "resources":
+            from arxiv_int.inference.scheduler_commands import run_scheduler_command
+
+            return run_scheduler_command(args, None, cancel)
         root = find_project_root(args.project_root)
         config = load_runtime_config(project_root=root)
+        if args.inference_command in {"fit", "schedule"}:
+            from arxiv_int.inference.scheduler_commands import run_scheduler_command
+
+            return run_scheduler_command(args, config, cancel)
         client = client_from_config(config, timeout=args.timeout)
         try:
             if args.inference_command == "health":

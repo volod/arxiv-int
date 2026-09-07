@@ -16,7 +16,7 @@ from arxiv_int.inference.transport import (
     TransportError,
     retryable_status,
 )
-from arxiv_int.inference.types import HealthStatus, ModelIdentity
+from arxiv_int.inference.types import HealthStatus, LoadedModel, ModelIdentity
 
 FEATURE = "inference"
 DEFAULT_TIMEOUT_SECONDS = 60.0
@@ -109,6 +109,19 @@ class LocalInferenceClient(CompletionMixin, EmbeddingMixin):
             capabilities = capabilities | profile.capabilities
             digest = identity.digest or profile.digest
         return ModelIdentity(model_id, digest, self.name, capabilities, identity.detail)
+
+    def loaded_models(self, *, cancel: Event | None = None) -> tuple[LoadedModel, ...]:
+        """Return models currently resident on the local endpoint."""
+        if self.name != "ollama":
+            if not self.default_model:
+                return ()
+            return (LoadedModel(self.default_model, 0.0),)
+        status, payload = self._json(
+            "GET", ollama.PS_PATH, cancel=cancel, timeout=HEALTH_TIMEOUT_SECONDS
+        )
+        if status != 200:
+            raise TransportError("backend_error", f"HTTP {status}")
+        return ollama.parse_ps(payload)
 
     def _list_models(self, cancel: Event | None = None) -> tuple[ModelIdentity, ...]:
         if self.name == "ollama":

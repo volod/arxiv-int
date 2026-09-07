@@ -52,7 +52,8 @@ attempts. Generated envelopes are `cited-span` and `refusal` under `configs/mode
 `configs/models/registry.json` lists known project models; live discovery still works for other
 tags. CLI/Make: `arxiv-int inference health|models|identity|schemas`, `make ollama-check`,
 `make models-list`, `make inference-schemas-check` (in `make ci`). Current state:
-[local-inference.md](../current/local-inference.md). Host-wide GPU scheduling remains a later task.
+[local-inference.md](../current/local-inference.md). Host-wide GPU scheduling is
+[0032](0032-inference-implement-model-resource-scheduler.md).
 
 ## Acceptance evidence
 
@@ -70,12 +71,13 @@ tags. CLI/Make: `arxiv-int inference health|models|identity|schemas`, `make olla
 
 none identified. Reviewed local-only URL policy reuse, no pull in request paths, prompt-free
 logging, bounded repair, fake-server conformance for both backends, and CUDA-host smoke limits.
-GPU lease/unload coordination stays with `implement-model-resource-scheduler`.
+GPU lease/unload coordination is in
+[0032](0032-inference-implement-model-resource-scheduler.md).
 
 ## Close or resume
 
 Accepted after deterministic conformance, local-only and logging gates, CUDA-host Ollama smoke,
 documentation, and `make ci` (819 passed, 19 skipped). Plan counts: 76 tasks before, 75 after
-(agent lane 66 to 65; human 10 unchanged). Capability `local-inference` stays planned; the
-scheduler task remains. Next agent work: `implement-model-resource-scheduler`. No commit or push
+(agent lane 66 to 65; human 10 unchanged). Capability `local-inference` stays planned; host-wide
+scheduling is [0032](0032-inference-implement-model-resource-scheduler.md). No commit or push
 was made.

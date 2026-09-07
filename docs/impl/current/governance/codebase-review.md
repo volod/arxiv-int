@@ -29,8 +29,9 @@ The [forward plan](../../plan.md) retains focused refactoring and enforcement wo
 consumers. Completed foundation repairs are linked from current-state pages and accepted records:
 shared root policy, configuration parity, profile-aware service planning, probe safety, contract
 identity/reference validation, and durable-record/dependency checks. Remaining routed notes still
-own bundle validation and typed stage/artifact contracts. Existing scheduler and telemetry tasks
-own their respective implementation gaps, avoiding duplicate backlog entries.
+own bundle validation and typed stage/artifact contracts. Host-wide GPU scheduling is
+[record 0032](../../records/0032-inference-implement-model-resource-scheduler.md). Remaining
+telemetry tasks own their implementation gaps, avoiding duplicate backlog entries.
 
 Seven finite checkpoints review foundation/store, corpus/control, knowledge/identity,
 investigation/report, production/recovery, selected semantic retrieval, and archive organization.

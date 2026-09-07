@@ -22,6 +22,14 @@ class ModelIdentity:
 
 
 @dataclass(frozen=True, slots=True)
+class LoadedModel:
+    """One model currently resident in GPU memory."""
+
+    model_id: str
+    vram_gib: float = 0.0
+
+
+@dataclass(frozen=True, slots=True)
 class HealthStatus:
     """Reachability of one local inference endpoint."""
 

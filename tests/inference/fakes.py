@@ -28,6 +28,8 @@ class FakeState:
     refuse: bool = False
     pull_count: int = 0
     requests: list[tuple[str, str]] = field(default_factory=list)
+    loaded: list[str] = field(default_factory=list)
+    loaded_vram: int = 2 * 1024**3
     chat_text: str = CHAT_TEXT
 
 
@@ -119,6 +121,12 @@ def _handle_read(handler: FakeHandler, method: str, path: str) -> bool:
     if method == "GET" and path in {"/", "/health"}:
         handler.send_json(200, {"status": "ok"})
         return True
+    if method == "GET" and path.rstrip("/").endswith("/api/ps"):
+        models = [
+            {"name": name, "size_vram": handler.state.loaded_vram} for name in handler.state.loaded
+        ]
+        handler.send_json(200, {"models": models})
+        return True
     return False
 
 
@@ -153,12 +161,15 @@ def _send_completion(handler: FakeHandler, payload: dict[str, Any]) -> None:
         handler.send_json(503, {"error": "busy"})
         return
     model_id = str(payload.get("model") or "")
+    if payload.get("keep_alive") in {0, "0"}:
+        handler.state.loaded = [name for name in handler.state.loaded if name != model_id]
+        handler.send_json(200, {"done": True})
+        return
     if _find_model(handler.backend, handler.state, model_id) is None:
         handler.send_json(404, {"error": f"model '{model_id}' not found"})
         return
-    if payload.get("keep_alive") == "0":
-        handler.send_json(200, {"done": True})
-        return
+    if model_id not in handler.state.loaded:
+        handler.state.loaded.append(model_id)
     _stream(handler, handler.backend, model_id, _completion_text(handler.state, payload))
 
 

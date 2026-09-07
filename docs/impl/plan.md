@@ -17,37 +17,6 @@ queries, COPY, extension DDL, and Cypher retain the narrow exceptions defined in
 Proof tasks retain tool/rule/model fingerprints and required quality outcomes; a skipped validator
 cannot establish a pass. These requirements also apply to later additive contract/migration work.
 
-### Local inference -- `local-inference`
-
-#### implement-model-resource-scheduler
-
-Schedule GPU-heavy embedding, reranking, OCR, and generation sequentially by default and record
-resource evidence.
-
-- Serves: `local-inference` --
-[Performance and scalability assumptions](../design/spec.md#performance-and-scalability-assumptions)
-- Agent status: RUN NEEDED
-- Audit inputs: [AUD-codebase-14](records/0001-govern-codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: [Local inference adapters](records/0031-inference-implement-local-inference-adapters.md).
-- User-visible outcome: The 16 GB GPU does not thrash between models, and operators see why a model
-ran, offloaded, skipped, or fell back.
-- Scope boundary: Single-host resource coordination; no cluster scheduler and no unapproved service
-stop.
-- Data and artifact paths: `src/arxiv_int/inference/scheduler.py`, `ctl.resource_lease`, model
-profiles, and `$RUNS_DIR/<run-id>/telemetry/`.
-- Execution path: Replace the current placement-only scheduler with tested host-wide coordination;
-detect GPU/RAM,
-estimate declared footprints, acquire one GPU lease, manage Ollama
-keep-alive/unload through API when allowed, start/stop vLLM profile when requested, and record
-load/throughput/VRAM/power through a narrow telemetry sink that later pipeline logging also
-consumes.
-- Acceptance gates: Simulated contention and real single-CUDA-device smoke account for weights,
-KV cache, context, batch, runtime overhead
-and CPU/database memory; no incompatible workloads overlap;
-cancellation releases leases; model-fit rejection is actionable; CPU fallback is explicit.
-- Documentation target: `docs/impl/current/local-inference.md`
-- Review checkpoint: `review-production-readiness-and-recovery`.
-
 ### Evaluation foundation -- `evaluation-foundation`
 
 #### refactor-evaluation-bundle-validation
@@ -1524,7 +1493,7 @@ justifies it.
 - Agent status: RUN NEEDED
 - Dependencies: `build-search-graph-and-report-interfaces`;
 [Local inference adapters](records/0031-inference-implement-local-inference-adapters.md);
-`implement-model-resource-scheduler`. Lexical retrieval suffices; selected vectors are conditional.
+[Model resource scheduler](records/0032-inference-implement-model-resource-scheduler.md). Lexical retrieval suffices; selected vectors are conditional.
 - User-visible outcome: Analysts may ask questions over selected evidence and receive cited
 answers or explicit
 abstention without leaving the host.
@@ -1606,7 +1575,8 @@ usable pipeline stage and artifact family.
 - Agent status: RUN NEEDED
 - Dependencies: `implement-directory-to-knowledge-base-acceptance`;
 `prove-archive-classification-on-provided-archive`; `prove-discovery-and-visualization-on-provided-archive`;
-`prove-anomaly-analysis-on-provided-archive`; `implement-model-resource-scheduler`;
+`prove-anomaly-analysis-on-provided-archive`;
+[Model resource scheduler](records/0032-inference-implement-model-resource-scheduler.md);
 `create-evaluation-fixtures-and-metrics`. Semantic proof is required only for a selected vector branch.
 `review-investigation-and-report-integrity`.
 - User-visible outcome: One command/report shows which pipeline stages have current proof on the
@@ -1801,7 +1771,8 @@ without embedding the entire archive by default.
 - Agent status: RUN NEEDED
 - Dependencies: `implement-stage-dag-cli-and-make-targets`;
 [Local inference adapters](records/0031-inference-implement-local-inference-adapters.md);
-`implement-model-resource-scheduler`; `build-paradedb-lexical-load-and-query-path`.
+[Model resource scheduler](records/0032-inference-implement-model-resource-scheduler.md);
+`build-paradedb-lexical-load-and-query-path`.
 - User-visible outcome: Operators can embed a bounded, explainable corpus slice and resume batches
 while preserving model/profile identity.
 - Scope boundary: Implement tier selection and stable pgvector baseline; do not promote a
@@ -1876,7 +1847,8 @@ Review the integrated milestone before promotion of the selected semantic branch
 - Serves: `semantic-retrieval` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
 - Agent status: CLEAR
 - Task kind: checkpoint
-- Dependencies: `prove-semantic-retrieval-on-provided-archive`; `implement-model-resource-scheduler`.
+- Dependencies: `prove-semantic-retrieval-on-provided-archive`;
+[Model resource scheduler](records/0032-inference-implement-model-resource-scheduler.md).
 - User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
 or blocked
 for the named consumers; no-refactoring-needed is a valid conclusion.
