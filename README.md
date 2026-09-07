@@ -5,9 +5,10 @@ Russian-language document archives. It is designed to inventory an immutable arc
 contents, topics, entities and relations, and produce searchable knowledge, catalogs, graphs,
 anomaly findings and evidence-bearing reports on one CUDA host.
 
-Configuration, readiness checks, local service management, typed foundation primitives, and
-quality gates exist today. The archive-to-knowledge pipeline is **not runnable yet**. Its stages
-and analyst commands remain in the [forward plan](docs/impl/plan.md). See
+Configuration, readiness checks, local service management, typed foundation primitives,
+quality gates, and a fixture DAG orchestrator exist today. The archive-to-knowledge pipeline is
+**not complete**: most corpus stages, forecast, and report publication remain in the
+[forward plan](docs/impl/plan.md). See
 [current implementation](docs/impl/current.md) for available behavior and the
 [specification](docs/design/spec.md) and [architecture](docs/design/architecture.md) for the target.
 
@@ -28,23 +29,25 @@ work on retries, and reports what still needs attention. Edit `.env`; `.venv` is
 automatically. No activation or manual exports are required. Storage requirements are in the
 [setup guide](docs/guide/setup.md).
 
-Infrastructure-ready is not pipeline-ready. Pipeline stages remain unimplemented.
+Infrastructure-ready is not pipeline-ready. Concrete corpus stages remain unimplemented.
 
-### 2. Archive to analyst results -- planned, unavailable now
+### 2. Archive to analyst results -- orchestration only
 
-After setup, run the full pipeline with the default `.env` settings:
+After setup, the DAG commands allocate a unique run id and walk the selected profile. The default
+investigation profile still names unimplemented stages, so `make pipeline` fails explicitly rather
+than publishing a knowledge base. Forecast and `run finalize` remain planned.
 
 ```bash
+make run-create
 make pipeline
 ```
 
-The target will run preflight, resource forecast, all required stages, quality checks, evaluation
-and report publication. It will return the run id, knowledge-base manifest, report entry path and
-status/resume commands if interrupted. Outputs use configured operator roots; partial results
-cannot appear complete. Resource limits and archive-scope authorization still apply.
+`make run-create` prints a `run-<hex>` id. Use that id with `make stage`, `make run-status`, and
+`make resume`; do not pass Make's developer `RUN_ID=local` fallback. Outputs use configured
+operator roots. Resource limits and archive-scope authorization still apply.
 
-See the [step-by-step operator workflow](docs/guide/operator-workflow.md) for the underlying atomic
-command chain, expected results, recovery and analyst commands. The aggregate targets reuse those
+See the [step-by-step operator workflow](docs/guide/operator-workflow.md) for the atomic command
+chain, what is available now, and the remaining planned stages. The aggregate targets reuse those
 same command handlers and checks.
 
 ### 3. Organize an archive -- separate planned utility
@@ -74,6 +77,10 @@ arxiv-int contracts --help
 arxiv-int data-quality check DATASET --run-id RUN_ID --input PATH
 arxiv-int transform parse|compile|build|test --run-id RUN_ID
 arxiv-int store projections-build|status|cleanup --run-id RUN_ID
+arxiv-int run create|status|resume
+arxiv-int pipeline run|update|rebuild|invalidate
+arxiv-int stage STAGE --run-id RUN_ID
+arxiv-int artifacts prune --stale
 ```
 
 `info` is a packaging and executable-path smoke test. `features` lists optional dependency groups,
@@ -83,6 +90,9 @@ unexecuted required check cannot look publishable. `transform` parses, compiles,
 isolated derived dbt models; a failed or unexecuted required live check cannot look like a pass.
 `store projections-*` builds, switches, and cleans ParadeDB/pgvector/AGE projections without making
 them canonical; a failed build cannot replace an active pointer.
+`run` / `pipeline` / `stage` / `artifacts prune` freeze a unique run id and walk or maintain the
+selected DAG. A default investigation run refuses unimplemented required stages. Forecast and
+knowledge-base publication remain planned.
 Domain commands arrive as their specified capabilities are implemented.
 
 ## Development

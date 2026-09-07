@@ -70,7 +70,8 @@ code without a catalog entry.
 `arxiv_int.pipeline.steps`, `arxiv_int.observability.logging`, and
 `arxiv_int.inference.scheduling` provide monotonic step timing with
 partial-result preservation, queue-serialized logging, GPU-budget placement, and guaranteed model
-release. The local Ollama/vLLM request client is documented in
+release. The typed DAG registry and in-process orchestrator are documented in
+[Pipeline control](pipeline-control.md). The local Ollama/vLLM request client is documented in
 [Local inference](local-inference.md). The foundational configuration merge and containment helpers
 have grown into the [portable runtime](portable-runtime.md).
 

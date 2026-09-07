@@ -1,11 +1,12 @@
 # Pipeline Control
 
-Typed stage, source, and artifact references are available, and generic run/stage/shard control
-exists. DAG CLI, forecast, and publication assembly remain
+Typed stage, source, and artifact references, a generic run ledger, and a fixture-first DAG CLI
+are available. Forecast and publication assembly remain
 [planned](../plan.md#pipeline-control----pipeline-control).
 
-See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface-contracts.md) and
-[record 0041](../records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md).
+See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface-contracts.md),
+[record 0041](../records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md), and
+[record 0042](../records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md).
 
 ## Stage, source, and artifact seams
 
@@ -54,8 +55,9 @@ requirements collect required groups only, so an investigation setup does not de
 when those branches are not selected. `make features` and `make features STAGE=embed` label
 conditional groups.
 
-Inventory still lists every group that a stage may activate. Downstream DAG work decides whether
-a missing conditional group becomes `not-selected` or a hard refusal.
+Inventory still lists every group that a stage may activate. A missing required runner is
+`UnregisteredStageError`. Optional stages (`embed`, `load-vector`, `graph`) stay `not-selected`
+when the selected profile does not include them.
 
 ## Compatibility
 
@@ -116,6 +118,44 @@ Alembic revision `0002` is frozen DDL for `ctl.run`, `stage_run`, `shard_run`, `
 downgrade drops ledger tables only; `0001` teardown remains refused. Complete 0001-era overlays
 stamp `0001` so setup can upgrade to head.
 
+## DAG registry and operator commands
+
+`src/arxiv_int/pipeline/` owns the typed registry, `--from`/`--to` planner, frozen run context, and
+in-process orchestrator. There is no Airflow, Prefect, Celery, Redis, or Kubernetes scheduler.
+Setup's `PROFILE_STAGES` / `STAGE_FEATURES` remain the feature/service requirement seam.
+
+A run id is allocated as `run-<hex>` and never inherits Make's developer `RUN_ID=local` fallback.
+`arxiv-int run create` and `make run-create` freeze secret-free configuration under
+`$RUNS_DIR/<run-id>/run-context.json`. Later `stage`, `status`, and `resume` calls reuse that
+context and refuse configuration drift or a changed archive snapshot. `pipeline update` clones the
+frozen profile into a new generation that sees the current snapshot; `pipeline rebuild` allocates a
+new generation and skips cache reuse.
+
+| Command | Role |
+| --- | --- |
+| `arxiv-int run create` / `make run-create` | Unique run id; freeze `.env` profile and roots |
+| `arxiv-int stage STAGE --run-id RUN_ID` / `make stage STAGE=... RUN_ID=...` | One stage; required upstream manifests must already validate |
+| `arxiv-int pipeline run` / `make pipeline` | Create a run and execute the selected profile DAG |
+| `arxiv-int pipeline update` / `make update` | New generation for archive deltas; unchanged reuse keys cache-hit |
+| `arxiv-int pipeline rebuild` / `make rebuild` | Fresh generation without cache reuse |
+| `arxiv-int pipeline invalidate STAGE --run-id RUN_ID` / `make invalidate` | Logical stale closure; no deletes |
+| `arxiv-int run status RUN_ID` / `make run-status RUN_ID=...` | Per-stage progress |
+| `arxiv-int run resume RUN_ID` / `make resume RUN_ID=...` | Continue after halt or SIGINT |
+| `arxiv-int artifacts prune --stale` / `make prune` | Dry-run stale derived attempts; `--apply --plan PLAN_ID` is separate |
+
+CLI values override process environment, then `.env`, then documented defaults. Make does not pass
+hardcoded `--profile investigation` or `--run-id local` on `pipeline` / `run-create`. `STAGE` and
+`RUN_ID` for atomic commands must be the created run id.
+
+The investigation profile still names unregistered corpus stages. `make pipeline` therefore fails
+explicitly until those runners ship. Fixture DAGs in `tests/pipeline/orchestration/` cover range,
+skip, invalid dependency, aggregate versus atomic equivalence, failure halt, resume, force,
+invalidate, update, rebuild, prune dry-run, quality not-run/fail, and signal cancel. Declared
+Pandera validators and dbt selections run at producer boundaries through `QualityBoundary`; failed
+or not-run checks halt downstream work. The directory-to-report gate waits on concrete stages.
+
+Preflight, forecast, and `run finalize` / knowledge-base publication remain planned.
+
 ## Tests and limits
 
 `tests/interfaces/` covers protocol conformance, duplicate paths across silos, cell/member
@@ -124,6 +164,6 @@ that interface modules do not import optional heavy stacks. Feature-catalog test
 conditional GPU/UI groups. `tests/pipeline/control/` covers illegal transitions, crash injection,
 cache hits, corrupt-cache rerun, concurrent leases, quality skip, owned-fingerprint stale closure,
 invalidation during produce, force retry, and in-memory isolation from SQLAlchemy. Live ledger
-behavior is in `tests/integration/postgres/test_run_ledger.py`. Fixtures do not prove real-archive
-extraction quality, CUDA worker fit, or DAG CLI behavior. Forecast and publication activation
-remain planned.
+behavior is in `tests/integration/postgres/test_run_ledger.py`. Fixture DAG tests live in
+`tests/pipeline/orchestration/`. Fixtures do not prove real-archive extraction quality or CUDA
+worker fit. Forecast and publication activation remain planned.

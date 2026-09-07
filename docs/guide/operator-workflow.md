@@ -1,9 +1,10 @@
 # Operator Workflow and Atomic Commands
 
 The short workflow in [README](../../README.md#quick-start) is the target interface.
-`make setup` is available. `make pipeline` and the pipeline commands below are
-**planned, unavailable now**. [Current implementation](../impl/current.md) records available
-capabilities; the
+`make setup` is available. DAG create/run/stage/status/resume/update/rebuild/invalidate/prune
+commands exist; they refuse unimplemented required stages. Forecast, `run finalize`, and
+knowledge-base publication remain **planned**. [Current implementation](../impl/current.md)
+records available capabilities; the
 [operator specification](../design/spec.md#retryable-setup-and-default-pipeline-command) defines
 defaults and acceptance. This guide provides the explicit command chain for diagnosis and development.
 
@@ -157,23 +158,48 @@ provider cannot become a successful readiness result. Safe reports go to
 `$RESULTS_DIR/reports/{setup,readiness}.json`; tool evidence goes to `$DATA_DIR/setup/<attempt-id>/`.
 No setup command resets service data, changes source files or starts corpus processing.
 
-## Pipeline atomic chain -- planned
+## Pipeline atomic chain
 
-The normal command is `make pipeline`. It reads `.env`, defaults to `PIPELINE_PROFILE=investigation`,
-creates a run, preflights, forecasts, executes the selected DAG, validates and publishes the report.
-It does not require a prior manual forecast or a later report/quality command. Default service
-selection includes the configured inference backend; optional vector/AGE branches remain explicit.
+Orchestration commands exist. They allocate a unique run id, freeze secret-free configuration, and
+walk the selected profile DAG in-process. There is no Airflow, Prefect, Celery, Redis, or
+Kubernetes scheduler. CLI values override process environment, then `.env`, then documented
+defaults. Make does not pass `--run-id local` or a hardcoded `--profile investigation` on
+`pipeline` / `run-create`.
+
+The default investigation profile still names unimplemented corpus stages. `make pipeline`
+therefore fails explicitly until those runners ship. Preflight as a registered stage, forecast,
+and `run finalize` / knowledge-base publication remain planned. Partial results must not replace
+the last complete generation once publication exists.
 
 For a diagnostic execution, first create the run and copy its returned id into `RUN_ID`:
 
 ```bash
 make run-create
 RUN_ID='replace-with-returned-run-id'
+make run-status RUN_ID="$RUN_ID"
 ```
 
-`run-create` records resolved roots, profile and secret-free configuration evidence. All following
-commands use that same context. Run each command separately, inspect its status, and stop on failure.
-This is one valid linear order of the baseline registry, not a second executable DAG definition:
+`run-create` records resolved roots, profile and secret-free configuration evidence under
+`$RUNS_DIR/<run-id>/run-context.json`. The id is `run-<hex>`, never Make's developer `RUN_ID=local`
+fallback. All following commands use that same context. Run each command separately, inspect its
+status, and stop on failure.
+
+```bash
+make stage STAGE=evaluate RUN_ID="$RUN_ID"
+make resume RUN_ID="$RUN_ID"
+make pipeline
+make update
+make rebuild
+make invalidate STAGE=evaluate RUN_ID="$RUN_ID"
+make prune
+```
+
+`evaluate` is the shipped production runner. Other investigation stages fail as unregistered until
+their capabilities land. `make prune` is a dry-run; `APPLY=1 PLAN_ID=...` is a separate
+confirmation and refuses to delete the sole recovery copy.
+
+The target diagnostic order below is one valid linear expansion of the baseline registry, not a
+second executable DAG definition. `forecast` and `run-finalize` remain planned:
 
 ```bash
 make stage STAGE=preflight RUN_ID="$RUN_ID"
@@ -200,37 +226,38 @@ make run-finalize RUN_ID="$RUN_ID"
 ```
 
 Use the same registered handlers for aggregate and atomic calls, with the same dependency, lease,
-forecast, source-scope and quality checks. Relational transformations call the shared dbt runner;
+source-scope and quality checks. Relational transformations call the shared dbt runner;
 local batches use Polars/PyArrow and shared Pandera checks. A failed or unexecuted required validator
-stops publication. `report` renders the staged report; `run-finalize` verifies manifests and switches
-the complete knowledge-base generation. Archive organization never joins this chain.
+stops downstream work. `report` will render the staged report; `run-finalize` will verify manifests
+and switch the complete knowledge-base generation. Archive organization never joins this chain.
 
 Optional selected stages such as `embed`, `load-vector` and `graph` enter the registry's dependency
 closure before evaluation/reporting. Disabled branches record `not-selected`. Missing required
-stages fail explicitly. An explicit stage command cannot bypass stale inputs or forecast refusal.
-Configuration changes require a new run or the declared invalidation/resume policy.
+stages fail explicitly. An explicit stage command cannot bypass stale inputs. Forecast refusal
+remains planned with the forecast command. Configuration changes require a new run or the declared
+invalidation/resume policy.
 
-The returned run id, `$RUNS_DIR/<run-id>/knowledge-base.json` and report entry path identify the
-result. Product artifacts use configured operator roots, never developer `DATA_DIR`. Compare
-aggregate and atomic results by logical ids, checksums, lineage, quality and completion state;
-run ids and timestamps may differ. A partial result must not replace the last complete generation.
+The returned run id identifies the result today. `$RUNS_DIR/<run-id>/knowledge-base.json` and the
+report entry path remain planned publication outputs. Product artifacts use configured operator
+roots, never developer `DATA_DIR`. Compare aggregate and atomic results by logical ids, checksums,
+lineage, quality and completion state; run ids and timestamps may differ.
 
-## Inspect, recover and analyze -- planned
+## Inspect, recover and analyze
 
-These optional commands inspect or recover the result; they are not extra completion steps.
+These optional commands inspect or recover a run; they are not extra completion steps.
 Use the returned run id and replace query/document placeholders with actual values.
 
-| Command or action | Purpose |
-| --- | --- |
-| `arxiv-int run status RUN_ID` | Inspect per-stage progress and blockers. |
-| `arxiv-int run resume RUN_ID` | Resume the recorded generation after correcting an interruption. |
-| `arxiv-int run artifacts RUN_ID`, `arxiv-int inspect RUN_ID` | Inspect manifest, artifact states, coverage, provenance and errors. |
-| Open the returned `reports/index.html`; `arxiv-int report build RUN_ID` | Read the entry report or explicitly rebuild its rendering. |
-| `arxiv-int catalog company --run RUN_ID`, `arxiv-int catalog product --run RUN_ID`, `arxiv-int catalog person --run RUN_ID` | Inspect roles, aliases, identities and evidence in the three catalogs. |
-| Follow financial-party, transaction, supply-chain and BOM links | Trace quantities, relations and gaps to source anchors. |
-| `arxiv-int anomalies list --run RUN_ID` | Review detector, baseline, severity and supporting/contradicting evidence. |
-| `arxiv-int search lexical "QUERY"`, `arxiv-int archive locate DOCUMENT_ID` | Find source-anchored hits; verify the result's generation. |
-| `arxiv-int pipeline update --archive-dir PATH` | Reconcile a changed archive into a new generation and inspect its report. |
+| Command or action | Availability | Purpose |
+| --- | --- | --- |
+| `arxiv-int run status RUN_ID` / `make run-status` | available | Inspect per-stage progress and blockers. |
+| `arxiv-int run resume RUN_ID` / `make resume` | available | Resume the recorded generation after an interruption. |
+| `arxiv-int pipeline update` / `make update` | available | Reconcile a changed archive into a new generation. |
+| `arxiv-int run artifacts RUN_ID`, `arxiv-int inspect RUN_ID` | planned | Inspect manifest, artifact states, coverage, provenance and errors. |
+| Open the returned `reports/index.html`; `arxiv-int report build RUN_ID` | planned | Read the entry report or explicitly rebuild its rendering. |
+| `arxiv-int catalog company --run RUN_ID`, `arxiv-int catalog product --run RUN_ID`, `arxiv-int catalog person --run RUN_ID` | planned | Inspect roles, aliases, identities and evidence in the three catalogs. |
+| Follow financial-party, transaction, supply-chain and BOM links | planned | Trace quantities, relations and gaps to source anchors. |
+| `arxiv-int anomalies list --run RUN_ID` | planned | Review detector, baseline, severity and supporting/contradicting evidence. |
+| `arxiv-int search lexical "QUERY"`, `arxiv-int archive locate DOCUMENT_ID` | planned | Find source-anchored hits; verify the result's generation. |
 
 Use `.venv/bin/arxiv-int` when the executable is not on the shell's path. After the session, the
 available `make services-down` stops project containers and preserves their data. Host Ollama is
