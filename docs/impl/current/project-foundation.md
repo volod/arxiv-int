@@ -69,8 +69,9 @@ code without a catalog entry.
 `arxiv_int.pipeline.steps`, `arxiv_int.observability.logging`, and
 `arxiv_int.inference.scheduling` provide monotonic step timing with
 partial-result preservation, queue-serialized logging, GPU-budget placement, and guaranteed model
-release. The foundational configuration merge and containment helpers have grown into the
-[portable runtime](portable-runtime.md).
+release. The local Ollama/vLLM request client is documented in
+[Local inference](local-inference.md). The foundational configuration merge and containment helpers
+have grown into the [portable runtime](portable-runtime.md).
 
 ## Contract primitives
 
@@ -93,9 +94,10 @@ comparison verdicts, and atomic checksum-verified run bundles. Published bundles
 an existing run, reject path traversal, and fail verification on corruption or unregistered files.
 
 `arxiv_int.retrieval` provides source-span recall, MRR, character coverage, intactness, duplicate
-source occurrences, and served-character cost. `InferenceProvider` records normalized timeout,
-backend-error, and unsupported-architecture outcomes together with prompt/completion token counts,
-latency, and successful completion throughput. Probabilistic model fitting remains behind the
+source occurrences, and served-character cost. `InferenceProvider` and `LocalInferenceClient`
+record normalized timeout, cancel, backend-error, and unsupported-architecture outcomes together
+with prompt/completion token counts, latency, and successful completion throughput. See
+[Local inference](local-inference.md). Probabilistic model fitting remains behind the
 identity capability's Splink integration.
 
 Output-sensitive tooling is pinned exactly: `complexipy`, `mypy`, `pymarkdownlnt`, `radon`, `ruff`,
@@ -136,7 +138,8 @@ selection and invalid-plan handling without pinning the live repository's task c
 and undeclared import messages. `tests/interfaces/` proves fake backends satisfy each protocol.
 `tests/dependencies/` keep extras and the feature catalog in agreement and require exact pins for
 output-sensitive tools. Focused tests cover accumulated preflight results, partial-result
-preservation, concurrent log serialization, model placement and cleanup, contract behavior,
+preservation, concurrent log serialization, model placement and cleanup, local inference
+conformance, contract behavior,
 evaluation metrics and verdicts, run bundles, and source-span retrieval. Configuration and path
 coverage is documented in [Portable runtime](portable-runtime.md#tests-and-verification).
 

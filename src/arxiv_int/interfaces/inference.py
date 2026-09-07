@@ -9,9 +9,18 @@ GenerationStatus = Literal[
     "refused",
     "malformed",
     "timeout",
+    "cancelled",
     "backend_error",
     "architecture_unsupported",
 ]
+
+
+@dataclass(frozen=True, slots=True)
+class ChatMessage:
+    """One chat turn. Prompt text is never a log field."""
+
+    role: Literal["system", "user", "assistant"]
+    content: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -23,6 +32,8 @@ class GenerationRequest:
     max_output_tokens: int | None = None
     json_schema: Mapping[str, object] | None = None
     schema_version: str = ""
+    model_id: str = ""
+    messages: tuple[ChatMessage, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

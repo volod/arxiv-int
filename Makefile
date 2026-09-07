@@ -221,6 +221,22 @@ models-pull: ## Acquire or cache-check configured model assets
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make setup-env' first"; exit 1; }
 	@"$(VENV)/bin/arxiv-int" setup --phase models
 
+ollama-check: ## Check the configured local Ollama or vLLM endpoint
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make setup-env' first"; exit 1; }
+	@"$(VENV)/bin/arxiv-int" inference health
+
+models-list: ## List models served by the configured local inference endpoint
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make setup-env' first"; exit 1; }
+	@"$(VENV)/bin/arxiv-int" inference models
+
+inference-schemas: ## Write committed structured-output JSON Schema files
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@"$(VENV)/bin/arxiv-int" inference schemas generate
+
+inference-schemas-check: ## Fail when configs/models/schemas drifts from generation
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@"$(VENV)/bin/arxiv-int" inference schemas check
+
 setup-wait: ## Wait for service transport and model health without requiring a schema
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make setup-env' first"; exit 1; }
 	@"$(VENV)/bin/arxiv-int" setup --phase wait
@@ -325,7 +341,7 @@ lint-spec-plan: ## Check capability registry, task structure, status, and orderi
 plan-status: ## Count tasks by lane/status and show the next eligible work
 	@"$(VENV)/bin/arxiv-int-plan" --root "$(PROJECT_ROOT)"
 
-ci-checks: format-check lint typecheck complexity-gate shell-lint-gate lint-doc-links lint-spec-plan contracts-check contracts-evolution db-check ontology-check
+ci-checks: format-check lint typecheck complexity-gate shell-lint-gate lint-doc-links lint-spec-plan contracts-check contracts-evolution db-check ontology-check inference-schemas-check
 
 ci: ci-checks test ## Run the required local and GitHub CI gate
 

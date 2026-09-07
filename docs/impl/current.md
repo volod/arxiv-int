@@ -18,5 +18,6 @@ change. Write behavior, modules, commands, tests, and results at the narrowest l
 | [Contracts](current/contracts.md) | Product ODCS registry, generation, ontology assets, rooted loaders, fingerprints, lint, and dataset quality checks |
 | [Portable runtime](current/portable-runtime.md) | Layered configuration, safe roots, retryable `make setup`, and runtime layout |
 | [Canonical store](current/canonical-store.md) | Pinned ParadeDB + AGE image, HASH-partitioned canonical schemas, roles, staging load, live adoption, local dbt transforms, and rebuildable search/graph projections |
+| [Local inference](current/local-inference.md) | Provider-neutral Ollama/vLLM client for chat, structured output, embeddings, health, identity, timeout, and cancel |
 | [Evaluation](current/evaluation.md) | Operator-designated `ARCHIVE_DIR` slice; fixture metrics, proof bundles, and scale pilots remain planned |
 | [Governance](current/governance.md) | Agent adapters, capability registry, plan lanes, integrity checks, specification/codebase audits and durable task records |

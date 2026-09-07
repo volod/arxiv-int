@@ -7,6 +7,7 @@ so an adapter can be declared without importing its optional dependency.
 from arxiv_int.interfaces.embedding import EmbeddingProfile, TextEmbedder
 from arxiv_int.interfaces.extraction import DocumentExtractor, ExtractedDocument
 from arxiv_int.interfaces.inference import (
+    ChatMessage,
     GenerationRequest,
     GenerationResult,
     GenerationStatus,
@@ -18,6 +19,7 @@ from arxiv_int.interfaces.stores import ArtifactStore, CanonicalStore, DatasetRe
 __all__ = [
     "ArtifactStore",
     "CanonicalStore",
+    "ChatMessage",
     "DatasetRef",
     "DocumentExtractor",
     "EmbeddingProfile",

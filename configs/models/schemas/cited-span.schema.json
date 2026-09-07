@@ -1,0 +1,44 @@
+{
+  "$id": "https://arxiv-int.local/inference/cited-span.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "evidence": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "end": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "quote": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "start": {
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "quote",
+          "start",
+          "end"
+        ],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "value": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "value",
+    "evidence"
+  ],
+  "title": "CitedSpan",
+  "type": "object"
+}

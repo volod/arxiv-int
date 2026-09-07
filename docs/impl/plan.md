@@ -19,35 +19,6 @@ cannot establish a pass. These requirements also apply to later additive contrac
 
 ### Local inference -- `local-inference`
 
-#### implement-local-inference-adapters
-
-Create a provider-neutral local client for Ollama and vLLM covering chat, structured output,
-embeddings, health, model identity, timeout, and cancellation.
-
-- Serves: `local-inference` -- [Local inference](../design/spec.md#local-inference)
-- Agent status: CLEAR
-- Dependencies: Feature groups and domain interfaces described in
-[Project foundation](current/project-foundation.md#feature-groups); runtime roots documented in
-[Portable runtime](current/portable-runtime.md).
-[Readiness probe safety](records/0008-runtime-refactor-readiness-probe-safety.md).
-- User-visible outcome: The same extraction/retrieval code can use the Ollama system service or an
-optional vLLM container through explicit configuration.
-- Scope boundary: Local endpoints only; no hosted fallback, implicit model pull, or systemd
-mutation.
-- Data and artifact paths: `src/arxiv_int/inference/`, `configs/models/`, generated
-structured-output schemas, and `tests/inference/`.
-- Execution path: Implement local API adapters, capability discovery, schema response validation,
-bounded repair, streaming/cancel, retries, model digest capture, and fake servers for
-deterministic tests. Expose reusable model identity/health/cancellation operations for setup;
-explicit asset acquisition and its `models-pull` wrapper belong to
-[retryable setup](records/0022-runtime-implement-retryable-setup-command.md), never to
-inference request execution.
-- Acceptance gates: Provider conformance tests agree on typed results/statuses; unreachable and
-incompatible models fail clearly; prompts and secrets are not logged; no remote hostname passes
-local-only policy by default.
-- Documentation target: `docs/impl/current/local-inference.md`
-- Review checkpoint: `review-production-readiness-and-recovery`.
-
 #### implement-model-resource-scheduler
 
 Schedule GPU-heavy embedding, reranking, OCR, and generation sequentially by default and record
@@ -57,7 +28,7 @@ resource evidence.
 [Performance and scalability assumptions](../design/spec.md#performance-and-scalability-assumptions)
 - Agent status: RUN NEEDED
 - Audit inputs: [AUD-codebase-14](records/0001-govern-codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: `implement-local-inference-adapters`.
+- Dependencies: [Local inference adapters](records/0031-inference-implement-local-inference-adapters.md).
 - User-visible outcome: The 16 GB GPU does not thrash between models, and operators see why a model
 ran, offloaded, skipped, or fell back.
 - Scope boundary: Single-host resource coordination; no cluster scheduler and no unapproved service
@@ -1016,7 +987,8 @@ LLM calls for bounded high-value lanes.
 - Serves: `knowledge-extraction` --
 [Canonical object and fact model](../design/spec.md#canonical-object-and-fact-model)
 - Agent status: RUN NEEDED
-- Dependencies: `evaluate-general-and-domain-ner`; `implement-local-inference-adapters`;
+- Dependencies: `evaluate-general-and-domain-ner`;
+[Local inference adapters](records/0031-inference-implement-local-inference-adapters.md);
 `implement-probabilistic-entity-resolution`; [Domain investigation contracts](records/0014-contract-gov-define-domain-investigation-contracts-and-ontology.md);
 [Canonical relational schema](records/0021-store-create-canonical-relational-schema.md).
 - User-visible outcome: Design/revision, assembly/component, equipment, supplier, order, shipment,
@@ -1550,7 +1522,8 @@ justifies it.
 
 - Serves: `discovery-visualization` -- [Analysis, graph, and visualization behavior](../design/spec.md#analysis-graph-and-visualization-behavior)
 - Agent status: RUN NEEDED
-- Dependencies: `build-search-graph-and-report-interfaces`; `implement-local-inference-adapters`;
+- Dependencies: `build-search-graph-and-report-interfaces`;
+[Local inference adapters](records/0031-inference-implement-local-inference-adapters.md);
 `implement-model-resource-scheduler`. Lexical retrieval suffices; selected vectors are conditional.
 - User-visible outcome: Analysts may ask questions over selected evidence and receive cited
 answers or explicit
@@ -1699,7 +1672,8 @@ container mounts, and a network-denied run mode.
 [Operations, backup, and security](../design/spec.md#operations-backup-and-security)
 - Agent status: RUN NEEDED
 - Dependencies: Compose profiles documented in [Portable runtime](current/portable-runtime.md);
-[Canonical relational schema](records/0021-store-create-canonical-relational-schema.md); `implement-local-inference-adapters`;
+[Canonical relational schema](records/0021-store-create-canonical-relational-schema.md);
+[Local inference adapters](records/0031-inference-implement-local-inference-adapters.md);
 `build-search-graph-and-report-interfaces`. Organizer hardening is accepted in its own capability.
 - User-visible outcome: The local stack can process prepared inputs without unintended network
 access or writable archive access, with bounded read-only evidence and report queries.
@@ -1825,7 +1799,8 @@ without embedding the entire archive by default.
 - Serves: `semantic-retrieval` --
 [Search and vector projections](../design/spec.md#search-and-vector-projections)
 - Agent status: RUN NEEDED
-- Dependencies: `implement-stage-dag-cli-and-make-targets`; `implement-local-inference-adapters`;
+- Dependencies: `implement-stage-dag-cli-and-make-targets`;
+[Local inference adapters](records/0031-inference-implement-local-inference-adapters.md);
 `implement-model-resource-scheduler`; `build-paradedb-lexical-load-and-query-path`.
 - User-visible outcome: Operators can embed a bounded, explainable corpus slice and resume batches
 while preserving model/profile identity.

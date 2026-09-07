@@ -236,6 +236,9 @@ def build_parser() -> argparse.ArgumentParser:
     from arxiv_int.transformations.commands import add_transform_parser
 
     add_transform_parser(subcommands)
+    from arxiv_int.inference.cli import add_inference_parser
+
+    add_inference_parser(subcommands)
     return parser
 
 
@@ -564,6 +567,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         from arxiv_int.transformations.commands import run_transform_command
 
         return run_transform_command(args)
+    if args.command == "inference":
+        from arxiv_int.inference.commands import run_inference_command
+
+        return run_inference_command(args)
     return _run_info()
 
 
