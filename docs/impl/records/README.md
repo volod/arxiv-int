@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0036` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0037` after the rows
 below).
 
 | Record | Scope | Result |
@@ -47,3 +47,4 @@ below).
 | [0033 Evaluation bundle validation](0033-eval-found-refactor-evaluation-bundle-validation.md) | Immutable local evidence-bundle layout, identity, concurrent no-replace publish, streamed verify | Accepted |
 | [0034 Checkpoints and human proof handoffs](0034-foundation-strengthen-checkpoints-and-human-proof-handoffs.md) | Timely reviews, Git-only identity obfuscation, ontology/geotemporal semantics and human review packets | Accepted |
 | [0035 Committed proof identity obfuscation](0035-eval-found-implement-committed-proof-identity-obfuscation.md) | Deterministic Git-bound identity export from verified proof bundles | Accepted |
+| [0036 Evaluation fixtures and metrics](0036-eval-found-create-evaluation-fixtures-and-metrics.md) | Frozen fixtures, paired metrics, evaluate stage, and proof dispatcher | Accepted |

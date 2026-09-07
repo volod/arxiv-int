@@ -48,6 +48,9 @@ def add_evaluation_parser(
     generate.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
     check = policy_commands.add_parser("check", help="fail when the committed policy drifts")
     check.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
+    from arxiv_int.evaluation.eval_cli import add_evaluate_commands
+
+    add_evaluate_commands(commands)
 
 
 def parse_export_maps(values: list[str]) -> list[tuple[str, Path]]:

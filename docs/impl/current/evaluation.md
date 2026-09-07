@@ -1,7 +1,8 @@
 # Evaluation
 
 This page records evaluation-dataset and provided-archive proof state as it becomes available.
-Fixture metrics, proof bundles, and scale pilots remain planned.
+Frozen synthetic fixtures, paired metrics, the `evaluate` stage, and a proof dispatcher exist;
+provided-archive proofs and scale pilots remain planned.
 
 ## Authorized representative archive
 
@@ -15,12 +16,12 @@ The designation is local configuration. Repository documentation does not record
 or copy private source content. The slice is authorized for bounded processing and proof; it is
 not full-corpus authorization.
 
-Item-level gold fixtures, tuning and final split seals, and scored labels remain with
-[evaluation-foundation](evaluation-foundation.md) and later
-human-gated policy tasks. No final evaluation split has been opened for tuning.
-Immutable local run-bundle validation and Git-bound identity export are available now; remaining
-fixture and metric work is in
-[create-evaluation-fixtures-and-metrics](../plan.md#create-evaluation-fixtures-and-metrics).
+Item-level gold fixtures, tuning and final split seals, and scored labels are documented in
+[evaluation-foundation](evaluation-foundation.md). Human-gated policy tasks still own review of
+real-archive gold. No final evaluation split has been opened for tuning on the provided archive.
+Immutable local run-bundle validation, Git-bound identity export, frozen synthetic fixtures,
+paired metrics, the `evaluate` stage, and `make proof` are available now. See
+[record 0036](../records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 
 The slice designation is recorded in
 [0023 Representative corpus approval](../records/0023-corpus-approve-representative-corpus-and-gold.md).

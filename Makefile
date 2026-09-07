@@ -41,7 +41,8 @@ KIND ?= all
 	db-downgrade db-adopt db-apply-schema ontology ontology-gen ontology-check data-quality \
 	transform-parse transform-compile transform-build transform-test \
 	projections-build projections-status projections-cleanup \
-	proof-export identity-policy-check inference-schemas-check \
+	proof-export identity-policy-check evaluation-fixtures-check inference-schemas-check \
+	eval proof \
 	ci-checks ci ci-github build quality code-quality quality-report
 
 help: ## List available targets
@@ -242,6 +243,22 @@ identity-policy-check: ## Fail when configs/evaluation proof-identity policy dri
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
 	@"$(VENV)/bin/arxiv-int" evaluation identity-policy check
 
+evaluation-fixtures-check: ## Fail when frozen evaluation fixtures or proof registry drift
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@"$(VENV)/bin/arxiv-int" evaluation fixtures check
+
+eval: ## Score frozen evaluation fixtures (RUN_ID=)
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		"$(VENV)/bin/arxiv-int" evaluation evaluate --run-id "$(RUN_ID)" --runs-dir "$$RUNS_DIR"
+
+proof: ## Publish a capability proof (CAPABILITY= RUN_ID=)
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@test -n "$(CAPABILITY)" || { echo "ERROR: set CAPABILITY"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		"$(VENV)/bin/arxiv-int" evaluation proof publish --capability "$(CAPABILITY)" \
+		--run-id "$(RUN_ID)" --results-dir "$$RESULTS_DIR" --runs-dir "$$RUNS_DIR"
+
 proof-export: ## Export identity-obfuscated copies (SOURCE_BUNDLE= MAP="a=b" RUN_ID=)
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
 	@test -n "$(SOURCE_BUNDLE)" || { echo "ERROR: set SOURCE_BUNDLE to a verified run bundle"; exit 1; }
@@ -369,7 +386,7 @@ lint-spec-plan: ## Check capability registry, task structure, status, and orderi
 plan-status: ## Count tasks by lane/status and show the next eligible work
 	@"$(VENV)/bin/arxiv-int-plan" --root "$(PROJECT_ROOT)"
 
-ci-checks: format-check lint typecheck complexity-gate shell-lint-gate lint-doc-links lint-spec-plan contracts-check contracts-evolution db-check ontology-check inference-schemas-check identity-policy-check
+ci-checks: format-check lint typecheck complexity-gate shell-lint-gate lint-doc-links lint-spec-plan contracts-check contracts-evolution db-check ontology-check inference-schemas-check identity-policy-check evaluation-fixtures-check
 
 ci: ci-checks test ## Run the required local and GitHub CI gate
 

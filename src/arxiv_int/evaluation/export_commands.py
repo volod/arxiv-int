@@ -17,7 +17,11 @@ def run_evaluation_command(args: argparse.Namespace) -> int:
     try:
         if args.evaluation_command == "identity-policy":
             return _run_policy(args)
-        return _run_export(args)
+        if args.evaluation_command == "export-proof":
+            return _run_export(args)
+        from arxiv_int.evaluation.eval_commands import run_evaluate_cli
+
+        return run_evaluate_cli(args)
     except (ExportError, OSError, ProjectRootError, ValueError) as error:
         _LOG.error("%s", error)
         return 1

@@ -99,8 +99,11 @@ they are small, deterministic, safe to publish, and required for CI.
 | `make db-apply-schema` | Apply owned revisions on the URL or a disposable PGDATA; evidence under `$DATA_DIR/migrations` |
 | `make db-adopt` | Stamp a live catalog after equivalence, or report why stamping is refused |
 | `make data-quality` | Validate `DATASET` contents for `RUN_ID` (`INPUT=...` required) |
+| `make eval` | Score frozen evaluation fixtures into `$RUNS_DIR/<run-id>/evaluation` (`RUN_ID=`) |
+| `make proof` | Publish a capability proof (`CAPABILITY=`, `RUN_ID=`) |
 | `make proof-export` | Write identity-obfuscated Git-bound copies (`SOURCE_BUNDLE=`, `MAP=`, `RUN_ID=`) |
 | `make identity-policy-check` | Fail when the committed proof-identity policy drifts |
+| `make evaluation-fixtures-check` | Fail when frozen fixtures or the proof registry drift |
 | `make transform-parse` | Parse the dbt project for `RUN_ID` without materializing relations |
 | `make transform-compile` | Compile selected dbt models for `RUN_ID` |
 | `make transform-build` | Build and test an isolated derived generation for `RUN_ID` |

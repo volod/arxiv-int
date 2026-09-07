@@ -1,0 +1,113 @@
+{
+  "family": "graph",
+  "items": [
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "path": [
+          "company:acme",
+          "product:pump"
+        ],
+        "predicate": "pred.manufactures",
+        "sql_rows": [
+          [
+            "company:acme",
+            "product:pump"
+          ]
+        ]
+      },
+      "gold_ref": "gold:graph-manufactures:tuning",
+      "item_id": "graph-manufactures-tuning",
+      "item_kind": "graph",
+      "label": null,
+      "negative": {
+        "path": [
+          "company:acme",
+          "person:alpha"
+        ],
+        "sql_rows": [
+          [
+            "company:acme",
+            "product:pump"
+          ]
+        ]
+      },
+      "positive": {
+        "path": [
+          "company:acme",
+          "product:pump"
+        ],
+        "predicate": "pred.manufactures",
+        "sql_rows": [
+          [
+            "company:acme",
+            "product:pump"
+          ]
+        ]
+      },
+      "provenance": {
+        "evidence": "sql:fact.manufactures",
+        "source": "fixture://graph/manufactures.json"
+      },
+      "query_text": null,
+      "split": "tuning"
+    },
+    {
+      "contract_version": "1.0.0",
+      "dataset_id": "evaluation-items",
+      "generation_id": "eval-found-fixtures-v1",
+      "gold": {
+        "path": [
+          "company:beta",
+          "product:valve"
+        ],
+        "predicate": "pred.manufactures",
+        "sql_rows": [
+          [
+            "company:beta",
+            "product:valve"
+          ]
+        ]
+      },
+      "gold_ref": "gold:graph-manufactures:final",
+      "item_id": "graph-manufactures-final",
+      "item_kind": "graph",
+      "label": null,
+      "negative": {
+        "path": [
+          "company:acme",
+          "person:alpha"
+        ],
+        "split_mark": "final",
+        "sql_rows": [
+          [
+            "company:acme",
+            "product:pump"
+          ]
+        ]
+      },
+      "positive": {
+        "path": [
+          "company:beta",
+          "product:valve"
+        ],
+        "predicate": "pred.manufactures",
+        "sql_rows": [
+          [
+            "company:beta",
+            "product:valve"
+          ]
+        ]
+      },
+      "provenance": {
+        "evidence": "sql:fact.manufactures-final",
+        "source": "fixture://graph/manufactures.json"
+      },
+      "query_text": null,
+      "split": "final"
+    }
+  ],
+  "schema_version": 1
+}

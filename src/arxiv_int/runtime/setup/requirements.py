@@ -37,6 +37,7 @@ LEXICAL_STAGES: tuple[str, ...] = (
     "report",
 )
 IMPLEMENTED_FEATURES = frozenset(group.name for group in FEATURE_GROUPS if not group.reserved)
+IMPLEMENTED_STAGES = frozenset({"preflight", "evaluate"})
 PROFILE_STAGES: dict[str, tuple[str, ...]] = {
     "investigation": INVESTIGATION_STAGES,
     "lexical": LEXICAL_STAGES,
@@ -72,7 +73,7 @@ def resolve_requirements(
     missing = tuple(
         name for name in groups if name not in IMPLEMENTED_FEATURES or feature_group(name).reserved
     )
-    unimplemented = tuple(stage for stage in stages if stage != "preflight")
+    unimplemented = tuple(stage for stage in stages if stage not in IMPLEMENTED_STAGES)
     backend = selected_backend(values or {}) if values else settings.backend
     profiles = effective_service_profiles(settings)
     if backend == "vllm" and "vllm" not in profiles.split():

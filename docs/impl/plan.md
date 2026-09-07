@@ -25,53 +25,6 @@ and name ready/pending human decisions and the dependent work that must wait at 
 
 ### Evaluation foundation -- `evaluation-foundation`
 
-#### create-evaluation-fixtures-and-metrics
-
-Build immutable extraction, classification, Russian retrieval, semantic, entity, fact, ontology,
-graph, domain-artifact, company/product/person catalog, anomaly and reporting fixtures plus
-paired evaluation utilities.
-
-- Serves: `evaluation-foundation` -- [Evaluation and acceptance](../design/spec.md#evaluation-and-acceptance)
-- Agent status: CLEAR
-- Dependencies: [Contract data-quality checks](records/0019-contract-gov-implement-contract-data-quality-checks.md);
-[Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
-the evaluation and retrieval primitives
-documented in [Project foundation](current/project-foundation.md#evaluation-and-retrieval-primitives).
-[Evaluation bundle validation](records/0033-eval-found-refactor-evaluation-bundle-validation.md);
-[Committed proof identities](records/0035-eval-found-implement-committed-proof-identity-obfuscation.md).
-- User-visible outcome: Every store/model/pipeline recommendation names the exact frozen items,
-metrics, thresholds, and run artifacts that support it, and every usable stage can publish the same
-proof-bundle shape.
-- Scope boundary: Provide deterministic fixtures and measurement; human gold review remains in the
-human lane.
-- Data and artifact paths: `tests/fixtures/`, `eval.*`, `src/arxiv_int/evaluation/`,
-`configs/evaluation/`, `configs/proofs/`, `Makefile`, `$RUNS_DIR/<run-id>/evaluation/`, and
-`$RESULTS_DIR/proofs/`.
-- Execution path: Extend the existing metrics for recall@k, MRR, evidence intactness, p95, paired
-bootstrap, extraction/span, hierarchical classification, linkage, financial/BOM arithmetic,
-catalog parity, anomaly cohorts/false positives/review-budget
-precision, domain artifact, graph parity,
-resource cost, and adopt/retain/inconclusive verdicts; register the
-`evaluate` stage body that writes the immutable evaluation bundle; add a typed proof manifest,
-stage-to-validator registry, redaction, fingerprint freshness, proof summary helpers, and a shared
-`make proof CAPABILITY=...` dispatcher.
-Reuse shared data-quality result identities and fixtures for missing/global checks; keep
-held-out accuracy metrics separate from Pandera/dbt structural validation.
-Use the shared Git-bound exporter for committed source-derived fixtures; keep local gold originals
-and human-review packets unchanged. Include dynamic ontology add/deprecate/draft cases, source-valid
-versus recorded time, uncertain places/CRS, role intervals and revision/effectivity boundaries. Build
-same-name nonmatches and domain non-implication cases; obfuscate labels and expected answers together.
-- Acceptance gates: Split leakage and provenance checks pass; bootstrap seeds and item ledgers
-replay; missing evidence refuses a verdict; metrics have positive/negative fixtures; proof bundles
-reject stale fingerprints, missing artifact checksums, unvalidated usable stages, and private paths
-or unobfuscated corpus content in repository summaries; proof target discovery and unknown capability
-tests pass.
-Committed copies pass the exporter gate with policy/export fingerprints; raw local quality and
-transformed fixture metrics stay distinct. Temporal, location and domain negatives cannot become
-valid merely through identity replacement.
-- Documentation target: `docs/impl/current/evaluation-foundation.md`
-- Review checkpoint: `review-inference-and-evaluation-boundaries`.
-
 #### review-inference-and-evaluation-boundaries
 
 Review inference, resource ownership and immutable evaluation inputs before pipeline integration.
@@ -85,7 +38,7 @@ Review inference, resource ownership and immutable evaluation inputs before pipe
 [Inference adapters](records/0031-inference-implement-local-inference-adapters.md);
 [Resource scheduler](records/0032-inference-implement-model-resource-scheduler.md);
 [Bundle validation](records/0033-eval-found-refactor-evaluation-bundle-validation.md);
-`create-evaluation-fixtures-and-metrics`;
+[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md);
 [Committed proof identities](records/0035-eval-found-implement-committed-proof-identity-obfuscation.md).
 - User-visible outcome:
 Pipeline workers receive compatible typed inference, cancellation, resource and evidence contracts.
@@ -446,7 +399,7 @@ planning with the supplied archive and publish the pipeline-control proof bundle
 [Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `implement-evidence-based-pipeline-forecast`;
-`prove-corpus-foundation-on-provided-archive`; `create-evaluation-fixtures-and-metrics`;
+`prove-corpus-foundation-on-provided-archive`; [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md);
 `implement-evidence-and-source-location-lookup`.
 - User-visible outcome: The supplied archive demonstrates that unchanged inputs skip heavy work,
 deltas update only affected artifacts, stale data retracts safely, insufficient space blocks early,
@@ -479,7 +432,7 @@ Review the integrated milestone before lexical loading, classification and NLP c
 - Task kind: checkpoint
 - Dependencies: `implement-normalization-dedupe-and-chunking`;
 `implement-evidence-and-source-location-lookup`; `implement-investigation-profile-and-output-manifest`;
-`add-progress-logging-and-resource-telemetry`; `create-evaluation-fixtures-and-metrics`.
+`add-progress-logging-and-resource-telemetry`; [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 `review-pipeline-publication-and-reuse-boundaries`; `implement-incremental-reconciliation-and-stale-pruning`.
 - User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
 or blocked
@@ -618,7 +571,7 @@ current proof bundle.
 - Agent status: RUN NEEDED
 - Dependencies: `implement-normalization-dedupe-and-chunking`;
 `implement-stage-dag-cli-and-make-targets`; `implement-evidence-based-pipeline-forecast`;
-`create-evaluation-fixtures-and-metrics`;
+[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md);
 [Representative corpus approval](records/0023-corpus-approve-representative-corpus-and-gold.md).
 - User-visible outcome: The supplied file silos have inspectable inventory, extraction,
 normalization, duplicate, and chunk artifacts backed by one reproducible proof id.
@@ -678,7 +631,7 @@ and query normalization on a held-out Russian query set.
 - Agent status: RUN NEEDED
 - Research: yes
 - Dependencies: `build-paradedb-lexical-load-and-query-path`;
-`create-evaluation-fixtures-and-metrics` may begin with a minimal retrieval fixture.
+[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 - User-visible outcome: The default Russian lexical profile is backed by recall, MRR, evidence
 intactness, latency, and index-size evidence rather than an English default.
 - Scope boundary: Compare declared tokenizer/query profiles; do not tune on the final split or
@@ -733,7 +686,7 @@ evaluation labels used to classify archive files.
 - Agent status: RUN NEEDED
 - Research: yes
 - Dependencies: [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
-`create-evaluation-fixtures-and-metrics`.
+[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 - Human review handoff:
 [approve-classification-policy](#approve-classification-policy)
 vocabulary, thresholds and exception examples.
@@ -915,7 +868,7 @@ organizations, locations, equipment, models, suppliers, materials, standards, an
 - Agent status: RUN NEEDED
 - Research: yes
 - Dependencies: `build-russian-language-morphology-and-terminology-lane`;
-`create-evaluation-fixtures-and-metrics`.
+[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 - User-visible outcome: Entity mentions carry type, confidence, original source span, model/version,
 and an understood per-type error rate.
 - Scope boundary: Detect mentions; canonical merging belongs to identity resolution and acceptance
@@ -971,7 +924,7 @@ Bind evolving ontology and source-asserted place/time semantics to reproducible 
 - Agent status: CLEAR
 - Dependencies: [Versioned ontology assets](records/0013-contract-gov-establish-versioned-ontology-assets.md);
 [Domain contracts](records/0014-contract-gov-define-domain-investigation-contracts-and-ontology.md);
-`implement-stage-dag-cli-and-make-targets`; `create-evaluation-fixtures-and-metrics`.
+`implement-stage-dag-cli-and-make-targets`; [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 - Human review handoff:
 [approve-entity-merge-and-ontology-policy](#approve-entity-merge-and-ontology-policy)
 ontology/geotemporal candidate semantics and compatibility examples;
@@ -1013,7 +966,7 @@ operating points.
 [Analysis, graph, and visualization behavior](../design/spec.md#analysis-graph-and-visualization-behavior)
 - Agent status: RUN NEEDED
 - Dependencies: `evaluate-general-and-domain-ner`; [Canonical relational schema](records/0021-store-create-canonical-relational-schema.md);
-`create-evaluation-fixtures-and-metrics`.
+[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 `implement-ontology-snapshots-and-geotemporal-contracts`.
 - Human review handoff:
 [approve-entity-merge-and-ontology-policy](#approve-entity-merge-and-ontology-policy)
@@ -1550,7 +1503,7 @@ Create deterministic constraint and bounded statistical detectors with evidence 
 
 - Serves: `anomaly-analysis` -- [Anomaly detection and triage](../design/spec.md#anomaly-detection-and-triage)
 - Agent status: CLEAR
-- Dependencies: `register-and-expose-domain-artifacts`; `create-evaluation-fixtures-and-metrics`.
+- Dependencies: `register-and-expose-domain-artifacts`; [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 - Human review handoff:
 [approve-anomaly-triage-policy](#approve-anomaly-triage-policy)
 detector coverage, hard negatives, review replay and proposed budgets.
@@ -1948,7 +1901,7 @@ current-state evidence references.
 - Serves: `evaluation-evidence` --
 [Implementation boundaries](../design/spec.md#implementation-boundaries)
 - Agent status: CLEAR
-- Dependencies: `create-evaluation-fixtures-and-metrics`; `implement-run-ledger-and-atomic-artifacts`.
+- Dependencies: [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md); `implement-run-ledger-and-atomic-artifacts`.
 - User-visible outcome: A stale run cannot continue to support a changed published claim.
 - Scope boundary: Build ongoing evidence validation; routine review of each change remains part of that
 change, not a deferred audit. Do not invent missing benchmarks.
@@ -1970,7 +1923,7 @@ Exercise the complete investigation command on a mixed deterministic fixture and
 - Serves: `evaluation-evidence` -- [End-to-end run and output contract](../design/spec.md#end-to-end-run-and-output-contract)
 - Agent status: CLEAR
 - Dependencies: `build-search-graph-and-report-interfaces`; `implement-hierarchical-file-classification`;
-`implement-investigation-profile-and-output-manifest`; `create-evaluation-fixtures-and-metrics`.
+`implement-investigation-profile-and-output-manifest`; [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 - User-visible outcome: One directory-to-report command proves every required family is wired
 through real baseline
 stage adapters, independent of optional vectors, viewers and archive organization.
@@ -2004,7 +1957,7 @@ usable pipeline stage and artifact family.
 `prove-archive-classification-on-provided-archive`; `prove-discovery-and-visualization-on-provided-archive`;
 `prove-anomaly-analysis-on-provided-archive`;
 [Model resource scheduler](records/0032-inference-implement-model-resource-scheduler.md);
-`create-evaluation-fixtures-and-metrics`. Semantic proof is required only for a selected vector branch.
+[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md). Semantic proof is required only for a selected vector branch.
 `review-investigation-and-report-integrity`.
 `approve-classification-policy`; `approve-entity-merge-and-ontology-policy`;
 `approve-fact-review-and-publication-policy`; `approve-domain-artifact-semantics-and-inclusion`;
@@ -2312,7 +2265,7 @@ same selected tier; exercise the Qdrant escape-hatch interface without deploying
 [Promotion and fallback gates](../design/spec.md#promotion-and-fallback-gates)
 - Agent status: RUN NEEDED
 - Research: yes
-- Dependencies: `implement-selective-embedding-pipeline`; `create-evaluation-fixtures-and-metrics`.
+- Dependencies: `implement-selective-embedding-pipeline`; [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 - User-visible outcome: The project has a measured vector/hybrid choice or an explicit lexical-only
 decision, plus a bounded fallback if Postgres cannot meet requirements.
 - Scope boundary: Compare recall, filtering, fusion, lifecycle, and cost; do not add Qdrant unless
