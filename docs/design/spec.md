@@ -525,8 +525,10 @@ defaults to `.data` inside the checkout. Corpus-scale output never goes there, a
 a `RESULTS_DIR` or `PGDATA_DIR` that resolves inside the checkout unless the operator states that
 intent for a small local trial.
 
-Proof tasks retain source manifests and hashes, not corpus contents, in repository
-documentation. A bounded disposable copy under the configured data root may be used for addition,
+Proof tasks retain source manifests and hashes in repository documentation. Any committed
+source-derived examples must use the
+[identity-obfuscated export](#identity-obfuscation-for-committed-proof-artifacts).
+A bounded disposable copy under the configured data root may be used for addition,
 modification, and removal drills.
 
 `ARCHIVE_DIR` remains read-only for analysis. The archive-reorganization command is the sole
@@ -903,6 +905,31 @@ and accepted or explicitly included proposed facts, with citations and confidenc
 calculations retain the input fact ids, formula/rule version, and operands; their evidence is a
 derivation chain, not a fabricated source sentence.
 
+### Geotemporal assertions
+
+Location and time qualify source assertions and evidenced roles; they are not identity proof.
+Reuse `Location`, fact qualifiers, source anchors and domain contracts. Keep geographic coordinates
+separate from page bounding boxes and spreadsheet coordinates. Preserve the asserted address/place,
+coordinate reference system, axis order, units, precision and uncertainty when supplied. Validate
+coordinate ranges for the declared system; missing CRS, ambiguous place names or absent coordinates
+remain unknown. Do not infer a person's residence from a company address or geocode through an
+external service. Bounded place/time filters and SQL/graph parity are in scope; a GIS platform,
+map service, routing engine and new spatial database extension are not required.
+
+Keep source-valid time distinct from extraction/transaction time and document publication time.
+Retain source timezone, granularity, open bounds and uncertainty; normalize known instants to UTC
+without inventing a timezone or a precise instant for a date/year-only assertion. Declare interval
+endpoint conventions in the contract. Inverted intervals fail validation; missing/ambiguous time
+remains explicit. Role, location and product-revision/effectivity joins use compatible asserted
+intervals. As-of queries identify both the valid-time scope and the recorded identity/ontology
+snapshot; a later correction must not silently rewrite an earlier result.
+
+Evaluate open/closed bounds, timezone-equivalent instants, partial dates, unknown CRS, reversed axes,
+invalid coordinates, shared addresses with distinct entities, role/location changes, contradictory
+sources and revision/effectivity boundaries. SQL, graph and report filters must agree on the same
+pinned interpretation. These requirements belong to ontology/identity contracts, fact validation
+and domain views; they do not add a separate capability.
+
 ### Ontology design
 
 Pinned Turtle/SHACL assets under `ontology/` are the formal vocabulary. AGE, catalogs, and reports
@@ -942,6 +969,21 @@ analyst-facing labels; helper types are absent from catalogs. Duplicate equivale
 without a mapping fail ontology-check. In-place meaning changes of an active IRI fail evolution
 policy. Domain/range fixtures prove subclass production and superclass consumption, and prove
 disjoint-type writes are rejected. Human ontology review may keep a draft term unpublished.
+
+Dynamic ontology means explicit versioned evolution, not automatic acceptance of generated axioms.
+The `ontology` stage seals an immutable snapshot of published terms, mappings, shapes and policy
+fingerprints for each run. Candidate terms/aliases/shapes remain a separate draft review artifact;
+unknown terms remain unmapped/proposed. Only the existing human ontology-policy gate can accept new
+semantics. Reuse published terms, retain stable IRIs, and record deprecation/replacement mappings;
+no run edits the vocabulary it already pinned. A changed term/shape invalidates the affected
+validation, graph, catalog and report lineage; old snapshots and review decisions remain replayable.
+
+Evaluate additive extension with unchanged old results, rejected in-place meaning changes,
+draft-versus-published visibility, removed/disjoint types, subclass-compatible consumers and stale
+snapshot refusal. Domain boundaries stay explicit: party/account/transaction, model/revision/physical
+instance, and component/assembly relations reuse the canonical meanings. Shared names, proximity,
+co-occurrence, similar amounts and overlapping dates cannot manufacture a merge, `part-of`, supply,
+or settlement assertion. Bounded domain fixtures prove both valid relations and those non-implications.
 
 ### Search and vector projections
 
@@ -1413,8 +1455,8 @@ there are no development-only path aliases, stage wrappers, or output trees. The
 
 Deterministic CI remains fixture-based and never reads the configured archive. A real-data run is an
 implementation feedback signal, not acceptance evidence: it does not replace the capability's
-evaluation or proof bundle, and no corpus content or machine-specific path enters Git. Missing
-private access or reviewed labels keeps the proof/human task open, rather than blocking deterministic
+evaluation or proof bundle, and no unobfuscated corpus content or machine-specific path enters Git.
+Missing private access or reviewed labels keeps the proof/human task open, rather than blocking deterministic
 implementation and fixture checks. A fixture pass never claims real-corpus acceptance.
 
 ## Resumability, idempotency, and provenance
@@ -1761,6 +1803,25 @@ require separate repairs before consumers proceed; each concern has one owner. N
 ids. Fixture reviews cannot waive real-data, CUDA or human gates; unavailable private labels cannot
 block independent fixture implementation.
 
+Checkpoint placement follows dependency risk, not just the end of a large capability group. Add
+bounded reviews after inference/evaluation foundations, pipeline publication orchestration,
+retrieval/classification integration, domain-artifact/anomaly integration, and recovery preparation
+before scale pilots. Each names the exact producer records, cross-module invariants and first gated
+consumers. The knowledge/identity checkpoint additionally covers dynamic ontology snapshots,
+geotemporal assertions and domain distinctions. Wire required consumer dependencies explicitly;
+a `Review checkpoint` label alone does not block execution. Reviews neither reopen accepted
+0029-0033 nor replace their evidence; they verify integration with the later producers.
+
+Agent tasks that produce human-review artifacts name a `Human review handoff`: the human task id,
+packet path, required decisions and blocked downstream work. Human prerequisites use explicit task
+ids, including other human decisions. Producers prepare candidates and evidence without depending
+on approval of the very packet they must create. At completion the agent reports whether each
+packet is ready, what is missing, how to inspect it, the decision needed and the next blocked task.
+It stops dependent work until the human decision is recorded; independent fixture work may continue.
+Approval binds exact artifact/code/model/ontology/policy fingerprints and scope. Changed evidence
+requires renewed review; a model verdict or successful checkpoint cannot approve on the human's
+behalf. The [handoff workflow](../guide/planning-workflow.md#human-review-handoffs) defines the message.
+
 Implementation tasks add tests for integrity, correctness, and business logic: the happy path, the
 main corner cases, and a regression for each defect found. That set is sufficient while interfaces
 are still changing. Do not add tests that only freeze current implementation, configuration
@@ -1807,7 +1868,49 @@ Before store or model promotion, freeze a representative corpus manifest and rev
 Gold creation and threshold setting use separate tuning and final partitions. LLM-drafted items do
 not become scoring truth without review. During development the operator points `ARCHIVE_DIR` at one
 authorized representative slice and uses the ordinary pipeline or stage commands. Machine-specific
-paths and private source text stay out of the repository.
+paths and unobfuscated source text stay out of the repository; Git-bound copies follow
+[identity obfuscation](#identity-obfuscation-for-committed-proof-artifacts).
+
+### Identity obfuscation for committed proof artifacts
+
+This policy applies only to proof-derived artifacts tracked by Git or explicitly prepared for a
+Git commit: fixtures, excerpts, labels, queries, expected answers, reports, graphs, screenshots and
+metadata. Ordinary archive reads, local canonical data, `$RESULTS_DIR/proofs/` and local human-review
+packets retain original identities. Export from those originals into a separate repository-bound
+copy; never rewrite originals, local evidence or Git history. No commit is implied by export.
+Existing secret/path/logging rules remain independent of this identity-obfuscation policy.
+
+Replace real person, company and product identities, including names/aliases, identifiers and model
+or part labels, addresses, email/phone contacts and account numbers. Use deterministic one-way
+SHA-256 with a versioned public namespace and documented normalization. No secret key, strong
+cryptography, rotation service or resistance-to-reversal work is required for this legally clean
+proof data. Hash stable entity ids for entity labels; hash typed normalized field values for shared
+contacts/identifiers. A run id, machine path or random salt must not affect the result. Keep distinct
+same-name entities distinct, aliases linked to their entity, and repeated contacts comparable.
+
+Use ASCII substitutes appropriate to each field: `person_<digest>`, `company_<digest>` and
+`product_<digest>` labels; `contact_<digest>@example.invalid` email addresses; synthetic street/city
+components and numeric house/postal fields; digit-based phone/account substitutes preserving their
+schema-required shape. Retain required prefixes, lengths and check digits where validators require
+them, computing replacement check digits rather than copying a real account. Detect collisions in
+bounded numeric formats and refuse ambiguous output; never merge unrelated identities silently.
+
+Rewrite every occurrence and reference in the selected copy, including filenames, URLs, captions,
+embedded metadata and expected answers. Recompute text offsets/anchors, artifact checksums and
+bundle fingerprints after transformation. Preserve schema types, joins, quantities/units, temporal
+ordering and domain distinctions; geographic/time fixtures must retain the declared relationships.
+Do not independently hash coordinates or dates and then reuse the old spatial/temporal expected
+answers. Render images/PDFs from the transformed data or refuse unsupported exports. Raw mappings
+and source identity dictionaries stay local and untracked.
+
+Record the obfuscation policy/version, export file list, source-bundle fingerprint and independent
+export fingerprint. Mark exported metrics/fixtures as transformed data, not fresh real-archive
+quality evidence. Gate Git-bound export with cross-run/machine determinism, same-name nonmatch,
+alias/reference/span consistency, phone/address/account format, collision, metadata leakage and
+original-byte-preservation tests. An artifact that cannot meet these checks stays local; a raw
+artifact is never silently substituted. Scope selection must include newly prepared Git files, not
+only files already returned by `git ls-files`. Synthetic fixtures with no real identities need no
+identity replacement, but still satisfy ordinary secret/path rules.
 
 ### Provided-archive proof runs
 
@@ -1847,7 +1950,8 @@ result. Failure, missing evidence, or resource refusal keeps its proof task open
 may record `not-selected` with an explicit selection reason and working fallback; comparative
 promotion or rejection claims additionally require a measured verdict. Repository
 current-state documentation records proof ids, fingerprints, artifact paths, validation summaries,
-and results, but never copies private source content or machine-specific archive paths into Git.
+and results, but uses only the explicitly obfuscated export for any committed source-derived content
+and never copies machine-specific archive paths into Git.
 
 ### Required acceptance gates
 
@@ -1862,6 +1966,8 @@ and results, but never copies private source content or machine-specific archive
 | Idempotency       | Re-running an unchanged successful shard writes no duplicate canonical rows or artifacts and reports a cache hit; interrupted stages resume from completed shards.                               |
 | Incremental state | Added/changed/renamed/removed sources and stage-owned implementation changes invalidate only their lineage closure; active views retract stale outputs and retain audit evidence.                 |
 | Forecast          | Time/size ranges cite evidence, all target devices and peak scratch/rebuild needs are counted, and insufficient free space blocks before heavy allocation.                                        |
+| Committed proof identities | Git-bound exports pass deterministic typed identity replacement, reference/span and format checks; local originals remain unchanged. |
+| Ontology/geotemporal integrity | Pinned ontology evolution, source-valid versus recorded time, place/CRS uncertainty, revision/effectivity and domain non-implication fixtures pass across validators, SQL, graph and reports. |
 | Proof bundles     | Every usable artifact-producing stage group has a current provided-archive proof whose outputs, checksums, validators, cache-hit rerun, and fingerprint are complete.                              |
 | Provenance        | Every sampled search result, mention, fact, topic assignment, graph edge, and report row resolves to source evidence and a complete transformation fingerprint.                                  |
 | Extraction        | Per-format text/table/anchor coverage and quarantine reasons meet thresholds declared before the full run.                                                                                       |
@@ -1942,13 +2048,13 @@ evidence exist. Registry order is the implementation line used by `plan.md`.
 | 3 | `contract-governance` | shipped | ODCS generation/evolution, Alembic revision checks, shared dataset-quality checks and ontology gates pass; live schema upgrade/adoption is recorded under canonical-store | [Contracts](../impl/current/contracts.md) |
 | 4 | `canonical-store` | shipped | Disposable extension compatibility, initial schema/adoption, dbt validation/publication and projection rebuild/cleanup pass the foundation checkpoint; operator recovery remains a separate capability | [Canonical store](../impl/current/canonical-store.md); [Checkpoint](../impl/records/0027-store-review-foundation-and-store-boundaries.md) |
 | 5 | `local-inference` | shipped | Ollama/vLLM conformance, structured outputs, model-fit, host-wide GPU lease, and local-only endpoint gates pass | [Local inference](../impl/current/local-inference.md) |
-| 6 | `evaluation-foundation` | planned | Frozen fixtures, replayable metrics, split guards, and paired verdict utilities pass | [Open work](../impl/plan.md#evaluation-foundation----evaluation-foundation) |
+| 6 | `evaluation-foundation` | planned | Frozen fixtures, replayable metrics, split guards, paired verdicts, and deterministic typed identity obfuscation for Git-bound exports pass | [Open work](../impl/plan.md#evaluation-foundation----evaluation-foundation) |
 | 7 | `pipeline-control` | planned | Fixture-first DAG, output manifest, resume, generation activation, delta, forecast, and progress gates pass | [Open work](../impl/plan.md#pipeline-control----pipeline-control) |
 | 8 | `corpus-foundation` | planned | Representative inventory, extraction, normalization, dedupe, and chunk gold sets pass | [Open work](../impl/plan.md#corpus-foundation----corpus-foundation) |
 | 9 | `lexical-retrieval` | planned | Held-out Russian relevance, latency, index size, and rebuild gates pass | [Open work](../impl/plan.md#lexical-retrieval----lexical-retrieval) |
 | 10 | `archive-classification` | planned | Hierarchical gold labels, calibrated exceptions, complete source accounting, and reproducibility pass | [Open work](../impl/plan.md#archive-classification----archive-classification) |
 | 11 | `russian-nlp` | planned | Language, morphology, terminology, and NER metrics pass per type | [Open work](../impl/plan.md#russian-nlp----russian-nlp) |
-| 12 | `identity-ontology-graph` | planned | Linkage, ontology design (domain terms, hidden helpers, additive extension, producer/consumer typing), SQL/Cypher parity, rebuild, and bounded traversal gates pass | [Open work](../impl/plan.md#identity-ontology-and-graph----identity-ontology-graph) |
+| 12 | `identity-ontology-graph` | planned | Linkage, pinned ontology evolution, domain terms and typing, geotemporal uncertainty/as-of semantics, SQL/Cypher parity, rebuild, and bounded traversal gates pass | [Open work](../impl/plan.md#identity-ontology-and-graph----identity-ontology-graph) |
 | 13 | `knowledge-extraction` | planned | Structured extraction, evidence, fact quality, and contradiction gates pass | [Open work](../impl/plan.md#knowledge-extraction----knowledge-extraction) |
 | 14 | `domain-investigation-artifacts` | planned | Reviewed BOM, relationship, supply-chain, invoice/payment, render, and registry gates pass | [Open work](../impl/plan.md#domain-investigation-artifacts----domain-investigation-artifacts) |
 | 15 | `anomaly-analysis` | planned | Per-detector fixtures, cohort/time guards, review-budget precision, provenance, and bounded triage views pass | [Open work](../impl/plan.md#anomaly-analysis----anomaly-analysis) |

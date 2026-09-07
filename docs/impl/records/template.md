@@ -40,3 +40,6 @@ proceed/proceed-with-nonblocking-notes/blocked decision. Keep unresolved blocker
 
 Passed/remaining gates, next action, current/index/dependency-link updates, plan counts before/after,
 and capabilities changed. Replace removed task links with accepted-record links; retain this record.
+For marked producers, retain the human task id, packet fingerprint/path, readiness, inspection
+instructions, required decision and blocked consumer from the
+[handoff contract](../../guide/planning-workflow.md#human-review-handoffs).

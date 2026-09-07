@@ -64,3 +64,12 @@ publishers. Fixture coverage does not prove real-archive quality.
 
 Disposable synthetic evidence for this repair lives under `$DATA_DIR/bundle-validation/<run-id>/`.
 That tree is not a provided-archive proof.
+
+Git-bound identity obfuscation is a specified, still
+[planned exporter](../plan.md#implement-committed-proof-identity-obfuscation). The existing bundle
+publisher/verifier does not replace person, company, product, address, contact or account identities.
+Local proof and human-review packets retain original identities; future committed copies must pass
+the [export policy](../../design/spec.md#identity-obfuscation-for-committed-proof-artifacts).
+Fixture creation and its inference/evaluation checkpoint depend on that exporter. The
+[planning record](../records/0034-foundation-strengthen-checkpoints-and-human-proof-handoffs.md)
+records this boundary and the human handoff requirements.

@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0034` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0035` after the rows
 below).
 
 | Record | Scope | Result |
@@ -45,3 +45,4 @@ below).
 | [0031 Local inference adapters](0031-inference-implement-local-inference-adapters.md) | Provider-neutral Ollama/vLLM client for chat, structured output, embeddings, health, identity, timeout, and cancel | Accepted |
 | [0032 Model resource scheduler](0032-inference-implement-model-resource-scheduler.md) | Host-wide GPU lease, footprint fit, Ollama unload, requested vLLM control, and resource telemetry | Accepted |
 | [0033 Evaluation bundle validation](0033-eval-found-refactor-evaluation-bundle-validation.md) | Immutable local evidence-bundle layout, identity, concurrent no-replace publish, streamed verify | Accepted |
+| [0034 Checkpoints and human proof handoffs](0034-foundation-strengthen-checkpoints-and-human-proof-handoffs.md) | Timely reviews, Git-only identity obfuscation, ontology/geotemporal semantics and human review packets | Accepted |
