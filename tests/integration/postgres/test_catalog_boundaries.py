@@ -13,9 +13,12 @@ from arxiv_int.stores.postgres.apply import inspect_and_compare
 from arxiv_int.stores.postgres.disposable import disposable_store
 
 ROOT = Path(__file__).parents[3]
-pytestmark = pytest.mark.skipif(
-    os.environ.get("ARXIV_INT_RUN_SCHEMA_MIGRATIONS") != "1", reason="declared store run only"
-)
+pytestmark = [
+    pytest.mark.heavy,
+    pytest.mark.skipif(
+        os.environ.get("ARXIV_INT_RUN_SCHEMA_MIGRATIONS") != "1", reason="declared store run only"
+    ),
+]
 
 
 @pytest.mark.parametrize(

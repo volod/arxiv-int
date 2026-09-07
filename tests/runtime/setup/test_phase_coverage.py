@@ -31,7 +31,7 @@ from tests.runtime.setup.conftest import FixtureProbe, checkout, completed, oper
 
 
 def test_parse_ollama_list_skips_blank_lines() -> None:
-    assert parse_ollama_list("NAME ID\n\nllama:latest  abc\n") == {"llama:latest"}
+    assert parse_ollama_list("NAME ID\n\ngemma3:4b  abc\n") == {"gemma3:4b"}
 
 
 def test_models_ollama_list_failure_then_pull(tmp_path: Path) -> None:

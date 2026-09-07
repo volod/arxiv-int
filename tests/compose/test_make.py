@@ -52,3 +52,15 @@ def test_make_tool_caches_follow_the_selected_data_dir() -> None:
 
     assert f"cache_dir={_data_root()}/cache/pytest" in _dry_run("test")
     assert f"cache_dir={selected}/cache/pytest" in _dry_run("test", f"DATA_DIR={selected}")
+
+
+def test_make_test_excludes_heavy_checks_and_test_heavy_selects_them() -> None:
+    unit = _dry_run("test")
+    heavy = _dry_run("test-heavy")
+    assert '-m "not heavy"' in unit
+    assert "-m heavy" in heavy
+    assert "not heavy" not in heavy
+    evolution = _dry_run("contracts-evolution")
+    live = _dry_run("contracts-evolution-live")
+    assert "--skip-live-sql" in evolution
+    assert "--skip-live-sql" not in live

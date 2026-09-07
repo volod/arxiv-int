@@ -23,6 +23,7 @@ from arxiv_int.stores.postgres.load import StagingRejectedError, load_canonical_
 from arxiv_int.stores.postgres_image.pins import load_image_pins
 
 pytestmark = [
+    pytest.mark.heavy,
     pytest.mark.skipif(shutil.which("docker") is None, reason="docker unavailable"),
     pytest.mark.skipif(
         os.environ.get("ARXIV_INT_RUN_SCHEMA_MIGRATIONS") != "1",

@@ -55,9 +55,9 @@ Operator commands:
   on drift (also part of `make ci`)
 
 Generation is byte-stable. Avro schemas parse and round-trip with `fastavro`. Compiled DDL parses
-with `sqlglot` and the ordered `baseline.sql` applies on a disposable Postgres 16 container when
-Docker is available. Extension SQL for BM25/AGE is committed for review but is not applied on stock
-Postgres.
+with `sqlglot`. Ordered `baseline.sql` apply on a disposable Postgres 16 container is
+`make contracts-evolution-live` / `arxiv-int contracts evolution` (not part of `make ci`).
+Extension SQL for BM25/AGE is committed for review but is not applied on stock Postgres.
 Provenance sidecars retain ODCS id/version, semantic hash, and every `x-arxiv-int` key so source
 metadata is not silently dropped. Some CLI Avro mappings (for example ODCS `number` to Avro
 `bytes`) follow the exporter; logical types remain authoritative in ODCS and provenance.
@@ -111,9 +111,11 @@ operator database by themselves. Missing live evidence is reported as `not-run`,
 Whole-relation dbt execution is recorded in
 [Canonical store](canonical-store.md#relational-transformations).
 
-`make contracts-evolution` / `arxiv-int contracts evolution` checks baselines against current
-contracts, Avro self-compatibility, the migration report, and the disposable Postgres apply of
-`baseline.sql`. Fixtures under `tests/contracts/evolution/` prove each consequence class.
+`make contracts-evolution` (part of `make ci`) checks baselines against current contracts, Avro
+self-compatibility, and the migration report, and skips disposable Postgres. `make
+contracts-evolution-live` / `arxiv-int contracts evolution` also applies `baseline.sql`. The pytest
+case for that apply is marked `heavy`. Fixtures under `tests/contracts/evolution/` prove each
+consequence class.
 
 The [data engineering review](../records/0015-govern-review-data-engineering-tooling.md) records the
 selected design; the

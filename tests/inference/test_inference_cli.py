@@ -16,7 +16,7 @@ def test_parser_accepts_inference_commands() -> None:
     identity = parser.parse_args(["inference", "identity", "--model", "fixture-chat"])
     assert identity.model == "fixture-chat"
     assert parser.parse_args(["inference", "resources"]).inference_command == "resources"
-    fit = parser.parse_args(["inference", "fit", "--model", "llama3.2:3b", "--no-allow-cpu"])
+    fit = parser.parse_args(["inference", "fit", "--model", "gemma3:4b", "--no-allow-cpu"])
     assert fit.inference_command == "fit"
     assert fit.allow_cpu is False
     schedule = parser.parse_args(["inference", "schedule", "--run-id", "demo", "--context", "1024"])

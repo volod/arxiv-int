@@ -12,6 +12,7 @@ SYNC_TARGETS = (
     "contracts-gen",
     "contracts-check",
     "contracts-evolution",
+    "contracts-evolution-live",
     "db-revision",
     "db-check",
     "ontology-gen",
@@ -84,4 +85,6 @@ def test_make_test_preserves_cache_root_with_spaces(tmp_path: Path) -> None:
         "pytest",
         "-o",
         f"cache_dir={cache_root}/cache/pytest",
+        "-m",
+        "not heavy",
     ]

@@ -111,6 +111,9 @@ show_error_codes = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+markers = [
+  "heavy: starts Docker or other host services; excluded from make test, make ci, and GitHub",
+]
 
 [tool.coverage.run]
 branch = true

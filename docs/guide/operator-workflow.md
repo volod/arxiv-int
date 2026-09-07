@@ -78,14 +78,16 @@ handlers in order. A successful infrastructure audit does not mean the archive p
    make models-list
    make ollama-check
    make inference-resources
-   make inference-fit MODEL=llama3.2:3b
+   make inference-fit MODEL=gemma3:4b
    ```
 
    Ollama uses its host service storage; `MODEL_CACHE_DIR` does not relocate that service. Model
    presence is not a memory-fit or quality result. `make inference-resources` reports GPU VRAM,
    power, and RAM. `make inference-fit` says whether the selected model fits this host, including
    weights, KV cache, context, batch, overhead, and CPU/database RAM, and whether it would run on
-   CUDA, fall back to CPU, or be rejected. For vLLM, use the configured model/revision and
+   CUDA, fall back to CPU, or be rejected. On a 16 GB GPU use `gemma3:4b` for a CUDA fit check;
+   `qwen3.8:27b` is the default generation model and is GPU-only-rejected without CPU fallback on
+   that card. For vLLM, use the configured model/revision and
    include `vllm` in the service profile for each current service/readiness invocation.
 
 5. Build the pinned database image, validate roots/Compose, and start the selected services:

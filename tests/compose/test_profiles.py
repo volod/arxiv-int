@@ -69,6 +69,7 @@ def _render_config(config: RuntimeConfig, profiles: tuple[str, ...]) -> dict[str
     return json.loads(completed.stdout)
 
 
+@pytest.mark.heavy
 @pytest.mark.parametrize("profile", PROFILES)
 def test_each_compose_profile_validates_without_starting_services(
     tmp_path: Path, profile: str
@@ -78,6 +79,7 @@ def test_each_compose_profile_validates_without_starting_services(
     assert _run_quiet_config(config, (profile,)) == 0
 
 
+@pytest.mark.heavy
 def test_combined_profiles_validate_without_rendering_secrets(tmp_path: Path) -> None:
     config = _runtime_config(tmp_path)
 
@@ -123,6 +125,7 @@ def _healthcheck_wait_seconds(service: Mapping[str, object]) -> float:
     return start_period + retries * interval
 
 
+@pytest.mark.heavy
 def test_rendered_services_pin_images_and_declare_health_and_stop(
     rendered_topology: tuple[RuntimeConfig, dict[str, object]],
 ) -> None:
@@ -136,6 +139,7 @@ def test_rendered_services_pin_images_and_declare_health_and_stop(
         assert service["stop_grace_period"]
 
 
+@pytest.mark.heavy
 def test_grafana_healthcheck_covers_first_boot_sqlite_migrations(
     rendered_topology: tuple[RuntimeConfig, dict[str, object]],
 ) -> None:
@@ -149,6 +153,7 @@ def test_grafana_healthcheck_covers_first_boot_sqlite_migrations(
     assert _healthcheck_wait_seconds(grafana) >= 10 * 60
 
 
+@pytest.mark.heavy
 def test_rendered_services_publish_ports_on_loopback_only(
     rendered_topology: tuple[RuntimeConfig, dict[str, object]],
 ) -> None:
@@ -159,6 +164,7 @@ def test_rendered_services_publish_ports_on_loopback_only(
             assert port["host_ip"] == "127.0.0.1"
 
 
+@pytest.mark.heavy
 def test_rendered_ports_follow_the_resolved_configuration(
     tmp_path: Path, rendered_topology: tuple[RuntimeConfig, dict[str, object]]
 ) -> None:
@@ -180,6 +186,7 @@ def test_rendered_ports_follow_the_resolved_configuration(
     assert str(overridden["services"]["vllm"]["ports"][0]["published"]) == "8100"
 
 
+@pytest.mark.heavy
 def test_rendered_vllm_service_pins_gpu_model_and_revision(
     rendered_topology: tuple[RuntimeConfig, dict[str, object]],
 ) -> None:
@@ -191,6 +198,7 @@ def test_rendered_vllm_service_pins_gpu_model_and_revision(
     assert "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a" in vllm["command"]
 
 
+@pytest.mark.heavy
 def test_rendered_database_root_is_mounted_only_by_the_database(
     rendered_topology: tuple[RuntimeConfig, dict[str, object]],
 ) -> None:
@@ -210,6 +218,7 @@ def test_rendered_database_root_is_mounted_only_by_the_database(
         assert str(config.pgdata_dir) not in sources
 
 
+@pytest.mark.heavy
 def test_rendered_services_drop_privileges_and_keep_configs_read_only(
     rendered_topology: tuple[RuntimeConfig, dict[str, object]],
 ) -> None:
@@ -238,6 +247,18 @@ def test_profile_parser_is_ordered_deduplicated_and_rejects_unknown() -> None:
         parse_profiles("core remote")
 
 
+def test_grafana_healthcheck_wait_covers_first_boot_without_docker() -> None:
+    grafana = {
+        "healthcheck": {
+            "interval": "10s",
+            "retries": 3,
+            "start_period": "10m",
+        }
+    }
+    assert _healthcheck_wait_seconds(grafana) >= 10 * 60
+
+
+@pytest.mark.heavy
 @pytest.mark.parametrize("backend", ["ollama", "vllm"])
 def test_generation_override_only_reaches_vllm_when_selected(tmp_path: Path, backend: str) -> None:
     config = _runtime_config(
@@ -253,6 +274,7 @@ def test_generation_override_only_reaches_vllm_when_selected(tmp_path: Path, bac
     assert ("operator-revision" in services["vllm"]["command"]) == (backend == "vllm")
 
 
+@pytest.mark.heavy
 def test_pipeline_service_start_waits_for_every_required_service(tmp_path: Path) -> None:
     config = _runtime_config(tmp_path)
     observed: list[tuple[str, ...]] = []

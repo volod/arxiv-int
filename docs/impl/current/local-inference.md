@@ -67,8 +67,10 @@ Committed JSON Schema envelopes live under `configs/models/schemas/`. Python con
 `cited-span` (a value plus required source quotes) and `refusal`. Callers may pass any schema.
 
 `configs/models/registry.json` lists known project model ids, capabilities, and resource
-footprints. Live `/api/show` or `/v1/models` discovery still works for unlisted tags; unlisted
-models get a conservative size-token footprint.
+footprints. Ollama generation defaults to `qwen3.8:27b`; the CUDA-fitting Gemma family tag is
+`gemma3:4b`. vLLM stays on pinned `Qwen/Qwen3.8-27B-FP8`. Live `/api/show` or `/v1/models`
+discovery still works for unlisted tags; unlisted models get a conservative size-token footprint
+(`<=4b` small, `>=24b` large).
 
 ## Commands
 
@@ -76,8 +78,8 @@ models get a conservative size-token footprint.
 make ollama-check
 make models-list
 make inference-resources
-make inference-fit MODEL=llama3.2:3b
-make inference-schedule RUN_ID=local MODEL=llama3.2:3b
+make inference-fit MODEL=gemma3:4b
+make inference-schedule RUN_ID=local MODEL=gemma3:4b
 arxiv-int inference health
 arxiv-int inference models
 arxiv-int inference identity [--model ID]
@@ -102,13 +104,14 @@ cover validation, fence stripping, and drift. Scheduler tests cover simulated co
 cancellation, CPU fallback, RAM refusal, vLLM occupancy without unapproved stop, Ollama unload,
 telemetry without prompt text, cross-process flock serialization, crash-release of a held flock,
 and exception release without a cancel event. Generate results record the requested model identity
-and refuse unknown model ids.
+and refuse unknown model ids. Scheduler fixtures use `gemma3:4b` and `qwen3.8:27b`.
 
-A declared host smoke (`ARXIV_INT_RUN_INFERENCE_SMOKE=1`) uses the running local Ollama service and
-the NVIDIA driver. On this CUDA host it proved RTX 4060 Ti 16 GB, `llama3.2:3b` CUDA placement and
-leased generate status `ok`, and `qwen3.8:27b` GPU-only rejection (18.4 GiB need vs 14.5 GiB free).
-That smoke is not a vLLM start/stop or 27B quality result. Evidence:
-`$DATA_DIR/inference/scheduler-0032/` and `$RUNS_DIR/scheduler-0032/telemetry/`.
-The inference/evaluation checkpoint inspected that retained evidence and re-ran the declared
-smokes; see
+Host CUDA checks are operator commands (`make inference-fit`, `make inference-schedule`), not
+pytest. Use `gemma3:4b` on a 16 GB GPU and `qwen3.8:27b` for the default generation / GPU-only
+reject path. Historical llama3.2:3b pytest smokes were removed in
+[record 0039](../records/0039-foundation-exclude-heavy-docker-and-llama-smokes.md). Prior CUDA
+evidence remains in
+[record 0031](../records/0031-inference-implement-local-inference-adapters.md),
+[record 0032](../records/0032-inference-implement-model-resource-scheduler.md), and
 [record 0038](../records/0038-eval-found-review-inference-and-evaluation-boundaries.md).
+Those runs are not a vLLM start/stop or 27B quality result.

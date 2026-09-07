@@ -148,11 +148,9 @@ conformance, contract behavior,
 evaluation metrics and verdicts, run bundles, and source-span retrieval. Configuration and path
 coverage is documented in [Portable runtime](portable-runtime.md#tests-and-verification).
 
-`tests/compose/test_profiles.py` renders the Compose topology once per module through the
-`rendered_topology` fixture and asserts one invariant family per test: image pinning with health
-and stop policy, loopback-only published ports, the vLLM GPU/model/revision pins, database-root
-mount isolation, and read-only config mounts with dropped privileges. Rendering stays a
-`docker compose config` call, so no service starts.
+`tests/compose/test_profiles.py` unit-tests profile parsing and mocked Compose runners in `make
+test`. Tests that call `docker compose config` (including the `rendered_topology` fixture) are
+marked `heavy` and run with `make test-heavy`. Rendering still does not start services.
 
 The locked bootstrap and package identity checks pass, and `make package-check` reports
 `arxiv-int 0.1.0 (arxiv_int)`. The required `make ci` gate covers formatting, linting, typing,
