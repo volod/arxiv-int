@@ -8,9 +8,11 @@ from sqlalchemy import Connection, bindparam, text
 
 from arxiv_int.stores.postgres.constants import (
     CANONICAL_SCHEMAS,
+    CONTROL_TABLES,
     DERIVED_SCHEMA,
     HASH_MODULUS,
     HEAD_REVISION,
+    LEDGER_TABLES,
     PARTITIONED_TABLES,
     PROJECTION_METADATA_TABLES,
     STAGING_SCHEMA,
@@ -111,7 +113,7 @@ def inspect_store(connection: Connection) -> LiveStoreCatalog:
         connection,
         "SELECT tablename FROM pg_tables WHERE schemaname = 'ctl' AND tablename IN :names "
         "ORDER BY 1",
-        {"names": list(PROJECTION_METADATA_TABLES)},
+        {"names": list(CONTROL_TABLES)},
     )
     partitioned = tuple(
         PartitionSpec(str(row[0]), str(row[1] or ""), int(row[2])) for row in partition_rows
@@ -146,7 +148,11 @@ def _partition_findings(catalog: LiveStoreCatalog) -> list[str]:
 
 
 def store_findings(
-    catalog: LiveStoreCatalog, *, require_head: bool = True, require_projections: bool = True
+    catalog: LiveStoreCatalog,
+    *,
+    require_head: bool = True,
+    require_projections: bool = True,
+    require_ledger: bool | None = None,
 ) -> list[str]:
     """Return overlay defects after a successful head upgrade."""
     findings: list[str] = []
@@ -168,6 +174,14 @@ def store_findings(
         if missing_proj:
             findings.append(
                 "live catalog is missing projection metadata: " + ", ".join(missing_proj)
+            )
+    if require_ledger is None:
+        require_ledger = require_head
+    if require_ledger:
+        missing_ledger = sorted(set(LEDGER_TABLES) - set(catalog.control_tables))
+        if missing_ledger:
+            findings.append(
+                "live catalog is missing run ledger tables: " + ", ".join(missing_ledger)
             )
     if require_head and catalog.revision != HEAD_REVISION:
         findings.append(f"live revision is {catalog.revision!r}, expected {HEAD_REVISION!r}")

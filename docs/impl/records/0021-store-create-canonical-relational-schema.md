@@ -97,8 +97,8 @@ not-run and keeps this task open; `make ci` and `make quality` pass.
 none identified. Reviewed overlay-vs-0001 freeze, HASH-on-PK vs application `bucket`, staging
 quality-before-COPY, dbt role grants, adoption refuse/stamp, and disposable evidence paths.
 dbt execution is recorded in
-[0024](0024-store-implement-dbt-transformation-foundation.md); run ledger stays with
-`implement-run-ledger-and-atomic-artifacts`; projections are recorded in
+[0024](0024-store-implement-dbt-transformation-foundation.md); the run ledger is recorded in
+[0041](0041-pipeline-implement-run-ledger-and-atomic-artifacts.md); projections are recorded in
 [0025](0025-store-implement-rebuildable-search-and-graph-projections.md).
 
 ## Close or resume

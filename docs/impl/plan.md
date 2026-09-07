@@ -25,39 +25,6 @@ and name ready/pending human decisions and the dependent work that must wait at 
 
 ### Pipeline control -- `pipeline-control`
 
-#### implement-run-ledger-and-atomic-artifacts
-
-Create run, stage, shard, lease, checkpoint, error, artifact-manifest, and transitive-lineage state
-with deterministic reuse keys.
-
-- Serves: `pipeline-control` --
-[Resumability, idempotency, and provenance](../design/spec.md#resumability-idempotency-and-provenance)
-- Agent status: CLEAR
-- Dependencies: [Canonical relational schema](records/0021-store-create-canonical-relational-schema.md);
-fixture artifact contracts from
-[Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md).
-[Stage and artifact interface contracts](records/0040-pipeline-refactor-stage-and-artifact-interface-contracts.md).
-[Foundation/store checkpoint](records/0027-store-review-foundation-and-store-boundaries.md).
-- User-visible outcome: Every long operation has inspectable state; an interrupted shard resumes,
-and an unchanged shard reuses validated output without loading its heavy implementation.
-- Scope boundary: Implement generic control mechanics; stage-specific processing stays in its owning
-capability.
-- Data and artifact paths: `ctl.*` tables, `$RUNS_DIR/<run-id>/manifests/`,
-`src/arxiv_int/pipeline/control/`, and `tests/pipeline/control/`.
-- Execution path: Define stage-owned code/dependency/input fingerprints, transitive artifact edges,
-cache validation, concurrent reuse leases, state transitions, atomic sibling writes, bounded retry
-taxonomy, stale-lease recovery, and downstream invalidation planning.
-Use Alembic-managed control tables and bound SQLAlchemy transactions; bind validation and dbt
-model/input/rule fingerprints into reuse keys. Activation requires all applicable quality checks,
-including global checks, and successful model results for the exact generation; warnings and
-quarantine coverage remain visible.
-- Acceptance gates: Property/state-machine tests reject illegal transitions; crash injection proves
-no partial output is accepted; unchanged rerun validates manifests and does not invoke the heavy
-worker; a changed owned fingerprint marks exactly the reachable closure stale; forced retry creates
-a new attempt without overwriting evidence.
-- Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-pipeline-publication-and-reuse-boundaries`.
-
 #### implement-stage-dag-cli-and-make-targets
 
 Complete the dependency-aware stage registry, independent stage command, end-to-end and incremental
@@ -65,7 +32,7 @@ runners, resume, status, invalidate, rebuild, and stale-prune planning interface
 
 - Serves: `pipeline-control` -- [CLI and Make interface](../design/spec.md#cli-and-make-interface)
 - Agent status: CLEAR
-- Dependencies: `implement-run-ledger-and-atomic-artifacts`.
+- Dependencies: [Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md).
 - User-visible outcome: Operators can run or update one stage or a `--from`/`--to` dependency
 closure, inspect invalidation, start a fresh generation, and resume by run id through CLI or Make.
 - Scope boundary: Orchestrate in-process/local workers first with fixture DAGs; full preflight,
@@ -131,7 +98,7 @@ free-space safety before a pipeline run.
 - Serves: `pipeline-control` --
 [Pre-run forecast and resource refusal](../design/spec.md#pre-run-forecast-and-resource-refusal)
 - Agent status: CLEAR
-- Dependencies: `implement-run-ledger-and-atomic-artifacts`;
+- Dependencies: [Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md);
 `add-progress-logging-and-resource-telemetry`; runtime storage evidence documented in
 [Portable runtime](current/portable-runtime.md).
 - User-visible outcome: Before starting, an operator sees stage-by-stage cache hits, changed work,
@@ -206,7 +173,7 @@ Review fixture orchestration before concrete corpus workers depend on its public
 - Agent status: CLEAR
 - Task kind: checkpoint
 - Dependencies: [Stage and artifact interface contracts](records/0040-pipeline-refactor-stage-and-artifact-interface-contracts.md);
-`implement-run-ledger-and-atomic-artifacts`;
+[Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md);
 `implement-stage-dag-cli-and-make-targets`; `add-progress-logging-and-resource-telemetry`;
 `implement-evidence-based-pipeline-forecast`; `implement-investigation-profile-and-output-manifest`;
 [Inference and evaluation checkpoint](records/0038-eval-found-review-inference-and-evaluation-boundaries.md).
@@ -266,7 +233,7 @@ and provide safe partial update, full rebuild, and physical-prune paths.
 - Serves: `pipeline-control` --
 [Resumability, idempotency, and provenance](../design/spec.md#resumability-idempotency-and-provenance)
 - Agent status: CLEAR
-- Dependencies: `implement-run-ledger-and-atomic-artifacts`;
+- Dependencies: [Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md);
 `implement-stage-dag-cli-and-make-targets`; [0025](records/0025-store-implement-rebuildable-search-and-graph-projections.md);
 `implement-streaming-inventory`.
 - User-visible outcome: Added, changed, renamed, or removed files and later analysis-code changes
@@ -303,7 +270,7 @@ Resolve every content, fact and report citation to physical sources and exact me
 
 - Serves: `pipeline-control` -- [Source and evidence identity](../design/spec.md#source-and-evidence-identity)
 - Agent status: CLEAR
-- Dependencies: `implement-streaming-inventory`; `implement-run-ledger-and-atomic-artifacts`;
+- Dependencies: `implement-streaming-inventory`; [Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md);
 `implement-normalization-dedupe-and-chunking`.
 - User-visible outcome: Search and report users can find original and current source locations,
 including duplicate files, container members and renamed sources before any organizer is installed.
@@ -1353,7 +1320,7 @@ creating another source of truth.
 [Domain investigation artifacts](../design/spec.md#domain-investigation-artifacts)
 - Agent status: CLEAR
 - Dependencies: `build-party-and-transaction-artifacts`;
-`build-product-bom-and-supply-chain-artifacts`; `implement-run-ledger-and-atomic-artifacts`.
+`build-product-bom-and-supply-chain-artifacts`; [Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md).
 - Human review handoff:
 [approve-domain-artifact-semantics-and-inclusion](#approve-domain-artifact-semantics-and-inclusion)
 family semantics, graph/table reconciliation, valid-empty/conflict and inclusion examples.
@@ -1831,7 +1798,7 @@ current-state evidence references.
 - Serves: `evaluation-evidence` --
 [Implementation boundaries](../design/spec.md#implementation-boundaries)
 - Agent status: CLEAR
-- Dependencies: [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md); `implement-run-ledger-and-atomic-artifacts`.
+- Dependencies: [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md); [Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md).
 - User-visible outcome: A stale run cannot continue to support a changed published claim.
 - Scope boundary: Build ongoing evidence validation; routine review of each change remains part of that
 change, not a deferred audit. Do not invent missing benchmarks.
@@ -2286,7 +2253,7 @@ organization in both copy-to-target and in-place move modes.
 [Separate archive organization utility](../design/spec.md#separate-archive-organization-utility)
 - Agent status: CLEAR
 - Dependencies: `implement-hierarchical-file-classification`;
-`implement-run-ledger-and-atomic-artifacts`; `implement-backup-restore-and-rebuild-runbook`
+[Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md); `implement-backup-restore-and-rebuild-runbook`
 for move recovery semantics; use disposable roots for acceptance.
 `implement-evidence-and-source-location-lookup`.
 

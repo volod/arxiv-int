@@ -9,10 +9,10 @@ creates a missing `.env`, names required edits, syncs the locked extra union, ac
 cache-checks selected images and models, starts services, waits for transport and model health,
 applies eligible Alembic revisions to the configured service only, and re-probes readiness.
 Retries reuse verified fingerprints and still probe services, wait, and readiness. Concurrent
-setup against the same targets is refused. Typed stage and artifact interfaces exist under
-[Pipeline control](pipeline-control.md); concrete pipeline stages remain unimplemented, so
-infrastructure-ready never means pipeline-available. `make pipeline` stays
-[planned](../plan.md#pipeline-control----pipeline-control). See the
+setup against the same targets is refused. Typed stage and artifact interfaces and a generic run
+ledger exist under [Pipeline control](pipeline-control.md); concrete pipeline stages and
+`make pipeline` remain [planned](../plan.md#pipeline-control----pipeline-control).
+Infrastructure-ready never means pipeline-available. See the
 [operator workflow](../../guide/operator-workflow.md) for the atomic chain and the
 [accepted setup record](../records/0022-runtime-implement-retryable-setup-command.md).
 

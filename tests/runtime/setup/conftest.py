@@ -161,6 +161,6 @@ def _fake_schema_apply(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
         "arxiv_int.runtime.setup.schema.apply_revisions",
         lambda *_args, **_kwargs: SchemaApplyReport(
-            RunnerOutcome(STATUS_OK, "applied"), (), Path("ev.json"), "0001", {}
+            RunnerOutcome(STATUS_OK, "applied"), (), Path("ev.json"), "0002", {}
         ),
     )

@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0041` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0042` after the rows
 below).
 
 | Record | Scope | Result |
@@ -52,3 +52,4 @@ below).
 | [0038 Inference and evaluation boundary review](0038-eval-found-review-inference-and-evaluation-boundaries.md) | Integrated inference lease, evaluation bundle, metric, export, and proof checkpoint | Accepted; proceed for pipeline interface integration |
 | [0039 Heavy Docker exclusion and Gemma/Qwen models](0039-foundation-exclude-heavy-docker-and-llama-smokes.md) | Drop llama3.2:3b pytest smokes; mark Docker tests `heavy`; keep `make ci` Docker-free | Accepted |
 | [0040 Stage and artifact interface contracts](0040-pipeline-refactor-stage-and-artifact-interface-contracts.md) | Typed multi-silo sources, generation-bearing artifacts, honest stage outcomes, conditional GPU/UI | Accepted |
+| [0041 Run ledger and atomic artifacts](0041-pipeline-implement-run-ledger-and-atomic-artifacts.md) | Run/stage/shard ledger, reuse keys, leases, atomic manifests, Alembic `0002` | Accepted |

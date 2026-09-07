@@ -72,9 +72,9 @@ def test_schema_phase_applies_empty_service_catalog(
     monkeypatch.setattr(
         "arxiv_int.runtime.setup.schema.apply_revisions",
         lambda *_args, **_kwargs: SchemaApplyReport(
-            RunnerOutcome(STATUS_OK, "applied"), (), Path("ev.json"), "0001", {}
+            RunnerOutcome(STATUS_OK, "applied"), (), Path("ev.json"), "0002", {}
         ),
     )
     result = run_schema_phase(config, override=None, run_id="t")
     assert result.status == "ready"
-    assert "0001" in result.detail
+    assert "0002" in result.detail

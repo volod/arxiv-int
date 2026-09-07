@@ -83,7 +83,15 @@ def inspect_and_compare(
             if target is not None:
                 findings.extend(catalog_boundary_findings(project_root, connection, target))
             if not at_applied_revision or catalog.revision is not None:
-                findings.extend(store_findings(catalog))
+                findings.extend(
+                    store_findings(
+                        catalog,
+                        require_head=not at_applied_revision,
+                        require_ledger=(
+                            not at_applied_revision or catalog.revision == HEAD_REVISION
+                        ),
+                    )
+                )
             payload = catalog_as_dict(catalog)
             payload["owned_definitions"] = capture_catalog(connection)
             return findings, payload, catalog.revision

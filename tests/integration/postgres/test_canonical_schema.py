@@ -15,7 +15,7 @@ from arxiv_int.contracts.sqlalchemy.model import load_schema_model_from_root
 from arxiv_int.quality.project_root import discover_project_root
 from arxiv_int.stores.postgres.adopt import adopt_database
 from arxiv_int.stores.postgres.apply import apply_revisions, inspect_and_compare, row_counts
-from arxiv_int.stores.postgres.constants import ROLE_DBT
+from arxiv_int.stores.postgres.constants import HEAD_REVISION, ROLE_DBT
 from arxiv_int.stores.postgres.disposable import disposable_store
 from arxiv_int.stores.postgres.hashing import partition_bucket
 from arxiv_int.stores.postgres.inspect_live import inspect_store, store_findings
@@ -52,12 +52,12 @@ def test_empty_to_head_conformance_and_repeat(tmp_path: Path) -> None:
     with disposable_store(root, tmp_path / "pgdata", pins=pins) as store:
         first = apply_revisions(root, url=store.url, run_id="empty-to-head", revision="head")
         assert first.ok, first.findings
-        assert first.revision == "0001"
+        assert first.revision == HEAD_REVISION
         second = apply_revisions(root, url=store.url, run_id="repeat-at-head", revision="head")
         assert second.ok, second.findings
-        assert second.revision == "0001"
+        assert second.revision == HEAD_REVISION
         findings, _payload, revision = inspect_and_compare(root, store.url)
-        assert revision == "0001"
+        assert revision == HEAD_REVISION
         assert findings == []
         engine = create_engine(store.url)
         try:
@@ -335,5 +335,5 @@ def test_legacy_adoption_preserves_rows_and_refuses_drift(tmp_path: Path) -> Non
             engine.dispose()
         report = adopt_database(root, url=store.url, run_id="full-adopt")
         assert report.ok, report.findings
-        assert report.stamped_revision == "0001"
+        assert report.stamped_revision == HEAD_REVISION
         assert report.row_counts.get("corpus.documents") == 1

@@ -27,10 +27,10 @@ from arxiv_int.stores.postgres.commands import (
 )
 from arxiv_int.stores.postgres.constants import (
     CANONICAL_SCHEMAS,
+    CONTROL_TABLES,
     HASH_MODULUS,
     HEAD_REVISION,
     PARTITIONED_TABLES,
-    PROJECTION_METADATA_TABLES,
     STORE_ROLES,
 )
 from arxiv_int.stores.postgres.evidence import write_evidence
@@ -53,12 +53,12 @@ def _complete_catalog(revision: str = HEAD_REVISION) -> LiveStoreCatalog:
         staging_tables=("documents",),
         revision=revision,
         extensions=("vector",),
-        control_tables=PROJECTION_METADATA_TABLES,
+        control_tables=CONTROL_TABLES,
     )
 
 
 def _ok_report() -> SchemaApplyReport:
-    return SchemaApplyReport(RunnerOutcome(STATUS_OK, "applied"), (), Path("ev.json"), "0001", {})
+    return SchemaApplyReport(RunnerOutcome(STATUS_OK, "applied"), (), Path("ev.json"), "0002", {})
 
 
 def test_adopt_without_a_database_is_not_run(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -113,11 +113,11 @@ def test_apply_revisions_writes_evidence(monkeypatch: pytest.MonkeyPatch, tmp_pa
     )
     monkeypatch.setattr(
         "arxiv_int.stores.postgres.apply.inspect_and_compare",
-        lambda *_a, **_k: ([], {"revision": "0001"}, "0001"),
+        lambda *_a, **_k: ([], {"revision": "0002"}, "0002"),
     )
     report = apply_revisions(_root(), url="postgresql://x", run_id="ok-apply")
     assert report.ok
-    assert report.revision == "0001"
+    assert report.revision == "0002"
     assert report.evidence_path is not None
 
 

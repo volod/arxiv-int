@@ -1,4 +1,4 @@
-"""ctl.resource_lease row shape persisted as JSONL until the run ledger applies SQL."""
+"""ctl.resource_lease row shape persisted as JSONL and in PostgreSQL ctl.resource_lease."""
 
 import os
 from dataclasses import dataclass

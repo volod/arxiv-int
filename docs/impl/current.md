@@ -21,5 +21,5 @@ change. Write behavior, modules, commands, tests, and results at the narrowest l
 | [Local inference](current/local-inference.md) | Provider-neutral Ollama/vLLM client and host-wide GPU lease, footprint fit, and resource telemetry |
 | [Evaluation](current/evaluation.md) | Operator-designated `ARCHIVE_DIR` slice; frozen fixture metrics and proof dispatcher exist; provided-archive proofs and scale pilots remain planned |
 | [Evaluation foundation](current/evaluation-foundation.md) | Immutable run bundles, Git-bound identity export, frozen fixtures, paired metrics, evaluate stage, proof dispatcher, and the inference/evaluation checkpoint |
-| [Pipeline control](current/pipeline-control.md) | Typed stage, source, and artifact interfaces; run ledger, DAG, and publication remain planned |
+| [Pipeline control](current/pipeline-control.md) | Typed stage/source/artifact interfaces and generic run ledger; DAG CLI, forecast, and publication remain planned |
 | [Governance](current/governance.md) | Agent adapters, capability registry, plan lanes, integrity checks, specification/codebase audits and durable task records |

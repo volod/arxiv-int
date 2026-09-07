@@ -55,8 +55,9 @@ unless `--allow-service-control` (or `allow_service_control=True`) is set. CUDA 
 telemetry snapshots VRAM after load and after unload.
 
 Lease rows use the `ctl.resource_lease` shape and are appended to
-`$SERVICE_STATE_DIR/inference/ctl.resource_lease.jsonl`. Applying that table in PostgreSQL remains
-with the run-ledger task. Telemetry JSONL is `$RUNS_DIR/<run-id>/telemetry/resource-events.jsonl`
+`$SERVICE_STATE_DIR/inference/ctl.resource_lease.jsonl`. Alembic `0002` creates that table; inference
+does not yet dual-write SQL rows (`insert_resource_lease` is the bound helper when a caller does).
+Telemetry JSONL is `$RUNS_DIR/<run-id>/telemetry/resource-events.jsonl`
 (load time, throughput, VRAM, power, util). Pipeline logging can consume the same sink later.
 
 ## Schemas and model registry
