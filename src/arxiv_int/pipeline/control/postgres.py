@@ -13,6 +13,7 @@ from arxiv_int.pipeline.control.lineage import LineageEdge
 from arxiv_int.pipeline.control.model import RunRecord, ShardRecord, StageRecord
 from arxiv_int.pipeline.control.postgres_codec import (
     as_datetime,
+    assigned_shard,
     insert_resource_lease,
     run_from_row,
     shard_from_row,
@@ -112,8 +113,9 @@ class PostgresControlLedger(PostgresEventMixin):
 
     def add_shard(self, record: ShardRecord) -> ShardRecord:
         with self._begin() as connection:
-            connection.execute(insert(SHARD_RUNS).values(**shard_values(record)))
-        return record
+            assigned = assigned_shard(connection, record)
+            connection.execute(insert(SHARD_RUNS).values(**shard_values(assigned)))
+        return assigned
 
     def get_shard(self, shard_run_id: str) -> ShardRecord:
         with self._engine.connect() as connection:

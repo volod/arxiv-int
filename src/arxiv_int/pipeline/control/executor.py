@@ -14,7 +14,8 @@ from arxiv_int.pipeline.control.fingerprints import reuse_key
 from arxiv_int.pipeline.control.lineage import keys_matching_owned_change, stale_closure
 from arxiv_int.pipeline.control.memory import InMemoryLedger
 from arxiv_int.pipeline.control.model import ShardWork
-from arxiv_int.pipeline.control.produce import Worker, new_shard, produce_shard
+from arxiv_int.pipeline.control.produce import Worker, produce_shard
+from arxiv_int.pipeline.control.settle import new_shard
 from arxiv_int.pipeline.control.states import DEFAULT_MAX_TRANSIENT_ATTEMPTS
 from arxiv_int.pipeline.control.store import ControlLedger
 
@@ -118,13 +119,11 @@ class ShardExecutor:
             return None
         now = self._clock()
         stage = self._ledger.ensure_stage(work.run_id, work.stage, work.stage_version, now)
-        bookkeeping = self._ledger.next_attempt(key)
         shard = new_shard(
             self._ledger,
             work,
             key,
             stage.stage_run_id,
-            attempt=bookkeeping,
             cache_hit=True,
             now=now,
         )

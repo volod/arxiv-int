@@ -94,20 +94,27 @@ Manifests move `staging` to `accepted` or `rejected`. Illegal transitions raise
 `checksum`, and `activation`. Default max transient attempts is 3.
 
 `ShardExecutor.execute` reuses a succeeded or quarantined producer attempt when
-`validate_attempt` accepts the tree; the worker is not invoked. Force retry allocates
-`next_attempt` and a new directory. Publication writes sibling `.name.tmp` files, renames payloads,
-then `os.replace` of `manifest.json` last. A missing or mismatched manifest is not accepted.
-Crash injection after payload rename leaves an unusable tree; recovery produces a new attempt.
+`validate_attempt` accepts the tree; the worker is not invoked. A held reuse lease records a
+`busy` failure without duplicating the worker. Blocking quality results fail the attempt before
+the worker runs. Force retry and failed cache validation allocate a new attempt directory.
+Publication writes sibling `.name.tmp` files, renames payloads, then `os.replace` of
+`manifest.json` last. A missing, mismatched, or extra-file tree is not accepted. Crash injection
+after payload rename leaves an unusable tree; recovery produces a new attempt. Invalidation that
+wins the race against a running shard leaves it `stale` instead of accepting it.
 
 Layout: `$RUNS_DIR/<run-id>/manifests/<stage>/<shard>/attempt-<n>/`.
 
 Activation requires at least one global quality check and successful validation/transform refs for
 the exact generation. Warnings without blocking findings quarantine the shard.
 
+Postgres `add_shard` assigns the next attempt under a transaction-scoped advisory lock. In-memory
+and SQL ledgers share the same transition rules.
+
 Alembic revision `0002` is frozen DDL for `ctl.run`, `stage_run`, `shard_run`, `reuse_lease`,
 `checkpoint`, `shard_error`, `artifact_manifest`, `artifact_lineage`, and `resource_lease`. Head is
 `0002`. `ctl.resource_lease` exists for later SQL writers; inference still appends JSONL. `0002`
-downgrade drops ledger tables only; `0001` teardown remains refused.
+downgrade drops ledger tables only; `0001` teardown remains refused. Complete 0001-era overlays
+stamp `0001` so setup can upgrade to head.
 
 ## Tests and limits
 
@@ -115,6 +122,8 @@ downgrade drops ledger tables only; `0001` teardown remains refused.
 anchors, distinct generations, honest partial/empty/failed/not-selected outcomes, and the rule
 that interface modules do not import optional heavy stacks. Feature-catalog tests cover
 conditional GPU/UI groups. `tests/pipeline/control/` covers illegal transitions, crash injection,
-cache hits, owned-fingerprint stale closure, force retry, and in-memory isolation from SQLAlchemy.
-Fixtures do not prove real-archive extraction quality, CUDA fit, or DAG CLI behavior. Forecast and
-publication activation remain planned.
+cache hits, corrupt-cache rerun, concurrent leases, quality skip, owned-fingerprint stale closure,
+invalidation during produce, force retry, and in-memory isolation from SQLAlchemy. Live ledger
+behavior is in `tests/integration/postgres/test_run_ledger.py`. Fixtures do not prove real-archive
+extraction quality, CUDA worker fit, or DAG CLI behavior. Forecast and publication activation
+remain planned.

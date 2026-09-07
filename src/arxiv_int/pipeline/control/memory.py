@@ -79,8 +79,20 @@ class InMemoryLedger(InMemoryEventMixin):
         return max(attempts, default=0) + 1
 
     def add_shard(self, record: ShardRecord) -> ShardRecord:
-        self._shards[record.shard_run_id] = record
-        return record
+        attempt = (
+            max(
+                (
+                    item.attempt
+                    for item in self._shards.values()
+                    if item.reuse_key == record.reuse_key
+                ),
+                default=0,
+            )
+            + 1
+        )
+        assigned = replace(record, attempt=attempt)
+        self._shards[assigned.shard_run_id] = assigned
+        return assigned
 
     def get_shard(self, shard_run_id: str) -> ShardRecord:
         return self._shards[shard_run_id]

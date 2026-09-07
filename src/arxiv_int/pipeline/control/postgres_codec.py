@@ -1,21 +1,34 @@
 """Encode and decode ctl ledger rows for bound SQLAlchemy transactions."""
 
+import hashlib
 import json
+from dataclasses import replace
 from datetime import UTC, datetime
 
-from sqlalchemy import Connection, insert
+from sqlalchemy import Connection, func, insert, select, text
 from sqlalchemy.engine import RowMapping
 
 from arxiv_int.inference.lease_records import ResourceLeaseRecord
 from arxiv_int.pipeline.control.fingerprints import ReuseIdentity
 from arxiv_int.pipeline.control.model import LeaseRecord, RunRecord, ShardRecord, StageRecord
 from arxiv_int.pipeline.control.states import as_lease_status, as_shard_status
-from arxiv_int.pipeline.control.tables import RESOURCE_LEASES
+from arxiv_int.pipeline.control.tables import RESOURCE_LEASES, SHARD_RUNS
 
 
 def insert_resource_lease(connection: Connection, record: ResourceLeaseRecord) -> None:
     """Insert one GPU resource-lease row in the caller's transaction."""
     connection.execute(insert(RESOURCE_LEASES).values(**record.to_dict()))
+
+
+def assigned_shard(connection: Connection, record: ShardRecord) -> ShardRecord:
+    """Lock the reuse key and assign the next attempt number in this transaction."""
+    digest = hashlib.sha256(record.reuse_key.encode("ascii")).digest()
+    lock_key = int.from_bytes(digest[:8], "big") % (2**63)
+    connection.execute(text("SELECT pg_advisory_xact_lock(:key)"), {"key": lock_key})
+    highest = connection.execute(
+        select(func.max(SHARD_RUNS.c.attempt)).where(SHARD_RUNS.c.reuse_key == record.reuse_key)
+    ).scalar()
+    return replace(record, attempt=int(highest or 0) + 1)
 
 
 def as_datetime(now: float) -> datetime:

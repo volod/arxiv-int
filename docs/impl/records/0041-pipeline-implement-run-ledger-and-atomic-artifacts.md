@@ -49,20 +49,22 @@ a new attempt without overwriting evidence.
 ## Implementation
 
 Generic control lives in `src/arxiv_int/pipeline/control/`. In-memory execution is the public
-package surface; `arxiv_int.pipeline.control.postgres` is the bound SQLAlchemy ledger. Frozen DDL
-is Alembic `0002` and does not import runtime `tables.py`. Head is `0002`. Catalog comparison
-accepts applied `0001` or `0002` so a 0001-era database upgrades instead of blocking setup as
-drift. Complete overlays including ledger tables stamp `0002`; complete 0001-era overlays stamp
-`0001`.
+package surface; `arxiv_int.pipeline.control.postgres` is the bound SQLAlchemy ledger. Attempt
+finish/abort lives in `settle.py` so a running shard marked stale cannot become succeeded.
+Frozen DDL is Alembic `0002` and does not import runtime `tables.py`. Head is `0002`. Catalog
+comparison accepts applied `0001` or `0002` so a 0001-era database upgrades instead of blocking
+setup as drift. Complete overlays including ledger tables stamp `0002`; complete 0001-era overlays
+stamp `0001`.
 
 Reuse keys hash stage identity plus every owned fingerprint field, including validation catalog
 and dbt model/input/rule fingerprints. Publication writes sibling temp files and replaces
-`manifest.json` last. Cache hits validate the producer attempt and skip the worker. Force retry
-uses a new attempt directory. `ctl.resource_lease` exists; inference still writes JSONL and does
-not dual-write SQL.
+`manifest.json` last. Cache hits validate the producer attempt and skip the worker. A held reuse
+lease records `busy` without invoking a second worker. Blocking quality fails before the worker.
+Force retry uses a new attempt directory. Invalidation during produce cannot accept the attempt.
+`ctl.resource_lease` exists; inference still writes JSONL and does not dual-write SQL.
 
-PostgreSQL `Float` columns were authored as `DOUBLE PRECISION` so live inspection matches
-`catalog_boundary` expected types.
+Postgres `add_shard` assigns attempts under `pg_advisory_xact_lock`. PostgreSQL `Float` columns
+were authored as `DOUBLE PRECISION` so live inspection matches `catalog_boundary` expected types.
 
 Current-state page: [Pipeline control](../current/pipeline-control.md).
 
@@ -73,10 +75,13 @@ Current-state page: [Pipeline control](../current/pipeline-control.md).
 | Illegal transitions rejected | `tests/pipeline/control/test_states.py` | pass; exhaustive illegal pairs plus retry bounds |
 | Crash injection; no partial accept | `test_crash_does_not_create_a_reusable_manifest`; `test_crash_after_payload_rename_is_not_accepted` | pass; missing `manifest.json` is not reusable |
 | Unchanged rerun skips worker | `test_unchanged_rerun_validates_and_skips_the_worker` | pass; worker invoked once |
-| Owned fingerprint stale closure | `test_owned_fingerprint_change_marks_the_closure_stale` | pass; reachable consumers only |
+| Concurrent lease does not duplicate work | `test_held_lease_does_not_invoke_a_second_worker` | pass; second caller `busy`, worker once |
+| Blocking quality skips worker | `test_blocking_quality_skips_the_worker` | pass; `not-run` global check |
+| Owned fingerprint stale closure | `test_owned_fingerprint_change_marks_the_closure_stale`; `test_stale_shard_is_not_reused` | pass; reachable consumers only; rebuild uses a new attempt |
+| Invalidation during produce | `test_invalidation_during_produce_is_not_accepted` | pass; status `stale`, not reusable |
 | Force retry new attempt | `test_force_retry_writes_a_new_attempt_without_overwriting` | pass; prior attempt bytes retained |
-| Formatting and required CI | `make format`; `DATA_DIR=/tmp/arxiv-int-ledger-0041 make ci` | pass; 943 passed, 45 heavy deselected |
-| Disposable schema at head `0002` | `ARXIV_INT_RUN_SCHEMA_MIGRATIONS=1 pytest tests/integration/postgres/test_canonical_schema.py` | pass; 8 tests on this CUDA host with image `arxiv-int/postgres:17-0.25.6-age1.7.0` |
+| Formatting and required CI | `make format`; `DATA_DIR=/tmp/arxiv-int-ledger-0041 make ci` | pass; 952 passed, 48 heavy deselected |
+| Disposable schema at head `0002` | `ARXIV_INT_RUN_SCHEMA_MIGRATIONS=1 pytest tests/integration/postgres/test_canonical_schema.py tests/integration/postgres/test_run_ledger.py` | pass; 11 tests on this CUDA host with image `arxiv-int/postgres:17-0.25.6-age1.7.0` |
 | Documentation links and plan integrity | `make lint-doc-links`; `make lint-spec-plan`; `make plan-status` | pass; 75 tasks (65 agent, 10 human); next `implement-stage-dag-cli-and-make-targets` |
 
 Fixtures do not prove real-archive quality or CUDA worker fit. GPU inventory was inspected and not
@@ -84,9 +89,9 @@ used as a ledger acceptance gate.
 
 ## Audit handoff
 
-Reviewed state-machine completeness, sibling-write order, cache-hit vs producer attempt, 0001/0002
-catalog wiring, Float vs DOUBLE PRECISION live types, and optional-stack isolation of
-`pipeline.control`.
+Reviewed state-machine completeness, sibling-write order, cache-hit vs producer attempt, quality
+skip, concurrent lease sharing, stale-during-produce, 0001/0002 catalog wiring, Float vs DOUBLE
+PRECISION live types, and optional-stack isolation of `pipeline.control`.
 
 `none identified`. Inference JSONL vs `ctl.resource_lease` dual-write stays out of this scope.
 DAG CLI and publication remain planned.
@@ -97,4 +102,4 @@ Accepted. Plan task removed; dependents link this record. Counts moved from 76 t
 (66 to 65 agent; 10 human unchanged). `pipeline-control` still has DAG CLI, forecast, and
 publication work. Next agent work: `implement-stage-dag-cli-and-make-targets`. No review-owned
 service remains running. CUDA host inventory was inspected (`nvidia-smi`: NVIDIA GeForce RTX 4060
-Ti, 16380 MiB, 14745 MiB free) and was not used as acceptance evidence.
+Ti, 16380 MiB, 14669 MiB free, driver 595.84) and was not used as acceptance evidence.

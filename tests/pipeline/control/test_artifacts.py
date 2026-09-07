@@ -62,3 +62,11 @@ def test_empty_and_reserved_names_are_refused(tmp_path: Path) -> None:
         publish_attempt(tmp_path / "a", reuse_key="abc", attempt=1, files={})
     with pytest.raises(ArtifactPublishError, match="reserved"):
         publish_attempt(tmp_path / "b", reuse_key="abc", attempt=1, files={"manifest.json": b"{}"})
+
+
+def test_unregistered_files_are_rejected(tmp_path: Path) -> None:
+    directory = tmp_path / "attempt-1"
+    publish_attempt(directory, reuse_key="abc", attempt=1, files={"output.json": b"one"})
+    (directory / "extra.bin").write_bytes(b"two")
+    with pytest.raises(ArtifactPublishError, match="unregistered"):
+        validate_attempt(directory, reuse_key="abc", attempt=1)
