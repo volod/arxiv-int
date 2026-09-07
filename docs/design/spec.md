@@ -387,7 +387,7 @@ preflight classifies every configured path against the class its consumer requir
 
 | Class           | Written by            | Access pattern                          | Device and filesystem requirement                                              | Locations                                             |
 | --------------- | --------------------- | --------------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------- |
-| `source`        | Not by the pipeline   | Large sequential reads, one full pass per inventory | Any readable directory; host write permission and rotational storage are acceptable | `ARCHIVE_DIR` silos, `PROOF_ARCHIVE_DIR` |
+| `source`        | Not by the pipeline   | Large sequential reads, one full pass per inventory | Any readable directory; host write permission and rotational storage are acceptable | `ARCHIVE_DIR` silos |
 | `bulk`          | Pipeline stages       | Large sequential writes, occasional full scans | Capacity first; rotational and non-native filesystems are acceptable    | `RESULTS_DIR` and its `normalized`, `runs`, `proofs`, `exports`, `quarantine` trees |
 | `database`      | PostgreSQL only       | Small random reads and writes with ordered `fsync` | PostgreSQL-supported filesystem, real per-file ownership, exclusive use; rotational disks acceptable | `PGDATA_DIR`, optional `PG_WAL_DIR`, optional tablespace roots |
 | `scratch`       | Pipeline workers      | High-churn random writes, deleted after the stage | Writable storage with bounded free space; rotational disks acceptable | `TMP_DIR` |
@@ -436,7 +436,6 @@ exists:
 | `ARCHIVE_DIR`                                           | Input silos opened or mounted read-only by the pipeline | `source`    | Required for corpus stages; host write permission is acceptable |
 | `RESULTS_DIR`                                           | Single pipeline output root                          | `bulk`          | Required for corpus stages; must not be inside the archive or the checkout |
 | `PGDATA_DIR`                                            | PostgreSQL data and index directory; rotational disks acceptable | `database` | Required for services                                     |
-| `PROOF_ARCHIVE_DIR`                                     | Operator archive used without modification by proof runs | `source`   | Required only by provided-archive proof tasks                |
 | `RUNS_DIR`                                              | Run journals, logs, reports, checkpoints             | `bulk`          | `${RESULTS_DIR}/runs`                                          |
 | `SERVICE_STATE_DIR`                                     | Grafana, Prometheus, and AGE Viewer runtime state    | `service-state` | `${RESULTS_DIR}/services`; must be moved when that path cannot express ownership |
 | `MODEL_CACHE_DIR`                                       | Hugging Face/model cache                             | `model`         | `${RESULTS_DIR}/models`                                        |
@@ -523,10 +522,9 @@ defaults to `.data` inside the checkout. Corpus-scale output never goes there, a
 a `RESULTS_DIR` or `PGDATA_DIR` that resolves inside the checkout unless the operator states that
 intent for a small local trial.
 
-`PROOF_ARCHIVE_DIR` is never committed as a machine-specific value and may not overlap generated
-proof data. Proof tasks retain source manifests and hashes, not corpus contents, in repository
+Proof tasks retain source manifests and hashes, not corpus contents, in repository
 documentation. A bounded disposable copy under the configured data root may be used for addition,
-modification, and removal drills; the provided archive itself remains read-only.
+modification, and removal drills.
 
 `ARCHIVE_DIR` remains read-only for analysis. The archive-reorganization command is the sole
 exception, and only in its `move` mode: it takes an explicit silo root, runs outside the read-only
@@ -542,8 +540,9 @@ second path model and no development-only default that a production run would no
 differs is placement, because a development machine usually has one fast disk holding the archive and
 one large slow disk for output:
 
-- point `ARCHIVE_DIR` and `PROOF_ARCHIVE_DIR` at the real archive silo, so ordinary pipeline,
-  forecast, and proof commands read one source without modifying it;
+- point `ARCHIVE_DIR` at the authorized representative slice during development, or at the real
+  archive silo for a production-like run, so ordinary pipeline, forecast, and proof commands read
+  one source without modifying it; there is no second proof-only source root;
 - point `RESULTS_DIR` at the bulk output disk and let `RUNS_DIR`, `exports/`, and `proofs/` derive
   from it, so every pipeline result lands in one inspectable tree;
 - choose `PGDATA_DIR`, `TMP_DIR`, and `MODEL_CACHE_DIR` for sufficient capacity; rotational disks
@@ -1762,17 +1761,19 @@ Before store or model promotion, freeze a representative corpus manifest and rev
   quantities, units, totals, allocations, conflicts, and valid empty results.
 
 Gold creation and threshold setting use separate tuning and final partitions. LLM-drafted items do
-not become scoring truth without review. The operator designates one authorized representative
-slice as `PROOF_ARCHIVE_DIR`. Machine-specific paths and private source text stay out of the
-repository.
+not become scoring truth without review. During development the operator points `ARCHIVE_DIR` at one
+authorized representative slice and uses the ordinary pipeline or stage commands. Machine-specific
+paths and private source text stay out of the repository.
 
 ### Provided-archive proof runs
 
-`PROOF_ARCHIVE_DIR` is the operator-provided file-silo archive used for integration proof. After the
-required implementation tasks for each artifact-producing capability group, a final `RUN NEEDED`
-task executes every then-usable stage in that group against this archive. A later behavior change
-that alters a stage or its inputs must regenerate the impacted proof before that change is complete;
-an older bundle remains historical evidence but is marked stale by fingerprint.
+Configured archive silos (`ARCHIVE_DIR` and optional `ARCHIVE_SILO_<ID>_DIR`) are the file-silo
+source for integration proof. There is no second proof-only source root. After the required
+implementation tasks for each artifact-producing capability group, a final `RUN NEEDED` task
+executes every then-usable stage in that group against those silos using the ordinary pipeline or
+stage commands. A later behavior change that alters a stage or its inputs must regenerate the
+impacted proof before that change is complete; an older bundle remains historical evidence but is
+marked stale by fingerprint.
 
 | Capability group | Proof scope |
 | --- | --- |
@@ -1795,7 +1796,7 @@ source-manifest hash, code/contract/dependency/model fingerprints, forecast, sta
 artifact registry with checksums, validator results, errors/quarantines, resource/timing metrics, and
 an overall verdict. The proof reruns the unchanged scope and demonstrates that heavy stages are cache
 hits. Incremental-control proof uses a bounded disposable copy or overlay under the data root to test
-add/change/rename/remove cases and never mutates `PROOF_ARCHIVE_DIR`.
+add/change/rename/remove cases and never mutates the configured archive silos.
 
 A required usable stage passes only with validated artifacts or a contract-defined valid empty
 result. Failure, missing evidence, or resource refusal keeps its proof task open. An optional branch

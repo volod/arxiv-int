@@ -96,6 +96,18 @@ def test_valid_paths_create_the_documented_layout_and_record_devices(tmp_path: P
     assert all(path.is_dir() for path in created)
 
 
+def test_retired_proof_archive_variable_is_ignored(tmp_path: Path) -> None:
+    """Leftover PROOF_ARCHIVE_DIR is an undocumented name, not a second source root."""
+    leftover = tmp_path / "retired-proof"
+    leftover.mkdir()
+    config = _runtime_config(tmp_path, PROOF_ARCHIVE_DIR=str(leftover))
+
+    assert "PROOF_ARCHIVE_DIR" not in dict(config.values)
+    validation = validate_runtime_paths(config, inspector=_evidence)
+    assert validation.report.status == "ready"
+    assert all(placement.variable != "PROOF_ARCHIVE_DIR" for placement, _ in validation.placements)
+
+
 @pytest.mark.parametrize("unsafe", ["archive", "checkout", "filesystem-root"])
 def test_results_refuse_archive_checkout_and_dangerous_root(tmp_path: Path, unsafe: str) -> None:
     config = _runtime_config(tmp_path)
@@ -252,13 +264,8 @@ def test_unreadable_sources_and_unwritable_output_parents_are_blocked(tmp_path: 
     assert any("not writable" in item.detail for item in unwritable.report.findings)
 
 
-def test_writable_proof_is_accepted_and_output_free_space_is_checked(tmp_path: Path) -> None:
-    proof = tmp_path / "proof"
-    proof.mkdir()
-    config = _runtime_config(tmp_path, PROOF_ARCHIVE_DIR=str(proof))
-
-    writable_proof = validate_runtime_paths(config, inspector=_evidence)
-    assert writable_proof.report.status == "ready"
+def test_output_free_space_is_checked(tmp_path: Path) -> None:
+    config = _runtime_config(tmp_path)
 
     def no_space(path: Path) -> FilesystemEvidence:
         return _evidence(path, free_bytes=0 if path == config.results_dir else 1_000_000)

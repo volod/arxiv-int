@@ -126,9 +126,9 @@ INVALID = {
         "references missing UNKNOWN_DIR",
     ),
     "empty-reference": (
-        "ARCHIVE_DIR=archive\nPROOF_ARCHIVE_DIR=\nRESULTS_DIR=${PROOF_ARCHIVE_DIR}/results\n"
+        "ARCHIVE_DIR=archive\nPG_WAL_DIR=\nRESULTS_DIR=${PG_WAL_DIR}/results\n"
         "PGDATA_DIR=database\n",
-        "references empty PROOF_ARCHIVE_DIR",
+        "references empty PG_WAL_DIR",
     ),
     "malformed-assignment": (
         "ARCHIVE_DIR=archive\nRESULTS DIR results\nPGDATA_DIR=database\n",

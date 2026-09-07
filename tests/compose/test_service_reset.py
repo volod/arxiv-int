@@ -100,15 +100,15 @@ def test_reset_refuses_a_target_containing_a_protected_root(tmp_path: Path) -> N
         )
 
 
-def test_reset_refuses_a_target_enclosing_the_proof_archive(tmp_path: Path) -> None:
-    proof = tmp_path / "state" / "proofs"
-    proof.mkdir(parents=True)
-    with pytest.raises(ServiceResetError, match="the proof archive"):
+def test_reset_refuses_a_target_enclosing_an_archive_silo(tmp_path: Path) -> None:
+    extra = tmp_path / "state" / "extra-silo"
+    extra.mkdir(parents=True)
+    with pytest.raises(ServiceResetError, match="an archive silo"):
         reset_service_data(
             _config(
                 tmp_path,
                 SERVICE_STATE_DIR=str(tmp_path / "state"),
-                PROOF_ARCHIVE_DIR=str(proof),
+                ARCHIVE_SILO_EXTRA_DIR=str(extra),
             ),
             apply=False,
         )

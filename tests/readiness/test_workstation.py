@@ -202,11 +202,11 @@ def test_report_path_must_stay_under_results(tmp_path: Path) -> None:
     assert any(item.name == "report.json" for item in result.report.findings)
 
 
-def test_report_is_refused_inside_a_proof_or_database_root(tmp_path: Path) -> None:
+def test_report_is_refused_inside_an_archive_or_database_root(tmp_path: Path) -> None:
     """An invalid roots configuration must not place the JSON report in protected data."""
     checkout, base = _project(tmp_path)
     for variable, root in (
-        ("PROOF_ARCHIVE_DIR", tmp_path / "results/proof-archive"),
+        ("ARCHIVE_DIR", tmp_path / "results/archive-silo"),
         ("PGDATA_DIR", tmp_path / "results/pgdata"),
     ):
         root.mkdir(parents=True, exist_ok=True)
