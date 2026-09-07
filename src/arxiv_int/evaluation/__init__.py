@@ -13,6 +13,18 @@ from arxiv_int.evaluation.bundles import (
     publish_run_bundle,
     verify_run_bundle,
 )
+from arxiv_int.evaluation.export_errors import (
+    ExportCollisionError,
+    ExportError,
+    ExportLeakError,
+    ExportUnsupportedError,
+)
+from arxiv_int.evaluation.exporter import (
+    ExportMapping,
+    ExportRequest,
+    PublishedExport,
+    export_proof_bundle,
+)
 from arxiv_int.evaluation.linkage import LinkageLabel, LinkageMetrics, score_linkage
 from arxiv_int.evaluation.metrics import ExtractionMetrics, extraction_metrics, text_metrics
 from arxiv_int.evaluation.paired import (
@@ -29,12 +41,20 @@ __all__ = [
     "BundleLayoutError",
     "BundleManifestError",
     "BundleSpec",
+    "ExportCollisionError",
+    "ExportError",
+    "ExportLeakError",
+    "ExportMapping",
+    "ExportRequest",
+    "ExportUnsupportedError",
     "ExtractionMetrics",
     "LinkageLabel",
     "LinkageMetrics",
     "PairedComparison",
     "PairedVerdict",
     "PublishedBundle",
+    "PublishedExport",
+    "export_proof_bundle",
     "extraction_metrics",
     "paired_comparison",
     "paired_verdict",

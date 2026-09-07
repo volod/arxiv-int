@@ -20,5 +20,5 @@ change. Write behavior, modules, commands, tests, and results at the narrowest l
 | [Canonical store](current/canonical-store.md) | Pinned ParadeDB + AGE image, HASH-partitioned canonical schemas, roles, staging load, live adoption, local dbt transforms, and rebuildable search/graph projections |
 | [Local inference](current/local-inference.md) | Provider-neutral Ollama/vLLM client and host-wide GPU lease, footprint fit, and resource telemetry |
 | [Evaluation](current/evaluation.md) | Operator-designated `ARCHIVE_DIR` slice; fixture metrics, proof bundles, and scale pilots remain planned |
-| [Evaluation foundation](current/evaluation-foundation.md) | Immutable local evidence bundles; fixtures and paired metrics remain planned |
+| [Evaluation foundation](current/evaluation-foundation.md) | Immutable local evidence bundles and Git-bound identity export; fixtures and paired metrics remain planned |
 | [Governance](current/governance.md) | Agent adapters, capability registry, plan lanes, integrity checks, specification/codebase audits and durable task records |

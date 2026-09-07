@@ -18,7 +18,8 @@ not full-corpus authorization.
 Item-level gold fixtures, tuning and final split seals, and scored labels remain with
 [evaluation-foundation](evaluation-foundation.md) and later
 human-gated policy tasks. No final evaluation split has been opened for tuning.
-Immutable local run-bundle validation is available now; remaining fixture and metric work is in
+Immutable local run-bundle validation and Git-bound identity export are available now; remaining
+fixture and metric work is in
 [create-evaluation-fixtures-and-metrics](../plan.md#create-evaluation-fixtures-and-metrics).
 
 The slice designation is recorded in

@@ -1,10 +1,11 @@
 # Evaluation Foundation
 
-Immutable local evidence bundles are available now. Frozen evaluation
-fixtures, paired metrics, and proof-bundle publication remain planned in
+Immutable local evidence bundles and Git-bound identity export are available now. Frozen
+evaluation fixtures, paired metrics, and proof-bundle publication remain planned in
 [create-evaluation-fixtures-and-metrics](../plan.md#create-evaluation-fixtures-and-metrics).
 
-See [record 0033](../records/0033-eval-found-refactor-evaluation-bundle-validation.md).
+See [record 0033](../records/0033-eval-found-refactor-evaluation-bundle-validation.md) and
+[record 0035](../records/0035-eval-found-implement-committed-proof-identity-obfuscation.md).
 
 ## Run bundles
 
@@ -26,6 +27,7 @@ Modules:
 | `evaluation/bundle_layout.py` | Names, reserved paths, tree walk, `O_NOFOLLOW` open, exclusive claim |
 | `evaluation/bundle_manifest.py` | Schema version 1 identity, canonical JSON, artifact registry |
 | `evaluation/bundles.py` | `BundleSpec`, `publish_run_bundle()`, `verify_run_bundle()` |
+| `evaluation/export_*.py`, `exporter.py` | Git-bound identity obfuscation from a verified bundle |
 
 `manifest.json` and `scores.jsonl` are reserved root names. Extra artifact names are normalized to
 relative posix paths before those reservations are applied. Absolute names, parent traversal, empty
@@ -54,22 +56,54 @@ opened path stays under the resolved bundle root (`/proc/self/fd` on Linux), and
 chunks. Publisher callers still pass extra artifacts as in-memory bytes; scores rows are written
 incrementally.
 
+## Git-bound identity export
+
+`export_proof_bundle()` copies selected artifacts from a verified run bundle to explicit Git-bound
+paths. It does not mutate the source bundle, archive silos, local proofs, or human-review packets,
+and it does not commit. Policy version 1 uses public namespace `arxiv-int/proof-identity/v1` and
+SHA-256; there is no secret key or rotation service.
+
+The source bundle may include `identities.json` declaring person, company and product entities,
+aliases, typed email/phone/address/account fields, and character spans. Empty catalogs are valid
+for synthetic fixtures with no real identities. Entity labels hash stable ids so same-name entities
+stay distinct. Shared contacts hash normalized field values so repeats stay comparable. Phone,
+address and account substitutes keep required shape and replacement check digits. Colliding
+substitutes and residual source identities refuse export. Unsupported binaries are refused rather
+than copied raw. `identities.json` itself cannot be exported.
+
+Text, JSON and JSONL are rewritten together, including queries, labels, expected answers, graph
+references and remapped spans. Dates, coordinates, quantities and units are not independently
+hashed. Exported manifests record `data_class=transformed` so metrics are not labelled raw-archive
+results. The complete source-to-substitute map stays under `$DATA_DIR/proof-export/<run-id>/`.
+The identity-free receipt carries policy, source-bundle and export fingerprints.
+
+Commands:
+
+```text
+arxiv-int evaluation export-proof --source-bundle DIR --map ARTIFACT=DEST --run-id ID
+arxiv-int evaluation identity-policy generate|check
+make proof-export SOURCE_BUNDLE=... MAP="a=b" RUN_ID=...
+make identity-policy-check
+```
+
+Relative destinations resolve against `--destination-root` or the project root. Repeated runs from
+different roots and mapping order produce the same export fingerprint and bytes.
+
 ## Tests and verification
 
 Deterministic tests under `tests/evaluation/` cover happy-path publication, fingerprint replay,
 corruption, unregistered files, reserved names, path escape, an external symlink with matching
 bytes, a symlinked artifact directory, a fifo, a symlinked manifest, a destination symlink,
 malformed and non-canonical manifests, missing identities, invalid digests, and competing
-publishers. Fixture coverage does not prove real-archive quality.
+publishers. Export tests cover cross-root/order determinism, same-name nonmatch, alias and shared
+contact consistency, graph joins, span remap, phone/address/account check digits, collision and
+leak refusal, original-byte preservation, local-only files, binary refusal, and transformed
+manifest marking. Fixture coverage does not prove real-archive quality.
 
-Disposable synthetic evidence for this repair lives under `$DATA_DIR/bundle-validation/<run-id>/`.
-That tree is not a provided-archive proof.
+Disposable synthetic bundle evidence lives under `$DATA_DIR/bundle-validation/<run-id>/`.
+Synthetic export evidence lives under `$DATA_DIR/proof-export/<run-id>/`. Those trees are not
+provided-archive proofs.
 
-Git-bound identity obfuscation is a specified, still
-[planned exporter](../plan.md#implement-committed-proof-identity-obfuscation). The existing bundle
-publisher/verifier does not replace person, company, product, address, contact or account identities.
-Local proof and human-review packets retain original identities; future committed copies must pass
-the [export policy](../../design/spec.md#identity-obfuscation-for-committed-proof-artifacts).
-Fixture creation and its inference/evaluation checkpoint depend on that exporter. The
-[planning record](../records/0034-foundation-strengthen-checkpoints-and-human-proof-handoffs.md)
-records this boundary and the human handoff requirements.
+Local proof and human-review packets retain original identities. Fixture builders must use this
+exporter for any Git-bound source-derived copy. See the
+[export policy](../../design/spec.md#identity-obfuscation-for-committed-proof-artifacts).

@@ -70,9 +70,10 @@ consumer. `make plan-status` resolves dependency readiness; it does not itself j
 or print these completion handoffs. Human judgment is not replaced by the structural checker.
 
 The specification now defines Git-only deterministic identity obfuscation and pinned dynamic
-ontology/geotemporal/domain semantics. Their new implementation tasks remain in the plan; this
-workflow update does not implement an exporter or ontology stage. Accepted records 0029-0033 and
-their runtime behavior are preserved.
+ontology/geotemporal/domain semantics. The Git-bound exporter is implemented in
+[record 0035](../records/0035-eval-found-implement-committed-proof-identity-obfuscation.md);
+ontology/geotemporal contracts remain planned. Accepted records 0029-0033 and their runtime
+behavior are preserved.
 
 Documentation category directories use singular names: `design/`, `guide/`, and `impl/`. Page names
 remain specific to their content, and each category `README.md` file provides its local index.

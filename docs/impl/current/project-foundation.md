@@ -90,11 +90,11 @@ integrated acceptance and the remaining nonblocking follow-up.
 
 `arxiv_int.evaluation` provides normalized text and multiset extraction precision/recall/F1,
 labelled linkage-pair metrics, seeded paired bootstrap intervals with exact sign tests, three-way
-comparison verdicts, and atomic checksum-verified run bundles. A published bundle cannot overwrite
-an existing run. Verification refuses path traversal, symlinks, nonregular entries, escaped paths,
-corrupt bytes, unregistered files, and malformed manifest identities. Artifact hashing is chunked;
-the claimed durability and memory bounds are recorded in
-[Evaluation foundation](evaluation-foundation.md).
+comparison verdicts, atomic checksum-verified run bundles, and Git-bound identity export.
+A published bundle cannot overwrite an existing run. Verification refuses path traversal, symlinks,
+nonregular entries, escaped paths, corrupt bytes, unregistered files, and malformed manifest
+identities. Artifact hashing is chunked; claimed durability, memory bounds, and the identity
+exporter are recorded in [Evaluation foundation](evaluation-foundation.md).
 
 `arxiv_int.retrieval` provides source-span recall, MRR, character coverage, intactness, duplicate
 source occurrences, and served-character cost. `InferenceProvider` and `LocalInferenceClient`

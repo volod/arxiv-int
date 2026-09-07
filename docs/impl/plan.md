@@ -25,35 +25,6 @@ and name ready/pending human decisions and the dependent work that must wait at 
 
 ### Evaluation foundation -- `evaluation-foundation`
 
-#### implement-committed-proof-identity-obfuscation
-
-Prepare repeatable identity-obfuscated copies of proof artifacts intended for Git.
-
-- Serves: `evaluation-foundation` -- [Committed proof identities](../design/spec.md#identity-obfuscation-for-committed-proof-artifacts)
-- Agent status: CLEAR
-- Dependencies: [Bundle validation](records/0033-eval-found-refactor-evaluation-bundle-validation.md);
-[Contract data-quality checks](records/0019-contract-gov-implement-contract-data-quality-checks.md).
-- User-visible outcome: Reviewable proof fixtures can enter Git without original person, company,
-product, address, contact or account identities; the same inputs reproduce the same export.
-- Scope boundary: Explicit Git-bound export copies only, including newly prepared untracked files.
-Do not mutate archive silos, local proofs, canonical records, human-review packets or Git history.
-No commit, strong cryptography, key management or external identity service is part of this task.
-- Data and artifact paths: `src/arxiv_int/evaluation/`, `configs/evaluation/`, `tests/evaluation/`,
-explicit repository export destinations, and `$DATA_DIR/proof-export/<run-id>/` diagnostics.
-- Execution path: Reuse the immutable bundle verifier and shared artifact/contract validation.
-Implement versioned SHA-256 namespaces and normalization, stable entity/field substitutions,
-format-preserving phone/address/account rendering, collision refusal and a complete reference map.
-Rewrite selected text/metadata/labels/queries and anchors together; regenerate checksums/manifests.
-Keep raw maps local; render binary exports from transformed data or refuse unsupported formats.
-Expose the exporter through the normal CLI with explicit source bundle and Git-bound file list.
-- Acceptance gates: Repeated runs from different roots/orderings are identical; same-name entities
-remain distinct; aliases, shared contacts, graph references and spans remain consistent; field
-formats/check digits validate; collisions and residual source identities refuse export. Original
-bytes remain unchanged and local-only artifacts are untouched. Geotemporal/domain fixture meaning
-and expected answers remain consistent; transformed metrics are not labelled raw-archive results.
-- Documentation target: `docs/impl/current/evaluation-foundation.md`
-- Review checkpoint: `review-inference-and-evaluation-boundaries`.
-
 #### create-evaluation-fixtures-and-metrics
 
 Build immutable extraction, classification, Russian retrieval, semantic, entity, fact, ontology,
@@ -66,8 +37,8 @@ paired evaluation utilities.
 [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
 the evaluation and retrieval primitives
 documented in [Project foundation](current/project-foundation.md#evaluation-and-retrieval-primitives).
-[Evaluation bundle validation](records/0033-eval-found-refactor-evaluation-bundle-validation.md).
-`implement-committed-proof-identity-obfuscation`.
+[Evaluation bundle validation](records/0033-eval-found-refactor-evaluation-bundle-validation.md);
+[Committed proof identities](records/0035-eval-found-implement-committed-proof-identity-obfuscation.md).
 - User-visible outcome: Every store/model/pipeline recommendation names the exact frozen items,
 metrics, thresholds, and run artifacts that support it, and every usable stage can publish the same
 proof-bundle shape.
@@ -114,7 +85,8 @@ Review inference, resource ownership and immutable evaluation inputs before pipe
 [Inference adapters](records/0031-inference-implement-local-inference-adapters.md);
 [Resource scheduler](records/0032-inference-implement-model-resource-scheduler.md);
 [Bundle validation](records/0033-eval-found-refactor-evaluation-bundle-validation.md);
-`create-evaluation-fixtures-and-metrics`; `implement-committed-proof-identity-obfuscation`.
+`create-evaluation-fixtures-and-metrics`;
+[Committed proof identities](records/0035-eval-found-implement-committed-proof-identity-obfuscation.md).
 - User-visible outcome:
 Pipeline workers receive compatible typed inference, cancellation, resource and evidence contracts.
 - Scope boundary:

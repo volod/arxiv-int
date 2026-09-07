@@ -41,6 +41,7 @@ KIND ?= all
 	db-downgrade db-adopt db-apply-schema ontology ontology-gen ontology-check data-quality \
 	transform-parse transform-compile transform-build transform-test \
 	projections-build projections-status projections-cleanup \
+	proof-export identity-policy-check inference-schemas-check \
 	ci-checks ci ci-github build quality code-quality quality-report
 
 help: ## List available targets
@@ -237,6 +238,20 @@ inference-schemas-check: ## Fail when configs/models/schemas drifts from generat
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
 	@"$(VENV)/bin/arxiv-int" inference schemas check
 
+identity-policy-check: ## Fail when configs/evaluation proof-identity policy drifts
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@"$(VENV)/bin/arxiv-int" evaluation identity-policy check
+
+proof-export: ## Export identity-obfuscated copies (SOURCE_BUNDLE= MAP="a=b" RUN_ID=)
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@test -n "$(SOURCE_BUNDLE)" || { echo "ERROR: set SOURCE_BUNDLE to a verified run bundle"; exit 1; }
+	@test -n "$(MAP)" || { echo "ERROR: set MAP to ARTIFACT=DEST pairs"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		"$(VENV)/bin/arxiv-int" evaluation export-proof --source-bundle "$(SOURCE_BUNDLE)" \
+		--run-id "$(RUN_ID)" $(foreach item,$(MAP),--map $(item)) \
+		$(if $(DESTINATION_ROOT),--destination-root "$(DESTINATION_ROOT)",) \
+		$(if $(RECEIPT),--receipt "$(RECEIPT)",)
+
 inference-resources: ## Show host GPU VRAM, power, and RAM
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
 	@"$(VENV)/bin/arxiv-int" inference resources
@@ -354,7 +369,7 @@ lint-spec-plan: ## Check capability registry, task structure, status, and orderi
 plan-status: ## Count tasks by lane/status and show the next eligible work
 	@"$(VENV)/bin/arxiv-int-plan" --root "$(PROJECT_ROOT)"
 
-ci-checks: format-check lint typecheck complexity-gate shell-lint-gate lint-doc-links lint-spec-plan contracts-check contracts-evolution db-check ontology-check inference-schemas-check
+ci-checks: format-check lint typecheck complexity-gate shell-lint-gate lint-doc-links lint-spec-plan contracts-check contracts-evolution db-check ontology-check inference-schemas-check identity-policy-check
 
 ci: ci-checks test ## Run the required local and GitHub CI gate
 
