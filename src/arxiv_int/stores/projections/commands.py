@@ -19,40 +19,6 @@ from arxiv_int.stores.projections.tables import ACTIVE, PROJECTIONS
 _LOG = logging.getLogger(__name__)
 
 
-def add_projection_parsers(
-    store_commands: "argparse._SubParsersAction[argparse.ArgumentParser]",
-) -> None:
-    """Register store projections-build, projections-status, and projections-cleanup."""
-    build = store_commands.add_parser(
-        "projections-build",
-        help="build, validate, and optionally activate search and graph projections",
-    )
-    _add_common(build)
-    build.add_argument("--activate", action="store_true")
-    build.add_argument("--publish", action="store_true")
-    build.add_argument("--runs-dir", type=Path, default=None)
-    build.add_argument("--skip-dbt", action="store_true")
-    build.add_argument("--age-enabled", dest="age_enabled", action="store_true")
-    build.add_argument("--age-disabled", dest="age_enabled", action="store_false")
-    build.set_defaults(age_enabled=None)
-    status = store_commands.add_parser(
-        "projections-status", help="show active projection pointers without building"
-    )
-    _add_common(status, kinds=False)
-    cleanup = store_commands.add_parser(
-        "projections-cleanup", help="plan or drop retired and failed projection objects"
-    )
-    _add_common(cleanup)
-    cleanup.add_argument("--apply", action="store_true")
-
-
-def _add_common(parser: argparse.ArgumentParser, *, kinds: bool = True) -> None:
-    parser.add_argument("--run-id", required=True, help="run identifier for projection evidence")
-    parser.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
-    if kinds:
-        parser.add_argument("--kind", action="append", dest="kinds", default=None)
-
-
 def run_projection_command(args: argparse.Namespace) -> int:
     """Dispatch one projection command and return a process status."""
     try:
@@ -60,6 +26,8 @@ def run_projection_command(args: argparse.Namespace) -> int:
         if args.store_command == "projections-status":
             return _run_status(root)
         kinds = requested_kinds(args.kinds)
+        if args.store_command == "projections-cleanup":
+            return _run_cleanup(root, args.run_id, apply=args.apply, kinds=kinds)
         request = ProjectionRequest(
             run_id=args.run_id,
             project_root=root,
@@ -108,4 +76,44 @@ def _run_status(project_root: Path) -> int:
         return 0
     for row in rows:
         _LOG.info("active %s %s status=%s", row[0], row[1], row[2])
+    return 0
+
+
+def _run_cleanup(project_root: Path, run_id: str, *, apply: bool, kinds: tuple[str, ...]) -> int:
+    from arxiv_int.stores.postgres_image.compatibility import load_age_compatibility
+    from arxiv_int.stores.projections.artifacts import write_result
+    from arxiv_int.stores.projections.cleanup import apply_cleanup, plan_cleanup
+    from arxiv_int.stores.projections.model import ProjectionResult
+    from arxiv_int.stores.projections.paths import projection_artifact_dir
+
+    url = resolve_database_url()
+    if not url:
+        _LOG.warning("projection cleanup not-run: no migration database selected")
+        return 2
+    engine = create_engine(url, pool_pre_ping=True)
+    try:
+        with engine.begin() as connection:
+            planned = plan_cleanup(connection, kinds=kinds)
+            if apply:
+                planned = apply_cleanup(
+                    connection,
+                    planned,
+                    age_enabled=load_age_compatibility(project_root).age_enabled,
+                )
+    finally:
+        engine.dispose()
+    artifact_dir = projection_artifact_dir(project_root, run_id)
+    result = ProjectionResult(
+        status="ok",
+        command="cleanup",
+        run_id=run_id,
+        version_id="",
+        activatable=False,
+        activated=False,
+        detail="cleanup executed" if apply else "cleanup planned",
+        artifact_dir=str(artifact_dir),
+        cleanup_plan=planned,
+    )
+    write_result(artifact_dir, result)
+    _LOG.info("projection cleanup count=%s apply=%s artifact=%s", len(planned), apply, artifact_dir)
     return 0

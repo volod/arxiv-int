@@ -85,19 +85,27 @@ schema state the history produces. `src/arxiv_int/contracts/migrations/` impleme
 - `arxiv-int db upgrade --sql` writes offline review SQL under `$DATA_DIR/migrations/<run-id>/`.
 - `arxiv-int db adopt` / `make db-adopt` live-adopts when that URL is set: relocates leftover
   `public` tables into owned schemas when destinations are missing, refuses partial or drifted
-  catalogs, and stamps `0001` for an unpartitioned contract-equivalent store or `0002` when the
-  store overlay is complete. Without a URL it reports why stamping stays refused.
+  catalogs, and stamps `0001` only when the complete initial store is equivalent. Without a URL
+  it reports why stamping stays refused.
 
 Generated revisions are deterministic and frozen: a historical revision never imports today's
 contracts, and editing one after review fails the checksum gate. A revision that drops an owned table
 or column renders an irreversible `downgrade()` naming the recovery path and carries review notes
 that a removal is not an inferred rename. `arxiv_int.contracts.sqlalchemy.catalog` compares a live
-catalog to contract metadata by compiled column definitions rather than SQL substrings, restricted to
-owned tables; previously owned names are retained so deletions are not hidden by that exclusion.
+catalog to contract metadata by compiled column definitions, keys, references, checks, defaults and
+declared indexes, restricted to owned tables; previously owned names are retained so deletions are
+not hidden by that exclusion.
 Autogeneration against a live database uses the same owned-object filter through the Alembic
 environment.
 
-Live schema overlay, HASH partitions, roles, staging COPY, and disposable apply evidence are
+Before any deployment or public release, the operator authorized consolidation into the single
+`0001_initial_store.py` revision. It freezes the complete initial store; generated catalog JSON is
+retained only as per-run evidence under `DATA_DIR`, not as a second committed schema authority.
+The [boundary repair](../records/0028-store-refactor-foundation-store-acceptance-boundaries.md)
+records the amendment. Historical task snapshots describe their original implementation; their
+superseded revision numbers are not upgrade requirements for this unreleased baseline.
+
+Live initial schema, HASH partitions, roles, staging COPY, and disposable apply evidence are
 documented in [Canonical store](canonical-store.md). Offline evolution checks still do not stamp an
 operator database by themselves. Missing live evidence is reported as `not-run`, never as a pass.
 Whole-relation dbt execution is recorded in

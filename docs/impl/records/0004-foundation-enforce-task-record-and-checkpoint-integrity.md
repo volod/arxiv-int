@@ -144,7 +144,7 @@ Updated on acceptance: [Governance](../current/governance.md), the
 [planning workflow](../../guide/planning-workflow.md), the
 [development integrity specification](../../design/spec.md#development-integrity-and-review-checkpoints),
 the [task cycle](../../../AGENTS.md) and the [record index](README.md). The
-[foundation checkpoint](../plan.md#review-foundation-and-store-boundaries) now depends on this
+[foundation checkpoint](0027-store-review-foundation-and-store-boundaries.md) now depends on this
 record instead of the removed task.
 
 Next action: the plan's next agent task at the time,

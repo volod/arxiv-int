@@ -110,7 +110,7 @@ def test_parse_compile_build_test_and_parity(
         assert parsed.status == STATUS_OK
         assert compiled.status == STATUS_OK
         _load_docs(store.url, [_document_row("doc-1"), _document_row("doc-2")], "seed-1")
-        clean = _run("build", "fixture-dag", store.url, full_refresh=True, activate=True)
+        clean = _run("build", "fixture-dag", store.url, full_refresh=True)
         assert clean.status == STATUS_OK
         assert clean.activatable is True
         first = _mart_rows(store.url, "fixture_dag")
@@ -129,15 +129,25 @@ def test_parse_compile_build_test_and_parity(
         policy = _run("build", "fixture-dag", store.url, policy_version="2", full_refresh=True)
         assert policy.status == STATUS_OK
         assert {row[2] for row in _mart_rows(store.url, "fixture_dag")} == {"2"}
-        tested = _run("test", "fixture-dag", store.url)
+        tested = _run("test", "fixture-dag", store.url, activate=True)
         assert tested.status == STATUS_OK
-        evidence = Path(clean.artifact_dir)
-        for path in [evidence / "result.json", *evidence.joinpath("manifests").glob("*.json")]:
-            if path.is_file():
-                assert "schema-secret" not in path.read_text(encoding="utf-8")
-        pointer = load_active_generation(root)
-        assert pointer is not None
-        assert pointer["runId"] == "fixture-dag"
+        _assert_publication_preserved(store.url, clean.artifact_dir)
+
+
+def _assert_publication_preserved(url: str, artifact_dir: str) -> None:
+    evidence = Path(artifact_dir)
+    for path in [evidence / "result.json", *evidence.joinpath("manifests").glob("*.json")]:
+        if path.is_file():
+            assert "schema-secret" not in path.read_text(encoding="utf-8")
+    pointer = load_active_generation(_root())
+    assert pointer is not None
+    assert pointer["runId"] == "fixture-dag"
+    before = _mart_rows(url, "fixture_dag")
+    refused = _run("build", "fixture-dag", url, fail_tests=True, activate=True)
+    assert refused.status == STATUS_FAILED
+    assert "immutable" in refused.detail
+    assert _mart_rows(url, "fixture_dag") == before
+    assert load_active_generation(_root()) == pointer
 
 
 def test_failed_tests_do_not_activate(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

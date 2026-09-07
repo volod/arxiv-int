@@ -107,6 +107,9 @@ def test_apply_cleanup_dispatches(monkeypatch: pytest.MonkeyPatch) -> None:
             "status": "retired",
         },
     )
+    monkeypatch.setattr(
+        "arxiv_int.stores.projections.cleanup.cleanup_candidates", lambda _: planned
+    )
     executed = apply_cleanup(MagicMock(), planned, age_enabled=False)
     assert [item[0] for item in seen] == ["lexical", "vector", "graph"]
     assert all(item["status"] == "executed" for item in executed)
@@ -144,6 +147,9 @@ def test_build_failed_dbt_does_not_activate(
     monkeypatch.setenv(DATABASE_URL_VARIABLE, "postgresql://arxiv_int@127.0.0.1/arxiv_int")
     monkeypatch.setattr(
         "arxiv_int.stores.projections.lifecycle._prepare_inputs", lambda *_a: "dbt failed"
+    )
+    monkeypatch.setattr(
+        "arxiv_int.stores.projections.lifecycle.create_engine", lambda *_a, **_k: MagicMock()
     )
     result = build_projections(
         ProjectionRequest(run_id="proj-a", project_root=_root(), activate=True)

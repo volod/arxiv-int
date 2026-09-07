@@ -34,7 +34,9 @@ def test_schema_phase_refuses_drift_and_never_calls_disposable(
     config = _config(tmp_path)
     calls: list[str] = []
 
-    def inspect(_root: Path, url: str) -> tuple[list[str], dict[str, object], str]:
+    def inspect(
+        _root: Path, url: str, **_kwargs: object
+    ) -> tuple[list[str], dict[str, object], str]:
         calls.append(url)
         return (
             ["drift"],
@@ -65,14 +67,14 @@ def test_schema_phase_applies_empty_service_catalog(
 
     monkeypatch.setattr(
         "arxiv_int.runtime.setup.schema.inspect_and_compare",
-        lambda _root, _url: ([], {"schemas": []}, None),
+        lambda _root, _url, **_kwargs: ([], {"schemas": []}, None),
     )
     monkeypatch.setattr(
         "arxiv_int.runtime.setup.schema.apply_revisions",
         lambda *_args, **_kwargs: SchemaApplyReport(
-            RunnerOutcome(STATUS_OK, "applied"), (), Path("ev.json"), "0002", {}
+            RunnerOutcome(STATUS_OK, "applied"), (), Path("ev.json"), "0001", {}
         ),
     )
     result = run_schema_phase(config, override=None, run_id="t")
     assert result.status == "ready"
-    assert "0002" in result.detail
+    assert "0001" in result.detail

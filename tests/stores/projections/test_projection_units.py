@@ -8,9 +8,7 @@ from arxiv_int.cli import build_parser, main
 from arxiv_int.contracts.migrations.runner import DATABASE_URL_VARIABLE
 from arxiv_int.data_quality.model import STATUS_FAIL, STATUS_PASS
 from arxiv_int.quality.project_root import discover_project_root
-from arxiv_int.stores.postgres.constants import HEAD_REVISION, PROJECTION_METADATA_TABLES
 from arxiv_int.stores.projections.adapters.graph import write_open_exports
-from arxiv_int.stores.projections.ddl import projection_grant_sql, projection_metadata_sql
 from arxiv_int.stores.projections.ids import (
     UnsafeIdentifierError,
     age_graph_name,
@@ -93,18 +91,11 @@ def test_open_exports_do_not_require_age(tmp_path: Path) -> None:
     assert "kg:supplies" in turtle.read_text(encoding="utf-8")
 
 
-def test_requested_kinds_and_metadata_sql() -> None:
+def test_requested_kinds() -> None:
     assert requested_kinds(["all"]) == ("lexical", "vector", "graph")
     assert requested_kinds(["graph", "graph"]) == ("graph",)
     with pytest.raises(ValueError, match="unknown"):
         requested_kinds(["bm25"])
-    sql = "\n".join(projection_metadata_sql())
-    assert "ctl.projections" in sql
-    assert "ctl.projection_active" in sql
-    grants = "\n".join(projection_grant_sql())
-    assert "arxiv_int_pipeline" in grants
-    assert HEAD_REVISION == "0003"
-    assert "projections" in PROJECTION_METADATA_TABLES
 
 
 def test_build_without_database_is_not_run(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:

@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0027` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0029` after the rows
 below).
 
 | Record | Scope | Result |
@@ -38,3 +38,5 @@ below).
 | [0024 dbt transformation foundation](0024-store-implement-dbt-transformation-foundation.md) | Local dbt project, typed runner, isolated derived generations, synthetic fixture DAG | Accepted |
 | [0025 Rebuildable search and graph projections](0025-store-implement-rebuildable-search-and-graph-projections.md) | ParadeDB/pgvector/AGE projection lifecycle, dbt inputs, pointer switch, fixture checks | Accepted |
 | [0026 Behavior-first test policy](0026-foundation-adopt-behavior-first-test-policy.md) | Replace numeric coverage floor with integrity/correctness/business-logic tests; checkpoint deepening | Accepted |
+| [0027 Foundation and store boundary review](0027-store-review-foundation-and-store-boundaries.md) | Integrated runtime, contracts, canonical store, dbt and projection checkpoint | Accepted; proceed with one routed nonblocking note |
+| [0028 Foundation store acceptance repair](0028-store-refactor-foundation-store-acceptance-boundaries.md) | Verified prerequisite, catalog and publication refusal gaps from 0027 | Accepted; single initial revision and verified publication boundaries |

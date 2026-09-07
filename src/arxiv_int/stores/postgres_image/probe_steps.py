@@ -42,12 +42,22 @@ def wait_ready(container: str, user: str, database: str) -> bool:
         )
         logs = (logs_run.stdout or "") + (logs_run.stderr or "")
         initialized = (
-            "arxiv-int AGE bootstrap completed" in logs
-            or "ParadeDB bootstrap completed" in logs
+            "PostgreSQL init process complete; ready for start up." in logs
             or "Skipping initialization" in logs
         )
         ready = subprocess.run(
-            ["docker", "exec", container, "pg_isready", "-U", user, "-d", database],
+            [
+                "docker",
+                "exec",
+                container,
+                "pg_isready",
+                "-h",
+                "127.0.0.1",
+                "-U",
+                user,
+                "-d",
+                database,
+            ],
             check=False,
             capture_output=True,
             text=True,
@@ -59,7 +69,18 @@ def wait_ready(container: str, user: str, database: str) -> bool:
                 continue
             time.sleep(0.5)
             ready2 = subprocess.run(
-                ["docker", "exec", container, "pg_isready", "-U", user, "-d", database],
+                [
+                    "docker",
+                    "exec",
+                    container,
+                    "pg_isready",
+                    "-h",
+                    "127.0.0.1",
+                    "-U",
+                    user,
+                    "-d",
+                    database,
+                ],
                 check=False,
                 capture_output=True,
                 text=True,

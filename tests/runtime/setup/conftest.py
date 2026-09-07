@@ -156,11 +156,11 @@ def make_adapters(
 def _fake_schema_apply(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
         "arxiv_int.runtime.setup.schema.inspect_and_compare",
-        lambda _root, _url: ([], {"schemas": []}, None),
+        lambda _root, _url, **_kwargs: ([], {"schemas": []}, None),
     )
     monkeypatch.setattr(
         "arxiv_int.runtime.setup.schema.apply_revisions",
         lambda *_args, **_kwargs: SchemaApplyReport(
-            RunnerOutcome(STATUS_OK, "applied"), (), Path("ev.json"), "0002", {}
+            RunnerOutcome(STATUS_OK, "applied"), (), Path("ev.json"), "0001", {}
         ),
     )

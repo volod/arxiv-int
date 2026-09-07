@@ -19,7 +19,8 @@ from arxiv_int.contracts.migrations.runner import (
 )
 from arxiv_int.contracts.sqlalchemy.catalog import compare_live_catalog
 from arxiv_int.contracts.sqlalchemy.model import ContractSchemaModel, load_schema_model_from_root
-from arxiv_int.stores.postgres.constants import HEAD_REVISION, PARTITION_OVERLAY_REVISION
+from arxiv_int.stores.postgres.catalog_boundary import catalog_boundary_findings
+from arxiv_int.stores.postgres.constants import HEAD_REVISION
 from arxiv_int.stores.postgres.evidence import catalog_as_dict, write_evidence
 from arxiv_int.stores.postgres.inspect_live import LiveStoreCatalog, inspect_store, store_findings
 
@@ -77,25 +78,8 @@ def relocate_public_tables(connection: Connection, model: ContractSchemaModel) -
 
 
 def _overlay_for_stamp(catalog: LiveStoreCatalog) -> tuple[list[str], str | None]:
-    overlay = store_findings(catalog, require_head=False, require_projections=False)
-    partitioned = bool(catalog.partitioned)
-    if not partitioned:
-        overlay = [
-            item
-            for item in overlay
-            if "HASH parents" not in item
-            and "check constraint" not in item
-            and "roles" not in item
-            and "staging.documents" not in item
-            and "schemas" not in item
-        ]
-        return overlay, "0001"
-    if overlay:
-        return overlay, None
-    projection = store_findings(catalog, require_head=False, require_projections=True)
-    if projection:
-        return overlay, PARTITION_OVERLAY_REVISION
-    return overlay, HEAD_REVISION
+    findings = store_findings(catalog, require_head=False)
+    return findings, None if findings else HEAD_REVISION
 
 
 def adopt_database(
@@ -133,6 +117,11 @@ def adopt_database(
             if target is None:
                 raise UnsafeAdoptionError(
                     "refusing to stamp a partial store overlay: " + "; ".join(overlay)
+                )
+            definition_issues = catalog_boundary_findings(project_root, connection, target)
+            if definition_issues:
+                raise UnsafeAdoptionError(
+                    "refusing drifted or partial catalog: " + "; ".join(definition_issues)
                 )
             if catalog.revision and catalog.revision != target:
                 raise UnsafeAdoptionError(

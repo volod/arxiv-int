@@ -2,14 +2,19 @@
 
 import logging
 from pathlib import Path
+from uuid import uuid4
 
-from arxiv_int.transformations.activation import ActivationRefusedError, activate_generation
+from arxiv_int.transformations.activation import (
+    ActivationRefusedError,
+    activate_generation,
+    load_active_generation,
+)
 from arxiv_int.transformations.artifacts import (
     compiled_sql_fingerprint,
     load_json,
-    relation_names,
     rule_outcomes_from_run_results,
     sanitize_log_files,
+    sanitize_text,
 )
 from arxiv_int.transformations.credentials import (
     DbtCredentials,
@@ -31,12 +36,14 @@ from arxiv_int.transformations.model import (
 from arxiv_int.transformations.paths import dbt_artifact_dir
 from arxiv_int.transformations.persist import (
     build_result,
+    clear_execution_artifacts,
     publish_result,
     sanitize_target,
     vars_payload,
     write_result,
 )
 from arxiv_int.transformations.project import ProjectAssemblyError, assemble_working_project
+from arxiv_int.transformations.validation import validated_relations
 
 _LOG = logging.getLogger(__name__)
 
@@ -61,6 +68,8 @@ def _row_counts(url: str, names: tuple[str, ...]) -> dict[str, int]:
 def _fail(
     request: TransformRequest, artifact_dir: Path, detail: str, generation_id: str
 ) -> TransformResult:
+    if (artifact_dir / "result.json").exists():
+        artifact_dir = artifact_dir / "refusals" / uuid4().hex
     result = build_result(
         request,
         status=STATUS_FAILED,
@@ -84,6 +93,8 @@ def run_transform(request: TransformRequest) -> TransformResult:
         return _fail(request, artifact_dir, str(error), "")
     url = resolve_database_url(request.database_url)
     if required_database(request.command) and not url:
+        if (artifact_dir / "result.json").exists():
+            artifact_dir = artifact_dir / "refusals" / uuid4().hex
         result = build_result(
             request,
             status=STATUS_NOT_RUN,
@@ -95,6 +106,18 @@ def run_transform(request: TransformRequest) -> TransformResult:
         return result
     try:
         with exclusive_generation(request.project_root, generation_id):
+            active = load_active_generation(request.project_root)
+            if (
+                request.command == "build"
+                and active
+                and active.get("generationId") == generation_id
+            ):
+                raise ValueError("active generation is immutable; use a new run id")
+            if active and active.get("generationId") == generation_id:
+                artifact_dir = artifact_dir / "checks" / uuid4().hex
+            reserved = {"generation_id", "derived_schema"}.intersection(request.vars)
+            if reserved:
+                raise ValueError("generation_id and derived_schema are owned by the runner")
             project_dir = assemble_working_project(request.project_root, artifact_dir)
             credentials = parse_credentials(url, threads=request.threads) if url else None
             resolved = credentials or _placeholder_credentials(request.threads)
@@ -126,22 +149,32 @@ def _invoke_locked(
         full_refresh=request.full_refresh,
         threads=credentials.threads,
     )
-    outcome: InvokeOutcome = invoke_dbt(args, credentials)
-    sanitize_target(artifact_dir)
+    clear_execution_artifacts(artifact_dir)
     secrets = (credentials.password,) if credentials.password else ()
-    sanitize_log_files(log_dir, secrets)
+    try:
+        outcome: InvokeOutcome = invoke_dbt(args, credentials)
+    finally:
+        sanitize_log_files(log_dir, secrets)
+        sanitize_log_files(target_dir, secrets)
+        sanitize_target(artifact_dir)
     rules = rule_outcomes_from_run_results(
         load_json(artifact_dir / "manifests" / "run_results.json")
     )
     model_fp = compiled_sql_fingerprint(target_dir)
-    relations = relation_names(generation_id) if request.command in {"build", "test"} else ()
+    relations = (
+        validated_relations(artifact_dir, generation_id, request.command)
+        if outcome.success and request.command in {"build", "test"}
+        else ()
+    )
     counts = _row_counts(url, relations) if url and outcome.success and relations else {}
-    activatable = outcome.success and request.command in {"build", "test"}
+    activatable = bool(relations) and set(counts) == set(relations)
+    if relations and not activatable:
+        raise ValueError("selected derived relations are missing")
     status = STATUS_OK if outcome.success else STATUS_FAILED
     result = build_result(
         request,
         status=status,
-        detail=outcome.detail,
+        detail=sanitize_text(outcome.detail, secrets),
         generation_id=generation_id,
         artifact_dir=artifact_dir,
         activatable=activatable,

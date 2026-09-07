@@ -17,6 +17,9 @@ from arxiv_int.contracts.migrations.runner import (
 )
 from arxiv_int.contracts.sqlalchemy.catalog import compare_live_catalog
 from arxiv_int.contracts.sqlalchemy.model import load_schema_model_from_root
+from arxiv_int.stores.postgres.catalog_boundary import catalog_boundary_findings
+from arxiv_int.stores.postgres.catalog_evidence import capture_catalog
+from arxiv_int.stores.postgres.constants import HEAD_REVISION
 from arxiv_int.stores.postgres.disposable import disposable_store, image_present
 from arxiv_int.stores.postgres.evidence import catalog_as_dict, write_evidence
 from arxiv_int.stores.postgres.inspect_live import inspect_store, store_findings
@@ -52,11 +55,8 @@ def row_counts(url: str, qualified_names: tuple[str, ...]) -> dict[str, int]:
             for name in qualified_names:
                 schema, _, table = name.partition(".")
                 exists = connection.execute(
-                    text(
-                        "SELECT EXISTS (SELECT 1 FROM pg_tables "
-                        "WHERE schemaname = :schema AND tablename = :table)"
-                    ),
-                    {"schema": schema, "table": table},
+                    text("SELECT to_regclass(:qualified) IS NOT NULL"),
+                    {"qualified": name},
                 ).scalar()
                 if not exists:
                     continue
@@ -69,7 +69,7 @@ def row_counts(url: str, qualified_names: tuple[str, ...]) -> dict[str, int]:
 
 
 def inspect_and_compare(
-    project_root: Path, url: str
+    project_root: Path, url: str, *, at_applied_revision: bool = False
 ) -> tuple[list[str], dict[str, Any], str | None]:
     """Compare contract metadata and inspect store overlay objects."""
     contracts_root = contracts_root_for(project_root)
@@ -79,8 +79,13 @@ def inspect_and_compare(
         with engine.connect() as connection:
             catalog = inspect_store(connection)
             findings = compare_live_catalog(connection, model)
-            findings.extend(store_findings(catalog))
+            target = catalog.revision if at_applied_revision else HEAD_REVISION
+            if target is not None:
+                findings.extend(catalog_boundary_findings(project_root, connection, target))
+            if not at_applied_revision or catalog.revision is not None:
+                findings.extend(store_findings(catalog))
             payload = catalog_as_dict(catalog)
+            payload["owned_definitions"] = capture_catalog(connection)
             return findings, payload, catalog.revision
     finally:
         engine.dispose()
@@ -101,6 +106,7 @@ def apply_revisions(
         return SchemaApplyReport(outcome, (outcome.detail,), None, None, before)
     findings, payload, applied = inspect_and_compare(project_root, url)
     after = row_counts(url, load_schema_model_from_root(contracts_root).qualified_names())
+    payload["findings"] = findings
     payload["row_counts_before"] = before
     payload["row_counts_after"] = after
     payload["url"] = url

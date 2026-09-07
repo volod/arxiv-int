@@ -72,7 +72,7 @@ def invoke_dbt(args: Sequence[str], credentials: DbtCredentials | None) -> Invok
         runner = module.dbtRunner()
         result = runner.invoke(list(args))
     except Exception as error:
-        return InvokeOutcome(False, str(error), exception=type(error).__name__)
+        return InvokeOutcome(False, "dbt invocation failed", exception=type(error).__name__)
     finally:
         if prior:
             restore_credential_env(prior)
@@ -88,8 +88,5 @@ def invoke_dbt(args: Sequence[str], credentials: DbtCredentials | None) -> Invok
 def _result_detail(result: object) -> str:
     exception = getattr(result, "exception", None)
     if exception is not None:
-        return str(exception)
-    inner = getattr(result, "result", None)
-    if inner is not None:
-        return str(inner)
-    return ""
+        return f"dbt command failed ({type(exception).__name__})"
+    return "dbt command succeeded" if getattr(result, "success", False) else "dbt command failed"

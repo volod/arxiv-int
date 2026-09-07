@@ -51,12 +51,12 @@ def test_empty_to_head_conformance_and_repeat(tmp_path: Path) -> None:
     with disposable_store(root, tmp_path / "pgdata", pins=pins) as store:
         first = apply_revisions(root, url=store.url, run_id="empty-to-head", revision="head")
         assert first.ok, first.findings
-        assert first.revision == "0003"
+        assert first.revision == "0001"
         second = apply_revisions(root, url=store.url, run_id="repeat-at-head", revision="head")
         assert second.ok, second.findings
-        assert second.revision == "0003"
+        assert second.revision == "0001"
         findings, _payload, revision = inspect_and_compare(root, store.url)
-        assert revision == "0003"
+        assert revision == "0001"
         assert findings == []
         engine = create_engine(store.url)
         try:
@@ -68,7 +68,7 @@ def test_empty_to_head_conformance_and_repeat(tmp_path: Path) -> None:
             engine.dispose()
 
 
-def test_previous_release_to_head_preserves_rows(tmp_path: Path) -> None:
+def test_repeat_at_head_preserves_rows(tmp_path: Path) -> None:
     root = _root()
     contracts = contracts_root_for(root)
     pins = load_image_pins(root)
@@ -93,45 +93,46 @@ def test_previous_release_to_head_preserves_rows(tmp_path: Path) -> None:
         assert before["corpus.documents"] == after["corpus.documents"] == 1
 
 
-def test_downgrade_and_upgrade_round_trip(tmp_path: Path) -> None:
+def test_initial_teardown_is_refused_and_head_remains_usable(tmp_path: Path) -> None:
     root = _root()
     contracts = contracts_root_for(root)
     pins = load_image_pins(root)
     with disposable_store(root, tmp_path / "pgdata", pins=pins) as store:
         assert apply_revisions(root, url=store.url, run_id="round-up", revision="head").ok
-        down = downgrade(root, contracts, url=store.url, revision="0001")
-        assert down.ok, down.detail
+        down = downgrade(root, contracts, url=store.url, revision="base")
+        assert not down.ok
+        assert "destroy canonical data" in down.detail
         report = apply_revisions(root, url=store.url, run_id="round-up-again", revision="head")
         assert report.ok, report.findings
 
 
-def test_interrupted_upgrade_rolls_back(tmp_path: Path) -> None:
+def test_interrupted_upgrade_rolls_back(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from alembic import op
+
     root = _root()
     contracts = contracts_root_for(root)
-    pins = load_image_pins(root)
-    with disposable_store(root, tmp_path / "pgdata", pins=pins) as store:
-        assert upgrade(root, contracts, url=store.url, revision="0001").ok
-        engine = create_engine(store.url)
-        try:
-            with engine.begin() as connection:
-                connection.execute(text("CREATE SCHEMA IF NOT EXISTS staging"))
-                raise RuntimeError("interrupted")
-        except RuntimeError:
-            pass
-        finally:
-            engine.dispose()
+    with disposable_store(root, tmp_path / "pgdata") as store:
+        execute = op.execute
+
+        def interrupt(statement: object, *args: object, **kwargs: object) -> object:
+            if "CREATE TRIGGER trg_embeddings_profile" in str(statement):
+                raise RuntimeError("interrupted initial migration")
+            return execute(statement, *args, **kwargs)
+
+        with monkeypatch.context() as patch:
+            patch.setattr(op, "execute", interrupt)
+            interrupted = upgrade(root, contracts, url=store.url, revision="head")
+        assert not interrupted.ok
         engine = create_engine(store.url)
         try:
             with engine.connect() as connection:
-                exists = connection.execute(
-                    text("SELECT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = 'staging')")
-                ).scalar()
-                assert not exists
-                assert inspect_store(connection).revision == "0001"
+                catalog = inspect_store(connection)
+                assert catalog.revision is None
+                assert not catalog.partitioned
+                assert "corpus" not in catalog.schemas
         finally:
             engine.dispose()
-        report = apply_revisions(root, url=store.url, run_id="after-interrupt", revision="head")
-        assert report.ok, report.findings
+        assert apply_revisions(root, url=store.url, run_id="after-interrupt", revision="head").ok
 
 
 def test_constraints_reject_invalid_facts_and_vector_mixing(tmp_path: Path) -> None:
@@ -333,5 +334,5 @@ def test_legacy_adoption_preserves_rows_and_refuses_drift(tmp_path: Path) -> Non
             engine.dispose()
         report = adopt_database(root, url=store.url, run_id="full-adopt")
         assert report.ok, report.findings
-        assert report.stamped_revision == "0003"
+        assert report.stamped_revision == "0001"
         assert report.row_counts.get("corpus.documents") == 1

@@ -1,6 +1,8 @@
 """Activate a successful derived generation without mutating canonical rows."""
 
 import json
+import os
+import tempfile
 from pathlib import Path
 
 from arxiv_int.transformations.model import TransformResult
@@ -37,5 +39,17 @@ def activate_generation(project_root: Path, result: TransformResult) -> Path:
         "relationNames": list(result.relation_names),
         "runId": result.run_id,
     }
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    temporary: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w", dir=path.parent, delete=False, encoding="utf-8"
+        ) as handle:
+            temporary = Path(handle.name)
+            handle.write(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
     return path

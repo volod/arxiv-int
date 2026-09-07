@@ -4,7 +4,6 @@ import os
 from collections.abc import Mapping
 from pathlib import Path
 
-from arxiv_int.contracts.migrations.runner import DATABASE_URL_VARIABLE
 from arxiv_int.runtime.config_model import RuntimeConfig
 from arxiv_int.runtime.setup.adapters import SetupAdapters
 from arxiv_int.runtime.setup.env_phase import run_env_phase
@@ -12,7 +11,6 @@ from arxiv_int.runtime.setup.images import run_images_phase, run_postgres_image_
 from arxiv_int.runtime.setup.model import PhaseResult, ProviderStatus
 from arxiv_int.runtime.setup.models import run_models_phase
 from arxiv_int.runtime.setup.requirements import ProfileRequirements
-from arxiv_int.runtime.setup.schema import run_schema_phase
 from arxiv_int.runtime.setup.settings import SetupSettings
 from arxiv_int.runtime.setup.support import (
     run_contracts_phase,
@@ -223,6 +221,9 @@ def _schema(
     attempt: str,
     _profiles: str,
 ) -> tuple[PhaseResult, ProviderStatus]:
+    from arxiv_int.contracts.migrations.runner import DATABASE_URL_VARIABLE
+    from arxiv_int.runtime.setup.schema import run_schema_phase
+
     override = None if environment is None else environment.get(DATABASE_URL_VARIABLE)
     if environment is None:
         override = os.environ.get(DATABASE_URL_VARIABLE)

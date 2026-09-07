@@ -10,6 +10,7 @@ from arxiv_int.transformations.model import (
     TransformRequest,
 )
 from arxiv_int.transformations.runner import run_transform
+from tests.transformations._evidence import successful_invoke
 
 
 def test_missing_database_is_not_run(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -45,7 +46,7 @@ def test_failed_invoke_cannot_activate(tmp_path: Path, monkeypatch: pytest.Monke
         "invoke_dbt",
         lambda args, credentials: InvokeOutcome(False, "data test failed"),
     )
-    monkeypatch.setattr(runner_mod, "_row_counts", lambda url, names: {})
+    monkeypatch.setattr(runner_mod, "_row_counts", lambda url, names: dict.fromkeys(names, 1))
     root = Path(__file__).resolve().parents[2]
     result = run_transform(
         TransformRequest(
@@ -75,7 +76,7 @@ def test_successful_build_can_activate_and_publish(
     monkeypatch.setattr(
         runner_mod,
         "invoke_dbt",
-        lambda args, credentials: InvokeOutcome(True, "ok"),
+        successful_invoke,
     )
     monkeypatch.setattr(
         runner_mod, "_row_counts", lambda url, names: {names[0]: 2} if names else {}
@@ -118,13 +119,13 @@ def test_concurrent_same_generation_cannot_activate_partial_data(
     started = threading.Event()
     release = threading.Event()
 
-    def _blocking_invoke(args: object, credentials: object) -> InvokeOutcome:
+    def _blocking_invoke(args: list[str], credentials: object) -> InvokeOutcome:
         started.set()
         release.wait(timeout=5)
-        return InvokeOutcome(True, "ok")
+        return successful_invoke(args, credentials)
 
     monkeypatch.setattr(runner_mod, "invoke_dbt", _blocking_invoke)
-    monkeypatch.setattr(runner_mod, "_row_counts", lambda url, names: {})
+    monkeypatch.setattr(runner_mod, "_row_counts", lambda url, names: dict.fromkeys(names, 1))
     root = Path(__file__).resolve().parents[2]
     url = "postgresql://arxiv_int:x@127.0.0.1:5432/arxiv_int"
     first: list[object] = []

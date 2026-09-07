@@ -18,6 +18,13 @@ infrastructure-ready never means pipeline-available. `make pipeline` stays
 `make bootstrap` remains the contributor path that syncs `.env`/`.venv` and audits readiness
 without starting services or applying schema.
 
+Make entry points stop on environment-loading or dependency-sync failure before invoking the
+requested command. Base CLI help/features and setup argument parsing work before optional extras
+are installed; database imports occur when the schema phase executes. Setup validates the complete
+initial store before reusing its applied revision;
+partial or drifted state is refused. See the
+[boundary repair](../records/0028-store-refactor-foundation-store-acceptance-boundaries.md).
+
 ## Layered configuration
 
 `arxiv_int.runtime.load_runtime_config()` resolves runtime values with CLI, process environment,
@@ -66,7 +73,9 @@ bootstrap runs before the virtual environment exists. It parses the file instead
 so a value is never run as shell, and it exports the resolved absolute `*_DIR` values the Python
 entry points then re-resolve identically. Paired fixtures in `tests/config/test_parity.py` hold the
 two implementations to one result for defaults, overrides, nested references, quotes and spaces,
-explicit empty values, invalid input and foreign working directories. Reading resolves without
+explicit empty values, invalid input and foreign working directories. Only exported shell variables
+count as process overrides, matching Python's environment; whitespace is trimmed before unquoting.
+Reading resolves without
 mutating the process environment or the checkout; `make bootstrap` and `make setup` are the steps
 that append missing `.env` declarations.
 

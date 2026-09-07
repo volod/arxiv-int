@@ -79,3 +79,20 @@ def test_activation_refuses_failed_or_partial_results(
     assert path.is_file()
     activate_generation(tmp_path, _result(STATUS_OK, activatable=True, run_id="r2"))
     assert load_active_generation(tmp_path)["runId"] == "r2"  # type: ignore[index]
+
+
+def test_interrupted_pointer_replace_preserves_previous_generation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("DATA_DIR", str(tmp_path / "data"))
+    path = activate_generation(tmp_path, _result(STATUS_OK, activatable=True))
+    before = path.read_bytes()
+
+    def interrupt(*_args: object) -> None:
+        raise OSError("interrupted replacement")
+
+    monkeypatch.setattr("arxiv_int.transformations.activation.os.replace", interrupt)
+    with pytest.raises(OSError, match="interrupted"):
+        activate_generation(tmp_path, _result(STATUS_OK, activatable=True, run_id="new"))
+    assert path.read_bytes() == before
+    assert list(path.parent.iterdir()) == [path]

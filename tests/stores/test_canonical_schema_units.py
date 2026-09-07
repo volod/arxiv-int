@@ -13,18 +13,7 @@ from arxiv_int.stores.postgres.constants import (
     HEAD_REVISION,
     PARTITIONED_TABLES,
     PROJECTION_METADATA_TABLES,
-    ROLE_DBT,
     STORE_ROLES,
-)
-from arxiv_int.stores.postgres.ddl import (
-    bucket_function_sql,
-    correctness_index_sql,
-    create_role_sql,
-    embedding_profile_sql,
-    fact_check_sql,
-    grant_sql,
-    owned_staging_sql,
-    staging_table_sql,
 )
 from arxiv_int.stores.postgres.hashing import partition_bucket, partition_bucket_sql
 from arxiv_int.stores.postgres.inspect_live import LiveStoreCatalog, PartitionSpec, store_findings
@@ -42,7 +31,6 @@ def test_partition_bucket_is_stable_and_in_range() -> None:
     value = int(partition_bucket("doc-1"))
     assert 0 <= value < HASH_MODULUS
     assert "bit(28)" in partition_bucket_sql()
-    assert "sha256" in bucket_function_sql()
 
 
 def test_fill_buckets_uses_the_primary_key() -> None:
@@ -52,44 +40,6 @@ def test_fill_buckets_uses_the_primary_key() -> None:
     assert "bucket" not in skipped[0]
 
 
-def test_fact_checks_and_grants_name_store_objects() -> None:
-    checks = "\n".join(fact_check_sql())
-    assert "ck_facts_object_xor_literal" in checks
-    assert "ck_facts_provenance" in checks
-    grants = "\n".join(grant_sql())
-    assert ROLE_DBT in grants
-    assert "derived" in grants
-    assert "alembic_version" in grants
-    assert "staging.documents" in staging_table_sql("corpus", "documents")
-    assert "CREATE ROLE" in create_role_sql(ROLE_DBT)
-    profiles = "\n".join(embedding_profile_sql())
-    assert "enforce_embedding_profile" in profiles
-    assert "ix_facts_subject_object_id" in "\n".join(correctness_index_sql())
-    assert any("staging.documents" in item for item in owned_staging_sql())
-
-
-def test_revision_0002_freezes_the_partitioned_table_list() -> None:
-    root = discover_project_root(Path(__file__))
-    text = (
-        root / "src/arxiv_int/migrations/versions/0002_store_partitions_roles_constraints.py"
-    ).read_text(encoding="utf-8")
-    for schema, table, pk in PARTITIONED_TABLES:
-        assert f'("{schema}", "{table}", "{pk}")' in text
-    assert "CREATE SCHEMA IF NOT EXISTS derived" in text
-    assert "arxiv_int_dbt" in text
-
-
-def test_revision_0003_freezes_projection_metadata() -> None:
-    root = discover_project_root(Path(__file__))
-    text = (root / "src/arxiv_int/migrations/versions/0003_projection_metadata.py").read_text(
-        encoding="utf-8"
-    )
-    for table in PROJECTION_METADATA_TABLES:
-        assert f"ctl.{table}" in text
-    assert 'revision: str = "0003"' in text
-    assert "arxiv_int_pipeline" in text
-
-
 def test_store_findings_report_missing_overlay_objects() -> None:
     catalog = LiveStoreCatalog(
         schemas=("corpus",),
@@ -97,7 +47,7 @@ def test_store_findings_report_missing_overlay_objects() -> None:
         checks=(),
         roles=(),
         staging_tables=(),
-        revision="0001",
+        revision="unversioned",
         extensions=(),
     )
     findings = store_findings(catalog)

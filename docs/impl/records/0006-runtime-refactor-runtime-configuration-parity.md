@@ -120,28 +120,31 @@ on a filesystem with different symlink semantics.
 share one documented grammar and one resolution order, and paired fixtures hold them to one result
 for an overridden `RESULTS_DIR` referenced by `RUNS_DIR`.
 
-- `AUD-runtime-configuration-parity-1`, nonblocking, owner [review-foundation-and-store-boundaries](../plan.md#review-foundation-and-store-boundaries):
+- `AUD-runtime-configuration-parity-1`, nonblocking, resolved, owner [0027](0027-store-review-foundation-and-store-boundaries.md):
   observation at `scripts/shared/dotenv.sh` and `src/arxiv_int/runtime/dotenv.py`. Invariant: one
   grammar, two implementations. Evidence: `tests/config/test_parity.py` compares them for the cases
   above, but the fixture list is the only thing binding them; a future grammar change can still be
   made in one file alone. Impact: a silent divergence would return the class of defect AUD-08
   named. Next check: when the bootstrap can assume an interpreter, consider generating the shell
   resolver from the Python grammar, or extend the fixture table with a shared case file both read.
-  Disposition: open.
-- `AUD-runtime-configuration-parity-2`, nonblocking, owner [review-foundation-and-store-boundaries](../plan.md#review-foundation-and-store-boundaries):
+  Disposition: resolved by 0027: bootstrap still cannot assume an installed interpreter;
+  paired fixtures now also cover export state and whitespace.
+- `AUD-runtime-configuration-parity-2`, nonblocking, resolved, owner [0028](0028-store-refactor-foundation-store-acceptance-boundaries.md):
   observation at `scripts/shared/dotenv.sh::arxiv_int_resolve_env`. Invariant: the process
   environment outranks `.env`. Evidence: the shell tests a dotenv name with `[[ -v NAME ]]`, which
   is also true for a non-exported shell variable of that name in an interactive session, while
   Python reads `os.environ`. Impact: an operator who sets an unexported uppercase shell variable
   matching a runtime name would see the shell prefer it and Python not. Next check: compare against
-  `declare -p` export state if a real case appears. Disposition: open.
+  `declare -p` export state if a real case appears. Disposition: resolved by 0028, with a
+  reproduced failure and export-state/whitespace regressions.
 
 ## Close or resume
 
 Every required gate passed: `make ci` and `make quality`, the paired parity and refusal fixtures,
 the Make cache-placement test, the port and backend agreement tests, and the valid-negative run at
 `2e051d0`. No gate is outstanding. Next action: none for this task; the two audit notes above are
-carried to `review-foundation-and-store-boundaries`.
+resolved in [0027](0027-store-review-foundation-and-store-boundaries.md) and
+[0028](0028-store-refactor-foundation-store-acceptance-boundaries.md).
 
 Updates made: `docs/impl/current/portable-runtime.md` describes the fixed resolution order, the
 shared root discovery, the centralized ports and backend endpoint, the parsing shell resolver and

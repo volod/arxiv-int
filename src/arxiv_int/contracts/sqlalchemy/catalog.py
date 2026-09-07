@@ -13,6 +13,7 @@ from typing import Any
 from sqlalchemy import Connection, MetaData, inspect
 from sqlalchemy.dialects import postgresql
 
+from arxiv_int.contracts.sqlalchemy.constraints import constraint_findings
 from arxiv_int.contracts.sqlalchemy.model import ContractSchemaModel
 
 _DIALECT = postgresql.dialect()
@@ -124,7 +125,18 @@ def compare_live_catalog(
     prior_owned: Iterable[str] = (),
 ) -> list[str]:
     """Compare a live database to contract metadata over owned objects only."""
-    names = set(model.qualified_names()) | set(prior_owned)
-    expected = expected_catalog(model.metadata, model.qualified_names())
+    return compare_metadata(connection, model.metadata, prior_owned=prior_owned)
+
+
+def compare_metadata(
+    connection: Connection, metadata: MetaData, *, prior_owned: Iterable[str] = ()
+) -> list[str]:
+    """Compare a complete authored table model, including its constraints and indexes."""
+    names = set(metadata.tables) | set(prior_owned)
+    expected = expected_catalog(metadata, metadata.tables)
     observed = reflect_catalog(connection, names)
-    return catalog_findings(expected, observed, prior_owned=prior_owned)
+    findings = catalog_findings(expected, observed, prior_owned=prior_owned)
+    inspector = inspect(connection)
+    for name in sorted(set(expected) & set(observed)):
+        findings.extend(constraint_findings(inspector, metadata.tables[name]))
+    return findings

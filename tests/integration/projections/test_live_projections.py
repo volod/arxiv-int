@@ -220,3 +220,44 @@ def test_rebuild_ids_failure_does_not_replace_and_graph_disabled(
         assert (exports / "graph.graphml").is_file()
         assert (exports / "graph.jsonld").is_file()
         assert (exports / "graph.ttl").is_file()
+        _assert_active_retry_and_cleanup(store.url, tmp_path, monkeypatch)
+
+
+def _assert_active_retry_and_cleanup(
+    url: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from types import SimpleNamespace
+
+    from arxiv_int.stores.projections.commands import run_projection_command
+
+    evidence = projection_artifact_dir(_root(), "proj-b") / "result.json"
+    before = evidence.read_bytes()
+    refused = _build(url, "proj-b", tmp_path, monkeypatch, activate=True)
+    assert refused.status == "failed"
+    assert "immutable" in refused.detail
+    assert evidence.read_bytes() == before
+    assert _lexical_pointer(url) == "lexical:proj_b"
+    monkeypatch.setenv("ARXIV_INT_MIGRATION_DATABASE_URL", url)
+    args = SimpleNamespace(
+        store_command="projections-cleanup",
+        project_root=_root(),
+        run_id="cleanup",
+        kinds=None,
+        apply=True,
+    )
+    assert run_projection_command(args) == 0
+    assert _lexical_pointer(url) == "lexical:proj_b"
+    assert _document_count(url) == 1
+    engine = create_engine(url)
+    try:
+        with engine.connect() as connection:
+            assert (
+                connection.execute(text("SELECT to_regclass('search.lexical_p_proj_a')")).scalar()
+                is None
+            )
+            assert (
+                connection.execute(text("SELECT count(*) FROM search.lexical_p_proj_b")).scalar()
+                == 1
+            )
+    finally:
+        engine.dispose()

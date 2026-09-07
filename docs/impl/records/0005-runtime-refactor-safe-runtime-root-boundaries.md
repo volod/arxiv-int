@@ -110,20 +110,23 @@ not prove behavior against a real archive or a live Compose stack.
 and revalidated before deletion, unsafe targets refuse before any stop, and the readiness report
 destination is validated against proof, database and source roots before directories are created.
 
-- `AUD-safe-runtime-root-boundaries-1`, nonblocking, owner [review-foundation-and-store-boundaries](../plan.md#review-foundation-and-store-boundaries):
+- `AUD-safe-runtime-root-boundaries-1`, nonblocking, owner [review-archive-organization-integrity](../plan.md#review-archive-organization-integrity):
   observation at `runtime/service_reset.py::_erase`. Invariant: the tree erased is the tree that was
   resolved as safe. Evidence: revalidation re-resolves the configured path immediately before
   `_clear_directory`, which itself refuses a symlink or non-directory, so the remaining window is a
   swap between that final `resolve()` and `iterdir()`. Impact: closing it needs directory file
   descriptors (`os.open` with `O_NOFOLLOW` plus `*at` calls), a wider change than this refactor's
   scope. Next check: evaluate descriptor-based erasure when concurrent operator tooling can run
-  during a reset. Disposition: open.
+  during a reset. Disposition: open, nonblocking at the foundation checkpoint;
+  [0027](0027-store-review-foundation-and-store-boundaries.md) routes the next check
+  before real archive placement authorization.
 
 ## Close or resume
 
 All required gates passed: `make ci`, `make quality`, and the eight new regressions, each confirmed
 to fail at revision `1e0db1d`. No gate is outstanding. Next action: none for this task; the audit
-note above is carried to `review-foundation-and-store-boundaries`.
+note above was reviewed by [0027](0027-store-review-foundation-and-store-boundaries.md);
+its next owner is `review-archive-organization-integrity`.
 
 Updates made: `docs/impl/current/portable-runtime.md` describes the shared containment policy, the
 new reset and report refusals, derived-root aliasing, and the extended test coverage; this record is

@@ -17,55 +17,6 @@ queries, COPY, extension DDL, and Cypher retain the narrow exceptions defined in
 Proof tasks retain tool/rule/model fingerprints and required quality outcomes; a skipped validator
 cannot establish a pass. These requirements also apply to later additive contract/migration work.
 
-### Canonical store -- `canonical-store`
-
-#### review-foundation-and-store-boundaries
-
-Review the integrated milestone before pipeline control and corpus adapters.
-
-- Serves: `canonical-store` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
-- Agent status: CLEAR
-- Task kind: checkpoint
-- Audit inputs: [AUD-safe-runtime-root-boundaries-1](records/0005-runtime-refactor-safe-runtime-root-boundaries.md#audit-handoff);
-[AUD-runtime-configuration-parity-1, AUD-runtime-configuration-parity-2](records/0006-runtime-refactor-runtime-configuration-parity.md#audit-handoff).
-- Dependencies: [0025](records/0025-store-implement-rebuildable-search-and-graph-projections.md);
-[Retryable setup command](records/0022-runtime-implement-retryable-setup-command.md);
-[Readiness probe safety](records/0008-runtime-refactor-readiness-probe-safety.md);
-[Contract identity and reference validation](records/0009-contract-gov-refactor-contract-identity-and-reference-validation.md);
-`enforce-task-record-and-checkpoint-integrity`.
-- User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
-or blocked
-for the named consumers; no-refactoring-needed is a valid conclusion.
-- Scope boundary: Review the named milestone and routed notes only; no speculative rewrite, automatic
-model upgrade, scope expansion or deferred replacement for each producer task's own checks.
-Adding tests for important stabilized integrity, correctness, and business-logic cases in this
-stage is in scope; concluding that existing tests already cover them is valid. Restoring a
-numeric coverage floor is not.
-Use deterministic integration evidence and inspect provided-archive proofs when available;
-this verdict permits fixture implementation, not real-data or CUDA promotion.
-- Data and artifact paths: Accepted producer records under `docs/impl/records/`, current-state pages,
-existing test/proof artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
-- Execution path: Read full task snapshots and source changes; trace configuration/CLI/service parity,
-protected roots and secrets, contract identity/evolution,
-Alembic revision/adoption and live catalog evidence, dbt/canonical ownership, Pandera batch versus
-global checks, transformation lineage and failure-before-activation,
-setup configuration/edit/retry, dependency-sync failure propagation, phase ordering, shared
-profile requirements and infrastructure-ready versus pipeline-available reporting,
-optional imports, extension coexistence and canonical-versus-projection ownership;
-replay representative existing tests/validators; add tests for important integrity, correctness,
-and business-logic cases that the stage's now-stable interfaces still miss; reconcile every
-routed note; record concrete findings with evidence, severity, affected consumers and one
-disposition each.
-- Acceptance gates: Every producer requirement and open note has an evidence-backed disposition;
-verify the
-listed invariants and make ci. Important stabilized cases in this stage have tests or an
-evidence-backed conclusion that existing tests already cover them; a coverage percentage is not
-a gate. Create a focused prerequisite refactor task for any blocking finding
-and keep this checkpoint open until it passes; preserve valid negative results and nonblocking
-follow-ups in the checkpoint record without claiming a wider audit.
-- Documentation target: `docs/impl/current/canonical-store.md`
-- Review checkpoint: none; this task is the bounded checkpoint. Route follow-ups to explicit task ids.
-
 ### Local inference -- `local-inference`
 
 #### implement-local-inference-adapters
@@ -237,7 +188,7 @@ with deterministic reuse keys.
 fixture artifact contracts from
 [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md).
 `refactor-stage-and-artifact-interface-contracts`.
-`review-foundation-and-store-boundaries`.
+[Foundation/store checkpoint](records/0027-store-review-foundation-and-store-boundaries.md).
 - User-visible outcome: Every long operation has inspectable state; an interrupted shard resumes,
 and an unchanged shard reuses validated output without loading its heavy implementation.
 - Scope boundary: Implement generic control mechanics; stage-specific processing stays in its owning
@@ -2065,6 +2016,7 @@ Review the integrated milestone before any real copy/move plan authorization.
 - Serves: `archive-organization` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
 - Agent status: CLEAR
 - Task kind: checkpoint
+- Audit inputs: [AUD-safe-runtime-root-boundaries-1](records/0005-runtime-refactor-safe-runtime-root-boundaries.md#audit-handoff).
 - Dependencies: `prove-archive-organization-on-provided-artifacts`;
 [Safe runtime root boundaries](records/0005-runtime-refactor-safe-runtime-root-boundaries.md).
 - User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,

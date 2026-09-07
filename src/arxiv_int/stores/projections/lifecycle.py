@@ -2,6 +2,7 @@
 
 import logging
 from pathlib import Path
+from uuid import uuid4
 
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
@@ -11,6 +12,10 @@ from arxiv_int.stores.postgres_image.compatibility import load_age_compatibility
 from arxiv_int.stores.projections.artifacts import publish_result, write_result
 from arxiv_int.stores.projections.builder import build_kind
 from arxiv_int.stores.projections.cleanup import apply_cleanup, plan_cleanup
+from arxiv_int.stores.projections.database_lock import (
+    lock_projection_catalog,
+    refuse_active_version,
+)
 from arxiv_int.stores.projections.ids import sanitize_version_id
 from arxiv_int.stores.projections.lock import ProjectionLockError, exclusive_version
 from arxiv_int.stores.projections.model import (
@@ -45,6 +50,8 @@ def _result(
     cleanup_plan: tuple[dict[str, str], ...] = (),
     published: Path | None = None,
 ) -> ProjectionResult:
+    if status != RUN_OK and (artifact_dir / "result.json").exists():
+        artifact_dir = artifact_dir / "refusals" / uuid4().hex
     result = ProjectionResult(
         status=status,
         command="build",
@@ -86,7 +93,7 @@ def build_projections(request: ProjectionRequest) -> ProjectionResult:
         return _result(
             request, artifact_dir, status=RUN_FAILED, version_id=version_id, detail=str(error)
         )
-    published = publish_result(request, artifact_dir)
+    published = publish_result(request, Path(result.artifact_dir))
     if published is None:
         return result
     return _result(
@@ -126,17 +133,17 @@ def _build_locked(
     request: ProjectionRequest, artifact_dir: Path, version_id: str, url: str
 ) -> ProjectionResult:
     age_enabled = _age_enabled(request)
-    prepare_error = _prepare_inputs(request, url)
-    if prepare_error:
-        return _result(
-            request, artifact_dir, status=RUN_FAILED, version_id=version_id, detail=prepare_error
-        )
     engine = create_engine(url, pool_pre_ping=True)
     kinds: list[KindBuild] = []
     planned: tuple[dict[str, str], ...] = ()
     activated = False
     try:
         with engine.begin() as connection:
+            lock_projection_catalog(connection)
+            refuse_active_version(connection, request.kinds, version_id)
+            prepare_error = _prepare_inputs(request, url)
+            if prepare_error:
+                raise ValueError(prepare_error)
             for kind in request.kinds:
                 kinds.append(
                     build_kind(

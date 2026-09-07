@@ -205,7 +205,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     store_inspect.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
     store_inspect.add_argument("--run-id", default=None)
-    from arxiv_int.stores.projections.commands import add_projection_parsers
+    from arxiv_int.stores.projections.cli import add_projection_parsers
 
     add_projection_parsers(store_commands)
 

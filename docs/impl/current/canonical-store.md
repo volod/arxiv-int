@@ -2,9 +2,9 @@
 
 The local database service is a project-owned ParadeDB Community derivative that keeps one
 PostgreSQL major, `pg_search`, pgvector, and a pinned Apache AGE build together. Relational schema
-application is in place: Alembic `0001` owns contract tables, reviewed revision `0002` overlays HASH
-partitions, provenance constraints, roles, staging, and the empty `derived` schema, and revision
-`0003` adds versioned projection metadata. A local dbt project builds isolated derived generations
+application is in place: the single initial Alembic revision `0001` owns contract tables, HASH
+partitions, provenance constraints, roles, staging, the empty `derived` schema, and versioned
+projection metadata. A local dbt project builds isolated derived generations
 and projection inputs. Search, vector, and graph projections are rebuildable and are never
 canonical.
 
@@ -12,7 +12,10 @@ Accepted records:
 [0018 Build pinned ParadeDB + AGE image](../records/0018-store-build-pinned-paradedb-age-image.md);
 [0021 Canonical relational schema](../records/0021-store-create-canonical-relational-schema.md);
 [0024 dbt transformation foundation](../records/0024-store-implement-dbt-transformation-foundation.md);
-[0025](../records/0025-store-implement-rebuildable-search-and-graph-projections.md).
+[0025 Projections](../records/0025-store-implement-rebuildable-search-and-graph-projections.md).
+The [foundation checkpoint](../records/0027-store-review-foundation-and-store-boundaries.md) and
+[boundary repair](../records/0028-store-refactor-foundation-store-acceptance-boundaries.md) record
+the integrated review and prerelease migration consolidation.
 
 ## Image identity
 
@@ -66,12 +69,22 @@ image tag; build the image before `make services-up`.
 image with PGDATA under `$DATA_DIR/migrations/<run-id>/pgdata` and writes redacted catalog evidence
 beside it. Missing image or URL is `not-run`, never a pass.
 
-## Canonical schema overlay
+## Canonical schema
 
-Revision `0001` remains the frozen contract-table baseline. Revisions `0002` and `0003` are store
-overlays: they do not import `arxiv_int.stores.postgres`, and their SHA-256 values are pinned in
-`revision_manifest.json`. Runtime helpers in `src/arxiv_int/stores/postgres/` are the operator copy
-of the same names. Head is `0003`.
+`src/arxiv_int/migrations/versions/0001_initial_store.py` is the only initial revision and head is
+`0001`. The operator authorized consolidation before any deployed database or public release.
+It freezes the complete SQLAlchemy definitions and narrow PostgreSQL-specific SQL, without importing
+current contracts or runtime DDL copies. `revision_manifest.json` pins its checksum;
+`head_state.json` tracks the contract state used by future revision generation. After deployment,
+schema changes require new reviewed revisions. Initial teardown explicitly refuses destructive
+downgrade; repeat-at-head preserves rows, and failed initial application rolls back transactionally.
+
+No generated catalog JSON snapshots are committed. Contract metadata and the frozen initial
+revision are the comparison authorities. Live inspection checks owned columns, key order and
+references, unique/check constraints, defaults, declared indexes, partition/staging structure,
+role attributes and forbidden table writes, function bodies, and the embedding trigger identity.
+Per-run observed definitions and findings are retained under `$DATA_DIR/migrations/<run-id>/`.
+These are diagnostic evidence, not schema inputs that vary the migration on another computer.
 
 Physical HASH partitions use the logical primary key so foreign keys stay valid. Application
 `bucket` is a separate SHA-256 prefix via `ctl.partition_bucket` (first seven hex digits as
@@ -94,7 +107,7 @@ runs shared contract batch quality (with explicit Polars dtypes so omitted nulla
 `StagingRejectedError` before COPY so inherited `NOT NULL` on staging cannot mask the gate.
 
 Live adoption relocates `public.<table>` into the owned schema when the destination is missing,
-refuses partial or drifted catalogs, and stamps `0001`, `0002`, or `0003` from overlay completeness.
+refuses partial or drifted catalogs, and stamps `0001` only for a complete equivalent initial store.
 `ctl.runs` ledger tables remain a later task.
 
 ## Relational transformations
@@ -110,9 +123,16 @@ Build and test without a URL are `not-run` (exit 2), never a pass.
 Each run materializes isolated `derived.<model>__g_<generation>` relations after
 `SET ROLE arxiv_int_dbt`. An exclusive lock under `$DATA_DIR/dbt/locks/` owns one generation.
 `--activate` writes `$DATA_DIR/dbt/active-generation.json` only when build or test succeeded
-(`activatable`). Failed tests, concurrent locks, and invalid models leave the pointer unchanged.
+(`activatable`). Activation requires current matching invocation ids, successful selected models and
+attached tests, and every expected generation relation to exist (including views). Missing, stale,
+or failed evidence cannot activate. Reserved generation/schema variables cannot be overridden.
+The active generation cannot be rebuilt: use a new run id. Parse/test checks of an active generation
+retain separate evidence; refused retries preserve published manifests. Pointer replacement uses an
+atomic file rename. Failed tests, concurrent locks, and invalid models leave the pointer unchanged.
 Sanitized `manifest.json` / `run_results.json` drop env maps and redact URLs; `--publish` copies
-them to `$RUNS_DIR/<run-id>/{manifests,quality}/`. Threads are capped at 4. Default select is
+them to `$RUNS_DIR/<run-id>/{manifests,quality}/`. Logs and retained target artifacts are also
+sanitized; invocation failures use stable diagnostics instead of exception representations. Threads
+are capped at 4. Default select is
 `tag:fixture tag:quality`.
 
 The committed DAG is synthetic: `stg_documents` (view over `source('corpus','documents')`),
@@ -125,7 +145,7 @@ claim corpus-scale or domain quality.
 
 ## Search and graph projections
 
-Revision `0003` adds `ctl.projections`, `ctl.projection_active`, `ctl.projection_evidence`, and
+The initial revision creates `ctl.projections`, `ctl.projection_active`, `ctl.projection_evidence`, and
 `ctl.projection_cleanup`. Those rows are lifecycle metadata, not canonical documents or facts. The
 pipeline role may create objects in `search`; dbt still cannot write projection metadata.
 
@@ -151,7 +171,11 @@ Shared quality results (`projection.row_count`, `projection.logical_id_checksum`
 transactions write `ctl.projection_active` only when every requested kind is publishable. Failed or
 incomplete builds leave the active pointer unchanged. Rebuilds from the same canonical fixtures keep
 the same logical ids (chunk, embedding, object). Cleanup plans retired or failed engine objects that
-are not active. Optional `--publish` copies sanitized `projections.json` to
+are not active. Build and cleanup share a database advisory lock across tooling roots. Rebuilding an
+active version is refused before preparing its dbt inputs. Cleanup executes only planned eligible
+drops for the selected kinds and rechecks active status under the same lock; it never dispatches a
+build. Refused retries
+preserve the active version's evidence. Optional `--publish` copies sanitized `projections.json` to
 `$RUNS_DIR/<run-id>/manifests/`.
 
 `APPLY=1` on `make projections-build` passes `--activate`. Live checks skip unless
@@ -168,7 +192,7 @@ or scale claim.
   switch, cleanup, and secret-free artifacts
 - `tests/integration/extensions/` -- pin/NOTICE/gate unit coverage; live probes when
   `ARXIV_INT_RUN_EXTENSION_PROBES=1`
-- `tests/stores/` -- overlay unit coverage; apply/adopt `not-run` without a URL or image
+- `tests/stores/` -- store boundary unit coverage; apply/adopt `not-run` without a URL or image
 - `tests/stores/projections/` -- identifier, quality, lock, and mocked lifecycle coverage
 - `tests/integration/postgres/` -- declared disposable schema run when
   `ARXIV_INT_RUN_SCHEMA_MIGRATIONS=1`
@@ -180,6 +204,10 @@ or scale claim.
   other `arxiv-int/*` images
 
 ## Initialization and upgrade seam
+
+The disposable harness waits for PostgreSQL's final initialization-complete marker and a TCP
+readiness check. A temporary initialization socket or the earlier ParadeDB bootstrap marker cannot
+release database consumers while the server is about to restart.
 
 `docker/postgres/initdb/20_arxiv_int_extensions.sh` runs after ParadeDB bootstrap and creates
 `vector`, `pg_search`, then `age` in `template1`, `paradedb`, and `$POSTGRES_DB`. Existing clusters

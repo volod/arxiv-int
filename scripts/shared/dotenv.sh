@@ -40,6 +40,8 @@ arxiv_int_unquote() {
 
 arxiv_int_dotenv_value() {
   local value="$1"
+  arxiv_int_trim "$value"
+  value="$arxiv_int_trimmed"
   arxiv_int_unquote "$value" && return 0
   case "$value" in
     *" #"*)
@@ -79,12 +81,18 @@ arxiv_int_read_dotenv() {
   done < "$file"
 }
 
+arxiv_int_is_exported() {
+  local declaration
+  declaration="$(declare -p "$1" 2>/dev/null)" || return 1
+  [[ "$declaration" =~ ^declare\ -[^[:space:]]*x[^[:space:]]*\  ]]
+}
+
 arxiv_int_value_of() {
   local name="$1"
   arxiv_int_value_found=1
   if [[ -v arxiv_int_values["$name"] ]]; then
     arxiv_int_value="${arxiv_int_values[$name]}"
-  elif [[ -v "$name" ]]; then
+  elif arxiv_int_is_exported "$name"; then
     arxiv_int_value="${!name}"
   else
     arxiv_int_value=""
@@ -177,7 +185,7 @@ arxiv_int_resolve_env() {
   arxiv_int_expanded=()
   arxiv_int_read_dotenv "$env_file" || return 1
   for name in "${arxiv_int_names[@]}"; do
-    if [[ -v "$name" ]]; then
+    if arxiv_int_is_exported "$name"; then
       arxiv_int_values["$name"]="${!name}"
     fi
   done

@@ -1,6 +1,7 @@
 """Persist secret-free transform results and publish sanitized evidence."""
 
 import json
+import shutil
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
@@ -100,3 +101,10 @@ def vars_payload(request: TransformRequest, generation_id: str) -> str:
         **dict(request.vars),
     }
     return json.dumps(payload)
+
+
+def clear_execution_artifacts(artifact_dir: Path) -> None:
+    """Remove prior invocation artifacts so missing current evidence cannot reuse them."""
+    for directory in (artifact_dir / "target", artifact_dir / "manifests"):
+        if directory.exists():
+            shutil.rmtree(directory)

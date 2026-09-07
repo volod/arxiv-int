@@ -670,6 +670,11 @@ schema objects without requiring an ORM. This is the selected schema representat
 
 ### Evolution and migrations
 
+Before the first database deployment or public release, the operator-authorized baseline is one
+initial Alembic revision. Later deployed/released revisions are immutable and additive. Catalog
+observations are run evidence under DATA_DIR; live checks derive expected definitions from
+contracts and the authored migration, without a parallel committed catalog snapshot.
+
 Compatibility classes follow a documented policy:
 
 - identical physical schema or documentation-only change: patch or no version change;
@@ -746,6 +751,10 @@ policy, and incremental/deletion semantics. Generated contract YAML owns shared 
 model-specific descriptions/formulas and tests remain reviewed source assets. Build into an isolated
 generation, run tests, then let the pipeline activate it atomically. dbt's model DAG is invoked by
 the stage runner; it does not replace run/shard leases. Prevent concurrent writes to the same target.
+Active derived generations and engine versions are immutable: rebuild under a new run id.
+Activation requires current invocation evidence for selected relations and their required tests;
+missing or stale evidence fails closed. Cleanup only drops eligible inactive projections, and
+rechecks eligibility under the same database lock as publication.
 Input removals, late corrections, review/identity changes, and formula changes must invalidate or
 rebuild affected outputs. A blind append-only incremental model cannot satisfy reconciliation.
 
@@ -1886,7 +1895,7 @@ evidence exist. Registry order is the implementation line used by `plan.md`.
 | 1 | `project-foundation` | shipped | Fresh copy, rename, locked bootstrap, CLI identity, docs integrity, and CI pass | [Project foundation](../impl/current/project-foundation.md) |
 | 2 | `portable-runtime` | shipped | Existing path/profile gates plus fresh setup, edit/retry, cached assets, failure propagation and shared requirement resolution pass | [Portable runtime](../impl/current/portable-runtime.md) |
 | 3 | `contract-governance` | shipped | ODCS generation/evolution, Alembic revision checks, shared dataset-quality checks and ontology gates pass; live schema upgrade/adoption is recorded under canonical-store | [Contracts](../impl/current/contracts.md) |
-| 4 | `canonical-store` | planned | Extension compatibility, live schema upgrade/adoption, and dbt ownership/build/test are recorded; backup, restore and projection checks remain | [Canonical store](../impl/current/canonical-store.md); [Open work](../impl/plan.md#canonical-store----canonical-store) |
+| 4 | `canonical-store` | shipped | Disposable extension compatibility, initial schema/adoption, dbt validation/publication and projection rebuild/cleanup pass the foundation checkpoint; operator recovery remains a separate capability | [Canonical store](../impl/current/canonical-store.md); [Checkpoint](../impl/records/0027-store-review-foundation-and-store-boundaries.md) |
 | 5 | `local-inference` | planned | Ollama/vLLM conformance, structured outputs, model-fit, and local-only endpoint gates pass | [Open work](../impl/plan.md#local-inference----local-inference) |
 | 6 | `evaluation-foundation` | planned | Frozen fixtures, replayable metrics, split guards, and paired verdict utilities pass | [Open work](../impl/plan.md#evaluation-foundation----evaluation-foundation) |
 | 7 | `pipeline-control` | planned | Fixture-first DAG, output manifest, resume, generation activation, delta, forecast, and progress gates pass | [Open work](../impl/plan.md#pipeline-control----pipeline-control) |

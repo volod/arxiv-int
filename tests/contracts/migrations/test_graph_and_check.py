@@ -29,7 +29,7 @@ def test_product_tree_has_one_head_and_no_pending_revision() -> None:
     report = check_migrations(root, root / "contracts")
     assert report.ok, report.findings
     assert report.pending_operations == ()
-    assert report.head == "0003"
+    assert report.head == "0001"
     assert report.live_evidence == "not-run"
 
 

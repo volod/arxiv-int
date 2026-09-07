@@ -58,7 +58,7 @@ def _complete_catalog(revision: str = HEAD_REVISION) -> LiveStoreCatalog:
 
 
 def _ok_report() -> SchemaApplyReport:
-    return SchemaApplyReport(RunnerOutcome(STATUS_OK, "applied"), (), Path("ev.json"), "0002", {})
+    return SchemaApplyReport(RunnerOutcome(STATUS_OK, "applied"), (), Path("ev.json"), "0001", {})
 
 
 def test_adopt_without_a_database_is_not_run(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -113,11 +113,11 @@ def test_apply_revisions_writes_evidence(monkeypatch: pytest.MonkeyPatch, tmp_pa
     )
     monkeypatch.setattr(
         "arxiv_int.stores.postgres.apply.inspect_and_compare",
-        lambda *_a, **_k: ([], {"revision": "0002"}, "0002"),
+        lambda *_a, **_k: ([], {"revision": "0001"}, "0001"),
     )
     report = apply_revisions(_root(), url="postgresql://x", run_id="ok-apply")
     assert report.ok
-    assert report.revision == "0002"
+    assert report.revision == "0001"
     assert report.evidence_path is not None
 
 
@@ -141,12 +141,12 @@ def test_commands_succeed_with_mocked_live_url(
     )
     monkeypatch.setattr(
         "arxiv_int.stores.postgres.commands.inspect_and_compare",
-        lambda *_a, **_k: ([], {"revision": "0002"}, "0002"),
+        lambda *_a, **_k: ([], {"revision": "0001"}, "0001"),
     )
     monkeypatch.setattr(
         "arxiv_int.stores.postgres.commands.adopt_database",
         lambda *_a, **_k: AdoptionReport(
-            RunnerOutcome(STATUS_OK, "stamped"), (), "0002", (), {}, Path("a.json")
+            RunnerOutcome(STATUS_OK, "stamped"), (), "0001", (), {}, Path("a.json")
         ),
     )
     assert run_apply_schema(_root(), url="postgresql://x", run_id="live") == 0
@@ -176,6 +176,7 @@ def test_adopt_stamps_complete_overlay(monkeypatch: pytest.MonkeyPatch, tmp_path
         "arxiv_int.stores.postgres.adopt.stamp",
         lambda *_a, **_k: RunnerOutcome(STATUS_OK, "stamped"),
     )
+    monkeypatch.setattr("arxiv_int.stores.postgres.adopt.catalog_boundary_findings", lambda *_a: [])
     report = adopt_database(_root(), url="postgresql://x", run_id="stamp")
     assert report.ok
     assert report.stamped_revision == HEAD_REVISION
@@ -236,7 +237,7 @@ def test_evidence_redacts_database_urls(tmp_path: Path, monkeypatch: pytest.Monk
     monkeypatch.setenv("DATA_DIR", str(tmp_path / "data"))
     path = write_evidence(
         _root(),
-        {"url": "postgresql+psycopg://user:secret@127.0.0.1:5432/arxiv_int", "revision": "0002"},
+        {"url": "postgresql+psycopg://user:secret@127.0.0.1:5432/arxiv_int", "revision": "0001"},
         run_id="redact",
     )
     text = path.read_text(encoding="utf-8")

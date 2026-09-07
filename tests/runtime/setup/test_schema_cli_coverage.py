@@ -82,7 +82,7 @@ def test_schema_at_head_and_apply_failure(tmp_path: Path, monkeypatch: pytest.Mo
     config, _root, _environment = _config(tmp_path)
     monkeypatch.setattr(
         "arxiv_int.runtime.setup.schema.inspect_and_compare",
-        lambda *_a, **_k: ([], {"schemas": ["ctl"]}, "0002"),
+        lambda *_a, **_k: ([], {"schemas": ["ctl"]}, "0001"),
     )
     at_head = run_schema_phase(config, override=None, run_id="t", verified={})
     assert at_head.status == "ready"

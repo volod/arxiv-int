@@ -7,7 +7,7 @@ from arxiv_int.runtime.config_model import RuntimeConfig
 from arxiv_int.runtime.setup.model import RETRY_COMMAND, PhaseResult, reused_or_ready
 from arxiv_int.runtime.setup.state import fingerprint_for
 from arxiv_int.stores.postgres.apply import apply_revisions, inspect_and_compare
-from arxiv_int.stores.postgres.constants import CANONICAL_SCHEMAS
+from arxiv_int.stores.postgres.constants import CANONICAL_SCHEMAS, HEAD_REVISION
 
 LOOPBACK_HOSTS = frozenset({"127.0.0.1", "localhost", "::1"})
 
@@ -71,7 +71,9 @@ def run_schema_phase(
             action=f"unset {DATABASE_URL_VARIABLE} or match POSTGRES_* in .env",
         )
     try:
-        findings, payload, revision = inspect_and_compare(config.project_root, url)
+        findings, payload, revision = inspect_and_compare(
+            config.project_root, url, at_applied_revision=True
+        )
     except Exception as error:
         return PhaseResult(
             "schema",
@@ -96,7 +98,7 @@ def run_schema_phase(
             "nonempty unversioned or unknown catalog on the configured service",
             action="use the reviewed db adopt workflow; setup will not auto-adopt",
         )
-    if revision and not findings:
+    if revision == HEAD_REVISION and not findings:
         return PhaseResult(
             "schema",
             reused_or_ready(verified, "schema", digest),
