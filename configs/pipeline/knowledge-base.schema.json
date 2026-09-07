@@ -1,0 +1,94 @@
+{
+  "$id": "https://arxiv-int.local/pipeline/knowledge-base.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "active": {
+      "type": "boolean"
+    },
+    "catalog_path": {
+      "type": "string"
+    },
+    "config_fingerprint": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "coverage": {
+      "type": "object"
+    },
+    "fingerprint": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "generation_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "not_selected": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "outputs": {
+      "items": {
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "profile": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "report_path": {
+      "type": "string"
+    },
+    "resume_command": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "run_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema": {
+      "const": "arxiv-int.knowledge-base.v1"
+    },
+    "source_snapshot": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "succeeded",
+        "partial",
+        "failed",
+        "blocked",
+        "interrupted"
+      ],
+      "type": "string"
+    },
+    "status_command": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "run_id",
+    "generation_id",
+    "profile",
+    "status",
+    "active",
+    "outputs",
+    "coverage",
+    "fingerprint"
+  ],
+  "type": "object"
+}

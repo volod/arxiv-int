@@ -34,6 +34,8 @@ def test_make_help_lists_pipeline_targets() -> None:
         "invalidate",
         "prune",
         "run-status",
+        "forecast",
+        "run-finalize",
     ):
         assert name in help_text
 

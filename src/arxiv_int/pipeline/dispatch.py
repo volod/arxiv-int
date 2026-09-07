@@ -27,6 +27,8 @@ from arxiv_int.pipeline.context import RunContext
 from arxiv_int.pipeline.errors import PipelineError
 from arxiv_int.pipeline.orchestrate import Orchestrator
 from arxiv_int.pipeline.persist import load_context, load_status
+from arxiv_int.pipeline.publish.finalize import finalize_run
+from arxiv_int.pipeline.publish.preflight import preflight_run
 from arxiv_int.pipeline.stages import production_registry
 from arxiv_int.runtime import load_runtime_config
 from arxiv_int.runtime.project_root import ProjectRootError
@@ -70,33 +72,15 @@ def _pipeline(args: argparse.Namespace, token: CancelToken) -> int:
             from_stage=args.from_stage,
             to_stage=args.to_stage,
         )
-        _refresh_forecast(context)
-        return run_dag(
-            context,
-            from_stage=context.from_stage,
-            to_stage=context.to_stage,
-            force=bool(args.force),
-            cancel=token,
-        )
+        return _run_profile(context, token, force=bool(args.force))
     previous_run = _previous_context(args)
     if action == "update":
         context = persist_new_context(update_context(previous_run))
-        _refresh_forecast(context)
-        return run_dag(
-            context,
-            from_stage=args.from_stage,
-            to_stage=args.to_stage,
-            cancel=token,
-        )
+        return _run_profile(context, token, from_stage=args.from_stage, to_stage=args.to_stage)
     if action == "rebuild":
         context = persist_new_context(rebuild_context(previous_run))
-        _refresh_forecast(context)
-        return run_dag(
-            context,
-            from_stage=args.from_stage,
-            to_stage=args.to_stage,
-            force=True,
-            cancel=token,
+        return _run_profile(
+            context, token, from_stage=args.from_stage, to_stage=args.to_stage, force=True
         )
     orchestrator = Orchestrator(production_registry(), previous_run.runs_dir)
     marked = orchestrator.invalidate(str(args.stage), document_id=args.document_id)
@@ -145,6 +129,8 @@ def _run(args: argparse.Namespace, token: CancelToken) -> int:
             _LOG.info("worker_state=%s", latest.worker_state)
         return 0
     context = load_context(Path(runs_dir), run_id)
+    if action == "finalize":
+        return finalize_run(context)
     return run_dag(context, force=bool(args.force), cancel=token, resume=True)
 
 
@@ -188,6 +174,26 @@ def _latest_run(runs_dir: Path) -> str | None:
     if not found:
         return None
     return max(found, key=lambda path: path.stat().st_mtime).parent.name
+
+
+def _run_profile(
+    context: RunContext,
+    token: CancelToken,
+    *,
+    from_stage: str | None = None,
+    to_stage: str | None = None,
+    force: bool = False,
+) -> int:
+    preflight_run(context)
+    _refresh_forecast(context)
+    code = run_dag(
+        context,
+        from_stage=from_stage if from_stage is not None else context.from_stage,
+        to_stage=to_stage if to_stage is not None else context.to_stage,
+        force=force,
+        cancel=token,
+    )
+    return finalize_run(context, fallback_exit=code)
 
 
 def _refresh_forecast(context: RunContext) -> None:

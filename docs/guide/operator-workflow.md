@@ -1,9 +1,9 @@
 # Operator Workflow and Atomic Commands
 
 The short workflow in [README](../../README.md#quick-start) is the target interface.
-`make setup` is available. DAG create/run/stage/status/resume/update/rebuild/invalidate/prune
-and forecast commands exist; they refuse unimplemented required stages. `run finalize` and
-knowledge-base publication remain **planned**. [Current implementation](../impl/current.md)
+`make setup` is available. DAG create/run/stage/status/resume/update/rebuild/invalidate/prune,
+forecast, and `run finalize` commands exist; they refuse unimplemented required stages. A
+complete knowledge base still waits on corpus runners. [Current implementation](../impl/current.md)
 records available capabilities; the
 [operator specification](../design/spec.md#retryable-setup-and-default-pipeline-command) defines
 defaults and acceptance. This guide provides the explicit command chain for diagnosis and development.
@@ -167,9 +167,11 @@ defaults. Make does not pass `--run-id local` or a hardcoded `--profile investig
 `pipeline` / `run-create`.
 
 The default investigation profile still names unimplemented corpus stages. `make pipeline`
-therefore fails explicitly until those runners ship. Preflight as a registered stage and
-`run finalize` / knowledge-base publication remain planned. Partial results must not replace
-the last complete generation once publication exists.
+therefore fails explicitly until those runners ship. `stage STAGE=preflight` as a registered
+worker remains unimplemented; aggregate commands still run an archive-readability preflight
+handler before forecast. `run finalize` writes `$RUNS_DIR/<run-id>/knowledge-base.json` and
+activates only a succeeded requested profile. Partial or failed runs cannot replace the last
+complete generation.
 
 For a diagnostic execution, first create the run and copy its returned id into `RUN_ID`:
 
@@ -200,7 +202,8 @@ their capabilities land. `make prune` is a dry-run; `APPLY=1 PLAN_ID=...` is a s
 confirmation and refuses to delete the sole recovery copy.
 
 The target diagnostic order below is one valid linear expansion of the baseline registry, not a
-second executable DAG definition. `run-finalize` remains planned:
+second executable DAG definition. `run-finalize` is available; `STAGE=preflight` as a registered
+worker is not:
 
 ```bash
 make stage STAGE=preflight RUN_ID="$RUN_ID"
@@ -229,8 +232,10 @@ make run-finalize RUN_ID="$RUN_ID"
 Use the same registered handlers for aggregate and atomic calls, with the same dependency, lease,
 source-scope and quality checks. Relational transformations call the shared dbt runner;
 local batches use Polars/PyArrow and shared Pandera checks. A failed or unexecuted required validator
-stops downstream work. `report` will render the staged report; `run-finalize` will verify manifests
-and switch the complete knowledge-base generation. Archive organization never joins this chain.
+stops downstream work. `report` remains an unregistered corpus stage. `run-finalize` writes
+`$RUNS_DIR/<run-id>/knowledge-base.json` and diagnostic `reports/index.html`; only a succeeded
+requested profile replaces `$RUNS_DIR/active-generation.json`. Report rendering alone cannot
+activate a generation. Archive organization never joins this chain.
 
 Optional selected stages such as `embed`, `load-vector` and `graph` enter the registry's dependency
 closure before evaluation/reporting. Disabled branches record `not-selected`. Missing required
@@ -239,10 +244,12 @@ exits 3 when the requested scope is blocked or a stage-boundary recheck loses fr
 Configuration changes require a new run or the declared
 invalidation/resume policy.
 
-The returned run id identifies the result today. `$RUNS_DIR/<run-id>/knowledge-base.json` and the
-report entry path remain planned publication outputs. Product artifacts use configured operator
-roots, never developer `DATA_DIR`. Compare aggregate and atomic results by logical ids, checksums,
-lineage, quality and completion state; run ids and timestamps may differ.
+The returned run id identifies the result today. Finalize writes
+`$RUNS_DIR/<run-id>/knowledge-base.json` and diagnostic `reports/index.html`. A production
+investigation run still fails before a complete generation because corpus stages are
+unregistered. Product artifacts use configured operator roots, never developer `DATA_DIR`.
+Compare aggregate and atomic results by logical ids, checksums, lineage, quality and completion
+state; run ids and timestamps may differ.
 
 ## Inspect, recover and analyze
 
@@ -255,7 +262,7 @@ Use the returned run id and replace query/document placeholders with actual valu
 | `arxiv-int run resume RUN_ID` / `make resume` | available | Resume the recorded generation after an interruption. |
 | `arxiv-int pipeline update` / `make update` | available | Reconcile a changed archive into a new generation. |
 | `arxiv-int run artifacts RUN_ID`, `arxiv-int inspect RUN_ID` | planned | Inspect manifest, artifact states, coverage, provenance and errors. |
-| Open the returned `reports/index.html`; `arxiv-int report build RUN_ID` | planned | Read the entry report or explicitly rebuild its rendering. |
+| Open `$RUNS_DIR/<run-id>/reports/index.html` | available (diagnostic) | Read the finalize diagnostic; the specified analyst report remains planned. |
 | `arxiv-int catalog company --run RUN_ID`, `arxiv-int catalog product --run RUN_ID`, `arxiv-int catalog person --run RUN_ID` | planned | Inspect roles, aliases, identities and evidence in the three catalogs. |
 | Follow financial-party, transaction, supply-chain and BOM links | planned | Trace quantities, relations and gaps to source anchors. |
 | `arxiv-int anomalies list --run RUN_ID` | planned | Review detector, baseline, severity and supporting/contradicting evidence. |

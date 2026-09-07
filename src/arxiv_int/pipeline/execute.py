@@ -1,7 +1,9 @@
 """Run one registered stage through the shard executor and reuse index."""
 
+import json
 from collections.abc import Mapping
 from pathlib import Path
+from typing import Any
 
 from arxiv_int.contracts.generate.normalize import normalize_json
 from arxiv_int.interfaces.pipeline import StageContext, StageResult
@@ -68,7 +70,7 @@ def try_reuse(entry: ReuseEntry | None, *, force: bool) -> StageExecution | None
         "cache hit after manifest validation",
         False,
         entry.bytes,
-        "produced",
+        load_stage_outcome(directory),
     )
 
 
@@ -157,10 +159,31 @@ def execution_to_entry(
     )
 
 
+def load_stage_outcome(directory: Path | None) -> str:
+    """Read the honest stage outcome from a published attempt payload."""
+    if directory is None:
+        return "failed"
+    path = directory / "stage.json"
+    if not path.is_file():
+        return "produced"
+    try:
+        payload: Any = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return "produced"
+    if not isinstance(payload, dict):
+        return "produced"
+    outcome = str(payload.get("outcome", "produced"))
+    if outcome in {"produced", "partial", "empty", "failed", "not-selected"}:
+        return outcome
+    return "produced"
+
+
 def _from_decision(stage: str, key: str, decision: ShardDecision) -> StageExecution:
     directory = decision.directory
     path = None if directory is None else str(directory)
-    outcome = "produced" if decision.status == "succeeded" else "failed"
+    outcome = load_stage_outcome(directory)
+    if decision.status not in {"succeeded", "quarantined"}:
+        outcome = "failed"
     return StageExecution(
         stage,
         decision.status,

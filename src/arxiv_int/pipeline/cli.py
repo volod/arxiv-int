@@ -133,3 +133,9 @@ def _add_run_group(
     resume.add_argument("--force", action="store_true")
     resume.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
     resume.add_argument("--runs-dir", type=Path, default=None)
+    finalize = run_commands.add_parser(
+        "finalize", help="seal knowledge-base.json; only a complete profile activates"
+    )
+    finalize.add_argument("run_id")
+    finalize.add_argument("--runs-dir", type=Path, default=None)
+    finalize.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)

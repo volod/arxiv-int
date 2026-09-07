@@ -10,10 +10,11 @@ cache-checks selected images and models, starts services, waits for transport an
 applies eligible Alembic revisions to the configured service only, and re-probes readiness.
 Retries reuse verified fingerprints and still probe services, wait, and readiness. Concurrent
 setup against the same targets is refused. Typed stage and artifact interfaces, a generic run
-ledger, serialized progress logs, and a fixture DAG CLI exist under
-[Pipeline control](pipeline-control.md). Concrete corpus stages and knowledge-base
-publication remain [planned](../plan.md#pipeline-control----pipeline-control).
-Infrastructure-ready never means an archive-to-report run is available. See the
+ledger, serialized progress logs, a fixture DAG CLI, and knowledge-base publication exist under
+[Pipeline control](pipeline-control.md). Concrete corpus stages remain
+[planned](../plan.md#pipeline-control----pipeline-control). A default investigation run still
+refuses unimplemented stages. Infrastructure-ready never means an archive-to-report run is
+available. See the
 [operator workflow](../../guide/operator-workflow.md) for the atomic chain and the
 [accepted setup record](../records/0022-runtime-implement-retryable-setup-command.md).
 

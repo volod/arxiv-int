@@ -118,6 +118,8 @@ def run_dag(
         return int(getattr(error, "exit_code", 1))
     for line in status_lines(report):
         _LOG.info("%s", line)
+    if report.halt_reason == "interrupted":
+        return 130
     return 1 if report.halted else 0
 
 

@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0045` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0046` after the rows
 below).
 
 | Record | Scope | Result |
@@ -56,3 +56,4 @@ below).
 | [0042 Stage DAG CLI and Make targets](0042-pipeline-implement-stage-dag-cli-and-make-targets.md) | Dependency-aware registry, fixture DAG, run/stage/update/resume/invalidate/rebuild/prune CLI and Make | Accepted |
 | [0043 Progress logging and resource telemetry](0043-pipeline-add-progress-logging-and-resource-telemetry.md) | Serialized logs, throttled progress, bounded metrics, `ctl.stage_progress`, Grafana pipeline dashboards | Accepted |
 | [0044 Evidence-based pipeline forecast](0044-pipeline-implement-evidence-based-pipeline-forecast.md) | Read-only pre-run time/storage forecast, device-deduped free-space refusal, and stage-boundary rechecks | Accepted |
+| [0045 Investigation profile and output manifest](0045-pipeline-implement-investigation-profile-and-output-manifest.md) | Profile declarations, knowledge-base publication, active generation pointer, and run finalize | Accepted |

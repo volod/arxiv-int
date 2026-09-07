@@ -4,6 +4,8 @@ import signal
 from collections.abc import Callable
 from types import FrameType
 
+from arxiv_int.pipeline.errors import InterruptedPipelineError
+
 
 class CancelToken:
     """Set when the operator interrupts a DAG walk."""
@@ -22,7 +24,7 @@ class CancelToken:
     def raise_if_cancelled(self) -> None:
         """Stop the walk before the next stage when a signal was received."""
         if self._cancelled:
-            raise KeyboardInterrupt("pipeline cancelled")
+            raise InterruptedPipelineError("interrupted")
 
 
 def install_signal_handler(

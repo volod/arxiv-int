@@ -38,3 +38,15 @@ class StaleUpstreamError(PipelineError):
 
 class QualityBoundaryError(PipelineError):
     """A declared Pandera or dbt producer check failed or did not run."""
+
+
+class InterruptedPipelineError(PipelineError):
+    """Operator cancelled the DAG walk before remaining stages started."""
+
+    exit_code = 130
+
+
+class PreflightRefusedError(PipelineError):
+    """Archive or authorization preflight failed before expensive work."""
+
+    exit_code = 3

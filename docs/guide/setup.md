@@ -2,8 +2,8 @@
 
 For the short target workflow and the full command chain, see
 [Operator workflow and atomic commands](operator-workflow.md). `make setup` is the operator
-entry. DAG commands exist; a default investigation run refuses unimplemented stages. The
-forecast command is available; report publication remains planned.
+entry. DAG commands exist; a default investigation run refuses unimplemented stages. Forecast
+and `run finalize` are available; a complete knowledge base still waits on corpus runners.
 
 Install Git, Make, uv, Docker with the Compose plugin, and Python 3.12 or newer. From a checkout:
 

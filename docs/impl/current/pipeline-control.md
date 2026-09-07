@@ -1,15 +1,16 @@
 # Pipeline Control
 
 Typed stage, source, and artifact references, a generic run ledger, serialized progress
-logging with bounded resource telemetry, a fixture-first DAG CLI, and a read-only pre-run
-forecast are available. Publication assembly remains
-[planned](../plan.md#pipeline-control----pipeline-control).
+logging with bounded resource telemetry, a fixture-first DAG CLI, a read-only pre-run
+forecast, and profile-declared knowledge-base publication are available. Concrete corpus
+stages remain [planned](../plan.md#pipeline-control----pipeline-control).
 
 See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface-contracts.md),
 [record 0041](../records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md),
 [record 0042](../records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md),
-[record 0043](../records/0043-pipeline-add-progress-logging-and-resource-telemetry.md), and
-[record 0044](../records/0044-pipeline-implement-evidence-based-pipeline-forecast.md).
+[record 0043](../records/0043-pipeline-add-progress-logging-and-resource-telemetry.md),
+[record 0044](../records/0044-pipeline-implement-evidence-based-pipeline-forecast.md), and
+[record 0045](../records/0045-pipeline-implement-investigation-profile-and-output-manifest.md).
 
 ## Stage, source, and artifact seams
 
@@ -141,12 +142,13 @@ new generation and skips cache reuse.
 | `arxiv-int run create` / `make run-create` | Unique run id; freeze `.env` profile and roots |
 | `arxiv-int pipeline forecast` / `make forecast RUN_ID=...` | Read-only time, storage, and free-space decision |
 | `arxiv-int stage STAGE --run-id RUN_ID` / `make stage STAGE=... RUN_ID=...` | One stage; required upstream manifests must already validate |
-| `arxiv-int pipeline run` / `make pipeline` | Create a run, forecast, and execute the selected profile DAG |
+| `arxiv-int pipeline run` / `make pipeline` | Create a run, preflight, forecast, execute the DAG, then finalize |
 | `arxiv-int pipeline update` / `make update` | New generation for archive deltas; unchanged reuse keys cache-hit |
 | `arxiv-int pipeline rebuild` / `make rebuild` | Fresh generation without cache reuse |
 | `arxiv-int pipeline invalidate STAGE --run-id RUN_ID` / `make invalidate` | Logical stale closure; no deletes |
 | `arxiv-int run status RUN_ID` / `make run-status RUN_ID=...` | Per-stage ledger status plus latest progress snapshot |
 | `arxiv-int run resume RUN_ID` / `make resume RUN_ID=...` | Continue after halt or SIGINT |
+| `arxiv-int run finalize RUN_ID` / `make run-finalize RUN_ID=...` | Seal `knowledge-base.json`; activate only a complete profile |
 | `arxiv-int artifacts prune --stale` / `make prune` | Dry-run stale derived attempts; `--apply --plan PLAN_ID` is separate |
 
 CLI values override process environment, then `.env`, then documented defaults. Make does not pass
@@ -160,7 +162,8 @@ invalidate, update, rebuild, prune dry-run, quality not-run/fail, and signal can
 Pandera validators and dbt selections run at producer boundaries through `QualityBoundary`; failed
 or not-run checks halt downstream work. The directory-to-report gate waits on concrete stages.
 
-Preflight as a registered stage and `run finalize` / knowledge-base publication remain planned.
+`stage STAGE=preflight` as a registered worker remains unimplemented. Aggregate commands still
+run an archive-readability preflight handler before forecast.
 
 ## Pre-run forecast and resource refusal
 
@@ -197,6 +200,39 @@ envelope, plan coverage, and per-stage cache-hit flags match the current run. Li
 are rechecked, not fingerprinted. Before each stage, `space_guard` re-reads free space and
 blocks the next allocation when a device falls below peak plus reserve; the stage worker is not
 invoked. A stale or missing forecast raises `StaleForecastError` (also exit 3).
+
+## Investigation profiles and knowledge-base publication
+
+`src/arxiv_int/pipeline/publish/` seals one generation from the requested profile. Committed
+overlays live in `configs/pipeline/investigation.json` and `lexical.json` (schema
+`arxiv-int.pipeline.profile.v1`). The knowledge-base document is `arxiv-int.knowledge-base.v1`.
+Setup's `PROFILE_STAGES` / `OPTIONAL_STAGES` remain the requirement seam; Python defaults and
+committed JSON must not drift (`check_profile_alignment()` / `check_schema_drift()`). The
+fixture profile (`alpha` / `beta` / `gamma`, optional `omega`) is Python-only.
+
+Investigation required families are inventory, documents (`chunk`), classification, lexical,
+topics, identities, ontology, facts, domain, evaluation, anomalies, and report. Optional
+families are vectors (`load-vector`) and graph. Anomalies currently map to `evaluate` until an
+anomalies stage exists. Lexical omits topics, identities, ontology, facts, domain, vectors, and
+graph, so it is a visibly smaller profile.
+
+Aggregate `pipeline run` / `update` / `rebuild` call the same create, archive-readability
+preflight, forecast, stage, and finalize handlers as the atomic chain. Atomic `stage` does not
+auto-finalize. `arxiv-int run finalize RUN_ID` and `make run-finalize RUN_ID=...` require a
+created run id. Unreadable archive silos raise `PreflightRefusedError` (exit 3) before forecast.
+
+A succeeded profile writes `$RUNS_DIR/<run-id>/knowledge-base.json` and switches
+`$RUNS_DIR/active-generation.json` (operator-visible pointer) plus
+`$RUNS_DIR/active-catalog.json` (fixture stand-in for a catalog/DB pointer). Partial, failed,
+blocked, and interrupted runs write the same knowledge-base and ASCII diagnostic
+`reports/index.html` / `reports/report.json` without replacing the last complete pointer.
+`write_report()` never calls `activate_generation()`. Empty required families are valid complete
+(`succeeded`, exit 0). Logical statuses map to exits: succeeded 0, partial 2, failed 1,
+blocked 3, interrupted 130. A missing `status.json` returns the DAG fallback exit. Publication
+crash points are `after-manifest`, `after-catalog-write`, `after-catalog-replace`,
+`after-generation-write`, and `after-generation-replace`; orphan `.tmp` files are reconciled on
+the next finalize. A default investigation run still refuses unregistered corpus stages after a
+covering forecast (exit 1).
 
 ## Progress logging and resource telemetry
 
@@ -238,5 +274,10 @@ metric labels, and revision `0003` alignment. Forecast tests in `tests/pipeline/
 zero-history ranges, replay, device dedup, cache hits, inaccessible/shortfall refusal, stale
 config, missing/uncovered forecasts, simulated free-space loss without partial manifests,
 inventory/delta versus sample, schema drift, CLI standalone versus `--run-id`, Make dry-run, and
-optional-import isolation. Fixtures do not prove real-archive extraction quality or CUDA worker
-fit. Publication activation remains planned.
+optional-import isolation. Publication tests in `tests/pipeline/publish/` cover setup/profile
+alignment, lexical subset, schema drift, complete activate, valid-empty succeed, partial cannot
+replace complete, failed diagnostic without activation, unreadable preflight, interrupted 130
+plus resume then activate, stale upstream, crash after-manifest, crash after-catalog-write plus
+orphan reconcile, report cannot activate, aggregate versus atomic logical equivalence, CLI/Make
+finalize, and optional-import isolation. Fixtures do not prove real-archive extraction quality or
+CUDA worker fit.

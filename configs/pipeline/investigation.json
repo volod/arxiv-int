@@ -1,0 +1,114 @@
+{
+  "families": [
+    {
+      "id": "inventory",
+      "path": "",
+      "required": true,
+      "stage": "inventory"
+    },
+    {
+      "id": "documents",
+      "path": "",
+      "required": true,
+      "stage": "chunk"
+    },
+    {
+      "id": "classification",
+      "path": "",
+      "required": true,
+      "stage": "classify"
+    },
+    {
+      "id": "lexical",
+      "path": "",
+      "required": true,
+      "stage": "load-lexical"
+    },
+    {
+      "id": "topics",
+      "path": "",
+      "required": true,
+      "stage": "topics"
+    },
+    {
+      "id": "identities",
+      "path": "",
+      "required": true,
+      "stage": "entities"
+    },
+    {
+      "id": "ontology",
+      "path": "",
+      "required": true,
+      "stage": "ontology"
+    },
+    {
+      "id": "facts",
+      "path": "",
+      "required": true,
+      "stage": "facts"
+    },
+    {
+      "id": "domain",
+      "path": "",
+      "required": true,
+      "stage": "domain-artifacts"
+    },
+    {
+      "id": "evaluation",
+      "path": "",
+      "required": true,
+      "stage": "evaluate"
+    },
+    {
+      "id": "anomalies",
+      "path": "",
+      "required": true,
+      "stage": "evaluate"
+    },
+    {
+      "id": "report",
+      "path": "reports/index.html",
+      "required": true,
+      "stage": "report"
+    },
+    {
+      "id": "vectors",
+      "path": "",
+      "required": false,
+      "stage": "load-vector"
+    },
+    {
+      "id": "graph",
+      "path": "",
+      "required": false,
+      "stage": "graph"
+    }
+  ],
+  "name": "investigation",
+  "optional_stages": [
+    "embed",
+    "graph",
+    "load-vector"
+  ],
+  "report_family": "report",
+  "required_stages": [
+    "preflight",
+    "inventory",
+    "extract",
+    "normalize",
+    "dedupe",
+    "chunk",
+    "classify",
+    "load-lexical",
+    "nlp",
+    "topics",
+    "entities",
+    "ontology",
+    "facts",
+    "domain-artifacts",
+    "evaluate",
+    "report"
+  ],
+  "schema": "arxiv-int.pipeline.profile.v1"
+}

@@ -9,11 +9,16 @@ from arxiv_int.pipeline.context import RunContext
 from arxiv_int.pipeline.control.executor import ShardExecutor
 from arxiv_int.pipeline.control.lineage import LineageEdge, stale_closure
 from arxiv_int.pipeline.control.memory import InMemoryLedger
-from arxiv_int.pipeline.errors import PipelineError, StaleUpstreamError, UnregisteredStageError
+from arxiv_int.pipeline.errors import (
+    InterruptedPipelineError,
+    PipelineError,
+    StaleUpstreamError,
+    UnregisteredStageError,
+)
 from arxiv_int.pipeline.execute import execute_stage, execution_to_entry, try_reuse
 from arxiv_int.pipeline.graph import StagePlan
 from arxiv_int.pipeline.observe import open_stage_session
-from arxiv_int.pipeline.persist import RunStatus, StageExecution, save_status
+from arxiv_int.pipeline.persist import RunStatus, StageExecution, load_status, run_dir, save_status
 from arxiv_int.pipeline.quality_bound import FixtureQuality, QualityBoundary
 from arxiv_int.pipeline.registry import StageRegistry
 from arxiv_int.pipeline.reuse_index import (
@@ -71,47 +76,24 @@ class Orchestrator:
         halted = False
         halt_reason = ""
         for name in plan.execute:
-            try:
-                self._cancel.raise_if_cancelled()
-                if self._space_guard is not None:
-                    self._space_guard(name)
-                spec = self._registry.get(name)
-                upstream = tuple(keys[item] for item in spec.depends_on if item in keys)
-                with open_stage_session(context, name) as session:
-                    session.heartbeat()
-                    execution = execute_stage(
-                        self._registry,
-                        self._executor,
-                        self._quality,
-                        context,
-                        name,
-                        upstream,
-                        self._index,
-                        force=force,
-                    )
-                    session.progress(
-                        processed=1,
-                        remaining=0,
-                        bytes_delta=execution.bytes,
-                        force=True,
-                    )
-            except (KeyboardInterrupt, PipelineError) as error:
+            execution, halt_reason = self._execute_one(context, name, keys, force)
+            if execution is None or halt_reason:
                 halted = True
-                halt_reason = str(error)
                 break
             executions.append(execution)
             keys[name] = execution.reuse_key
+            spec = self._registry.get(name)
             self._record_lineage(spec.depends_on, keys, execution.reuse_key, run_lineage)
             entry = execution_to_entry(
                 context, execution, context.parameters.get("document_id", "default")
             )
             if entry is not None:
                 self._index[entry.reuse_key] = entry
-            if execution.status not in {"succeeded", "quarantined"}:
+            halt_reason = _stage_halt(execution)
+            if halt_reason:
                 halted = True
-                halt_reason = execution.detail
                 break
-        status = RunStatus(
+        current = RunStatus(
             context.run_id,
             context.generation_id,
             halted,
@@ -120,9 +102,41 @@ class Orchestrator:
             tuple(run_lineage),
             plan.not_selected,
         )
-        save_status(self._runs_dir, status)
+        save_status(self._runs_dir, _merge_status(self._runs_dir, context.run_id, current))
         save_reuse_index(self._runs_dir, self._index, tuple(self._lineage))
-        return status
+        return current
+
+    def _execute_one(
+        self,
+        context: RunContext,
+        name: str,
+        keys: dict[str, str],
+        force: bool,
+    ) -> tuple[StageExecution | None, str]:
+        try:
+            self._cancel.raise_if_cancelled()
+            if self._space_guard is not None:
+                self._space_guard(name)
+            spec = self._registry.get(name)
+            upstream = tuple(keys[item] for item in spec.depends_on if item in keys)
+            with open_stage_session(context, name) as session:
+                session.heartbeat()
+                execution = execute_stage(
+                    self._registry,
+                    self._executor,
+                    self._quality,
+                    context,
+                    name,
+                    upstream,
+                    self._index,
+                    force=force,
+                )
+                session.progress(processed=1, remaining=0, bytes_delta=execution.bytes, force=True)
+        except (InterruptedPipelineError, KeyboardInterrupt):
+            return None, "interrupted"
+        except PipelineError as error:
+            return None, str(error)
+        return execution, ""
 
     def invalidate(self, stage: str, *, document_id: str | None = None) -> tuple[str, ...]:
         """Mark the named stage's reuse keys and their consumer closure stale."""
@@ -177,3 +191,36 @@ class Orchestrator:
                 if entry.stage == name and not entry.stale:
                     keys[name] = entry.reuse_key
         return keys
+
+
+def _stage_halt(execution: StageExecution) -> str:
+    if execution.status not in {"succeeded", "quarantined"}:
+        return execution.detail
+    if execution.outcome == "partial":
+        return execution.detail or "partial stage output"
+    return ""
+
+
+def _merge_status(runs_dir: Path, run_id: str, current: RunStatus) -> RunStatus:
+    """Keep prior stage rows when an atomic or resume walk covers a subset."""
+    path = run_dir(runs_dir, run_id) / "status.json"
+    if not path.is_file():
+        return current
+    prior = load_status(runs_dir, run_id)
+    by_stage = {item.stage: item for item in prior.executions}
+    order = [item.stage for item in prior.executions]
+    for item in current.executions:
+        by_stage[item.stage] = item
+        if item.stage not in order:
+            order.append(item.stage)
+    lineage = tuple(dict.fromkeys((*prior.lineage, *current.lineage)))
+    skipped = tuple(dict.fromkeys((*prior.not_selected, *current.not_selected)))
+    return RunStatus(
+        current.run_id,
+        current.generation_id,
+        current.halted,
+        current.halt_reason,
+        tuple(by_stage[name] for name in order),
+        lineage,
+        skipped,
+    )

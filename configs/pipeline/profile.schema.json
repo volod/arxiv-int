@@ -1,0 +1,45 @@
+{
+  "$id": "https://arxiv-int.local/pipeline/profile.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "families": {
+      "items": {
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "name": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "optional_stages": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "report_family": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "required_stages": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "schema": {
+      "const": "arxiv-int.pipeline.profile.v1"
+    }
+  },
+  "required": [
+    "schema",
+    "name",
+    "required_stages",
+    "optional_stages",
+    "families"
+  ],
+  "type": "object"
+}

@@ -25,42 +25,6 @@ and name ready/pending human decisions and the dependent work that must wait at 
 
 ### Pipeline control -- `pipeline-control`
 
-#### implement-investigation-profile-and-output-manifest
-
-Publish an explicit requested profile and coherent knowledge-base generation with honest completion states.
-
-- Serves: `pipeline-control` -- [End-to-end run and output contract](../design/spec.md#end-to-end-run-and-output-contract)
-- Agent status: CLEAR
-- Dependencies: [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md); [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md).
-- User-visible outcome: The default investigation command names every required output and report
-entry point; a
-lexical-only request is visibly a smaller profile.
-- Scope boundary: Implement profile selection, contract validation, publication, and exit semantics
-using fixture
-runners; do not claim concrete extraction or full-pipeline acceptance from mocks.
-- Data and artifact paths: `configs/pipeline/`, `src/arxiv_int/pipeline/`, output-manifest contracts,
-`$RUNS_DIR/<run-id>/knowledge-base.json`, and orchestration fixtures.
-- Execution path: Declare required versus conditional stages and output families; seal
-artifact/snapshot ids,
-counts/checksums, coverage and report path; validate then switch one active generation pointer;
-write diagnostic reports for partial/failed runs and reconcile orphan staging after crashes.
-Connect concrete profile declarations to setup's shared requirement seam. Assemble bare
-`make pipeline` / `arxiv-int pipeline run` from the same create, preflight, forecast, stage and
-finalize handlers as the documented atomic chain. Expose `make run-finalize RUN_ID=...` and
-`arxiv-int run finalize RUN_ID`; report rendering alone cannot activate a generation. Return the run
-id, logical status, manifest/report paths and exact status/resume commands; enforce missing-provider,
-quality, resource and authorization gates before dependent work. Update the operator workflow with
-the actual profile order and availability while concrete stages remain pending.
-- Acceptance gates: Fixtures cover complete, valid-empty, partial, failed, blocked, interrupted,
-and not-selected
-states, specified exit codes, stale dependency refusal, and crash recovery across file/database
-publication; a partial run cannot replace the last complete generation. No-argument Make and CLI
-runs read `.env` in fresh shells; the explicit atomic chain yields equivalent logical artifacts,
-lineage, quality and final states. Missing setup/required stages refuse execution, optional disabled
-branches stay explicit, and interruption preserves one resumable generation.
-- Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-pipeline-publication-and-reuse-boundaries`.
-
 #### review-pipeline-publication-and-reuse-boundaries
 
 Review fixture orchestration before concrete corpus workers depend on its publication protocol.
@@ -72,7 +36,8 @@ Review fixture orchestration before concrete corpus workers depend on its public
 [Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md);
 [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md);
 [Progress logging and resource telemetry](records/0043-pipeline-add-progress-logging-and-resource-telemetry.md);
-[Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md); `implement-investigation-profile-and-output-manifest`;
+[Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md);
+[Investigation profile and output manifest](records/0045-pipeline-implement-investigation-profile-and-output-manifest.md);
 [Inference and evaluation checkpoint](records/0038-eval-found-review-inference-and-evaluation-boundaries.md).
 - User-visible outcome:
 Concrete adapters inherit a checked run/lease/quality/publication boundary.
@@ -225,7 +190,8 @@ Review the integrated milestone before lexical loading, classification and NLP c
 - Agent status: CLEAR
 - Task kind: checkpoint
 - Dependencies: `implement-normalization-dedupe-and-chunking`;
-`implement-evidence-and-source-location-lookup`; `implement-investigation-profile-and-output-manifest`;
+`implement-evidence-and-source-location-lookup`;
+[Investigation profile and output manifest](records/0045-pipeline-implement-investigation-profile-and-output-manifest.md);
 [Progress logging and resource telemetry](records/0043-pipeline-add-progress-logging-and-resource-telemetry.md);
 [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 `review-pipeline-publication-and-reuse-boundaries`; `implement-incremental-reconciliation-and-stale-pruning`.
@@ -1502,7 +1468,8 @@ company/product/person catalogs and the analyst entry report through CLI and a s
 - Agent status: CLEAR
 - Dependencies: `calibrate-russian-tokenization-and-bm25`; `build-and-validate-age-projection`;
 `register-and-expose-domain-artifacts`; `build-company-product-and-person-catalogs`;
-`implement-anomaly-review-and-triage-exports`; `implement-investigation-profile-and-output-manifest`.
+`implement-anomaly-review-and-triage-exports`;
+[Investigation profile and output manifest](records/0045-pipeline-implement-investigation-profile-and-output-manifest.md).
 `implement-evidence-and-source-location-lookup`.
 `review-domain-artifact-and-triage-boundaries`.
 - Human review handoff:
@@ -1718,7 +1685,8 @@ Exercise the complete investigation command on a mixed deterministic fixture and
 - Serves: `evaluation-evidence` -- [End-to-end run and output contract](../design/spec.md#end-to-end-run-and-output-contract)
 - Agent status: CLEAR
 - Dependencies: `build-search-graph-and-report-interfaces`; `implement-hierarchical-file-classification`;
-`implement-investigation-profile-and-output-manifest`; [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
+[Investigation profile and output manifest](records/0045-pipeline-implement-investigation-profile-and-output-manifest.md);
+[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 - User-visible outcome: One directory-to-report command proves every required family is wired
 through real baseline
 stage adapters, independent of optional vectors, viewers and archive organization.

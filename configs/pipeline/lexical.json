@@ -1,0 +1,56 @@
+{
+  "families": [
+    {
+      "id": "inventory",
+      "path": "",
+      "required": true,
+      "stage": "inventory"
+    },
+    {
+      "id": "documents",
+      "path": "",
+      "required": true,
+      "stage": "chunk"
+    },
+    {
+      "id": "classification",
+      "path": "",
+      "required": true,
+      "stage": "classify"
+    },
+    {
+      "id": "lexical",
+      "path": "",
+      "required": true,
+      "stage": "load-lexical"
+    },
+    {
+      "id": "evaluation",
+      "path": "",
+      "required": true,
+      "stage": "evaluate"
+    },
+    {
+      "id": "report",
+      "path": "reports/index.html",
+      "required": true,
+      "stage": "report"
+    }
+  ],
+  "name": "lexical",
+  "optional_stages": [],
+  "report_family": "report",
+  "required_stages": [
+    "preflight",
+    "inventory",
+    "extract",
+    "normalize",
+    "dedupe",
+    "chunk",
+    "classify",
+    "load-lexical",
+    "evaluate",
+    "report"
+  ],
+  "schema": "arxiv-int.pipeline.profile.v1"
+}

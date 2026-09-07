@@ -44,6 +44,7 @@ KIND ?= all
 	proof-export identity-policy-check evaluation-fixtures-check inference-schemas-check \
 	eval proof \
 	pipeline run-create stage resume update rebuild invalidate prune run-status forecast \
+	run-finalize \
 	ci-checks ci ci-github build quality code-quality quality-report
 
 help: ## List available targets
@@ -293,6 +294,12 @@ forecast: ## Read-only time/storage forecast (RUN_ID= from make run-create)
 		"$(VENV)/bin/arxiv-int" pipeline forecast --run-id "$(RUN_ID)" \
 		$(if $(FROM),--from "$(FROM)",) \
 		$(if $(TO),--to "$(TO)",)
+
+run-finalize: ## Seal knowledge-base generation (RUN_ID= from make run-create)
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		arxiv_int_require_created_run_id "$(RUN_ID)" && \
+		"$(VENV)/bin/arxiv-int" run finalize "$(RUN_ID)"
 
 run-create: ## Allocate a unique run id and freeze .env configuration
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
