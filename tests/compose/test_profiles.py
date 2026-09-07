@@ -293,11 +293,3 @@ def test_up_requires_database_password_but_down_does_not(tmp_path: Path) -> None
         run_compose(config, "up", "core", runner=runner)
     assert run_compose(config, "down", "core", runner=runner) == 0
     assert calls == 1
-
-
-def test_service_preflight_does_not_require_an_unused_proof_mount(tmp_path: Path) -> None:
-    proof = tmp_path / "writable proof archive"
-    proof.mkdir()
-    config = _runtime_config(tmp_path, PROOF_ARCHIVE_DIR=str(proof))
-
-    assert run_compose(config, "config", "core", runner=lambda _c, _w, _e: 0) == 0

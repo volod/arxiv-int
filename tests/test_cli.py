@@ -243,9 +243,7 @@ def test_config_show_applies_cli_roots_redacts_and_creates_layout(
     results = tmp_path / "runtime results"
     pgdata = tmp_path / "database"
     for name in tuple(os.environ):
-        if name in {"PROOF_ARCHIVE_DIR", "PG_WAL_DIR"} or name.startswith(
-            ("ARCHIVE_SILO_", "PG_TABLESPACE_")
-        ):
+        if name == "PG_WAL_DIR" or name.startswith(("ARCHIVE_SILO_", "PG_TABLESPACE_")):
             monkeypatch.delenv(name)
     monkeypatch.setenv("POSTGRES_PASSWORD", "must-not-appear")
     caplog.set_level(logging.INFO)

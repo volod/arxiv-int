@@ -39,7 +39,6 @@ PATH_NAMES = {
     "ARCHIVE_DIR",
     "RESULTS_DIR",
     "PGDATA_DIR",
-    "PROOF_ARCHIVE_DIR",
     "PG_WAL_DIR",
     "DATA_DIR",
     *DERIVED_PATHS,

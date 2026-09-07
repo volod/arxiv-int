@@ -450,9 +450,9 @@ planning with the supplied archive and publish the pipeline-control proof bundle
 - User-visible outcome: The supplied archive demonstrates that unchanged inputs skip heavy work,
 deltas update only affected artifacts, stale data retracts safely, insufficient space blocks early,
 and a clean generation can be rebuilt.
-- Scope boundary: Do not modify `PROOF_ARCHIVE_DIR`; perform add/change/rename/remove and prune-apply
+- Scope boundary: Do not modify `ARCHIVE_DIR`; perform add/change/rename/remove and prune-apply
 drills only on a bounded disposable proof copy; do not prune the sole proof or recovery generation.
-- Data and artifact paths: `$PROOF_ARCHIVE_DIR` used without modification, disposable
+- Data and artifact paths: `$ARCHIVE_DIR` used without modification, disposable
 `$RESULTS_DIR/proof-work/pipeline-control/<proof-id>/`, and
 `$RESULTS_DIR/proofs/pipeline-control/<proof-id>/`.
 - Execution path: Forecast and run the corpus closure; rerun unchanged; create controlled source
@@ -616,9 +616,9 @@ current proof bundle.
 [Representative corpus approval](records/0023-corpus-approve-representative-corpus-and-gold.md).
 - User-visible outcome: The supplied file silos have inspectable inventory, extraction,
 normalization, duplicate, and chunk artifacts backed by one reproducible proof id.
-- Scope boundary: Read `PROOF_ARCHIVE_DIR` without mutation and stop after `chunk`; do not infer
+- Scope boundary: Read `ARCHIVE_DIR` without mutation and stop after `chunk`; do not infer
 downstream classification, retrieval, or knowledge quality from this proof.
-- Data and artifact paths: `$PROOF_ARCHIVE_DIR` used without modification, `$RESULTS_DIR`, and
+- Data and artifact paths: `$ARCHIVE_DIR` used without modification, `$RESULTS_DIR`, and
 `$RESULTS_DIR/proofs/corpus-foundation/<proof-id>/`; only redacted summaries enter current docs.
 - Execution path: Run a passing forecast; execute `inventory` through `chunk`; validate contracts,
 counts, spans, offsets, quarantine reasons, and checksums; rerun the identical closure and capture
@@ -697,7 +697,7 @@ Build and query the lexical projection for the supplied archive and publish its 
 profile, with filters, snippets, identifiers, and citations that resolve to source evidence.
 - Scope boundary: Prove lexical load/query behavior and declared evaluation queries; do not claim
 semantic retrieval or full-archive relevance from this test archive.
-- Data and artifact paths: `$PROOF_ARCHIVE_DIR` used without modification, lexical tables/indexes, and
+- Data and artifact paths: `$ARCHIVE_DIR` used without modification, lexical tables/indexes, and
 `$RESULTS_DIR/proofs/lexical-retrieval/<proof-id>/`.
 - Execution path: Forecast; load/build the selected lexical projection; reconcile counts/checksums;
 run archive-appropriate smoke and held-out queries; validate citations and limits; rerun unchanged
@@ -787,7 +787,7 @@ Classify the supplied archive and validate its complete hierarchical mapping and
 confidence, evidence/failure reasons, and initial source lookup.
 - Scope boundary: Run classification and source-manifest validation only; archive placement and its dry-run
 are accepted independently under `archive-organization`.
-- Data and artifact paths: `$PROOF_ARCHIVE_DIR` used without modification,
+- Data and artifact paths: `$ARCHIVE_DIR` used without modification,
 `$RESULTS_DIR/normalized/classifications/`, and
 `$RESULTS_DIR/proofs/archive-classification/<proof-id>/`.
 - Execution path: Forecast the closure; classify and validate coverage, hierarchy, evidence, exceptions,
@@ -866,7 +866,7 @@ their proof bundle.
 language/noise results, mentions, source offsets, model identities, and measured failure classes.
 - Scope boundary: Prove configured NLP profiles on available archive languages/types; do not treat
 unreviewed mentions as canonical objects or infer quality for absent strata.
-- Data and artifact paths: `$PROOF_ARCHIVE_DIR` used without modification,
+- Data and artifact paths: `$ARCHIVE_DIR` used without modification,
 `$RESULTS_DIR/normalized/nlp/`, mention tables,
 and `$RESULTS_DIR/proofs/russian-nlp/<proof-id>/`.
 - Execution path: Forecast; run NLP and mention extraction; validate schemas, language coverage,
@@ -955,7 +955,7 @@ supplied-archive proof bundle.
 bounded graph paths are inspectable with reversible decisions and source evidence.
 - Scope boundary: Use approved or explicitly proposed review states; do not silently merge uncertain
 entities, publish disputed ontology changes, or require AGE when the declared fallback is active.
-- Data and artifact paths: `$PROOF_ARCHIVE_DIR` used without modification,
+- Data and artifact paths: `$ARCHIVE_DIR` used without modification,
 identity/ontology/graph stores and
 exports, and `$RESULTS_DIR/proofs/identity-ontology-graph/<proof-id>/`.
 - Execution path: Forecast; run entity resolution and ontology validation; build the active AGE or
@@ -1136,7 +1136,7 @@ proof bundle.
 inspectable with exact evidence, validation findings, conflicts, and extractor/model provenance.
 - Scope boundary: Exercise only forecast-approved deterministic and local-model lanes; do not
 auto-accept facts or claim correctness for unreviewed domain assertions.
-- Data and artifact paths: `$PROOF_ARCHIVE_DIR` used without modification,
+- Data and artifact paths: `$ARCHIVE_DIR` used without modification,
 `$RESULTS_DIR/normalized/facts/`, knowledge
 tables, and `$RESULTS_DIR/proofs/knowledge-extraction/<proof-id>/`.
 - Execution path: Forecast; run configured fact lanes and validators; reconcile input/output/failure
@@ -1262,7 +1262,7 @@ the supplied archive and publish its proof bundle.
 view, its table/graph files, evidence coverage, conflicts, review policy, and production status.
 - Scope boundary: Generate only evidence-supported bounded views; accept contract-valid `empty` or
 `partial` families and never manufacture relations to make a graphical artifact non-empty.
-- Data and artifact paths: `$PROOF_ARCHIVE_DIR` used without modification,
+- Data and artifact paths: `$ARCHIVE_DIR` used without modification,
 `$RESULTS_DIR/normalized/domain-artifacts/`, and
 `$RESULTS_DIR/proofs/domain-investigation-artifacts/<proof-id>/`.
 - Execution path: Forecast; build all configured artifact families; validate arithmetic,
@@ -1492,7 +1492,7 @@ graphs, and domain reports through bounded interfaces whose displayed evidence c
 - Scope boundary: Prove local read-only scenarios and available profiles; do not expose services
 publicly, require an optional UI/AGE profile with a valid fallback, or claim usability acceptance for
 scenarios not executed.
-- Data and artifact paths: `$PROOF_ARCHIVE_DIR` used without modification,
+- Data and artifact paths: `$ARCHIVE_DIR` used without modification,
 topic/query/report/export artifacts, and
 `$RESULTS_DIR/proofs/discovery-visualization/<proof-id>/`.
 - Execution path: Forecast; run topics, company/product/person catalogs, anomaly views and
@@ -1641,7 +1641,7 @@ supplied file silos, which artifacts they produced, which optional branches were
 how every result resolves to evidence.
 - Scope boundary: Evaluate and index bounded proof outputs; do not substitute this test archive for
 representative-scale authorization or conceal failed, stale, blocked, or absent stages.
-- Data and artifact paths: `$PROOF_ARCHIVE_DIR` used without modification, prior proof bundles, and
+- Data and artifact paths: `$ARCHIVE_DIR` used without modification, prior proof bundles, and
 `$RESULTS_DIR/proofs/evaluation-evidence/<proof-id>/` containing evaluation/report outputs and the
 end-to-end proof index.
 - Execution path: Set the authorized bounded archive scope and selected local inference lane in
@@ -1882,7 +1882,7 @@ measured not-selected verdict.
 resource cost, and citations, or see why the branch remains disabled with lexical fallback working.
 - Scope boundary: Use only the forecast-approved selected tier and configured local models; do not
 embed the complete supplied archive or treat an unavailable/failed branch as successful proof.
-- Data and artifact paths: `$PROOF_ARCHIVE_DIR` used without modification, embedding/vector
+- Data and artifact paths: `$ARCHIVE_DIR` used without modification, embedding/vector
 artifacts, and
 `$RESULTS_DIR/proofs/semantic-retrieval/<proof-id>/`.
 - Execution path: Forecast model and index resources; run selected embedding/load/query profiles;

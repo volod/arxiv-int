@@ -59,9 +59,7 @@ def _check_independent_roots(
     placements: tuple[RootPlacement, ...], report: PreflightReport
 ) -> None:
     primary = [
-        placement
-        for placement in placements
-        if placement.variable not in _DERIVED_VARIABLES | {"PROOF_ARCHIVE_DIR"}
+        placement for placement in placements if placement.variable not in _DERIVED_VARIABLES
     ]
     _report_pairwise_overlaps(primary, report, "change one root")
 
@@ -70,19 +68,6 @@ def _check_derived_aliasing(placements: tuple[RootPlacement, ...], report: Prefl
     """Refuse two derived roots that alias one tree, which a reset would erase together."""
     derived = [item for item in placements if item.variable in _DERIVED_VARIABLES]
     _report_pairwise_overlaps(derived, report, "change one derived root")
-
-
-def _check_proof_overlap(placements: tuple[RootPlacement, ...], report: PreflightReport) -> None:
-    proof = next((item for item in placements if item.variable == "PROOF_ARCHIVE_DIR"), None)
-    if proof is None:
-        return
-    for output in (item for item in placements if item.output):
-        if overlaps(output.path, proof.path):
-            report.add(
-                output.variable,
-                "blocked",
-                f"{output.variable} overlaps PROOF_ARCHIVE_DIR; change {output.variable}",
-            )
 
 
 def _check_derived_roots(
@@ -98,7 +83,7 @@ def _check_derived_roots(
                 f"change {output.variable}; it may not equal RESULTS_DIR",
             )
         for root in primary:
-            if root.variable in {"RESULTS_DIR", "PROOF_ARCHIVE_DIR"}:
+            if root.variable == "RESULTS_DIR":
                 continue
             if overlaps(output.path, root.path):
                 report.add(
@@ -113,7 +98,6 @@ def _check_dangerous_and_overlapping(
 ) -> None:
     _check_targets(config, placements, report)
     _check_independent_roots(placements, report)
-    _check_proof_overlap(placements, report)
     _check_derived_roots(config, placements, report)
     _check_derived_aliasing(placements, report)
 

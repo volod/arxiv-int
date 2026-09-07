@@ -12,10 +12,11 @@ make setup
 
 Edit `.env` when requested, then rerun `make setup`. At minimum, `.env` needs a readable
 `ARCHIVE_DIR`, a writable `RESULTS_DIR`, a PostgreSQL-compatible `PGDATA_DIR`, and a
-non-placeholder `POSTGRES_PASSWORD`. Provided-archive proof runs also need a readable
-`PROOF_ARCHIVE_DIR` pointing at the authorized representative slice. Compose runs the database and
+non-placeholder `POSTGRES_PASSWORD`. During development, point `ARCHIVE_DIR` at the authorized
+representative slice and use ordinary pipeline or stage commands for proof runs. Compose runs the
+database and
 other artifact-writing services as the invoking user's UID/GID so those directories stay
-host-writable. Archive and proof directories may have ordinary host write permissions; the
+host-writable. Archive directories may have ordinary host write permissions; the
 pipeline's access contract prevents modification. Configure the selected local model identities as
 they become relevant. The storage-class requirements and all derived root defaults are documented
 in [Portable runtime](../impl/current/portable-runtime.md).

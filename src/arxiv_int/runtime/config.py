@@ -108,7 +108,7 @@ def _resolved_values(
         resolved[silo.variable] = str(silo.root)
     for name, path in paths.items():
         resolved[name] = str(path)
-    for name in ("PROOF_ARCHIVE_DIR", "PG_WAL_DIR", "DATA_DIR"):
+    for name in ("PG_WAL_DIR", "DATA_DIR"):
         optional = _optional_path(values, name, root)
         if optional is not None:
             resolved[name] = str(optional)
@@ -171,7 +171,6 @@ def load_runtime_config(
         service_state_dir=paths["SERVICE_STATE_DIR"],
         model_cache_dir=paths["MODEL_CACHE_DIR"],
         tmp_dir=paths["TMP_DIR"],
-        proof_archive_dir=_optional_path(values, "PROOF_ARCHIVE_DIR", root),
         pg_wal_dir=_optional_path(values, "PG_WAL_DIR", root),
         pg_tablespaces=tablespaces,
         data_dir=_resolve_path(values["DATA_DIR"], "DATA_DIR", root),

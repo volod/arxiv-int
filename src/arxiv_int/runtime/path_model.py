@@ -43,10 +43,6 @@ def runtime_placements(config: RuntimeConfig) -> tuple[RootPlacement, ...]:
         RootPlacement("MODEL_CACHE_DIR", config.model_cache_dir, "model", True),
         RootPlacement("TMP_DIR", config.tmp_dir, "scratch", True),
     ]
-    if config.proof_archive_dir is not None:
-        placements.append(
-            RootPlacement("PROOF_ARCHIVE_DIR", config.proof_archive_dir, "source", False)
-        )
     if config.pg_wal_dir is not None:
         placements.append(RootPlacement("PG_WAL_DIR", config.pg_wal_dir, "database", True))
     placements.extend(

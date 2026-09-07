@@ -61,20 +61,13 @@ def containment_violation(candidate: Path, roots: Sequence[ProtectedRoot]) -> Pr
 
 
 def _source_roots(config: RuntimeConfig) -> list[ProtectedRoot]:
-    roots = [
+    return [
         ProtectedRoot("PROJECT_ROOT", config.project_root.resolve(), "the project checkout"),
         *(
             ProtectedRoot(silo.variable, silo.root.resolve(), "an archive silo")
             for silo in config.archive_silos
         ),
     ]
-    if config.proof_archive_dir is not None:
-        roots.append(
-            ProtectedRoot(
-                "PROOF_ARCHIVE_DIR", config.proof_archive_dir.resolve(), "the proof archive"
-            )
-        )
-    return roots
 
 
 def _database_roots(config: RuntimeConfig) -> list[ProtectedRoot]:
