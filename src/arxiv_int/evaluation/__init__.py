@@ -1,5 +1,12 @@
 """Dependency-free evaluation primitives and immutable evidence bundles."""
 
+from arxiv_int.evaluation.bundle_errors import (
+    BundleError,
+    BundleExistsError,
+    BundleIntegrityError,
+    BundleLayoutError,
+    BundleManifestError,
+)
 from arxiv_int.evaluation.bundles import (
     BundleSpec,
     PublishedBundle,
@@ -16,6 +23,11 @@ from arxiv_int.evaluation.paired import (
 )
 
 __all__ = [
+    "BundleError",
+    "BundleExistsError",
+    "BundleIntegrityError",
+    "BundleLayoutError",
+    "BundleManifestError",
     "BundleSpec",
     "ExtractionMetrics",
     "LinkageLabel",

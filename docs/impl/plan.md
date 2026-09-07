@@ -19,34 +19,6 @@ cannot establish a pass. These requirements also apply to later additive contrac
 
 ### Evaluation foundation -- `evaluation-foundation`
 
-#### refactor-evaluation-bundle-validation
-
-Make existing evidence-bundle validation honor the claimed immutable local artifact boundary.
-
-- Serves: `evaluation-foundation` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
-- Agent status: CLEAR
-- Task kind: refactor
-- Audit inputs: [AUD-codebase-05](records/0001-govern-codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: [Quality baseline repair](records/0003-foundation-restore-quality-gate-baseline.md);
-[Evaluation primitives](current/project-foundation.md#evaluation-and-retrieval-primitives).
-- User-visible outcome: A bundle cannot pass verification by reading a matching file outside its own
-tree, and
-malformed manifest identities produce typed failures before reuse.
-- Scope boundary: Strengthen the current publisher/verifier; generic pipeline leases and scalable lake
-publication remain separate tasks. Do not require loading corpus-scale artifacts into memory.
-- Data and artifact paths: `src/arxiv_int/evaluation/bundles.py`,
-`tests/evaluation/test_bundles.py`, and
-`$DATA_DIR/bundle-validation/<run-id>/` with disposable synthetic bundles.
-- Execution path: Reject symlink/nonregular manifest and artifact entries, validate resolved
-containment and
-required manifest fields, normalize reserved names before publication, and test concurrent/no-replace
-publication semantics; declare process-crash versus power-loss durability explicitly.
-- Acceptance gates: Regressions reject an external symlink with matching bytes, corrupt/malformed manifests,
-missing identities and competing publication; valid bundles replay with stable fingerprints and
-no overwrite; documented durability and memory bounds match implementation; make ci passes.
-- Documentation target: `docs/impl/current/evaluation-foundation.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
-
 #### create-evaluation-fixtures-and-metrics
 
 Build immutable extraction, classification, Russian retrieval, semantic, entity, fact, ontology,
@@ -59,7 +31,7 @@ paired evaluation utilities.
 [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
 the evaluation and retrieval primitives
 documented in [Project foundation](current/project-foundation.md#evaluation-and-retrieval-primitives).
-`refactor-evaluation-bundle-validation`.
+[Evaluation bundle validation](records/0033-eval-found-refactor-evaluation-bundle-validation.md).
 - User-visible outcome: Every store/model/pipeline recommendation names the exact frozen items,
 metrics, thresholds, and run artifacts that support it, and every usable stage can publish the same
 proof-bundle shape.
