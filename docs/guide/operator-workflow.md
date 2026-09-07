@@ -249,7 +249,7 @@ Use the returned run id and replace query/document placeholders with actual valu
 
 | Command or action | Availability | Purpose |
 | --- | --- | --- |
-| `arxiv-int run status RUN_ID` / `make run-status` | available | Inspect per-stage progress and blockers. |
+| `arxiv-int run status RUN_ID` / `make run-status` | available | Inspect per-stage progress, latest worker state, and `$RUNS_DIR/<run-id>/logs/`. |
 | `arxiv-int run resume RUN_ID` / `make resume` | available | Resume the recorded generation after an interruption. |
 | `arxiv-int pipeline update` / `make update` | available | Reconcile a changed archive into a new generation. |
 | `arxiv-int run artifacts RUN_ID`, `arxiv-int inspect RUN_ID` | planned | Inspect manifest, artifact states, coverage, provenance and errors. |

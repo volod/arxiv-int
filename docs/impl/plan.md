@@ -25,32 +25,6 @@ and name ready/pending human decisions and the dependent work that must wait at 
 
 ### Pipeline control -- `pipeline-control`
 
-#### add-progress-logging-and-resource-telemetry
-
-Provide serialized human logs, structured logs, periodic database progress, and bounded resource
-metrics for every stage.
-
-- Serves: `pipeline-control` --
-[Logging, progress, and observability](../design/spec.md#logging-progress-and-observability)
-- Agent status: CLEAR
-- Audit inputs: [AUD-codebase-15](records/0001-govern-codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md).
-- User-visible outcome: Long runs continuously report processed/remaining items, bytes, throughput,
-ETA, errors, and resource pressure without garbled concurrent output.
-- Scope boundary: Record operational metadata; do not place document content, prompts, secrets, or
-unbounded ids in logs/metric labels.
-- Data and artifact paths: `src/arxiv_int/observability/`, `$RUNS_DIR/<run-id>/logs/`,
-`ctl.stage_run`, Grafana provisioning, and logging tests.
-- Execution path: Extend the existing logging and timing interfaces with time/count-throttled
-progress, explicit queue bounds/overload behavior, heartbeats, psutil/NVML/disk/Postgres metrics,
-redaction filters, JSONL schema, and final
-manifests.
-- Acceptance gates: Concurrent-log tests produce intact lines; redaction fixtures remove secrets and
-corpus text; stalled worker and ETA states are distinguishable; metric labels have bounded
-cardinality.
-- Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-pipeline-publication-and-reuse-boundaries`.
-
 #### implement-evidence-based-pipeline-forecast
 
 Implement a read-only command that predicts requested work, duration, output/peak storage, and
@@ -60,7 +34,8 @@ free-space safety before a pipeline run.
 [Pre-run forecast and resource refusal](../design/spec.md#pre-run-forecast-and-resource-refusal)
 - Agent status: CLEAR
 - Dependencies: [Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md);
-`add-progress-logging-and-resource-telemetry`; runtime storage evidence documented in
+[Progress logging and resource telemetry](records/0043-pipeline-add-progress-logging-and-resource-telemetry.md);
+runtime storage evidence documented in
 [Portable runtime](current/portable-runtime.md).
 - User-visible outcome: Before starting, an operator sees stage-by-stage cache hits, changed work,
 time and data-size ranges, peak scratch/rebuild needs, accessible disk free space, confidence, and a
@@ -135,7 +110,8 @@ Review fixture orchestration before concrete corpus workers depend on its public
 - Task kind: checkpoint
 - Dependencies: [Stage and artifact interface contracts](records/0040-pipeline-refactor-stage-and-artifact-interface-contracts.md);
 [Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md);
-[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md); `add-progress-logging-and-resource-telemetry`;
+[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md);
+[Progress logging and resource telemetry](records/0043-pipeline-add-progress-logging-and-resource-telemetry.md);
 `implement-evidence-based-pipeline-forecast`; `implement-investigation-profile-and-output-manifest`;
 [Inference and evaluation checkpoint](records/0038-eval-found-review-inference-and-evaluation-boundaries.md).
 - User-visible outcome:
@@ -290,7 +266,8 @@ Review the integrated milestone before lexical loading, classification and NLP c
 - Task kind: checkpoint
 - Dependencies: `implement-normalization-dedupe-and-chunking`;
 `implement-evidence-and-source-location-lookup`; `implement-investigation-profile-and-output-manifest`;
-`add-progress-logging-and-resource-telemetry`; [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
+[Progress logging and resource telemetry](records/0043-pipeline-add-progress-logging-and-resource-telemetry.md);
+[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 `review-pipeline-publication-and-reuse-boundaries`; `implement-incremental-reconciliation-and-stale-pruning`.
 - User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
 or blocked
@@ -1978,7 +1955,8 @@ index, and stale lease behavior before full-corpus authorization.
 [Resumability, idempotency, and provenance](../design/spec.md#resumability-idempotency-and-provenance)
 - Agent status: RUN NEEDED
 - Dependencies: `implement-backup-restore-and-rebuild-runbook`;
-`add-progress-logging-and-resource-telemetry`; `implement-evidence-based-pipeline-forecast`;
+[Progress logging and resource telemetry](records/0043-pipeline-add-progress-logging-and-resource-telemetry.md);
+`implement-evidence-based-pipeline-forecast`;
 `implement-incremental-reconciliation-and-stale-pruning`. Organizer failure injection is separate.
 - Human review handoff:
 [accept-recovery-and-security-posture](#accept-recovery-and-security-posture)

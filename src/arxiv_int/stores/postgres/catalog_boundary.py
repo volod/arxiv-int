@@ -10,6 +10,7 @@ from arxiv_int.contracts.sqlalchemy.catalog import compare_metadata
 from arxiv_int.stores.postgres.constants import (
     HEAD_REVISION,
     INITIAL_REVISION,
+    LEDGER_REVISION,
     ROLE_DBT,
     ROLE_READER,
     STORE_ROLES,
@@ -17,6 +18,7 @@ from arxiv_int.stores.postgres.constants import (
 
 INITIAL_REVISION_FILE = "0001_initial_store.py"
 LEDGER_REVISION_FILE = "0002_pipeline_run_ledger.py"
+PROGRESS_REVISION_FILE = "0003_stage_progress.py"
 
 
 def _load_revision(project_root: Path, filename: str, module_name: str) -> ModuleType:
@@ -39,11 +41,16 @@ def ledger_definition(project_root: Path) -> ModuleType:
     return _load_revision(project_root, LEDGER_REVISION_FILE, "arxiv_int_run_ledger")
 
 
+def progress_definition(project_root: Path) -> ModuleType:
+    """Load the frozen stage-progress revision without executing its upgrade."""
+    return _load_revision(project_root, PROGRESS_REVISION_FILE, "arxiv_int_stage_progress")
+
+
 def catalog_boundary_findings(
     project_root: Path, connection: Connection, revision: str
 ) -> list[str]:
     """Reject missing, partial or drifted stores at a known owned revision."""
-    known = {INITIAL_REVISION, HEAD_REVISION}
+    known = {INITIAL_REVISION, LEDGER_REVISION, HEAD_REVISION}
     if revision not in known:
         expected = ", ".join(sorted(known))
         return [f"unsupported store revision {revision}; expected {expected}"]
@@ -51,18 +58,24 @@ def catalog_boundary_findings(
     metadata = definition.schema_metadata()
     assert isinstance(metadata, MetaData)
     findings = compare_metadata(connection, metadata)
-    ledger_meta: MetaData | None = None
-    if revision == HEAD_REVISION:
+    extras: list[MetaData] = []
+    if revision in {LEDGER_REVISION, HEAD_REVISION}:
         ledger_meta = ledger_definition(project_root).schema_metadata()
         assert isinstance(ledger_meta, MetaData)
         findings.extend(compare_metadata(connection, ledger_meta))
-    findings.extend(_role_findings(connection, metadata, ledger_meta))
+        extras.append(ledger_meta)
+    if revision == HEAD_REVISION:
+        progress_meta = progress_definition(project_root).schema_metadata()
+        assert isinstance(progress_meta, MetaData)
+        findings.extend(compare_metadata(connection, progress_meta))
+        extras.append(progress_meta)
+    findings.extend(_role_findings(connection, metadata, tuple(extras)))
     findings.extend(_function_findings(connection, definition.STORE_SQL))
     return findings
 
 
 def _role_findings(
-    connection: Connection, metadata: MetaData, extra: MetaData | None = None
+    connection: Connection, metadata: MetaData, extras: tuple[MetaData, ...] = ()
 ) -> list[str]:
     findings: list[str] = []
     for role in STORE_ROLES:
@@ -80,7 +93,7 @@ def _role_findings(
             text("SELECT 1 FROM pg_roles WHERE rolname = :role"), {"role": role}
         ).scalar():
             continue
-        findings.extend(_write_privilege_findings(connection, metadata, role, extra=extra))
+        findings.extend(_write_privilege_findings(connection, metadata, role, extras=extras))
     return findings
 
 
@@ -88,10 +101,11 @@ def _write_privilege_findings(
     connection: Connection,
     metadata: MetaData,
     role: str,
-    extra: MetaData | None = None,
+    extras: tuple[MetaData, ...] = (),
 ) -> list[str]:
     findings: list[str] = []
-    names = (*metadata.tables, *(() if extra is None else extra.tables), "public.alembic_version")
+    extra_tables = tuple(name for extra in extras for name in extra.tables)
+    names = (*metadata.tables, *extra_tables, "public.alembic_version")
     for name in names:
         if name.startswith("staging."):
             continue

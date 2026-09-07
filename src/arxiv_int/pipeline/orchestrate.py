@@ -12,6 +12,7 @@ from arxiv_int.pipeline.control.memory import InMemoryLedger
 from arxiv_int.pipeline.errors import PipelineError, StaleUpstreamError, UnregisteredStageError
 from arxiv_int.pipeline.execute import execute_stage, execution_to_entry, try_reuse
 from arxiv_int.pipeline.graph import StagePlan
+from arxiv_int.pipeline.observe import open_stage_session
 from arxiv_int.pipeline.persist import RunStatus, StageExecution, save_status
 from arxiv_int.pipeline.quality_bound import FixtureQuality, QualityBoundary
 from arxiv_int.pipeline.registry import StageRegistry
@@ -71,16 +72,24 @@ class Orchestrator:
                 self._cancel.raise_if_cancelled()
                 spec = self._registry.get(name)
                 upstream = tuple(keys[item] for item in spec.depends_on if item in keys)
-                execution = execute_stage(
-                    self._registry,
-                    self._executor,
-                    self._quality,
-                    context,
-                    name,
-                    upstream,
-                    self._index,
-                    force=force,
-                )
+                with open_stage_session(context, name) as session:
+                    session.heartbeat()
+                    execution = execute_stage(
+                        self._registry,
+                        self._executor,
+                        self._quality,
+                        context,
+                        name,
+                        upstream,
+                        self._index,
+                        force=force,
+                    )
+                    session.progress(
+                        processed=1,
+                        remaining=0,
+                        bytes_delta=execution.bytes,
+                        force=True,
+                    )
             except (KeyboardInterrupt, PipelineError) as error:
                 halted = True
                 halt_reason = str(error)

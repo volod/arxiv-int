@@ -6,6 +6,8 @@ import signal
 from dataclasses import replace
 from pathlib import Path
 
+from arxiv_int.observability.format import format_progress
+from arxiv_int.observability.sinks import FileProgressStore
 from arxiv_int.pipeline.actions import (
     apply_prune_plan,
     build_prune_plan,
@@ -130,6 +132,10 @@ def _run(args: argparse.Namespace, token: CancelToken) -> int:
     if action == "status":
         for line in status_lines(load_status(Path(runs_dir), run_id)):
             _LOG.info("%s", line)
+        latest = FileProgressStore(Path(runs_dir) / run_id).load_latest()
+        if latest is not None:
+            _LOG.info("%s", format_progress(latest))
+            _LOG.info("worker_state=%s", latest.worker_state)
         return 0
     context = load_context(Path(runs_dir), run_id)
     return run_dag(context, force=bool(args.force), cancel=token, resume=True)

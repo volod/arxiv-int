@@ -11,6 +11,12 @@
       "file": "0002_pipeline_run_ledger.py",
       "message": "pipeline run ledger tables",
       "sha256": "26dc41cb753036eb2a0c1f1d8d961f48365118382af51a7de79e30c87e67302d"
+    },
+    "0003": {
+      "downRevision": "0002",
+      "file": "0003_stage_progress.py",
+      "message": "pipeline stage progress overlay",
+      "sha256": "9f9e5537d9a58fbcf3f78a89d358b5a7c63d0f548c143f10dd8e9b5850506dea"
     }
   }
 }

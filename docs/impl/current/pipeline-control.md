@@ -1,12 +1,14 @@
 # Pipeline Control
 
-Typed stage, source, and artifact references, a generic run ledger, and a fixture-first DAG CLI
-are available. Forecast and publication assembly remain
+Typed stage, source, and artifact references, a generic run ledger, serialized progress
+logging with bounded resource telemetry, and a fixture-first DAG CLI are available. Forecast
+and publication assembly remain
 [planned](../plan.md#pipeline-control----pipeline-control).
 
 See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface-contracts.md),
-[record 0041](../records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md), and
-[record 0042](../records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md).
+[record 0041](../records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md),
+[record 0042](../records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md), and
+[record 0043](../records/0043-pipeline-add-progress-logging-and-resource-telemetry.md).
 
 ## Stage, source, and artifact seams
 
@@ -113,10 +115,12 @@ Postgres `add_shard` assigns the next attempt under a transaction-scoped advisor
 and SQL ledgers share the same transition rules.
 
 Alembic revision `0002` is frozen DDL for `ctl.run`, `stage_run`, `shard_run`, `reuse_lease`,
-`checkpoint`, `shard_error`, `artifact_manifest`, `artifact_lineage`, and `resource_lease`. Head is
-`0002`. `ctl.resource_lease` exists for later SQL writers; inference still appends JSONL. `0002`
-downgrade drops ledger tables only; `0001` teardown remains refused. Complete 0001-era overlays
-stamp `0001` so setup can upgrade to head.
+`checkpoint`, `shard_error`, `artifact_manifest`, `artifact_lineage`, and `resource_lease`.
+Revision `0003` adds `ctl.stage_progress`. Head is `0003`. `ctl.resource_lease` exists for later
+SQL writers; inference still appends JSONL. `0003` downgrade drops progress snapshots only;
+`0002` downgrade drops ledger tables only; `0001` teardown remains refused. Complete overlays
+including progress tables stamp `0003`; ledger-only overlays stamp `0002`; complete 0001-era
+overlays stamp `0001` so setup can upgrade to head.
 
 ## DAG registry and operator commands
 
@@ -139,7 +143,7 @@ new generation and skips cache reuse.
 | `arxiv-int pipeline update` / `make update` | New generation for archive deltas; unchanged reuse keys cache-hit |
 | `arxiv-int pipeline rebuild` / `make rebuild` | Fresh generation without cache reuse |
 | `arxiv-int pipeline invalidate STAGE --run-id RUN_ID` / `make invalidate` | Logical stale closure; no deletes |
-| `arxiv-int run status RUN_ID` / `make run-status RUN_ID=...` | Per-stage progress |
+| `arxiv-int run status RUN_ID` / `make run-status RUN_ID=...` | Per-stage ledger status plus latest progress snapshot |
 | `arxiv-int run resume RUN_ID` / `make resume RUN_ID=...` | Continue after halt or SIGINT |
 | `arxiv-int artifacts prune --stale` / `make prune` | Dry-run stale derived attempts; `--apply --plan PLAN_ID` is separate |
 
@@ -156,6 +160,31 @@ or not-run checks halt downstream work. The directory-to-report gate waits on co
 
 Preflight, forecast, and `run finalize` / knowledge-base publication remain planned.
 
+## Progress logging and resource telemetry
+
+`src/arxiv_int/observability/` serializes operator logs and throttled progress for every
+orchestrated stage. Concurrent records pass through one bounded `queue.Queue`; newest records
+drop when the queue is full, and shutdown inserts a sentinel even under saturation. A redacting
+filter strips secrets, prompts, absolute paths, and long quoted corpus text. Metric labels are
+only `stage`, `event`, `worker_state`, `device`, and `failure_class`.
+
+Each stage writes under `$RUNS_DIR/<run-id>/logs/`: `console.log`, `events.jsonl`,
+`progress.jsonl`, `latest.json`, and `observability-manifest.json`. Console lines include UTC
+timestamp, run/stage/shard token, processed/remaining, bytes, throughput, ETA, errors, worker
+state, and CPU/RAM/disk/GPU pressure. Worker states are `running`, `slow` (fresh heartbeat, large
+ETA), `stalled` (heartbeat timeout), `completed`, and `failed`. Heartbeats are time-throttled on
+a background pump so long stages keep reporting without a worker callback. `LOG_FORMAT` and
+`PROGRESS_INTERVAL_SEC` come from frozen secret-free run configuration (defaults
+`console+jsonl` and `30`).
+
+Host samples reuse inference `nvidia-smi` plus `/proc` CPU/RAM and `shutil.disk_usage`. Optional
+psutil is used when installed; it is not a base dependency. Postgres size/WAL is an injectable
+callback. The same bounded fields are appended as `pipeline.resource` telemetry JSONL.
+`PostgresProgressStore` inserts `ctl.stage_progress` and can touch `ctl.stage_run.updated_at`
+when a caller supplies an engine. Grafana `pipeline-progress.json` and `resource-pressure.json`
+query that table through datasource `arxiv-int-postgres`. Topic/entity/fact dashboards remain
+planned with discovery visualization.
+
 ## Tests and limits
 
 `tests/interfaces/` covers protocol conformance, duplicate paths across silos, cell/member
@@ -165,5 +194,7 @@ conditional GPU/UI groups. `tests/pipeline/control/` covers illegal transitions,
 cache hits, corrupt-cache rerun, concurrent leases, quality skip, owned-fingerprint stale closure,
 invalidation during produce, force retry, and in-memory isolation from SQLAlchemy. Live ledger
 behavior is in `tests/integration/postgres/test_run_ledger.py`. Fixture DAG tests live in
-`tests/pipeline/orchestration/`. Fixtures do not prove real-archive extraction quality or CUDA
-worker fit. Forecast and publication activation remain planned.
+`tests/pipeline/orchestration/`. Observability tests in `tests/observability/` cover intact
+concurrent log lines, queue overload/shutdown, redaction, stalled versus slow ETA, bounded
+metric labels, and revision `0003` alignment. Fixtures do not prove real-archive extraction
+quality or CUDA worker fit. Forecast and publication activation remain planned.

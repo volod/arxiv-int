@@ -9,7 +9,8 @@ creates a missing `.env`, names required edits, syncs the locked extra union, ac
 cache-checks selected images and models, starts services, waits for transport and model health,
 applies eligible Alembic revisions to the configured service only, and re-probes readiness.
 Retries reuse verified fingerprints and still probe services, wait, and readiness. Concurrent
-setup against the same targets is refused. Typed stage and artifact interfaces, a generic run ledger, and a fixture DAG CLI exist under
+setup against the same targets is refused. Typed stage and artifact interfaces, a generic run
+ledger, serialized progress logs, and a fixture DAG CLI exist under
 [Pipeline control](pipeline-control.md). Concrete corpus stages, forecast, and knowledge-base
 publication remain [planned](../plan.md#pipeline-control----pipeline-control).
 Infrastructure-ready never means an archive-to-report run is available. See the

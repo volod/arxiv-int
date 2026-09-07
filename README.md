@@ -6,7 +6,8 @@ contents, topics, entities and relations, and produce searchable knowledge, cata
 anomaly findings and evidence-bearing reports on one CUDA host.
 
 Configuration, readiness checks, local service management, typed foundation primitives,
-quality gates, and a fixture DAG orchestrator exist today. The archive-to-knowledge pipeline is
+quality gates, a fixture DAG orchestrator, and serialized progress logs exist today. The
+archive-to-knowledge pipeline is
 **not complete**: most corpus stages, forecast, and report publication remain in the
 [forward plan](docs/impl/plan.md). See
 [current implementation](docs/impl/current.md) for available behavior and the

@@ -67,7 +67,8 @@ code without a catalog entry.
 
 ## Runtime primitives
 
-`arxiv_int.pipeline.steps`, `arxiv_int.observability.logging`, and
+`arxiv_int.pipeline.steps`, `arxiv_int.observability` (bounded queued logs, redaction,
+throttled progress, and host resource samples), and
 `arxiv_int.inference.scheduling` provide monotonic step timing with
 partial-result preservation, queue-serialized logging, GPU-budget placement, and guaranteed model
 release. The typed DAG registry and in-process orchestrator are documented in
