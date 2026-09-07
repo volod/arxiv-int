@@ -4,8 +4,9 @@ Frozen evaluation fixtures, paired metrics, the `evaluate` stage, and a shared p
 are available now. Human gold review and provided-archive proofs remain later tasks.
 
 See [record 0033](../records/0033-eval-found-refactor-evaluation-bundle-validation.md),
-[record 0035](../records/0035-eval-found-implement-committed-proof-identity-obfuscation.md), and
-[record 0036](../records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
+[record 0035](../records/0035-eval-found-implement-committed-proof-identity-obfuscation.md),
+[record 0036](../records/0036-eval-found-create-evaluation-fixtures-and-metrics.md), and
+[record 0038](../records/0038-eval-found-review-inference-and-evaluation-boundaries.md).
 
 ## Frozen fixtures
 
@@ -35,8 +36,8 @@ primitives with span extraction, hierarchical classification, p95 latency, BOM/f
 arithmetic, catalog parity, graph/SQL parity, anomaly cohort/false-positive/review-budget
 precision, resource cost, ontology evolution, and geotemporal scoring.
 
-Missing predictions, empty metric vectors, and empty latency samples raise
-`MissingEvidenceError` and cannot produce adopt/retain. Pandera/dbt
+Missing predictions, empty metric vectors, empty latency samples, and non-finite metric values
+raise `MissingEvidenceError` and cannot produce adopt/retain. Pandera/dbt
 `DatasetValidationResult` values stay `structural`; held-out fixture scores stay `held-out`.
 Exported metrics carry `data_class=transformed` and are not labelled raw-archive results.
 Positive fixtures score strictly above their paired negatives.
@@ -63,8 +64,10 @@ validators. `arxiv-int evaluation proof discover` lists them. Unknown capabiliti
 usable stages are validated.
 
 A typed `proof-manifest.json` records fingerprints, stage statuses, validators, and artifact
-checksums. Publication rejects stale code/fixture fingerprints, missing checksums, unvalidated
-usable stages, private paths, and unobfuscated corpus text in repository summaries.
+checksums. Publication claims the destination with exclusive `mkdir` and refuses to replace an
+existing proof directory. Check rejects stale code/fixture fingerprints, missing checksums,
+unvalidated usable stages, private paths, `identities.json`, unobfuscated corpus text, and
+nonregular entries in the Git-bound proof tree.
 
 ```text
 arxiv-int evaluation proof discover
@@ -174,9 +177,15 @@ publishers. Export tests cover cross-root/order determinism, same-name nonmatch,
 contact consistency, graph joins, span remap, phone/address/account check digits, collision and
 leak refusal, original-byte preservation, local-only files, binary refusal, and transformed
 manifest marking. Fixture tests cover split leakage, ledger replay, positive/negative polarity,
-missing-evidence refusal, ontology/geotemporal/domain negatives after identity export, proof
-discovery, unknown capability, stale fingerprints, missing checksums, and unvalidated stages.
+missing-evidence and non-finite metric refusal, ontology/geotemporal/domain negatives after
+identity export, proof discovery, unknown capability, stale fingerprints, missing checksums,
+unvalidated stages, evaluate/proof no-replace publication, leaking proof trees, and retired
+`PROOF_ARCHIVE_DIR` isolation from evaluation roots.
 Fixture coverage does not prove real-archive quality.
+
+The inference/evaluation checkpoint also covers cross-process GPU leases, requested-model
+identity mismatch, and parser registration without optional HTTP extras. See
+[record 0038](../records/0038-eval-found-review-inference-and-evaluation-boundaries.md).
 
 Disposable synthetic bundle evidence lives under `$DATA_DIR/bundle-validation/<run-id>/`.
 Synthetic export evidence lives under `$DATA_DIR/proof-export/<run-id>/`. Synthetic evaluate and

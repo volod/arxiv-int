@@ -6,6 +6,8 @@ from urllib.parse import urlsplit, urlunsplit
 from arxiv_int.readiness.http_transport import local_base
 
 _LOG = logging.getLogger("arxiv_int.inference")
+DEFAULT_TIMEOUT_SECONDS = 60.0
+HEALTH_TIMEOUT_SECONDS = 5.0
 PULL_PATH_MARKERS = ("/api/pull", "/v1/models/pull")
 
 

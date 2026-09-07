@@ -9,7 +9,16 @@ import pytest
 ROOT = Path(__file__).parents[3]
 
 
-@pytest.mark.parametrize("arguments", [["--help"], ["setup", "--help"], ["features"]])
+@pytest.mark.parametrize(
+    "arguments",
+    [
+        ["--help"],
+        ["setup", "--help"],
+        ["features"],
+        ["inference", "--help"],
+        ["evaluation", "--help"],
+    ],
+)
 def test_base_cli_does_not_require_optional_packages(arguments: list[str]) -> None:
     result = subprocess.run(
         [

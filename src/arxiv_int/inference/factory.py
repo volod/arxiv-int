@@ -1,7 +1,8 @@
 """Construct a local inference client from resolved runtime configuration."""
 
-from arxiv_int.inference.client import DEFAULT_TIMEOUT_SECONDS, LocalInferenceClient
+from arxiv_int.inference.client import LocalInferenceClient
 from arxiv_int.inference.footprint import ModelFootprint, default_footprint_for, with_cpu_offload
+from arxiv_int.inference.policy import DEFAULT_TIMEOUT_SECONDS
 from arxiv_int.inference.profiles import load_footprints, load_profiles
 from arxiv_int.inference.scheduler import ModelResourceScheduler, scheduler_paths
 from arxiv_int.inference.types import ModelIdentity

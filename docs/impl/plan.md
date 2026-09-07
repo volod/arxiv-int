@@ -23,47 +23,6 @@ export file list or records that no Git-bound source artifact is produced.
 a prerequisite on the producer. Follow the [handoff workflow](../guide/planning-workflow.md#human-review-handoffs)
 and name ready/pending human decisions and the dependent work that must wait at task completion.
 
-### Evaluation foundation -- `evaluation-foundation`
-
-#### review-inference-and-evaluation-boundaries
-
-Review inference, resource ownership and immutable evaluation inputs before pipeline integration.
-
-- Serves: `evaluation-foundation` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
-- Agent status: CLEAR
-- Task kind: checkpoint
-- Dependencies: [Prior foundation checkpoint](records/0027-store-review-foundation-and-store-boundaries.md);
-[Archive roots](records/0029-runtime-retire-separate-proof-archive-root.md);
-[Pandera compatibility](records/0030-contract-gov-upgrade-pandera-polars-concat-compat.md);
-[Inference adapters](records/0031-inference-implement-local-inference-adapters.md);
-[Resource scheduler](records/0032-inference-implement-model-resource-scheduler.md);
-[Bundle validation](records/0033-eval-found-refactor-evaluation-bundle-validation.md);
-[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md);
-[Committed proof identities](records/0035-eval-found-implement-committed-proof-identity-obfuscation.md).
-- User-visible outcome:
-Pipeline workers receive compatible typed inference, cancellation, resource and evidence contracts.
-- Scope boundary:
-Review accepted 0029-0033 with the new evaluation/export producers. Use deterministic local fixtures
-and inspect retained CUDA evidence; a small-model smoke cannot establish another model's fit.
-Review integrated behavior, not just test totals; no speculative rewrite or model promotion.
-- Data and artifact paths: Accepted producer records, current fixtures and retained proof evidence;
-`$DATA_DIR/architecture-review/<run-id>/`.
-- Execution path:
-Trace local-only requests, leases across processes, cancel/exception release, declared CPU fallback,
-footprint/model identity, no implicit pull/service control, and optional-import boundaries. Trace
-metric denominators, split isolation, bundle immutability, missing evidence and Git-export identity
-joins/format/anchors; ensure ontology and geotemporal fixture meanings survive export.
-Map each producer invariant to evidence; add missing behavior regressions at stable seams.
-- Acceptance gates:
-Show contention/cancellation and model-mismatch refusals; empty/failed metrics cannot pass;
-corrupt/stale bundles and leaking or inconsistent exports cannot publish. Existing accepted producer
-checks remain evidence; missing cross-module cases receive targeted tests before DAG integration.
-Record refactor/no-refactor and proceed/proceed-with-nonblocking-notes/blocked verdicts. Plan a
-focused prerequisite repair for any blocker and keep this checkpoint open until it passes.
-Run `make ci`; coverage is diagnostic. Route each nonblocking note to one explicit owner.
-- Documentation target: `docs/impl/current/evaluation-foundation.md`
-- Review checkpoint: none; this is the bounded checkpoint.
-
 ### Pipeline control -- `pipeline-control`
 
 #### refactor-stage-and-artifact-interface-contracts
@@ -76,7 +35,7 @@ Align foundational stage, extraction and artifact references before concrete ada
 - Audit inputs: [AUD-codebase-13](records/0001-govern-codebase-and-workflow-audit.md#audit-handoff).
 - Dependencies: [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
 [Contract identity and reference validation](records/0009-contract-gov-refactor-contract-identity-and-reference-validation.md).
-`review-inference-and-evaluation-boundaries`.
+[Inference and evaluation checkpoint](records/0038-eval-found-review-inference-and-evaluation-boundaries.md).
 - User-visible outcome: Multi-silo inputs, structured source anchors, generation identities and honest
 stage states
 fit the shared interfaces rather than being hidden in string metadata or invented per adapter.
@@ -279,7 +238,7 @@ Review fixture orchestration before concrete corpus workers depend on its public
 - Dependencies: `refactor-stage-and-artifact-interface-contracts`; `implement-run-ledger-and-atomic-artifacts`;
 `implement-stage-dag-cli-and-make-targets`; `add-progress-logging-and-resource-telemetry`;
 `implement-evidence-based-pipeline-forecast`; `implement-investigation-profile-and-output-manifest`;
-`review-inference-and-evaluation-boundaries`.
+[Inference and evaluation checkpoint](records/0038-eval-found-review-inference-and-evaluation-boundaries.md).
 - User-visible outcome:
 Concrete adapters inherit a checked run/lease/quality/publication boundary.
 - Scope boundary:

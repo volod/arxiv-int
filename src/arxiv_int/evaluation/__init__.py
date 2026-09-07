@@ -13,7 +13,11 @@ from arxiv_int.evaluation.bundles import (
     publish_run_bundle,
     verify_run_bundle,
 )
-from arxiv_int.evaluation.eval_errors import MissingEvidenceError, ProofUnknownCapabilityError
+from arxiv_int.evaluation.eval_errors import (
+    MissingEvidenceError,
+    ProofExistsError,
+    ProofUnknownCapabilityError,
+)
 from arxiv_int.evaluation.evaluate_run import EvaluateRequest, run_evaluate
 from arxiv_int.evaluation.export_errors import (
     ExportCollisionError,
@@ -58,6 +62,7 @@ __all__ = [
     "MissingEvidenceError",
     "PairedComparison",
     "PairedVerdict",
+    "ProofExistsError",
     "ProofUnknownCapabilityError",
     "PublishedBundle",
     "PublishedExport",

@@ -53,6 +53,10 @@ def test_p95_and_empty_metrics_refuse_missing_evidence() -> None:
         percentile(())
     with pytest.raises(MissingEvidenceError):
         refuse_empty_metrics({})
+    with pytest.raises(MissingEvidenceError, match="not finite"):
+        refuse_empty_metrics({"latency_p95_ms": float("nan")})
+    with pytest.raises(MissingEvidenceError, match="not finite"):
+        refuse_empty_metrics({"recall_at_k": float("inf")})
 
 
 def test_ontology_and_geotemporal_negatives_do_not_collapse() -> None:

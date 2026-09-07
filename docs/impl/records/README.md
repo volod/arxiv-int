@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0038` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0039` after the rows
 below).
 
 | Record | Scope | Result |
@@ -49,3 +49,4 @@ below).
 | [0035 Committed proof identity obfuscation](0035-eval-found-implement-committed-proof-identity-obfuscation.md) | Deterministic Git-bound identity export from verified proof bundles | Accepted |
 | [0036 Evaluation fixtures and metrics](0036-eval-found-create-evaluation-fixtures-and-metrics.md) | Frozen fixtures, paired metrics, evaluate stage, and proof dispatcher | Accepted |
 | [0037 Grafana first-boot health](0037-runtime-allow-grafana-first-boot-health.md) | Grafana healthcheck start period, SQLite WAL, and disabled plugin preinstall | Accepted |
+| [0038 Inference and evaluation boundary review](0038-eval-found-review-inference-and-evaluation-boundaries.md) | Integrated inference lease, evaluation bundle, metric, export, and proof checkpoint | Accepted; proceed for pipeline interface integration |

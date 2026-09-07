@@ -1,5 +1,6 @@
 """Dispatch frozen items to metrics and refuse verdicts without evidence."""
 
+import math
 from collections.abc import Mapping
 from typing import Any
 
@@ -164,6 +165,13 @@ def refuse_empty_metrics(metrics: Mapping[str, float]) -> Mapping[str, float]:
     """Refuse a verdict when no finite metric evidence exists."""
     if not metrics:
         raise MissingEvidenceError("metrics are empty")
+    for name, value in metrics.items():
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not math.isfinite(float(value))
+        ):
+            raise MissingEvidenceError(f"metric {name} is not finite")
     return metrics
 
 

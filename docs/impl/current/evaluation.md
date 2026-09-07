@@ -21,7 +21,9 @@ Item-level gold fixtures, tuning and final split seals, and scored labels are do
 real-archive gold. No final evaluation split has been opened for tuning on the provided archive.
 Immutable local run-bundle validation, Git-bound identity export, frozen synthetic fixtures,
 paired metrics, the `evaluate` stage, and `make proof` are available now. See
-[record 0036](../records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
+[record 0036](../records/0036-eval-found-create-evaluation-fixtures-and-metrics.md)
+and the inference/evaluation checkpoint
+[record 0038](../records/0038-eval-found-review-inference-and-evaluation-boundaries.md).
 
 The slice designation is recorded in
 [0023 Representative corpus approval](../records/0023-corpus-approve-representative-corpus-and-gold.md).

@@ -168,3 +168,20 @@ def test_inference_never_pulls_models(backend: str) -> None:
             client.close()
     assert state.pull_count == 0
     assert all("/pull" not in path for _, path in state.requests)
+
+
+@pytest.mark.parametrize("backend", BACKENDS)
+def test_generate_records_requested_identity_and_refuses_unknown_models(backend: str) -> None:
+    with serve(backend) as base_url:
+        client = _client(backend, base_url)
+        try:
+            identity = client.identify("fixture-chat")
+            result = client.generate(GenerationRequest("secret-prompt", model_id="fixture-chat"))
+            assert result.status == "ok"
+            assert result.model_id == "fixture-chat"
+            assert result.model_digest == identity.digest
+            missing = client.generate(GenerationRequest("secret-prompt", model_id="swapped-chat"))
+            assert missing.status == "architecture_unsupported"
+            assert missing.model_id == "swapped-chat"
+        finally:
+            client.close()

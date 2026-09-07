@@ -7,7 +7,7 @@ from pathlib import Path
 from arxiv_int.evaluation.bundle_layout import digest_bytes
 from arxiv_int.evaluation.bundle_manifest import canonical_json
 from arxiv_int.evaluation.bundles import verify_run_bundle
-from arxiv_int.evaluation.eval_errors import ProofError, ProofIntegrityError
+from arxiv_int.evaluation.eval_errors import ProofError, ProofExistsError, ProofIntegrityError
 from arxiv_int.evaluation.eval_paths import fixture_root, published_proof_dir
 from arxiv_int.evaluation.evaluate_run import EvaluateRequest, run_evaluate
 from arxiv_int.evaluation.export_policy import DATA_CLASS_TRANSFORMED, POLICY_ID, policy_fingerprint
@@ -17,7 +17,8 @@ from arxiv_int.evaluation.fixture_kinds import DATA_CLASS_RAW
 from arxiv_int.evaluation.proof_checks import (
     current_fingerprints,
     redact_summary_text,
-    refuse_corpus_leak,
+    refuse_proof_payloads,
+    refuse_proof_tree_leaks,
     validate_proof_manifest,
 )
 from arxiv_int.evaluation.proof_model import (
@@ -123,22 +124,27 @@ def publish_capability_proof(
     )
     validate_proof_manifest(manifest.as_json_dict(), target, fingerprints)
     summary = proof_summary(manifest)
-    refuse_corpus_leak(summary)
-    destination = published_proof_dir(results_dir, capability, run_id)
-    destination.mkdir(parents=True, exist_ok=True)
     payload = canonical_json(manifest.as_json_dict())
+    policy_payload = canonical_json(
+        {
+            "data_class": DATA_CLASS_TRANSFORMED,
+            "policy_fingerprint": policy_fingerprint(),
+            "policy_id": POLICY_ID,
+        }
+    )
+    refuse_proof_payloads(
+        {
+            "proof-manifest.json": payload.decode("utf-8"),
+            "summary.txt": summary,
+            "policy.json": policy_payload.decode("utf-8"),
+        }
+    )
+    destination = published_proof_dir(results_dir, capability, run_id)
+    _claim_proof_destination(destination)
     manifest_path = destination / "proof-manifest.json"
     manifest_path.write_bytes(payload)
     (destination / "summary.txt").write_text(summary + "\n", encoding="utf-8")
-    (destination / "policy.json").write_bytes(
-        canonical_json(
-            {
-                "data_class": DATA_CLASS_TRANSFORMED,
-                "policy_fingerprint": policy_fingerprint(),
-                "policy_id": POLICY_ID,
-            }
-        )
-    )
+    (destination / "policy.json").write_bytes(policy_payload)
     return ProofPublishResult(destination, manifest_path, digest_bytes(payload), summary)
 
 
@@ -154,8 +160,7 @@ def check_capability_proof(directory: Path, project_root: Path, fixture_fingerpr
     target = require_capability(load_capability_registry(project_root), capability)
     expected = current_fingerprints(project_root, fixture_fingerprint)
     validate_proof_manifest(payload, target, expected)
-    summary = (directory / "summary.txt").read_text(encoding="utf-8")
-    refuse_corpus_leak(redact_summary_text(summary))
+    refuse_proof_tree_leaks(directory)
     return digest_bytes(path.read_bytes())
 
 
@@ -176,3 +181,13 @@ def write_threshold_config(project_root: Path) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(canonical_json(threshold_document()))
     return path
+
+
+def _claim_proof_destination(destination: Path) -> None:
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    if destination.is_symlink() or destination.exists():
+        raise ProofExistsError(f"proof already exists: {destination}")
+    try:
+        destination.mkdir()
+    except FileExistsError as error:
+        raise ProofExistsError(f"proof already exists: {destination}") from error

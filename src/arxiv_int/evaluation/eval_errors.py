@@ -33,5 +33,9 @@ class ProofIntegrityError(ProofError):
     """Raised when checksums, validators, or usable stages are incomplete."""
 
 
+class ProofExistsError(ProofError):
+    """Raised when a proof destination already exists and cannot be replaced."""
+
+
 class ProofRedactionError(ProofError):
     """Raised when a repository summary leaks private paths or corpus text."""

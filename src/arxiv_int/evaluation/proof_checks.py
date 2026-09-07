@@ -91,6 +91,34 @@ def refuse_corpus_leak(text: str, forbidden: Mapping[str, str] | None = None) ->
             raise ProofRedactionError(f"repository summary contains unobfuscated {label}")
 
 
+def refuse_proof_payloads(payloads: Mapping[str, str]) -> None:
+    """Refuse identity tokens and private paths in Git-bound proof payloads."""
+    for name, text in payloads.items():
+        if name == "identities.json" or name.endswith("/identities.json"):
+            raise ProofRedactionError("proof directory contains identities.json")
+        refuse_corpus_leak(text)
+        redact_summary_text(text)
+
+
+def refuse_proof_tree_leaks(directory: Path) -> None:
+    """Refuse identity catalogs, leaked text, and nonregular proof entries."""
+    if directory.is_symlink() or not directory.is_dir():
+        raise ProofIntegrityError("proof directory is missing")
+    for dirpath, dirnames, filenames in os.walk(directory, followlinks=False):
+        current = Path(dirpath)
+        for name in dirnames:
+            path = current / name
+            if path.is_symlink():
+                relative = path.relative_to(directory).as_posix()
+                raise ProofIntegrityError(f"proof entry is not a regular file: {relative}")
+        for name in filenames:
+            path = current / name
+            relative = path.relative_to(directory).as_posix()
+            if path.is_symlink() or not path.is_file():
+                raise ProofIntegrityError(f"proof entry is not a regular file: {relative}")
+            refuse_proof_payloads({relative: path.read_text(encoding="utf-8", errors="replace")})
+
+
 def validate_proof_manifest(
     payload: Mapping[str, object],
     target: CapabilityProofTarget,
