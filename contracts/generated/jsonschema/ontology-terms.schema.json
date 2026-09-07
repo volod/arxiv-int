@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "contract_version": {
+      "type": "string"
+    },
+    "domain_uri": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "generation_id": {
+      "type": "string"
+    },
+    "kind": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "label": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "ontology_version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "range_uri": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "term_id": {
+      "primaryKey": true,
+      "type": "string"
+    },
+    "uri": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "term_id",
+    "generation_id",
+    "contract_version"
+  ],
+  "type": "object"
+}

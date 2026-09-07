@@ -1,0 +1,117 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "artifact_id": {
+      "primaryKey": true,
+      "type": "string"
+    },
+    "artifact_type": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "byte_count": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "checksum": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "contract_version": {
+      "type": "string"
+    },
+    "creation_status": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "evidence_coverage": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "failure_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "generation_id": {
+      "type": "string"
+    },
+    "generator_fingerprint": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "identity_snapshot_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "input_fact_snapshot_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "media_type": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "policy_fingerprint": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "review_inclusion_rules": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "row_count": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "run_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "schema_version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "uri_or_path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "artifact_id",
+    "generation_id",
+    "contract_version"
+  ],
+  "type": "object"
+}

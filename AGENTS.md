@@ -26,15 +26,21 @@ Load other guidance when the condition below applies; do not preload the whole d
 1. Select one bounded task. Check its full dependencies and relevant records/notes before coding.
    Do not start blocked work.
    `make plan-status` reports the next task whose prerequisites resolve; record the task count.
-2. Save the full task in `docs/impl/records/<task-id>.md` using the
-   [record template](docs/impl/records/template.md). Preserve original text and full scope amendments.
-   Identify affected files/interfaces and existing code to reuse; do not silently broaden scope.
+2. Save the full task in `docs/impl/records/NNNN-<group>-<task-id>.md` using the
+   [record template](docs/impl/records/template.md) and
+   [record naming rules](docs/guide/planning-workflow.md#record-file-naming). Preserve original text
+   and full scope amendments. Identify affected files/interfaces and existing code to reuse; do not
+   silently broaden scope.
 3. Implement and self-review. Update tests for behavior changes; bugs need failing regressions.
+   Required tests cover integrity, correctness, and business logic: the happy path and main corner
+   cases. Do not add tests that only snapshot current implementation or historical policy.
    Tests stay deterministic and network-free unless an external run is explicitly declared.
 4. Verify: relevant tests and `make ci` are required. Use `make format`; fix Markdown by hand.
-   Use `make quality` for coverage, Markdown and build checks on infrastructure/release changes.
-   Fix causes, never weaken gates. Record failures/unrun checks honestly; fixtures do not prove
-   real-archive quality or CUDA fit. Failed required acceptance keeps the task open.
+   Use `make quality` for a diagnostic coverage report, Markdown and build checks on
+   infrastructure/release changes. A coverage percentage is not an acceptance gate. Fix causes,
+   never silently weaken gates; specified policy changes go through the specification and plan
+   first. Record failures/unrun checks honestly; fixtures do not prove real-archive quality or
+   CUDA fit. Failed required acceptance keeps the task open.
 5. Before stopping, update the record with evidence, decisions, audit notes and the next action.
    On acceptance, update narrow current-state docs and indexes, link the record, replace removed
    task references with accepted-record links, then remove only satisfied scope from the plan.

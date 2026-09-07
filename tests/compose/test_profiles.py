@@ -101,7 +101,7 @@ def test_rendered_services_pin_images_and_declare_health_and_stop(
 
     for name, service in services.items():
         assert "latest" not in service["image"]
-        if name != "age-viewer":
+        if name not in {"age-viewer"} and not str(service["image"]).startswith("arxiv-int/"):
             assert "@sha256:" in service["image"]
         assert service["healthcheck"]["test"]
         assert service["stop_grace_period"]
@@ -176,7 +176,7 @@ def test_rendered_services_drop_privileges_and_keep_configs_read_only(
     assert services["grafana"]["volumes"][1]["read_only"] is True
     assert services["prometheus"]["volumes"][1]["read_only"] is True
     expected_user = f"{os.getuid()}:{os.getgid()}"
-    for name in ("database", "age-viewer", "grafana", "prometheus", "vllm"):
+    for name in ("database", "age-viewer", "grafana", "prometheus", "postgres-exporter", "vllm"):
         assert services[name]["user"] == expected_user
     assert "user" not in services["cadvisor"]
 

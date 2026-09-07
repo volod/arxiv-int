@@ -1,0 +1,57 @@
+{
+  "contractId": "spans",
+  "fields": [
+    {
+      "arrowType": "string",
+      "name": "span_id",
+      "nullable": false,
+      "primaryKey": true
+    },
+    {
+      "arrowType": "string",
+      "name": "document_id",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "int64",
+      "name": "start_char",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "int64",
+      "name": "end_char",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "int64",
+      "name": "page",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "kind",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "generation_id",
+      "nullable": false,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "contract_version",
+      "nullable": false,
+      "primaryKey": false
+    }
+  ],
+  "format": "parquet",
+  "partitionKey": "bucket",
+  "sourceOdcsId": "urn:arxiv-int:contract:spans:1.0.0",
+  "sourceVersion": "1.0.0"
+}

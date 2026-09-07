@@ -1,0 +1,74 @@
+{
+  "fields": [
+    {
+      "name": "edge_id",
+      "type": "string"
+    },
+    {
+      "name": "subject_object_id",
+      "type": "string"
+    },
+    {
+      "name": "predicate_id",
+      "type": "string"
+    },
+    {
+      "name": "object_object_id",
+      "type": "string"
+    },
+    {
+      "name": "relation_kind",
+      "type": "string"
+    },
+    {
+      "name": "direction",
+      "type": "string"
+    },
+    {
+      "name": "cardinality",
+      "type": "string"
+    },
+    {
+      "name": "review_state",
+      "type": "string"
+    },
+    {
+      "name": "inclusion_policy",
+      "type": "string"
+    },
+    {
+      "name": "conflict_group_id",
+      "type": "string"
+    },
+    {
+      "name": "evidence_fact_ids",
+      "type": "string"
+    },
+    {
+      "name": "document_id",
+      "type": "string"
+    },
+    {
+      "name": "span_id",
+      "type": "string"
+    },
+    {
+      "name": "anchor_kind",
+      "type": "string"
+    },
+    {
+      "name": "confidence",
+      "type": "bytes"
+    },
+    {
+      "name": "generation_id",
+      "type": "string"
+    },
+    {
+      "name": "contract_version",
+      "type": "string"
+    }
+  ],
+  "name": "relationship_edges",
+  "type": "record"
+}

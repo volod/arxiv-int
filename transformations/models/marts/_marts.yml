@@ -1,0 +1,24 @@
+version: 2
+models:
+  - name: documents_current
+    description: >
+      Fixture mart of current documents for runner acceptance. Grain is document_id.
+      Downstream projection and catalog tasks add business marts beside this convention.
+    config:
+      meta:
+        grain: document_id
+        activation: pipeline-owned
+    columns:
+      - name: document_id
+        description: Stable document identity published for activation.
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                field: document_id
+                to: "source('corpus', 'documents')"
+      - name: derived_generation_id
+        description: Isolated generation id the pipeline may activate.
+        tests:
+          - not_null

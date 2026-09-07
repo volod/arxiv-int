@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "chunk_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "contract_version": {
+      "type": "string"
+    },
+    "document_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "generation_id": {
+      "type": "string"
+    },
+    "mention_id": {
+      "primaryKey": true,
+      "type": "string"
+    },
+    "object_anchor_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "span_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "surface_form": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "mention_id",
+    "generation_id",
+    "contract_version"
+  ],
+  "type": "object"
+}

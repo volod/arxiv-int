@@ -1,0 +1,86 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:canonical:ontology_term:1.0.0
+name: ontology_term
+status: active
+schema:
+  - name: ontology_term
+    logicalType: object
+    properties:
+      - name: term_id
+        logicalType: string
+        required: true
+        primaryKey: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: ontology_term.termId
+                semanticTerm: "urn:arxiv-int:term:term-id"
+      - name: uri
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: ontology_term.uri
+                semanticTerm: "urn:arxiv-int:term:uri"
+      - name: label
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: ontology_term.label
+                semanticTerm: "urn:arxiv-int:term:label"
+      - name: kind
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: ontology_term.kind
+                semanticTerm: "urn:arxiv-int:term:kind"
+      - name: domain_uri
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: ontology_term.domainUri
+                semanticTerm: "urn:arxiv-int:term:domain-uri"
+      - name: range_uri
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: ontology_term.rangeUri
+                semanticTerm: "urn:arxiv-int:term:range-uri"
+      - name: ontology_version
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: ontology_term.ontologyVersion
+                semanticTerm: "urn:arxiv-int:term:ontology-version"
+      - name: generation_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: ontology_term.generationId
+                semanticTerm: "urn:arxiv-int:term:generation-id"
+      - name: contract_version
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: ontology_term.contractVersion
+                semanticTerm: "urn:arxiv-int:term:contract-version"

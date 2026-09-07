@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "contract_version": {
+      "type": "string"
+    },
+    "evidence_summary": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "finding_id": {
+      "primaryKey": true,
+      "type": "string"
+    },
+    "finding_type": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "generation_id": {
+      "type": "string"
+    },
+    "rule_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "severity": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "subject_object_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "finding_id",
+    "generation_id",
+    "contract_version"
+  ],
+  "type": "object"
+}

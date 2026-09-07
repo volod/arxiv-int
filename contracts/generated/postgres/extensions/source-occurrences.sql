@@ -1,0 +1,5 @@
+-- arxiv-int postgres extensions for source-occurrences
+-- source: urn:arxiv-int:contract:source-occurrences:1.0.0@1.0.0
+-- table columns and constraints are owned by corpus.source_occurrences metadata revisions
+-- HASH partition template for corpus.source_occurrences USING (bucket)
+-- CREATE TABLE corpus.source_occurrences_p0 PARTITION OF corpus.source_occurrences FOR VALUES WITH (MODULUS 16, REMAINDER 0);

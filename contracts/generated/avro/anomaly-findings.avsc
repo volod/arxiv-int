@@ -1,0 +1,42 @@
+{
+  "fields": [
+    {
+      "name": "finding_id",
+      "type": "string"
+    },
+    {
+      "name": "finding_type",
+      "type": "string"
+    },
+    {
+      "name": "severity",
+      "type": "string"
+    },
+    {
+      "name": "status",
+      "type": "string"
+    },
+    {
+      "name": "subject_object_id",
+      "type": "string"
+    },
+    {
+      "name": "rule_id",
+      "type": "string"
+    },
+    {
+      "name": "evidence_summary",
+      "type": "string"
+    },
+    {
+      "name": "generation_id",
+      "type": "string"
+    },
+    {
+      "name": "contract_version",
+      "type": "string"
+    }
+  ],
+  "name": "anomaly_findings",
+  "type": "record"
+}

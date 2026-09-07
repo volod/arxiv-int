@@ -1,0 +1,46 @@
+{
+  "fields": [
+    {
+      "name": "document_id",
+      "type": "string"
+    },
+    {
+      "name": "content_hash",
+      "type": "string"
+    },
+    {
+      "name": "extractor_profile",
+      "type": "string"
+    },
+    {
+      "name": "media_type",
+      "type": "string"
+    },
+    {
+      "name": "language",
+      "type": "string"
+    },
+    {
+      "name": "title",
+      "type": "string"
+    },
+    {
+      "name": "byte_size",
+      "type": "int"
+    },
+    {
+      "name": "text_chars",
+      "type": "int"
+    },
+    {
+      "name": "generation_id",
+      "type": "string"
+    },
+    {
+      "name": "contract_version",
+      "type": "string"
+    }
+  ],
+  "name": "documents",
+  "type": "record"
+}

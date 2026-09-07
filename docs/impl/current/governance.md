@@ -6,7 +6,7 @@
 only when needed. `CLAUDE.md`, `GEMINI.md`, `.codex`, and `.cursor/rules/project-rules.mdc` remain
 thin links. README and contributor guidance follow the same conditional reading path.
 
-The [instruction review record](../records/compact-agent-instructions.md) preserves scope,
+The [instruction review record](../records/0002-govern-compact-agent-instructions.md) preserves scope,
 rule-retention checks and measurements. AGENTS shrank from 169 lines/1,517 words to 53 lines/501
 words; the record template from 508 to 237 words. Normal rules plus template require 738 words,
 excluding the selected task, code and relevant spec/current sections. Planning guidance is optional
@@ -16,7 +16,7 @@ No older-model compliance benchmark was run; the improvement is reduced context 
 The plan remains unchanged at 93 tasks (82 agent, 11 human); no capability moved. Documentation
 checks and 168 tests pass; the formatting/import and Compose-complexity failures that full CI
 still carried at that point were repaired later by the
-[quality baseline repair](../records/restore-quality-gate-baseline.md). Instruction reduction
+[quality baseline repair](../records/0003-foundation-restore-quality-gate-baseline.md). Instruction reduction
 does not waive those gates.
 
 ## Product state transition
@@ -42,8 +42,10 @@ cycles over the remaining required edges. It also resolves every `Review checkpo
 checkpoint task or accepted checkpoint record, and matches `Audit inputs` against the notes a
 record declares in both directions, so an unresolved note without an owning task is reported.
 `plan_records.py` reads `docs/impl/records/` and requires each record to declare its own id, a
-state and an index entry; an accepted record additionally needs its fenced task snapshot, at least
-one acceptance-evidence row and an audit-handoff result, and an accepted checkpoint record must
+state and an index entry; filenames use `NNNN-<group>-<task-id>.md` (see
+[record naming](../../guide/planning-workflow.md#record-file-naming)). An accepted record
+additionally needs its fenced task snapshot, at least one acceptance-evidence row and an
+audit-handoff result, and an accepted checkpoint record must
 state both a refactor verdict -- `no refactor needed` is valid -- and a proceed-or-blocked decision.
 
 Under-detected conditional wording only makes a dependency required, never optional, so the gate
@@ -69,7 +71,7 @@ implementation audit, focused repair tasks, milestone checkpoints, and full task
 The [record index](../records/README.md) retains task contracts and audit evidence outside the
 forward plan. `make lint-spec-plan` now enforces the record, dependency, note and checkpoint rules
 described above; see the
-[record and checkpoint integrity record](../records/enforce-task-record-and-checkpoint-integrity.md).
+[record and checkpoint integrity record](../records/0004-foundation-enforce-task-record-and-checkpoint-integrity.md).
 The review does not claim that identified code defects have been repaired.
 
 ## Specification and architecture audit
@@ -149,8 +151,8 @@ formatting/import ordering in `src/arxiv_int/runtime/__init__.py` and Radon comp
 `tests/compose/test_profiles.py::test_rendered_topology_has_pins_health_stop_and_mount_isolation`,
 and the complexity target stopped at Radon, so its subsequent cognitive-complexity check was
 not established by that run. The
-[quality baseline repair](../records/restore-quality-gate-baseline.md) has since fixed both;
-`make ci` and `make quality` now pass and both complexity subchecks run. These baseline
+[quality baseline repair](../records/0003-foundation-restore-quality-gate-baseline.md) has since
+fixed both; `make ci` and `make quality` now pass and both complexity subchecks run. These baseline
 findings do not become new product capabilities or deferred audit tasks. Runtime/CUDA and
 provided-archive proofs remain forward tasks. No services, model processes, ports, or external
 resources were started by this audit.

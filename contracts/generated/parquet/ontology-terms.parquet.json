@@ -1,0 +1,63 @@
+{
+  "contractId": "ontology-terms",
+  "fields": [
+    {
+      "arrowType": "string",
+      "name": "term_id",
+      "nullable": false,
+      "primaryKey": true
+    },
+    {
+      "arrowType": "string",
+      "name": "uri",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "label",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "kind",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "domain_uri",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "range_uri",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "ontology_version",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "generation_id",
+      "nullable": false,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "contract_version",
+      "nullable": false,
+      "primaryKey": false
+    }
+  ],
+  "format": "parquet",
+  "partitionKey": null,
+  "sourceOdcsId": "urn:arxiv-int:contract:ontology-terms:1.0.0",
+  "sourceVersion": "1.0.0"
+}

@@ -1,0 +1,88 @@
+{
+  "fields": [
+    {
+      "name": "row_id",
+      "type": "string"
+    },
+    {
+      "name": "row_kind",
+      "type": "string"
+    },
+    {
+      "name": "invoice_object_id",
+      "type": "string"
+    },
+    {
+      "name": "payment_object_id",
+      "type": "string"
+    },
+    {
+      "name": "line_number",
+      "type": "int"
+    },
+    {
+      "name": "amount",
+      "type": "bytes"
+    },
+    {
+      "name": "allocated_amount",
+      "type": "bytes"
+    },
+    {
+      "name": "currency",
+      "type": "string"
+    },
+    {
+      "name": "due_date",
+      "type": {
+        "logicalType": "timestamp-millis",
+        "type": "long"
+      }
+    },
+    {
+      "name": "payment_date",
+      "type": {
+        "logicalType": "timestamp-millis",
+        "type": "long"
+      }
+    },
+    {
+      "name": "match_state",
+      "type": "string"
+    },
+    {
+      "name": "allocation_group_id",
+      "type": "string"
+    },
+    {
+      "name": "debit_credit",
+      "type": "string"
+    },
+    {
+      "name": "evidence_fact_ids",
+      "type": "string"
+    },
+    {
+      "name": "document_id",
+      "type": "string"
+    },
+    {
+      "name": "review_state",
+      "type": "string"
+    },
+    {
+      "name": "confidence",
+      "type": "bytes"
+    },
+    {
+      "name": "generation_id",
+      "type": "string"
+    },
+    {
+      "name": "contract_version",
+      "type": "string"
+    }
+  ],
+  "name": "invoice_payment_rows",
+  "type": "record"
+}

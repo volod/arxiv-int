@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from arxiv_int.runtime import ConfigurationError, load_runtime_config
+from arxiv_int.runtime.dotenv import read_dotenv
 
 COMMON_SH = Path(__file__).parents[2] / "scripts/shared/common.sh"
 _RESOLVE = 'source "$1"; arxiv_int_resolve_env || exit 1; env -0'
@@ -162,3 +163,20 @@ def test_resolution_mutates_neither_the_process_environment_nor_the_checkout(
     assert dict(os.environ) == before
     assert (root / ".env").read_text(encoding="utf-8") == dotenv
     assert sorted(item.name for item in root.iterdir()) == [".env", "pyproject.toml"]
+
+
+@pytest.mark.parametrize("exported", [False, True])
+def test_shell_local_values_only_override_when_exported(tmp_path: Path, exported: bool) -> None:
+    root = _checkout(tmp_path / "checkout", "LOG_LEVEL= INFO \n")
+    assignment = ("export " if exported else "") + "LOG_LEVEL=DEBUG; "
+    completed = subprocess.run(
+        ["bash", "-c", assignment + _RESOLVE, "bash", str(COMMON_SH)],
+        env={"PATH": "/usr/bin:/bin", "PROJECT_ROOT": str(root)},
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    environment = dict(item.split("=", 1) for item in completed.stdout.split("\0") if "=" in item)
+    expected = "DEBUG" if exported else "INFO"
+    assert environment["LOG_LEVEL"] == expected
+    assert read_dotenv(root / ".env")["LOG_LEVEL"] == "INFO"

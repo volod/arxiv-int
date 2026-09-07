@@ -1,0 +1,28 @@
+{
+  "apiVersion": "v3.1.0",
+  "artifacts": {
+    "avro/topics.avsc": "79eeab40a6b6ae013b6473f814d3e1d66e06589c19d00e83cf77db1bc2e02290",
+    "dbt/topics.yml": "f2334ec4bbf5e5e0b9dab503edd787015c172aac0b913a5676c42419d6965615",
+    "jsonschema/topics.schema.json": "4dbd405ec34af36ff3720e8afc72af4d2c6cb11f263c9f79a1c6da4f1292e15a",
+    "parquet/topics.parquet.json": "c2f0af2c4dacc944593523ca63a34e3d3b796ac4b252b0ee11b611b9f6af3e4a",
+    "postgres/extensions/topics.sql": "c3b6a4ff4188b80829e80633302bbcb90ce7fb31dca1a0be6cb4990b8ab15d5a",
+    "postgres/topics.sql": "6b5ecee67e880839f9aa5730cb918403e35cb3ae9460defb7223cd0543cb5dbd",
+    "pydantic/topics.py": "b49e88f394673f3bef337634c4de9a50a6e5e3e87ab5e4fbaa51df9234f93153",
+    "quality/topics.rules.json": "4b9fcb979507d5fdfd07bdca3b389be984864c7a24c8d82d3c53aa784b90f986"
+  },
+  "canonicalEntity": null,
+  "contractId": "topics",
+  "customExtensionKeys": [
+    "partitionKey",
+    "schema",
+    "table"
+  ],
+  "odcsId": "urn:arxiv-int:contract:topics:1.0.0",
+  "odcsVersion": "1.0.0",
+  "postgres": {
+    "partitionKey": "bucket",
+    "schema": "search",
+    "table": "topic_assignments"
+  },
+  "semanticMetadataHash": "7f317a00986dae893ed207882df478882503d7fbde678d9cb7c76d6b681e5151"
+}

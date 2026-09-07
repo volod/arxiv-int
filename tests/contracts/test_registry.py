@@ -59,3 +59,27 @@ def test_registry_rejects_reference_outside_root(tmp_path) -> None:
 
     with pytest.raises(ValueError, match="escapes contract root"):
         FileRegistry(tmp_path).load_odcs("documents")
+
+
+def test_registry_rejects_absolute_and_symlink_escapes(tmp_path) -> None:
+    write_contract_tree(tmp_path)
+    absolute = tmp_path / "datasets" / "documents.odcs.yaml"
+    index = tmp_path / "registry.yaml"
+    original = index.read_text(encoding="utf-8")
+    index.write_text(
+        original.replace("datasets/documents.odcs.yaml", str(absolute)),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="must be relative"):
+        FileRegistry(tmp_path).load_odcs("documents")
+
+    outside = tmp_path.parent / "registry-outside.odcs.yaml"
+    outside.write_text("id: leaked\nversion: 0.0.0\nschema: []\n", encoding="utf-8")
+    link = tmp_path / "datasets" / "leak.odcs.yaml"
+    link.symlink_to(outside)
+    index.write_text(
+        original.replace("datasets/documents.odcs.yaml", "datasets/leak.odcs.yaml"),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="escapes contract root"):
+        FileRegistry(tmp_path).load_odcs("documents")

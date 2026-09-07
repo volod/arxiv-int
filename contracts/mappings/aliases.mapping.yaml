@@ -1,0 +1,26 @@
+metadata:
+  domain: arxiv-int
+  sourceContract: aliases
+  canonicalEntity: alias
+fieldMappings:
+  - sourceField: alias_id
+    binding: alias.aliasId
+    semanticTerm: urn:arxiv-int:term:alias-id
+  - sourceField: object_id
+    binding: alias.objectId
+    semanticTerm: urn:arxiv-int:term:object-id
+  - sourceField: alias_text
+    binding: alias.aliasText
+    semanticTerm: urn:arxiv-int:term:alias-text
+  - sourceField: alias_kind
+    binding: alias.aliasKind
+    semanticTerm: urn:arxiv-int:term:alias-kind
+  - sourceField: normalized_text
+    binding: alias.normalizedText
+    semanticTerm: urn:arxiv-int:term:normalized-text
+  - sourceField: generation_id
+    binding: alias.generationId
+    semanticTerm: urn:arxiv-int:term:generation-id
+  - sourceField: contract_version
+    binding: alias.contractVersion
+    semanticTerm: urn:arxiv-int:term:contract-version

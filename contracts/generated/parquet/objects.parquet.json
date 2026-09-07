@@ -1,0 +1,57 @@
+{
+  "contractId": "objects",
+  "fields": [
+    {
+      "arrowType": "string",
+      "name": "object_id",
+      "nullable": false,
+      "primaryKey": true
+    },
+    {
+      "arrowType": "string",
+      "name": "object_type",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "preferred_label",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "lifecycle_state",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "review_state",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "cluster_id",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "generation_id",
+      "nullable": false,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "contract_version",
+      "nullable": false,
+      "primaryKey": false
+    }
+  ],
+  "format": "parquet",
+  "partitionKey": "bucket",
+  "sourceOdcsId": "urn:arxiv-int:contract:objects:1.0.0",
+  "sourceVersion": "1.0.0"
+}

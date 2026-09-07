@@ -1,0 +1,38 @@
+{
+  "fields": [
+    {
+      "name": "catalog_entry_id",
+      "type": "string"
+    },
+    {
+      "name": "catalog_kind",
+      "type": "string"
+    },
+    {
+      "name": "object_id",
+      "type": "string"
+    },
+    {
+      "name": "preferred_name",
+      "type": "string"
+    },
+    {
+      "name": "document_count",
+      "type": "int"
+    },
+    {
+      "name": "review_state",
+      "type": "string"
+    },
+    {
+      "name": "generation_id",
+      "type": "string"
+    },
+    {
+      "name": "contract_version",
+      "type": "string"
+    }
+  ],
+  "name": "catalog_entries",
+  "type": "record"
+}

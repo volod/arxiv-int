@@ -1,0 +1,94 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:canonical:transaction:1.0.0
+name: transaction
+status: active
+schema:
+  - name: transaction
+    logicalType: object
+    properties:
+      - name: transaction_id
+        logicalType: string
+        required: true
+        primaryKey: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: transaction.transactionId
+                semanticTerm: "urn:arxiv-int:term:transaction-id"
+      - name: transaction_type
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: transaction.transactionType
+                semanticTerm: "urn:arxiv-int:term:transaction-type"
+      - name: amount
+        logicalType: number
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: transaction.amount
+                semanticTerm: "urn:arxiv-int:term:amount"
+      - name: currency
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: transaction.currency
+                semanticTerm: "urn:arxiv-int:term:currency"
+      - name: party_subject_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: transaction.partySubjectId
+                semanticTerm: "urn:arxiv-int:term:party-subject-id"
+      - name: party_object_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: transaction.partyObjectId
+                semanticTerm: "urn:arxiv-int:term:party-object-id"
+      - name: document_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: transaction.documentId
+                semanticTerm: "urn:arxiv-int:term:document-id"
+      - name: event_time
+        logicalType: timestamp
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: transaction.eventTime
+                semanticTerm: "urn:arxiv-int:term:event-time"
+      - name: generation_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: transaction.generationId
+                semanticTerm: "urn:arxiv-int:term:generation-id"
+      - name: contract_version
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: transaction.contractVersion
+                semanticTerm: "urn:arxiv-int:term:contract-version"

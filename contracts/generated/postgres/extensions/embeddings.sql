@@ -1,0 +1,5 @@
+-- arxiv-int postgres extensions for embeddings
+-- source: urn:arxiv-int:contract:embeddings:1.0.0@1.0.0
+-- table columns and constraints are owned by search.embeddings metadata revisions
+-- HASH partition template for search.embeddings USING (bucket)
+-- CREATE TABLE search.embeddings_p0 PARTITION OF search.embeddings FOR VALUES WITH (MODULUS 16, REMAINDER 0);

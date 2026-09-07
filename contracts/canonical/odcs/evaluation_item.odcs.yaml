@@ -1,0 +1,86 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:canonical:evaluation_item:1.0.0
+name: evaluation_item
+status: active
+schema:
+  - name: evaluation_item
+    logicalType: object
+    properties:
+      - name: evaluation_item_id
+        logicalType: string
+        required: true
+        primaryKey: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: evaluation_item.evaluationItemId
+                semanticTerm: "urn:arxiv-int:term:evaluation-item-id"
+      - name: item_kind
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: evaluation_item.itemKind
+                semanticTerm: "urn:arxiv-int:term:item-kind"
+      - name: gold_ref
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: evaluation_item.goldRef
+                semanticTerm: "urn:arxiv-int:term:gold-ref"
+      - name: split
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: evaluation_item.split
+                semanticTerm: "urn:arxiv-int:term:split"
+      - name: query_text
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: evaluation_item.queryText
+                semanticTerm: "urn:arxiv-int:term:query-text"
+      - name: label
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: evaluation_item.label
+                semanticTerm: "urn:arxiv-int:term:label"
+      - name: dataset_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: evaluation_item.datasetId
+                semanticTerm: "urn:arxiv-int:term:dataset-id"
+      - name: generation_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: evaluation_item.generationId
+                semanticTerm: "urn:arxiv-int:term:generation-id"
+      - name: contract_version
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: evaluation_item.contractVersion
+                semanticTerm: "urn:arxiv-int:term:contract-version"

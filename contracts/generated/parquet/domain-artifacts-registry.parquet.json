@@ -1,0 +1,123 @@
+{
+  "contractId": "domain-artifacts-registry",
+  "fields": [
+    {
+      "arrowType": "string",
+      "name": "artifact_id",
+      "nullable": false,
+      "primaryKey": true
+    },
+    {
+      "arrowType": "string",
+      "name": "artifact_type",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "schema_version",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "generator_fingerprint",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "policy_fingerprint",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "input_fact_snapshot_id",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "identity_snapshot_id",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "review_inclusion_rules",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "uri_or_path",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "media_type",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "int64",
+      "name": "byte_count",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "int64",
+      "name": "row_count",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "checksum",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "float64",
+      "name": "evidence_coverage",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "creation_status",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "failure_reason",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "run_id",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "generation_id",
+      "nullable": false,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "contract_version",
+      "nullable": false,
+      "primaryKey": false
+    }
+  ],
+  "format": "parquet",
+  "partitionKey": null,
+  "sourceOdcsId": "urn:arxiv-int:contract:domain-artifacts-registry:1.0.0",
+  "sourceVersion": "1.0.0"
+}

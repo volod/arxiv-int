@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "alias_id": {
+      "primaryKey": true,
+      "type": "string"
+    },
+    "alias_kind": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "alias_text": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "contract_version": {
+      "type": "string"
+    },
+    "generation_id": {
+      "type": "string"
+    },
+    "normalized_text": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "object_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "alias_id",
+    "generation_id",
+    "contract_version"
+  ],
+  "type": "object"
+}

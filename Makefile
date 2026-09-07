@@ -5,24 +5,42 @@ VENV := $(PROJECT_ROOT)/.venv
 PY := $(VENV)/bin/python
 PYTHON_VERSION ?= 3.12
 DATA_DIR ?=
-SERVICE_PROFILES ?= pipeline
 LOG_SERVICES ?=
 LOG_TAIL ?= 200
 LOG_FOLLOW ?= 0
 READINESS_ALLOW_DEGRADED ?= 0
+MESSAGE ?= contract schema change
+REVISION ?= head
+DOWN_REVISION ?= -1
+DATASET ?= documents
+RUN_ID ?= local
 APPLY ?= 0
+NO_CACHE ?= 0
+WRITE_GATE ?= 0
 COMMON_SH := $(PROJECT_ROOT)/scripts/shared/common.sh
+# One extra set for every syncing target so consecutive targets cannot uninstall each other.
+SYNC_EXTRAS := --extra dev --extra contracts --extra graph --extra store --extra lake --extra data-quality --extra inference --extra transform
+PROFILE_ARGS := $(if $(SERVICE_PROFILES),--profiles "$(SERVICE_PROFILES)",)
 DATA_ROOT := $(shell $(if $(DATA_DIR),DATA_DIR='$(DATA_DIR)') bash -c '. "$$0"; arxiv_int_data_root' '$(COMMON_SH)')
-PYTEST_CACHE := -o cache_dir=$(DATA_ROOT)/cache/pytest
+PYTEST_CACHE := -o "cache_dir=$(DATA_ROOT)/cache/pytest"
 
 export RUFF_CACHE_DIR := $(DATA_ROOT)/cache/ruff
 export MYPY_CACHE_DIR := $(DATA_ROOT)/cache/mypy
 
 .DEFAULT_GOAL := help
 
-.PHONY: help bootstrap venv lock package-check features config readiness services-config services-up \
-	services-status services-down services-reset logs graph-up ui-up format format-check lint typecheck test \
+KIND ?= all
+
+.PHONY: help bootstrap venv lock package-check features config readiness setup setup-config setup-env \
+	setup-wait setup-schema services-pull models-pull services-config services-up \
+	services-status services-down services-reset logs graph-up ui-up postgres-image postgres-image-probe \
+	format format-check lint typecheck test \
 	coverage complexity-gate shell-lint-gate lint-md lint-doc-links lint-spec-plan plan-status \
+	contracts contracts-gen contracts-check contracts-evolution \
+	db-revision db-check db-status db-upgrade \
+	db-downgrade db-adopt db-apply-schema ontology ontology-gen ontology-check data-quality \
+	transform-parse transform-compile transform-build transform-test \
+	projections-build projections-status projections-cleanup \
 	ci-checks ci ci-github build quality code-quality quality-report
 
 help: ## List available targets
@@ -31,9 +49,9 @@ help: ## List available targets
 bootstrap: ## Sync .env and .venv, then audit readiness
 	@printf '\n=== Environment and dependencies ===\n'
 	@command -v uv >/dev/null 2>&1 || { echo "ERROR: uv is required"; exit 1; }
-	@source "$(COMMON_SH)"; arxiv_int_sync_dotenv; \
-		arxiv_int_load_env; \
-		uv sync --locked --extra dev --python "$(PYTHON_VERSION)"
+	@source "$(COMMON_SH)" && arxiv_int_sync_dotenv && \
+		arxiv_int_load_env && \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)"
 	@printf '\n=== Package identity ===\n'
 	@$(MAKE) --no-print-directory package-check
 	@printf '\n=== Workstation readiness ===\n'
@@ -42,7 +60,7 @@ bootstrap: ## Sync .env and .venv, then audit readiness
 venv: bootstrap ## Alias for bootstrap
 
 lock: ## Refresh uv.lock after dependency changes
-	@source "$(COMMON_SH)"; arxiv_int_load_env; uv lock
+	@source "$(COMMON_SH)" && arxiv_int_load_env && uv lock
 
 package-check: ## Verify the installed package identity
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
@@ -52,41 +70,194 @@ features: ## List optional feature groups, licences, and install commands (STAGE
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
 	@"$(VENV)/bin/arxiv-int" features $(if $(STAGE),--stage $(STAGE),)
 
+contracts: ## Lint product ODCS contracts (schema, integrity, Data Contract CLI)
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)" && \
+		"$(VENV)/bin/arxiv-int" contracts lint
+
+contracts-gen: ## Generate committed physical schemas under contracts/generated
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)" && \
+		"$(VENV)/bin/arxiv-int" contracts generate
+
+contracts-check: ## Fail when contracts/generated drifts from regeneration
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)" && \
+		"$(VENV)/bin/arxiv-int" contracts check
+
+contracts-evolution: ## Check reviewed baselines, migrations, and evolution policy
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)" && \
+		"$(VENV)/bin/arxiv-int" contracts evolution
+
+db-revision: ## Generate a candidate immutable revision from contract changes
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)" && \
+		"$(VENV)/bin/arxiv-int" db revision --message "$(MESSAGE)"
+
+db-check: ## Check the revision graph, checksums, and pending contract changes
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)" && \
+		"$(VENV)/bin/arxiv-int" db check
+
+db-status: ## Report the applied revision of the selected migration database
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		"$(VENV)/bin/arxiv-int" db status
+
+db-upgrade: ## Upgrade the selected migration database to REVISION
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		"$(VENV)/bin/arxiv-int" db upgrade --revision "$(REVISION)"
+
+db-downgrade: ## Downgrade the selected migration database to DOWN_REVISION
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		"$(VENV)/bin/arxiv-int" db downgrade --revision "$(DOWN_REVISION)"
+
+db-adopt: ## Adopt a live database after catalog equivalence, or report why stamping is refused
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		"$(VENV)/bin/arxiv-int" db adopt
+
+db-apply-schema: ## Apply owned revisions (URL or disposable PGDATA); evidence under DATA_DIR/migrations
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		"$(VENV)/bin/arxiv-int" store apply-schema --revision "$(REVISION)" \
+		--run-id "$(RUN_ID)"
+
+ontology: ontology-check ## Alias for ontology-check
+
+ontology-gen: ## Generate committed ontology.* bindings under ontology/generated
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)" && \
+		"$(VENV)/bin/arxiv-int" ontology generate
+
+ontology-check: ## Parse RDF/SHACL, verify bindings, drift, and ontology evolution
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)" && \
+		"$(VENV)/bin/arxiv-int" ontology check
+
+data-quality: ## Validate DATASET contents for RUN_ID (INPUT=... required)
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@test -n "$(INPUT)" || { echo "ERROR: set INPUT to a parquet, arrow, or JSON table"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)" && \
+		"$(VENV)/bin/arxiv-int" data-quality check "$(DATASET)" --run-id "$(RUN_ID)" \
+		--input "$(INPUT)" $(if $(RELATED),$(foreach item,$(RELATED),--related $(item)),)
+
+transform-parse: ## Parse the dbt project for RUN_ID without materializing relations
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)" && \
+		"$(VENV)/bin/arxiv-int" transform parse --run-id "$(RUN_ID)"
+
+transform-compile: ## Compile selected dbt models for RUN_ID
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)" && \
+		"$(VENV)/bin/arxiv-int" transform compile --run-id "$(RUN_ID)"
+
+transform-build: ## Build and test isolated derived models for RUN_ID
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)" && \
+		"$(VENV)/bin/arxiv-int" transform build --run-id "$(RUN_ID)"
+
+transform-test: ## Run dbt data tests for RUN_ID without replacing the active generation
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		uv sync --locked $(SYNC_EXTRAS) --python "$(PYTHON_VERSION)" && \
+		"$(VENV)/bin/arxiv-int" transform test --run-id "$(RUN_ID)"
+
+projections-build: ## Build search/vector/graph projections for RUN_ID (KIND=all|lexical|vector|graph)
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		"$(VENV)/bin/arxiv-int" store projections-build --run-id "$(RUN_ID)" \
+		$(if $(filter-out all,$(KIND)),--kind "$(KIND)",) \
+		$(if $(filter 1,$(APPLY)),--activate,)
+
+projections-status: ## Show active projection pointers
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		"$(VENV)/bin/arxiv-int" store projections-status --run-id "$(RUN_ID)"
+
+projections-cleanup: ## Plan retired/failed projection drops (APPLY=1 executes)
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		"$(VENV)/bin/arxiv-int" store projections-cleanup --run-id "$(RUN_ID)" \
+		$(if $(filter 1,$(APPLY)),--apply,)
+
 config: ## Resolve, validate, and redact runtime configuration
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
 	@"$(VENV)/bin/arxiv-int" config show --redact
 
 readiness: ## Audit configuration, storage, tools, services, models, and system readiness
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
-	@source "$(COMMON_SH)"; arxiv_int_load_env; \
-		status=0; "$(VENV)/bin/arxiv-int" readiness --profiles "$(SERVICE_PROFILES)" || status=$$?; \
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		status=0; "$(VENV)/bin/arxiv-int" readiness $(PROFILE_ARGS) || status=$$?; \
 		if [ "$$status" -eq 2 ] && [ "$(READINESS_ALLOW_DEGRADED)" -eq 1 ]; then exit 0; fi; \
 		exit "$$status"
 
-services-config: ## Validate Compose for SERVICE_PROFILES without starting containers
-	@source "$(COMMON_SH)"; arxiv_int_load_env; \
-		arxiv_int_services config --profiles "$(SERVICE_PROFILES)"
+setup-config: ## Create or append .env, name required edits, and check host tools
+	@source "$(COMMON_SH)"; arxiv_int_setup_config
 
-services-up: ## Start and wait for healthy SERVICE_PROFILES (default: pipeline)
-	@source "$(COMMON_SH)"; arxiv_int_load_env; \
-		arxiv_int_services up --profiles "$(SERVICE_PROFILES)"
+setup-env: ## Sync the locked extra union into .venv (honors SETUP_DOWNLOADS=0)
+	@source "$(COMMON_SH)"; arxiv_int_setup_env $(SYNC_EXTRAS)
+
+services-pull: ## Acquire or cache-check selected service images
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make setup-env' first"; exit 1; }
+	@"$(VENV)/bin/arxiv-int" setup --phase images
+
+models-pull: ## Acquire or cache-check configured model assets
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make setup-env' first"; exit 1; }
+	@"$(VENV)/bin/arxiv-int" setup --phase models
+
+setup-wait: ## Wait for service transport and model health without requiring a schema
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make setup-env' first"; exit 1; }
+	@"$(VENV)/bin/arxiv-int" setup --phase wait
+
+setup-schema: ## Apply eligible Alembic revisions to the configured service only
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make setup-env' first"; exit 1; }
+	@"$(VENV)/bin/arxiv-int" setup --phase schema
+
+setup: ## Retryable environment, model, service and schema preparation
+	@source "$(COMMON_SH)"; arxiv_int_setup_config
+	@source "$(COMMON_SH)"; arxiv_int_setup_env $(SYNC_EXTRAS)
+	@"$(VENV)/bin/arxiv-int" setup
+
+services-config: ## Validate Compose for SERVICE_PROFILES without starting containers
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		arxiv_int_services config $(PROFILE_ARGS)
+
+services-up: ## Start and wait for healthy SERVICE_PROFILES (default from .env)
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		arxiv_int_services up $(PROFILE_ARGS)
 
 services-status: ## Show local service and health status
-	@source "$(COMMON_SH)"; arxiv_int_load_env; \
-		arxiv_int_services status --profiles "$(SERVICE_PROFILES)"
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		arxiv_int_services status $(PROFILE_ARGS)
 
 services-down: ## Stop the local service project; preserve bind-mounted data
-	@source "$(COMMON_SH)"; arxiv_int_load_env; \
-		arxiv_int_services down --profiles "$(SERVICE_PROFILES)"
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		arxiv_int_services down $(PROFILE_ARGS)
 
 services-reset: ## Stop services; erase service data only when APPLY=1
-	@source "$(COMMON_SH)"; arxiv_int_load_env; \
-		arxiv_int_services reset --profiles "$(SERVICE_PROFILES)" \
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		arxiv_int_services reset $(PROFILE_ARGS) \
 		$(if $(filter 1,$(APPLY)),--apply,)
 
 logs: ## Show bounded logs (LOG_SERVICES=..., LOG_TAIL=..., LOG_FOLLOW=1)
-	@source "$(COMMON_SH)"; arxiv_int_load_env; \
-		arxiv_int_services logs --profiles "$(SERVICE_PROFILES)" \
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		arxiv_int_services logs $(PROFILE_ARGS) \
 		--services "$(LOG_SERVICES)" --tail "$(LOG_TAIL)" \
 		$(if $(filter 1,$(LOG_FOLLOW)),--follow,)
 
@@ -95,6 +266,18 @@ graph-up: services-up ## Start the graph profile
 
 ui-up: SERVICE_PROFILES := ui
 ui-up: services-up ## Start the UI profile
+
+postgres-image: ## Build the pinned ParadeDB+AGE database image (NO_CACHE=1 for clean cache)
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		"$(VENV)/bin/arxiv-int" store build-image \
+		$(if $(filter 1,$(NO_CACHE)),--no-cache,)
+
+postgres-image-probe: ## Probe extensions on a disposable PGDATA_DIR (WRITE_GATE=1 records AGE gate)
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		"$(VENV)/bin/arxiv-int" store probe-image \
+		$(if $(filter 1,$(WRITE_GATE)),--write-gate,)
 
 format: ## Format production code and tests with Ruff
 	@"$(VENV)/bin/ruff" format src tests
@@ -112,7 +295,7 @@ typecheck: ## Run mypy over production code
 test: ## Run deterministic unit tests
 	@"$(PY)" -m pytest $(PYTEST_CACHE)
 
-coverage: ## Run tests and enforce the coverage floor
+coverage: ## Run tests and report coverage (diagnostic; no percentage floor)
 	@"$(PY)" -m pytest $(PYTEST_CACHE) --cov=arxiv_int --cov-report=term-missing
 
 complexity-gate: ## Fail on Radon D-or-worse or cognitive complexity above 15
@@ -142,14 +325,14 @@ lint-spec-plan: ## Check capability registry, task structure, status, and orderi
 plan-status: ## Count tasks by lane/status and show the next eligible work
 	@"$(VENV)/bin/arxiv-int-plan" --root "$(PROJECT_ROOT)"
 
-ci-checks: format-check lint typecheck complexity-gate shell-lint-gate lint-doc-links lint-spec-plan
+ci-checks: format-check lint typecheck complexity-gate shell-lint-gate lint-doc-links lint-spec-plan contracts-check contracts-evolution db-check ontology-check
 
 ci: ci-checks test ## Run the required local and GitHub CI gate
 
 ci-github: ci ## Explicit GitHub Actions entrypoint
 
 build: ## Build source and wheel distributions
-	@source "$(COMMON_SH)"; arxiv_int_load_env; uv build
+	@source "$(COMMON_SH)" && arxiv_int_load_env && uv build
 
 quality: ci-checks coverage lint-md build ## Run the full local quality suite
 

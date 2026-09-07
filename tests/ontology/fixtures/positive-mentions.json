@@ -1,0 +1,11 @@
+{
+  "assertions": [
+    {
+      "subject_id": "doc-1",
+      "subject_types": ["class.document"],
+      "predicate": "pred.mentions",
+      "object_id": "obj-1",
+      "object_types": ["class.object"]
+    }
+  ]
+}

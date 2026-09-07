@@ -1,0 +1,29 @@
+metadata:
+  domain: arxiv-int
+  sourceContract: objects
+  canonicalEntity: object
+fieldMappings:
+  - sourceField: object_id
+    binding: object.objectId
+    semanticTerm: urn:arxiv-int:term:object-id
+  - sourceField: object_type
+    binding: object.objectType
+    semanticTerm: urn:arxiv-int:term:object-type
+  - sourceField: preferred_label
+    binding: object.preferredLabel
+    semanticTerm: urn:arxiv-int:term:preferred-label
+  - sourceField: lifecycle_state
+    binding: object.lifecycleState
+    semanticTerm: urn:arxiv-int:term:lifecycle-state
+  - sourceField: review_state
+    binding: object.reviewState
+    semanticTerm: urn:arxiv-int:term:review-state
+  - sourceField: cluster_id
+    binding: object.clusterId
+    semanticTerm: urn:arxiv-int:term:cluster-id
+  - sourceField: generation_id
+    binding: object.generationId
+    semanticTerm: urn:arxiv-int:term:generation-id
+  - sourceField: contract_version
+    binding: object.contractVersion
+    semanticTerm: urn:arxiv-int:term:contract-version

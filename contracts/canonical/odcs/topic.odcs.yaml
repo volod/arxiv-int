@@ -1,0 +1,78 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:canonical:topic:1.0.0
+name: topic
+status: active
+schema:
+  - name: topic
+    logicalType: object
+    properties:
+      - name: topic_assignment_id
+        logicalType: string
+        required: true
+        primaryKey: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: topic.topicAssignmentId
+                semanticTerm: "urn:arxiv-int:term:topic-assignment-id"
+      - name: topic_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: topic.topicId
+                semanticTerm: "urn:arxiv-int:term:topic-id"
+      - name: label
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: topic.label
+                semanticTerm: "urn:arxiv-int:term:label"
+      - name: scheme_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: topic.schemeId
+                semanticTerm: "urn:arxiv-int:term:scheme-id"
+      - name: document_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: topic.documentId
+                semanticTerm: "urn:arxiv-int:term:document-id"
+      - name: score
+        logicalType: number
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: topic.score
+                semanticTerm: "urn:arxiv-int:term:score"
+      - name: generation_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: topic.generationId
+                semanticTerm: "urn:arxiv-int:term:generation-id"
+      - name: contract_version
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: topic.contractVersion
+                semanticTerm: "urn:arxiv-int:term:contract-version"

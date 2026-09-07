@@ -1,0 +1,96 @@
+version: 2
+models:
+  - name: proj_lexical_rows
+    description: >
+      Covering lexical rows for ParadeDB BM25. Grain is chunk_id. Full evidence stays
+      in canonical corpus tables.
+    config:
+      meta:
+        grain: chunk_id
+        inclusion_policy: all-canonical-chunks
+    columns:
+      - name: chunk_id
+        description: Stable chunk identity copied from corpus.chunks.
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                field: chunk_id
+                to: "source('corpus', 'chunks')"
+      - name: body
+        description: Searchable chunk text used by the BM25 covering index.
+      - name: identifiers
+        description: Literal identifier field for part numbers and model names.
+      - name: derived_generation_id
+        tests:
+          - not_null
+  - name: proj_vector_rows
+    description: >
+      Selected embedding rows for the pgvector candidate index. Grain is embedding_id.
+      Incompatible profiles are rejected by canonical triggers, not this model.
+    config:
+      meta:
+        grain: embedding_id
+        inclusion_policy: profile-tagged-embeddings
+    columns:
+      - name: embedding_id
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                field: embedding_id
+                to: "source('search', 'embeddings')"
+      - name: profile_id
+        tests:
+          - not_null
+      - name: derived_generation_id
+        tests:
+          - not_null
+  - name: proj_graph_vertices
+    description: >
+      Compact object vertices for AGE and recursive SQL. Grain is object_id. Large
+      text stays relational.
+    config:
+      meta:
+        grain: object_id
+        inclusion_policy: all-canonical-objects
+    columns:
+      - name: object_id
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                field: object_id
+                to: "source('kg', 'objects')"
+      - name: derived_generation_id
+        tests:
+          - not_null
+  - name: proj_graph_edges
+    description: >
+      Relationship facts projected as directed edges. Grain is fact_id. Literal facts
+      are excluded because they have no object endpoint.
+    config:
+      meta:
+        grain: fact_id
+        inclusion_policy: accepted-and-proposed-object-facts
+    columns:
+      - name: fact_id
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                field: fact_id
+                to: "source('kg', 'facts')"
+      - name: subject_object_id
+        tests:
+          - not_null
+      - name: object_object_id
+        tests:
+          - not_null
+      - name: derived_generation_id
+        tests:
+          - not_null

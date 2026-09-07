@@ -276,9 +276,11 @@ arxiv-int/
     mappings/
     evolution/
     generated/
-  db/
-    migrations/
-    schema.sql
+  transformations/
+    dbt_project.yml
+    models/                     # staging/, intermediate/, marts/; SQL and descriptive YAML
+    tests/
+    macros/
   docker/
     postgres/Dockerfile
     postgres/initdb/
@@ -300,6 +302,11 @@ arxiv-int/
     interfaces/
     adapters/
     contracts/
+      sqlalchemy/               # ODCS-to-MetaData adapter
+    migrations/                 # Alembic environment and immutable Python revisions
+      versions/
+    data_quality/               # Contract-derived Pandera checks and result adapters
+    transformations/            # Typed Polars operations and dbt invocation
     readiness/
     pipeline/
     stores/
@@ -635,9 +642,13 @@ these concepts without changing pipeline code.
 
 ### Generation
 
-Prefer Data Contract CLI for ODCS linting, generic SQL/Avro/JSON Schema export, changelogs, breaking
-checks, and live Postgres tests. Keep project generator/evolution helpers focused on gaps that
-generic tooling cannot express:
+Use Data Contract CLI for ODCS linting, Avro/JSON Schema export, changelogs, and breaking checks.
+Generate SQLAlchemy Core `MetaData` from the existing typed ODCS registry for PostgreSQL tables,
+types, keys, relationships, named constraints, and schema-qualified physical bindings. Reuse this
+metadata for Alembic comparison and SQLAlchemy dialect compilation of review DDL; generic SQL
+export is no longer a separate authoritative PostgreSQL model. Do not reverse-parse exported SQL
+into the contract model or maintain handwritten ORM classes beside it. Keep project adapters
+focused on mappings and engine features that generic tooling cannot express:
 
 - PostgreSQL partition, constraint, index, and extension DDL;
 - ParadeDB index/tokenizer definitions;
@@ -648,9 +659,21 @@ generic tooling cannot express:
 - canonical semantic fingerprint and provenance fields.
 
 Generated outputs are deterministic and committed when needed for review. `make contracts-check`
-regenerates into a temporary directory and fails on drift.
+regenerates under `$DATA_DIR/contracts-check/<run-id>/` and fails on drift. The same normalized
+contract fields generate Pandera schemas and dbt source/column/test YAML. Descriptions, units,
+decimal precision/scale, time zones, nullability, keys, relationship targets, and rule identities
+must survive generation; unsupported semantics are explicit failures, not silently dropped hints.
+Handwritten domain transformations and semantic predicates reference contracts and rule ids.
+
+[SQLAlchemy Core metadata](https://docs.sqlalchemy.org/en/20/core/metadata.html) supplies Python
+schema objects without requiring an ORM. This is the selected schema representation.
 
 ### Evolution and migrations
+
+Before the first database deployment or public release, the operator-authorized baseline is one
+initial Alembic revision. Later deployed/released revisions are immutable and additive. Catalog
+observations are run evidence under DATA_DIR; live checks derive expected definitions from
+contracts and the authored migration, without a parallel committed catalog snapshot.
 
 Compatibility classes follow a documented policy:
 
@@ -664,10 +687,115 @@ Compatibility classes follow a documented policy:
 
 Each reviewed version has a committed baseline containing physical fields, semantic metadata,
 generator version, parsing fingerprint, and migration history. Avro reader/writer compatibility is
-tested in both required directions. A migration tool such as dbmate owns ordered SQL migrations and
-`schema.sql`; generated baseline DDL does not auto-migrate an existing database. Destructive or
-table-rewriting migrations require an explicit human-approved plan, backup, free-space check, and
-rollback/rebuild path.
+tested in both required directions. Alembic owns the revision graph, applied version state, and
+upgrade/downgrade execution. Use immutable Python revisions under
+`src/arxiv_int/migrations/versions/` with typed SQLAlchemy/Alembic operations and pinned contract
+fingerprints. Historical revisions carry frozen definitions; they never import today's contracts
+to decide what an old upgrade creates. Generated DDL never auto-migrates a store. Offline review
+SQL from `arxiv-int db upgrade --sql` lands under `$DATA_DIR/migrations/<run-id>/` and is not
+committed.
+
+Autogeneration compares contract-derived metadata to an explicitly selected disposable database
+and produces candidate Python operations for review. Restrict comparison to owned canonical
+schemas/tables, retaining prior owned identities to detect removals. Exclude dbt relations,
+extension internals, and other applications. Names, revision parents, checksums, one expected head,
+types, defaults, precision, nullability, keys, checks, indexes, and partitions need explicit gates.
+Renames, semantic changes, extension operations, and data backfills need reviewed handling;
+autogeneration cannot infer their intent. Alembic documents these
+[autogeneration limits](https://alembic.sqlalchemy.org/en/latest/autogenerate.html).
+
+Separate generate/check/status from apply. A missing runner or unavailable required live database
+is `not-run`/failure, never a successful migration check. Verify empty-to-head and
+previous-release-to-head upgrades against the pinned PostgreSQL image and compare live catalog
+definitions, not SQL substrings. Reapplying head is a no-op; supported downgrades preserve their
+declared data guarantees, while irreversible revisions refuse with a recovery path. Destructive or
+table-rewriting changes still require the explicit approved plan, backup, free-space check, and
+rollback/rebuild path. A comment marker alone does not supply that evidence. Large data backfills
+are resumable transformation jobs with a separate activation step, not long schema transactions.
+
+Only verified equivalent databases may be stamped at a baseline revision. Unknown, partial, or
+drifted databases refuse adoption with a diagnostic and repair plan; do not blindly stamp, replay
+CREATE statements over existing data, or rewrite applied history.
+
+### Data transformations and quality
+
+Operators need named, reviewable operations, reproducible lineage, and a clear reason when data
+cannot be published. Use the following tools behind the existing stage interfaces; keep one
+local pipeline scheduler and one canonical PostgreSQL service.
+
+| Concern | Selected tool and ownership | Boundary |
+| --- | --- | --- |
+| Canonical schema and transactional access | SQLAlchemy Core + Alembic; psycopg for binary COPY | Python schema operations, bound queries/upserts, and migrations; no business transformation SQL strings in Python or shell |
+| Relational transformations | Python dbt Core 1.x + `dbt-postgres` | Versioned SQL models and YAML descriptions/tests under `transformations/`; canonical inputs are dbt sources |
+| Local tabular transformations | Polars expressions; PyArrow batches/Parquet IO | Typed functions in `src/arxiv_int/transformations/`; bounded partitions and measured memory; retain DuckDB where an existing library such as Splink needs it |
+| Dataset quality | Pandera with its Polars backend + dbt data tests | Contract-derived batch validation and whole-relation checks; reuse existing domain/SHACL validators for semantic rules |
+
+dbt organizes SQL into models with dependency references and tests; it does not eliminate SQL.
+For this PostgreSQL design, Python processing runs in local Polars stages, without assuming dbt
+Python-model support from the adapter. Select a compatible pinned Python dbt Core 1.x release and
+PostgreSQL adapter; upstream `main` now documents a Rust 2.0 beta. See
+[dbt Core](https://github.com/dbt-labs/dbt-core),
+[PostgreSQL setup](https://docs.getdbt.com/docs/local/connect-data-platform/postgres-setup), and
+[Python model platform constraints](https://docs.getdbt.com/docs/build/python-models).
+
+dbt owns derived staging/intermediate/mart relations in a dedicated `derived` schema. Alembic owns
+canonical relations and the schema/role boundary, and never migrates dbt model tables. dbt reads
+canonical sources and writes only derived relations. Ingestion, leases, reviews, COPY, and canonical
+upserts remain typed Python/SQLAlchemy operations. BM25/vector index DDL and AGE/Cypher use narrow,
+reviewed engine adapters where Python operations cannot express them. Keep unavoidable dialect SQL
+in named versioned assets with bound values and safely composed identifiers; do not add a general
+SQL templating framework or move transactional control into dbt hooks.
+
+Models declare grain, stable keys, column descriptions, units, source/ref dependencies, inclusion
+policy, and incremental/deletion semantics. Generated contract YAML owns shared field definitions;
+model-specific descriptions/formulas and tests remain reviewed source assets. Build into an isolated
+generation, run tests, then let the pipeline activate it atomically. dbt's model DAG is invoked by
+the stage runner; it does not replace run/shard leases. Prevent concurrent writes to the same target.
+Active derived generations and engine versions are immutable: rebuild under a new run id.
+Activation requires current invocation evidence for selected relations and their required tests;
+missing or stale evidence fails closed. Cleanup only drops eligible inactive projections, and
+rechecks eligibility under the same database lock as publication.
+Input removals, late corrections, review/identity changes, and formula changes must invalidate or
+rebuild affected outputs. A blind append-only incremental model cannot satisfy reconciliation.
+
+Use Pandera plus dbt tests as the default equivalent to Great Expectations for this local workflow.
+This choice avoids a second suite/checkpoint configuration lifecycle; it is an architectural choice,
+not a measured package-size claim. GX remains a future option only for an unmet validation need.
+See [GX Core workflows](https://docs.greatexpectations.io/docs/core/introduction/),
+[Pandera Polars validation](https://pandera.readthedocs.io/en/stable/polars.html), and
+[dbt data tests](https://docs.getdbt.com/docs/build/data-tests).
+
+Generate structural checks from ODCS: strict types, nullability, accepted values, keys, and declared
+relationships. Keep monetary arithmetic decimal and units/currencies explicit. Run data checks on
+bounded materialized batches: Pandera LazyFrame schema-only validation is insufficient. Cross-batch
+uniqueness and relationships require whole-snapshot checks using dbt or bounded disk-backed
+aggregation; batch-local passes cannot prove them. Polars streaming can fall back to memory for
+some operations, so inspect execution plans and test memory bounds; see
+[Polars streaming](https://docs.pola.rs/user-guide/concepts/streaming/).
+
+Quality results carry rule id/version, contract/model/input fingerprints, scope, checked/failed
+counts, severity, and bounded redacted failure references. Distinguish pass, fail, warning,
+not-applicable, and not-run; define empty-data and minimum-sample outcomes. Missing required checks
+and schema/evidence failures block activation. Quarantine row-level failures with evidence and
+explicit coverage when policy permits; never silently coerce, discard, or publish invalid rows.
+Data quality is separate from held-out extraction/retrieval/model-quality evaluation.
+
+Keep tooling optional: migration dependencies in `store` (shared metadata dependency in
+`contracts`), Polars in `lake`, and dedicated `transform`/`data-quality` feature groups for dbt and
+Pandera. Each implementing task updates feature metadata, Python 3.12 compatibility, exact
+output-sensitive pins, `uv.lock`, licences, and Make setup together. No network installs occur in
+pipeline workers. `.env` credentials use the shared resolver and stay out of generated profiles,
+logs, and manifests. Tool targets/logs/caches live under `$DATA_DIR/<method>/<run-id>/`; sanitized
+dbt manifest/run-results and quality evidence needed for replay are retained in
+`$RUNS_DIR/<run-id>/{manifests,quality}/` through the normal artifact publisher.
+
+Acceptance requires deterministic contract generation, migration graph/drift regressions, declared
+live upgrade/adoption tests, dbt parse/compile/build/test on synthetic PostgreSQL fixtures, and
+Pandera positive/negative fixtures. Compare clean builds to repeated/incremental builds after
+updates/deletions, enforce read/write ownership, verify failure prevents activation, and retain
+redacted lineage. Missing tools/databases or unsupported contract semantics are valid negative
+outcomes but keep the corresponding required implementation gate open. Fixture success does not
+prove archive-scale memory, extraction accuracy, or production migration safety.
 
 ## Data model and stores
 
@@ -705,7 +833,7 @@ is therefore a logical dataset layout, not permission to overwrite a currently a
 
 ### PostgreSQL schemas
 
-| Schema     | Canonical contents                                                                                      |
+| Schema     | Ownership and contents                                                                                  |
 | ---------- | ------------------------------------------------------------------------------------------------------- |
 | `ctl`      | Contracts, migrations, runs, forecasts, shards, leases, checkpoints, errors, artifact lineage/registry |
 | `corpus`   | Documents, editions, path events, spans, chunks, language, quality, duplicate and classification data   |
@@ -713,11 +841,12 @@ is therefore a logical dataset layout, not permission to overwrite a currently a
 | `kg`       | Canonical objects, aliases, mentions, facts, qualifiers, review state, source evidence                  |
 | `ontology` | Terms, classes, predicates, mappings, axioms, ontology versions                                         |
 | `eval`     | Frozen gold items, query sets, labels, run metrics, paired comparisons                                  |
+| `derived`  | Rebuildable dbt staging/intermediate/mart relations; never canonical rows                              |
 
 Large tables are declaratively partitioned by a stable hash bucket and, where useful, corpus or
 contract version. Partitions must be large enough to avoid catalog explosion. Text and vector
 columns are kept out of narrow control tables. Bulk loads use binary `COPY` into staging/partitions,
-validate counts and checksums, then attach or merge transactionally.
+validate contract-derived quality, counts and checksums, then attach or merge transactionally.
 
 ### Source and evidence identity
 
@@ -839,8 +968,10 @@ canonical facts and identity snapshots, not on AGE availability.
 
 ### End-to-end run and output contract
 
-After path/service setup, `arxiv-int pipeline run --archive-dir PATH --results-dir PATH` selects the
-`investigation` profile by default. It takes a directory tree of files; compressed containers are
+After `make setup` succeeds, `make pipeline` runs end-to-end from the resolved `.env` settings.
+Its direct CLI equivalent is `arxiv-int pipeline run`, with no required path or profile arguments.
+`PIPELINE_PROFILE` defaults to `investigation`; explicit CLI/Make or process-environment overrides
+retain the normal precedence. It takes a directory tree of files; compressed containers are
 members of that tree, not a required input packaging format. The resolved archive roots, source
 selection, model/policy pins, enabled families, and resource bounds are frozen before work. A bounded
 `--profile lexical` run is an explicit partial product path, never labelled a complete investigation.
@@ -1036,21 +1167,145 @@ model id/digest, sampling settings, and output schema version are part of proven
 
 ## CLI and Make interface
 
+### Retryable setup and default pipeline command
+
+The normal operator workflow from a checkout uses one setup target, with edits/retries as needed,
+followed by one pipeline command:
+
+```text
+make setup
+# Edit .env when requested, then rerun make setup until the selected infrastructure is ready.
+make pipeline
+```
+
+The operator edits `.env`; `.venv` is the generated Python environment and is managed by setup.
+Git/Make/Bash, uv, Python 3.12+, Docker/Compose and the selected host inference/GPU prerequisites
+must be installed with the host's normal tools. Setup diagnoses missing tools, permissions, mounts,
+drivers and host services with exact next actions; it does not install privileged OS packages,
+change Docker groups, manage systemd, or rewrite host storage configuration.
+
+`make setup` creates `.env` from the template when absent and preserves all existing values and
+commented declarations on later attempts. It reports missing/invalid operator roots and secrets
+before product-root writes, downloads or service startup. Setup does not launch an editor. No
+activated virtual environment, manual exports, direct uv invocation or command chain is required.
+Every invocation rereads the
+file through the existing resolver; explicit environment overrides remain visible as override
+sources and retain precedence, with secret values masked.
+
+After configuration is valid, the setup coordinator performs these ordered phases through shared
+atomic command handlers: check host prerequisites; sync one locked union of selected feature
+dependencies into `.venv`; verify package identity; prepare validated paths; obtain required pinned
+images and configured model assets; start selected services; wait within bounded deadlines;
+check/apply eligible reviewed Alembic revisions; validate contract/tool/model/service readiness.
+A stopped host Ollama
+service requires an operator action; a selected vLLM container is managed through Compose. Model
+acquisition uses the configured backend's storage and never silently chooses another model.
+Downloads are setup operations; `SETUP_DOWNLOADS=0` requires locally cached assets and refuses
+missing ones. Default `SETUP_DOWNLOADS=1` permits configured package/image/model acquisition during
+setup. Pipeline workers never install dependencies, pull models, or start infrastructure.
+
+Each phase remains independently callable through Make/CLI. The coordinator supplies resolved
+configuration and attempt context to the same typed handlers used by those commands; it does not
+copy shell recipes, SQL or model/service operations. The ordered command chain and the availability
+of each command belong in the linked [operator workflow](../guide/operator-workflow.md).
+The setup owner provides the missing configuration, environment, image/model acquisition, bounded
+wait and schema-binding commands around existing dotenv, feature, Compose, store and inference
+adapters. Package/contract/ontology checks use their existing handlers with the prepared dependency
+union; nested commands must not remove selected extras or repeat online dependency sync in offline
+mode. Bootstrap remains a contributor workflow, not a pre-start readiness barrier for setup.
+
+Schema preparation explicitly binds to the selected service's database and credentials from the
+shared runtime configuration, verifies target identity, and uses the existing store apply/inspect
+and Alembic policy. Pass credentials privately through the adapter; never print a URL or interpolate
+passwords into shell commands. A conflicting explicit migration target is refused with a redacted
+next action. The store smoke command's disposable-database fallback is disabled in setup. An empty
+database can receive the reviewed initial revisions. A nonempty unversioned, unknown or drifted
+catalog requires a separate reviewed repair/adoption action; setup never auto-adopts it, invents a
+revision, or substitutes scratch-database success for service health.
+
+Setup and pipeline use one declarative profile requirement source: required/optional stage features,
+services, model identities, contract revisions and availability. The setup coordinator consumes
+those declarations without importing heavy workers or implementing a second stage DAG. Providers
+join the shared feature/service policy as their capabilities ship. Missing mandatory providers or
+reserved, unimplemented stages must be named as unavailable; successful installation alone cannot
+be labelled ready to run the pipeline. Infrastructure health and pipeline implementation availability
+are separate report fields.
+
+`PIPELINE_PROFILE=investigation` selects the default run. `SERVICE_PROFILES=pipeline` retains the
+existing core/UI/observability alias as the service default; required services for the selected run
+and inference backend are added by the shared selector, including vLLM when selected. Explicit
+optional graph/vector branches remain opt-ins. Make and CLI must not pass hardcoded default
+arguments that shadow `.env`. These variables and `SETUP_DOWNLOADS` enter `.env.example` and the
+shared typed configuration schema in the owning implementation tasks.
+
+Retries reconcile actual state using lock/config/profile/image/model/revision fingerprints. Reuse
+verified installed packages and cached assets, preserve operator data and healthy services, retry
+only missing/failed work, and recheck readiness even when all previous phases passed. A failure
+stops dependent phases and reports phase, status, next action and the same `make setup` retry command.
+Bound waits/download operations, support cancellation, and serialize concurrent setup against the
+same environment/service/database targets. Never reset data, rotate secrets, blindly stamp a
+database, or replay a successful migration to repair readiness. Destructive or rewriting migrations
+retain their separate approval/recovery gate; eligible additive migrations use the existing Alembic
+policy. Before safe product roots exist, diagnostics stay on the console; after validation, retain
+the redacted setup report at `$RESULTS_DIR/reports/setup.json` alongside readiness. Tool logs belong
+under `$DATA_DIR/setup/<attempt-id>/`. Ready returns success; blocked/degraded/interrupted outcomes
+remain explicit, and an unimplemented required check cannot count as ready.
+
+`make pipeline` loads `.env` itself, invokes the installed CLI, and runs preflight plus a fresh,
+fingerprinted resource forecast before expensive work. It then executes the selected dependency
+closure through validation, evaluation and report publication. A separate forecast, stage loop,
+manual validation or `report build` is optional diagnosis, not part of the normal run procedure.
+Existing resource limits, source scope and human authorization requirements still apply. Missing
+setup or required implementations refuses execution with an actionable result; partial work never
+claims success. The command reports the run id, final logical status, knowledge-base manifest and
+report entry paths, plus exact status/resume commands after interruption. CLI exit codes follow the
+run contract; Make returns nonzero on failure and displays the logical result without claiming to
+preserve every distinct CLI exit code. Repeated unchanged runs reuse validated artifacts.
+
+The aggregate pipeline command composes the same run-create, preflight, forecast, registered stage
+and run-finalize handlers exposed by the atomic interfaces. Creation assigns a unique run id and
+freezes the resolved profile/configuration; each subsequent atomic command uses that run id and
+validates its recorded inputs. Retain only secret-free configuration evidence and fingerprints;
+resolve credentials privately at execution. A changed configuration requires a new run or explicit invalidation,
+not silent cross-command drift. Finalization verifies required quality/artifact states and commits
+the coherent generation pointer; building a report alone cannot activate a generation. Standalone
+processing stages still enforce preflight, forecast freshness, dependencies and leases. The explicit
+chain and aggregate run must produce equivalent logical artifacts, lineage, quality outcomes and
+completion states, allowing different run ids/timestamps. Both stop on failure and retain resumable evidence.
+
+Evaluation covers no `.env`/no `.venv`, edit-and-retry without shell exports, precedence, dependency
+sync failure, cached/offline runs, missing host services, slow startup, model failure, schema drift,
+concurrency and cancellation. Fixture tests compare Make and CLI defaults, aggregate/atomic phase
+traces, and run-generation results; they prove unsafe or incomplete setup cannot launch workers and
+that schema readiness checks the intended service. A declared disposable host smoke verifies setup,
+followed by the existing mixed-fixture and authorized archive proofs using bare `make pipeline`.
+Until those owners pass, README labels these targets planned and links the available manual path.
+
+### Command reference
+
 The installed command is `arxiv-int`. Representative commands are:
 
 ```text
 arxiv-int readiness
+arxiv-int setup
 arxiv-int features [--stage STAGE]
 arxiv-int config show --redact
 arxiv-int contracts lint|generate|diff|check|test
+arxiv-int db revision|check|status|upgrade|downgrade
+arxiv-int transform parse|build|test --run-id RUN_ID
+arxiv-int data-quality check DATASET --run-id RUN_ID
 arxiv-int services status
 arxiv-int pipeline forecast --archive-dir PATH [--from STAGE] [--to STAGE]
-arxiv-int pipeline run --archive-dir PATH --results-dir PATH [--profile investigation|lexical]
+arxiv-int pipeline forecast --run-id RUN_ID
+arxiv-int pipeline run [--archive-dir PATH] [--results-dir PATH] [--profile investigation|lexical]
                        [--from STAGE] [--to STAGE]
 arxiv-int pipeline update --archive-dir PATH [--from STAGE] [--to STAGE]
 arxiv-int pipeline rebuild --archive-dir PATH [--from STAGE] [--to STAGE]
 arxiv-int pipeline invalidate STAGE [--document-id ID]
 arxiv-int stage STAGE --archive-dir PATH --results-dir PATH [stage options]
+arxiv-int stage STAGE --run-id RUN_ID [stage options]
+arxiv-int run create
+arxiv-int run finalize RUN_ID
 arxiv-int artifacts prune --stale [--apply --plan PLAN_ID]
 arxiv-int archive reorganize --classification PATH --silo ID --mode copy --target PATH
 arxiv-int archive reorganize --classification PATH --silo ID --mode move
@@ -1072,19 +1327,27 @@ arxiv-int report build RUN_ID
 Standard Make targets are thin, documented wrappers:
 
 ```text
-make help                  make bootstrap             make package-check
+make help                  make setup                 make pipeline
+make setup-config          make setup-env             make setup-wait
+make services-pull         make models-pull           make setup-schema
+make bootstrap             make package-check
 make readiness             make config                make contracts
 make contracts-gen         make contracts-evolution  make services-up
+make db-check              make db-status            make db-revision MESSAGE=...
+make db-upgrade REVISION=...                          make db-downgrade REVISION=...
+make transform-build RUN_ID=...                      make data-quality DATASET=... RUN_ID=...
 make services-down         make services-reset       make services-status
 make logs
-make forecast              make pipeline              make update
+make run-create            make forecast RUN_ID=...   make run-finalize RUN_ID=...
+make update
 make proof CAPABILITY=...  make stage STAGE=...       make resume RUN_ID=...
 make search QUERY=...      make graph-up              make ui-up
 make eval                  make test                  make integration-test
 make ci                    make backup                make restore-check
 ```
 
-The primary path contract works in both forms:
+The default workflow needs no path flags or exported shell variables. Explicit path overrides work
+in both forms:
 
 ```bash
 make pipeline ARCHIVE_DIR=/mnt/archive RESULTS_DIR=/mnt/results
@@ -1432,9 +1695,10 @@ proposal; no requirement to generate a nonempty anomaly list is allowed.
 ## Implementation boundaries
 
 Project modules own orchestration, contracts, policy, metrics, and backend-neutral interfaces.
-Maintained engines such as Tika, Docling, OCRmyPDF/Tesseract, PyArrow, DuckDB, Data Contract CLI,
-ParadeDB, pgvector, AGE, rdflib/pySHACL, Splink, Ollama, and vLLM are integrated through narrow
-adapters rather than reimplemented. Optional stacks remain in the feature group that activates
+Maintained engines such as Tika, Docling, OCRmyPDF/Tesseract, PyArrow, Polars, DuckDB,
+Data Contract CLI, SQLAlchemy Core, Alembic, dbt Core, Pandera, ParadeDB, pgvector, AGE,
+rdflib/pySHACL, Splink, Ollama, and vLLM are integrated through narrow adapters rather than
+reimplemented. Optional stacks remain in the feature group that activates
 them, and runtime artifacts never depend on a sibling source checkout.
 
 ### Development integrity and review checkpoints
@@ -1453,6 +1717,16 @@ inputs, invariants, evidence and downstream gates. No refactor needed is a valid
 require separate repairs before consumers proceed; each concern has one owner. New rounds use new
 ids. Fixture reviews cannot waive real-data, CUDA or human gates; unavailable private labels cannot
 block independent fixture implementation.
+
+Implementation tasks add tests for integrity, correctness, and business logic: the happy path, the
+main corner cases, and a regression for each defect found. That set is sufficient while interfaces
+are still changing. Do not add tests that only freeze current implementation, configuration
+snapshots, or historical policy. The suite stays a specification of required behavior, not an
+inventory of incidental coverage. A numeric line or branch coverage percentage is not an
+acceptance signal and must not fail `make ci` or `make quality`. Coverage reports remain
+diagnostic. Milestone checkpoints add targeted tests for important cases once that stage's
+interfaces have stabilized. Concluding that existing tests already cover those cases is valid.
+Restoring a numeric coverage floor is out of scope.
 
 Refactoring preserves public behavior except specified defect fixes. Reuse typed seams and shared
 root, service, credential, contract and artifact policy; avoid frameworks or line-count-only splits.
@@ -1488,7 +1762,9 @@ Before store or model promotion, freeze a representative corpus manifest and rev
   quantities, units, totals, allocations, conflicts, and valid empty results.
 
 Gold creation and threshold setting use separate tuning and final partitions. LLM-drafted items do
-not become scoring truth without review.
+not become scoring truth without review. The operator designates one authorized representative
+slice as `PROOF_ARCHIVE_DIR`. Machine-specific paths and private source text stay out of the
+repository.
 
 ### Provided-archive proof runs
 
@@ -1532,8 +1808,12 @@ and results, but never copies private source content or machine-specific archive
 
 | Area              | Gate                                                                                                                                                                                             |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Fresh setup       | From a copied repo, `make bootstrap` creates or extends `.env`, reports missing configuration, and after operator edits, `make readiness`, `make services-up`, a smoke pipeline, and `make ci` succeed without paths tied to the original disk. |
+| Fresh setup       | From a copied repo, `make setup` creates or extends `.env`, reports required edits, and retries safely to verified service/schema/model readiness. Bare `make pipeline` then produces the required manifest/report using `.env`; the documented atomic chain is equivalent. Missing implementations remain explicit. `make ci` passes without paths tied to the original disk. |
+| Operator entrypoints | `make setup`, edit `.env`, and retry reaches verified readiness without losing completed work; bare `make pipeline` performs forecast through validated report publication with no manual stage commands. |
 | Contracts         | ODCS lint, generation drift, Avro round-trip/compatibility, evolution policy, migration status, and live Postgres schema tests pass.                                                             |
+| Migrations        | Contract-derived SQLAlchemy metadata, reviewed Alembic Python history, empty/prior-release upgrades, verified legacy adoption and live catalog parity pass; unavailable live checks remain not-run. |
+| Transformations   | Described dbt models and typed Polars operations retain source/rule lineage; clean/incremental/deletion parity, role isolation and failed-build activation refusal pass. |
+| Data quality      | Pandera batch checks and whole-snapshot dbt/disk-backed checks cover contract rules; missing/failed required checks block publication with bounded redacted evidence. |
 | Idempotency       | Re-running an unchanged successful shard writes no duplicate canonical rows or artifacts and reports a cache hit; interrupted stages resume from completed shards.                               |
 | Incremental state | Added/changed/renamed/removed sources and stage-owned implementation changes invalidate only their lineage closure; active views retract stale outputs and retain audit evidence.                 |
 | Forecast          | Time/size ranges cite evidence, all target devices and peak scratch/rebuild needs are counted, and insufficient free space blocks before heavy allocation.                                        |
@@ -1613,9 +1893,9 @@ evidence exist. Registry order is the implementation line used by `plan.md`.
 | #   | Capability                | Status  | How it is evaluated                                                                          | Implementation                                               |
 | --- | ------------------------- | ------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
 | 1 | `project-foundation` | shipped | Fresh copy, rename, locked bootstrap, CLI identity, docs integrity, and CI pass | [Project foundation](../impl/current/project-foundation.md) |
-| 2 | `portable-runtime` | shipped | Multi-SSD path and Compose profile smoke tests pass from two checkout locations | [Portable runtime](../impl/current/portable-runtime.md) |
-| 3 | `contract-governance` | planned | ODCS lint/generation/evolution/Avro/migration/live-store gates pass | [Open work](../impl/plan.md#contract-governance----contract-governance) |
-| 4 | `canonical-store` | planned | ParadeDB/pgvector/AGE compatibility, schema, backup, restore, and projection checks pass | [Open work](../impl/plan.md#canonical-store----canonical-store) |
+| 2 | `portable-runtime` | shipped | Existing path/profile gates plus fresh setup, edit/retry, cached assets, failure propagation and shared requirement resolution pass | [Portable runtime](../impl/current/portable-runtime.md) |
+| 3 | `contract-governance` | shipped | ODCS generation/evolution, Alembic revision checks, shared dataset-quality checks and ontology gates pass; live schema upgrade/adoption is recorded under canonical-store | [Contracts](../impl/current/contracts.md) |
+| 4 | `canonical-store` | shipped | Disposable extension compatibility, initial schema/adoption, dbt validation/publication and projection rebuild/cleanup pass the foundation checkpoint; operator recovery remains a separate capability | [Canonical store](../impl/current/canonical-store.md); [Checkpoint](../impl/records/0027-store-review-foundation-and-store-boundaries.md) |
 | 5 | `local-inference` | planned | Ollama/vLLM conformance, structured outputs, model-fit, and local-only endpoint gates pass | [Open work](../impl/plan.md#local-inference----local-inference) |
 | 6 | `evaluation-foundation` | planned | Frozen fixtures, replayable metrics, split guards, and paired verdict utilities pass | [Open work](../impl/plan.md#evaluation-foundation----evaluation-foundation) |
 | 7 | `pipeline-control` | planned | Fixture-first DAG, output manifest, resume, generation activation, delta, forecast, and progress gates pass | [Open work](../impl/plan.md#pipeline-control----pipeline-control) |
@@ -1628,7 +1908,7 @@ evidence exist. Registry order is the implementation line used by `plan.md`.
 | 14 | `domain-investigation-artifacts` | planned | Reviewed BOM, relationship, supply-chain, invoice/payment, render, and registry gates pass | [Open work](../impl/plan.md#domain-investigation-artifacts----domain-investigation-artifacts) |
 | 15 | `anomaly-analysis` | planned | Per-detector fixtures, cohort/time guards, review-budget precision, provenance, and bounded triage views pass | [Open work](../impl/plan.md#anomaly-analysis----anomaly-analysis) |
 | 16 | `discovery-visualization` | planned | Topic stability, three catalog parity, and analyst report/search/graph/anomaly drill-down scenarios pass | [Open work](../impl/plan.md#discovery-and-visualization----discovery-visualization) |
-| 17 | `evaluation-evidence` | planned | Artifact-lineage checks and representative scale pilots produce readable, capacity-aware verdicts | [Open work](../impl/plan.md#evaluation-and-evidence----evaluation-evidence) |
+| 17 | `evaluation-evidence` | planned | Artifact-lineage checks and representative scale pilots produce readable, capacity-aware verdicts | [Evaluation](../impl/current/evaluation.md); [Open work](../impl/plan.md#evaluation-and-evidence----evaluation-evidence) |
 | 18 | `operational-recovery` | planned | Security checks, backup/restore drill, disk exhaustion, interruption, and runbook tests pass | [Open work](../impl/plan.md#operational-recovery----operational-recovery) |
 | 19 | `semantic-retrieval` | planned | Selected-tier vector and hybrid candidates receive paired adopt/retain verdicts | [Open work](../impl/plan.md#semantic-retrieval----semantic-retrieval) |
 | 20 | `archive-organization` | planned | Artifact-only dry-run, independent copies, move backup, path accounting, resume, rollback, and lookup pass | [Open work](../impl/plan.md#separate-archive-organization----archive-organization) |

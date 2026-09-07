@@ -85,6 +85,17 @@ dependencies are allowed and are not runtime cycles.
 
 ## Module ownership and durable interfaces
 
+`make setup` coordinates independently callable configuration, environment, asset, service, schema
+and readiness commands through their shared typed handlers. Declarative profile requirements feed
+setup and the stage registry without importing workers during bootstrap. Schema binding always
+selects the configured service; the disposable store-test path cannot establish setup readiness.
+
+`make pipeline` delegates to the same run-create, preflight, forecast, stage and run-finalize
+handlers used by the [explicit operator command chain](../guide/operator-workflow.md). One run
+context carries resolved configuration, profile, leases and artifact identities across either
+entry path. There is one DAG and one publication implementation. The coordinator adds sequencing,
+progress and failure propagation; individual commands retain their own prerequisites and checks.
+
 | Owner | Responsibility |
 | --- | --- |
 | `cli.py` and Make | Parse commands and delegate to typed application services |
@@ -136,8 +147,9 @@ cross-document relation. Predeclare expected source anchors, identity nonmatches
 allocations, partial BOM, anomaly findings, and empty cases. This fixture exercises actual adapters
 selected for the baseline; mocked model responses test error paths but cannot prove CUDA execution.
 
-One `pipeline run --profile investigation` must produce the complete manifest and portable report;
-the same source bytes run twice must reuse heavy outputs. Then prove the selected local model on one
+Bare `make pipeline` with the fixture's `.env` must produce the complete manifest and portable report;
+the documented atomic chain must yield equivalent logical outputs and quality states. Running
+the same source bytes twice must reuse heavy outputs. Then prove the selected local model on one
 CUDA device with bounded real inference and publish the authorized provided-archive proof. The proof
 captures resources, quality limits, output checksums, source immutability, and error/empty states.
 Directory-to-report acceptance is independent of vector comparisons, AGE, UI services, and archive

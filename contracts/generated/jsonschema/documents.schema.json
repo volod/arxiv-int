@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "byte_size": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "content_hash": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "contract_version": {
+      "type": "string"
+    },
+    "document_id": {
+      "primaryKey": true,
+      "type": "string"
+    },
+    "extractor_profile": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "generation_id": {
+      "type": "string"
+    },
+    "language": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "media_type": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "text_chars": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "title": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "document_id",
+    "generation_id",
+    "contract_version"
+  ],
+  "type": "object"
+}

@@ -1,0 +1,77 @@
+{
+  "fields": [
+    {
+      "name": "edge_id",
+      "type": "string"
+    },
+    {
+      "name": "path_id",
+      "type": "string"
+    },
+    {
+      "name": "stage",
+      "type": "string"
+    },
+    {
+      "name": "from_object_id",
+      "type": "string"
+    },
+    {
+      "name": "to_object_id",
+      "type": "string"
+    },
+    {
+      "name": "role_predicate_id",
+      "type": "string"
+    },
+    {
+      "name": "product_object_id",
+      "type": "string"
+    },
+    {
+      "name": "transaction_id",
+      "type": "string"
+    },
+    {
+      "name": "direction",
+      "type": "string"
+    },
+    {
+      "name": "event_time",
+      "type": {
+        "logicalType": "timestamp-millis",
+        "type": "long"
+      }
+    },
+    {
+      "name": "status",
+      "type": "string"
+    },
+    {
+      "name": "evidence_fact_ids",
+      "type": "string"
+    },
+    {
+      "name": "document_id",
+      "type": "string"
+    },
+    {
+      "name": "review_state",
+      "type": "string"
+    },
+    {
+      "name": "confidence",
+      "type": "bytes"
+    },
+    {
+      "name": "generation_id",
+      "type": "string"
+    },
+    {
+      "name": "contract_version",
+      "type": "string"
+    }
+  ],
+  "name": "supply_chain_edges",
+  "type": "record"
+}

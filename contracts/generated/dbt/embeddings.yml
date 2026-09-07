@@ -1,0 +1,79 @@
+sources:
+  - description: Canonical search relations owned by Alembic.
+    name: search
+    schema: search
+    tables:
+      - columns:
+          - description: embedding_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - embeddings.embedding_id.type
+                - embeddings.embedding_id.nullability
+                - embeddings.embedding_id.batch_unique
+                - embeddings.embedding_id.unique
+            name: embedding_id
+            tests:
+              - not_null
+              - unique
+          - description: target_kind must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - embeddings.target_kind.type
+            name: target_kind
+          - description: target_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - embeddings.target_id.type
+            name: target_id
+          - description: profile_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - embeddings.profile_id.type
+            name: profile_id
+          - description: dimensions must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - embeddings.dimensions.type
+            name: dimensions
+          - description: vector_ref must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - embeddings.vector_ref.type
+            name: vector_ref
+          - description: model_digest must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - embeddings.model_digest.type
+            name: model_digest
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - embeddings.generation_id.type
+                - embeddings.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - embeddings.contract_version.type
+                - embeddings.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - embeddings.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: embeddings
+        description: Vector embedding references for retrieval targets under a profile.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:embeddings:1.0.0"
+          primary_key:
+            - embedding_id
+          rule_catalog_version: 1.0.0
+        name: embeddings
+version: 2

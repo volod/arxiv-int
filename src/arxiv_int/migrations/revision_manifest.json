@@ -1,0 +1,10 @@
+{
+  "revisions": {
+    "0001": {
+      "downRevision": null,
+      "file": "0001_initial_store.py",
+      "message": "initial canonical store schema",
+      "sha256": "6e8765b80ed3433326f59b3c9dea3d767135b79decff744a31acb764d657cc70"
+    }
+  }
+}

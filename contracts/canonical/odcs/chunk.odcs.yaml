@@ -1,0 +1,86 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:canonical:chunk:1.0.0
+name: chunk
+status: active
+schema:
+  - name: chunk
+    logicalType: object
+    properties:
+      - name: chunk_id
+        logicalType: string
+        required: true
+        primaryKey: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: chunk.chunkId
+                semanticTerm: "urn:arxiv-int:term:chunk-id"
+      - name: document_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: chunk.documentId
+                semanticTerm: "urn:arxiv-int:term:document-id"
+      - name: chunker_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: chunk.chunkerId
+                semanticTerm: "urn:arxiv-int:term:chunker-id"
+      - name: ordinal
+        logicalType: integer
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: chunk.ordinal
+                semanticTerm: "urn:arxiv-int:term:ordinal"
+      - name: text
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: chunk.text
+                semanticTerm: "urn:arxiv-int:term:text"
+      - name: start_char
+        logicalType: integer
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: chunk.startChar
+                semanticTerm: "urn:arxiv-int:term:start-char"
+      - name: end_char
+        logicalType: integer
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: chunk.endChar
+                semanticTerm: "urn:arxiv-int:term:end-char"
+      - name: generation_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: chunk.generationId
+                semanticTerm: "urn:arxiv-int:term:generation-id"
+      - name: contract_version
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: chunk.contractVersion
+                semanticTerm: "urn:arxiv-int:term:contract-version"

@@ -1,0 +1,116 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:contract:source-occurrences:1.0.0
+name: source-occurrences
+status: active
+domain: arxiv-int
+description:
+  purpose: Silo-relative source locations and scan status for archive bytes.
+team:
+  name: arxiv-int
+  members:
+    - username: contracts@arxiv-int.local
+      role: Owner
+servers:
+  - server: normalized-lake
+    type: local
+    description: Partitioned normalized lake under RESULTS_DIR
+    path: normalized/source-occurrences
+    format: parquet
+customProperties:
+  - property: x-arxiv-int
+    value:
+      schema: corpus
+      table: source_occurrences
+      partitionKey: bucket
+schema:
+  - name: source_occurrences
+    physicalName: source_occurrences
+    logicalType: object
+    properties:
+      - name: occurrence_id
+        logicalType: string
+        primaryKey: true
+        primaryKeyPosition: 1
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: source_occurrence.occurrenceId
+                semanticTerm: "urn:arxiv-int:term:occurrence-id"
+      - name: silo_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: source_occurrence.siloId
+                semanticTerm: "urn:arxiv-int:term:silo-id"
+      - name: relative_path
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: source_occurrence.relativePath
+                semanticTerm: "urn:arxiv-int:term:relative-path"
+      - name: scan_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: source_occurrence.scanId
+                semanticTerm: "urn:arxiv-int:term:scan-id"
+      - name: content_hash
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: source_occurrence.contentHash
+                semanticTerm: "urn:arxiv-int:term:content-hash"
+      - name: container_path
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: source_occurrence.containerPath
+                semanticTerm: "urn:arxiv-int:term:container-path"
+      - name: member_path
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: source_occurrence.memberPath
+                semanticTerm: "urn:arxiv-int:term:member-path"
+      - name: status
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: source_occurrence.status
+                semanticTerm: "urn:arxiv-int:term:status"
+      - name: generation_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: source_occurrence.generationId
+                semanticTerm: "urn:arxiv-int:term:generation-id"
+      - name: contract_version
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: source_occurrence.contractVersion
+                semanticTerm: "urn:arxiv-int:term:contract-version"

@@ -4,6 +4,27 @@ Runtime configuration and path behavior lives cohesively under `src/arxiv_int/ru
 top-level package contains only its initializer, CLI entry point, and metadata module; runtime
 implementation details do not expand that namespace.
 
+`make setup` is the operator entry for environment, model, service and schema preparation. It
+creates a missing `.env`, names required edits, syncs the locked extra union, acquires or
+cache-checks selected images and models, starts services, waits for transport and model health,
+applies eligible Alembic revisions to the configured service only, and re-probes readiness.
+Retries reuse verified fingerprints and still probe services, wait, and readiness. Concurrent
+setup against the same targets is refused. Pipeline stages remain unimplemented:
+infrastructure-ready never means pipeline-available. `make pipeline` stays
+[planned](../plan.md#pipeline-control----pipeline-control). See the
+[operator workflow](../../guide/operator-workflow.md) for the atomic chain and the
+[accepted setup record](../records/0022-runtime-implement-retryable-setup-command.md).
+
+`make bootstrap` remains the contributor path that syncs `.env`/`.venv` and audits readiness
+without starting services or applying schema.
+
+Make entry points stop on environment-loading or dependency-sync failure before invoking the
+requested command. Base CLI help/features and setup argument parsing work before optional extras
+are installed; database imports occur when the schema phase executes. Setup validates the complete
+initial store before reusing its applied revision;
+partial or drifted state is refused. See the
+[boundary repair](../records/0028-store-refactor-foundation-store-acceptance-boundaries.md).
+
 ## Layered configuration
 
 `arxiv_int.runtime.load_runtime_config()` resolves runtime values with CLI, process environment,
@@ -52,9 +73,11 @@ bootstrap runs before the virtual environment exists. It parses the file instead
 so a value is never run as shell, and it exports the resolved absolute `*_DIR` values the Python
 entry points then re-resolve identically. Paired fixtures in `tests/config/test_parity.py` hold the
 two implementations to one result for defaults, overrides, nested references, quotes and spaces,
-explicit empty values, invalid input and foreign working directories. Reading resolves without
-mutating the process environment or the checkout; `make bootstrap` remains the only step that
-appends to `.env`.
+explicit empty values, invalid input and foreign working directories. Only exported shell variables
+count as process overrides, matching Python's environment; whitespace is trimmed before unquoting.
+Reading resolves without
+mutating the process environment or the checkout; `make bootstrap` and `make setup` are the steps
+that append missing `.env` declarations.
 
 `make` derives its tool-cache root from the same resolved `DATA_DIR` through
 `arxiv_int_data_root`, so linter, type-checker, test and complexity caches follow the operator's
@@ -99,6 +122,25 @@ creates the empty runtime layout, and prints redacted resolved values plus stora
 filesystem, device, rotational, and free-space evidence. CLI root options override both the process
 environment and `.env`. The command exits non-zero on missing or unsafe configuration and never
 logs configured secrets.
+
+## Retryable setup
+
+`arxiv-int setup`, wrapped by `make setup`, coordinates independently callable phases under
+`src/arxiv_int/runtime/setup/`. Typed settings `PIPELINE_PROFILE` (default `investigation`),
+`SERVICE_PROFILES` (default `pipeline`), and `SETUP_DOWNLOADS` (default `1`) live in the shared
+schema and `.env`; Make does not default `SERVICE_PROFILES` in a way that shadows `.env`.
+`SETUP_DOWNLOADS=0` syncs and pulls only from local caches.
+
+Atomic Make/CLI commands share the same handlers: `setup-config`, `setup-env`, `services-pull`,
+`models-pull`, `setup-wait`, and `setup-schema`, plus the existing package, Compose config,
+pinned PostgreSQL image, contracts/ontology, services-up, and readiness commands. Schema apply
+derives the loopback URL from `POSTGRES_*`, refuses a conflicting `ARXIV_INT_MIGRATION_DATABASE_URL`,
+never uses a disposable store, and leaves catalog adoption to `make db-adopt`. Setup does not
+install OS packages, reset service data, or start corpus processing.
+
+Redacted per-phase status is printed and written to `$RESULTS_DIR/reports/setup.json`. Tool
+fingerprints live under `$DATA_DIR/setup/`. Fixture or already-cached model tags used during
+setup smoke do not prove production model fit.
 
 ## System readiness
 
@@ -149,7 +191,8 @@ malformed JSON/model lists and transport failures cannot produce a ready endpoin
 loopback hosts are accepted; query strings, fragments and invalid ports are refused. `localhost`
 uses literal IPv4 loopback, including HTTPS certificate identity validation. IPv6 `::1` is supported.
 Configured backend ports remain shared with Compose. See the
-[accepted probe-safety record](../records/refactor-readiness-probe-safety.md) for evidence and limits.
+[accepted probe-safety record](../records/0008-runtime-refactor-readiness-probe-safety.md) for
+evidence and limits.
 
 ## Local service topology
 
@@ -183,8 +226,8 @@ only selected database, model-cache and per-service state directories. Unselecte
 need not be available. `status`, `down` and `logs` perform no disk inspection or layout preparation.
 Log service arguments must name services in the selected plan; invalid names and negative tails
 are refused before preparation. Reset keeps its existing project-wide root policy. See the
-[accepted service-planning record](../records/refactor-profile-aware-service-planning.md) for
-regressions and verification limits.
+[accepted service-planning record](../records/0007-runtime-refactor-profile-aware-service-planning.md)
+for regressions and verification limits.
 
 `runtime/inference_config.py` resolves generation defaults after configuration precedence:
 `qwen3.8:27b` for Ollama, or `VLLM_MODEL` and `VLLM_MODEL_REVISION` for vLLM. Explicit
@@ -202,8 +245,10 @@ available, recorded in `$RESULTS_DIR/reports/readiness.json`. Overall readiness 
 stopped Compose services. Rotational storage checks pass. The model-selection refactor passes
 `make ci` with 160 tests and `make services-config`; it starts no service or model download.
 
-External images carry both an exact version and an immutable registry digest. AGE Viewer carries a
-project-owned version while its image build remains downstream work. Every service has a healthcheck
+External images carry both an exact version and an immutable registry digest. The database service
+uses the project-owned `arxiv-int/postgres` tag built from a pinned ParadeDB digest plus Apache AGE;
+see [Canonical store](canonical-store.md). AGE Viewer carries a project-owned version while its image
+build remains downstream work. Every service has a healthcheck
 and a bounded stop grace period. The PostgreSQL exporter healthcheck probes `/metrics` because that
 image has no `/health` route, and its `DATA_SOURCE_NAME` stays on one Compose line so YAML folding
 cannot insert a space before the host. Every published port binds to `127.0.0.1`; vLLM is absent
@@ -211,10 +256,12 @@ unless its profile is selected; cAdvisor does not mount the host root.
 
 The operator entry point loads the same layered runtime configuration and passes Compose an explicit
 project directory and `.env` path. It replaces host mount variables in memory with resolved absolute
-paths, injects `RUNTIME_UID` and `RUNTIME_GID` from the invoking process, performs the runtime
+paths, injects `RUNTIME_UID` and `RUNTIME_GID` from the invoking process (required; Compose refuses
+missing values so a bare `docker compose` cannot create inaccessible root or image-default UID
+files), performs the runtime
 preflight before config validation or startup, and creates only the documented layout plus
-per-service state directories. The database, Grafana, Prometheus, AGE Viewer, and vLLM services run as
-that operator UID so bind-mounted artifacts remain host-writable; privileged cAdvisor does not.
+per-service state directories. Every service that writes a bind mount -- database, Grafana, Prometheus,
+AGE Viewer, postgres-exporter, and vLLM -- runs as that operator UID. Privileged cAdvisor does not.
 The database alone mounts `PGDATA_DIR`. A
 configured `PG_WAL_DIR` and any `PG_TABLESPACE_<NAME>_DIR` become generated, short-lived Compose
 overrides mounted only into the database; the override contains no secrets and is removed after the
@@ -225,11 +272,15 @@ are not mounted. The service preflight consequently excludes `PROOF_ARCHIVE_DIR`
 read-without-modification proof-run contract remains enforced by pipeline behavior and future proof
 commands; ordinary host write permission is accepted.
 
-A `PGDATA_DIR` initialized under the previous image-default UID (typically 999) must be reassigned to
+Disposable image probes under `arxiv-int store probe-image` also pass `docker run --user` with the
+same host UID/GID so `$DATA_DIR/postgres-image-probe/.../pgdata` stays erasable by the operator.
+
+A `PGDATA_DIR` initialized under an older image-default UID (typically 999) must be reassigned to
 the operator once before `make services-up` can pass the writable-path preflight, for example
 `docker run --rm -v "$PGDATA_DIR:/data" alpine chown -R "$(id -u):$(id -g)" /data`.
 
-`make services-up` starts `SERVICE_PROFILES=pipeline` by default, waits for health, and refuses a
+`make services-up` starts the profiles from `.env` (`SERVICE_PROFILES`, default `pipeline`), waits
+for health, and refuses a
 database-bearing profile until `POSTGRES_PASSWORD` is configured. `make services-config` validates
 without starting containers. The vLLM defaults pin v0.26.0 plus the official Qwen3.8 27B FP8 model
 revision, allow 24 GB of CPU offload for a 16 GB GPU host, and cap the initial context at 32,768
@@ -268,6 +319,9 @@ non-owning, and rotational storage; consolidated root evidence; report containme
 distinct exit codes; report refusal inside proof and database roots, around the checkout, and
 through a symlink out of `RESULTS_DIR`; and secret redaction without network access. CLI coverage
 proves explicit config options and redacted output. Configuration and rendered Compose checks cover
-backend defaults, operator model overrides, and separation of Ollama tags from vLLM identifiers. The
-required format, lint, typing, complexity, shell, documentation, plan-integrity, and deterministic
-test gates pass.
+backend defaults, operator model overrides, and separation of Ollama tags from vLLM identifiers.
+Tests under `tests/runtime/setup/` cover dotenv create/append, missing edits, Make/CLI wrappers that
+do not shadow `.env`, schema binding without a disposable fallback, offline image/model cache
+misses, failure propagation, cancellation, concurrent locks, verified-work reuse with a fresh
+readiness probe, and redacted reports. The required format, lint, typing, complexity, shell,
+documentation, plan-integrity, and deterministic test gates pass.

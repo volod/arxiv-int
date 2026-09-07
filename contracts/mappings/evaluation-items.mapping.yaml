@@ -1,0 +1,32 @@
+metadata:
+  domain: arxiv-int
+  sourceContract: evaluation-items
+  canonicalEntity: evaluation_item
+fieldMappings:
+  - sourceField: evaluation_item_id
+    binding: evaluation_item.evaluationItemId
+    semanticTerm: urn:arxiv-int:term:evaluation-item-id
+  - sourceField: item_kind
+    binding: evaluation_item.itemKind
+    semanticTerm: urn:arxiv-int:term:item-kind
+  - sourceField: gold_ref
+    binding: evaluation_item.goldRef
+    semanticTerm: urn:arxiv-int:term:gold-ref
+  - sourceField: split
+    binding: evaluation_item.split
+    semanticTerm: urn:arxiv-int:term:split
+  - sourceField: query_text
+    binding: evaluation_item.queryText
+    semanticTerm: urn:arxiv-int:term:query-text
+  - sourceField: label
+    binding: evaluation_item.label
+    semanticTerm: urn:arxiv-int:term:label
+  - sourceField: dataset_id
+    binding: evaluation_item.datasetId
+    semanticTerm: urn:arxiv-int:term:dataset-id
+  - sourceField: generation_id
+    binding: evaluation_item.generationId
+    semanticTerm: urn:arxiv-int:term:generation-id
+  - sourceField: contract_version
+    binding: evaluation_item.contractVersion
+    semanticTerm: urn:arxiv-int:term:contract-version

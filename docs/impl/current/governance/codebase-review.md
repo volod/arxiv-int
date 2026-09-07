@@ -3,8 +3,8 @@
 The implementation review found useful, mostly cohesive foundation modules and concrete boundary
 defects that should be repaired before building on them. It did not justify a package-wide rewrite.
 Production code, tests, dependencies, operator configuration, and archives are unchanged by this
-review. The [task record](../../records/codebase-and-workflow-audit.md) retains the full request,
-review scope, reproducible findings, decisions, and remaining gate failures.
+review. The [task record](../../records/0001-govern-codebase-and-workflow-audit.md) retains the full
+request, review scope, reproducible findings, decisions, and remaining gate failures.
 
 ## Implementation scope inspected
 
@@ -25,12 +25,12 @@ queue bounds are explicitly distinguished from reproduced failures in the record
 
 ## Future repairs and checkpoints
 
-The [forward plan](../../plan.md) has eight focused refactoring tasks and one governance enforcement
-task before affected consumers. They cover quality-gate repair, shared root policy, configuration
-parity, profile-aware service planning, probe safety, contract identity/reference validation, bundle
-validation, typed stage/artifact contracts, and durable-record/dependency checks. Findings have
-stable note ids and one owning task in the record. Existing scheduler and telemetry tasks own their
-respective implementation gaps, avoiding duplicate backlog entries.
+The [forward plan](../../plan.md) retains focused refactoring and enforcement work before affected
+consumers. Completed foundation repairs are linked from current-state pages and accepted records:
+shared root policy, configuration parity, profile-aware service planning, probe safety, contract
+identity/reference validation, and durable-record/dependency checks. Remaining routed notes still
+own bundle validation and typed stage/artifact contracts. Existing scheduler and telemetry tasks
+own their respective implementation gaps, avoiding duplicate backlog entries.
 
 Seven finite checkpoints review foundation/store, corpus/control, knowledge/identity,
 investigation/report, production/recovery, selected semantic retrieval, and archive organization.
@@ -57,7 +57,7 @@ self-review remains part of every task; model choice alone supplies no quality g
 
 These are documentation requirements available now. The parser ignored continuation lines and
 `make plan-status` reported priority without checking dependency readiness when this review ran;
-[record and checkpoint integrity](../../records/enforce-task-record-and-checkpoint-integrity.md)
+[record and checkpoint integrity](../../records/0004-foundation-enforce-task-record-and-checkpoint-integrity.md)
 has since added record, note, dependency-cycle and checkpoint enforcement. The integrity checker
 was not extended by this review itself.
 
@@ -105,6 +105,8 @@ no human task in their prerequisite closures. This is an audit result, not a shi
 but still fails on pre-existing import formatting/order in `runtime/__init__.py` and Radon D (23)
 in the combined Compose topology test. The subsequent cognitive-complexity subcheck is not reached.
 Those unchanged failures now have a focused repair task; this review does not waive the CI gate.
-The [record](../../records/codebase-and-workflow-audit.md#final-verification-and-next-action) retains
-exact commands, outcomes and limits. Runtime services, model/CUDA jobs and provided-archive runs
-were not started. No archive-quality, throughput, model-fit or security-certification claim is made.
+The
+[record](../../records/0001-govern-codebase-and-workflow-audit.md#final-verification-and-next-action)
+retains exact commands, outcomes and limits. Runtime services, model/CUDA jobs and provided-archive
+runs were not started. No archive-quality, throughput, model-fit or security-certification claim is
+made.

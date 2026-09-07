@@ -1,6 +1,8 @@
 # Task Record
 
-Copy to `<task-id>.md` and index it. Keep evidence concise; keep accepted task text complete.
+Copy to `NNNN-<group>-<task-id>.md` using the
+[record naming rules](../../guide/planning-workflow.md#record-file-naming), then index it.
+Keep evidence concise; keep accepted task text complete.
 
 ## Task and scope
 

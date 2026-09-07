@@ -15,5 +15,8 @@ change. Write behavior, modules, commands, tests, and results at the narrowest l
 | --- | --- |
 | [Developer tooling](current/developer-tooling.md) | Locked setup, Make workflows, CI, quality gates, artifact roots |
 | [Project foundation](current/project-foundation.md) | Distribution, import package, CLI identity, and project metadata |
-| [Portable runtime](current/portable-runtime.md) | Layered configuration, safe roots, storage evidence, and runtime layout |
+| [Contracts](current/contracts.md) | Product ODCS registry, generation, ontology assets, rooted loaders, fingerprints, lint, and dataset quality checks |
+| [Portable runtime](current/portable-runtime.md) | Layered configuration, safe roots, retryable `make setup`, and runtime layout |
+| [Canonical store](current/canonical-store.md) | Pinned ParadeDB + AGE image, HASH-partitioned canonical schemas, roles, staging load, live adoption, local dbt transforms, and rebuildable search/graph projections |
+| [Evaluation](current/evaluation.md) | Operator-designated proof archive; fixture metrics, proof bundles, and scale pilots remain planned |
 | [Governance](current/governance.md) | Agent adapters, capability registry, plan lanes, integrity checks, specification/codebase audits and durable task records |

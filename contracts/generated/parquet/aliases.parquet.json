@@ -1,0 +1,51 @@
+{
+  "contractId": "aliases",
+  "fields": [
+    {
+      "arrowType": "string",
+      "name": "alias_id",
+      "nullable": false,
+      "primaryKey": true
+    },
+    {
+      "arrowType": "string",
+      "name": "object_id",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "alias_text",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "alias_kind",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "normalized_text",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "generation_id",
+      "nullable": false,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "contract_version",
+      "nullable": false,
+      "primaryKey": false
+    }
+  ],
+  "format": "parquet",
+  "partitionKey": "bucket",
+  "sourceOdcsId": "urn:arxiv-int:contract:aliases:1.0.0",
+  "sourceVersion": "1.0.0"
+}

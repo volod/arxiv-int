@@ -1,0 +1,94 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:canonical:document:1.0.0
+name: document
+status: active
+schema:
+  - name: document
+    logicalType: object
+    properties:
+      - name: document_id
+        logicalType: string
+        required: true
+        primaryKey: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: document.documentId
+                semanticTerm: "urn:arxiv-int:term:document-id"
+      - name: content_hash
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: document.contentHash
+                semanticTerm: "urn:arxiv-int:term:content-hash"
+      - name: extractor_profile
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: document.extractorProfile
+                semanticTerm: "urn:arxiv-int:term:extractor-profile"
+      - name: media_type
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: document.mediaType
+                semanticTerm: "urn:arxiv-int:term:media-type"
+      - name: language
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: document.language
+                semanticTerm: "urn:arxiv-int:term:language"
+      - name: title
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: document.title
+                semanticTerm: "urn:arxiv-int:term:title"
+      - name: byte_size
+        logicalType: integer
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: document.byteSize
+                semanticTerm: "urn:arxiv-int:term:byte-size"
+      - name: text_chars
+        logicalType: integer
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: document.textChars
+                semanticTerm: "urn:arxiv-int:term:text-chars"
+      - name: generation_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: document.generationId
+                semanticTerm: "urn:arxiv-int:term:generation-id"
+      - name: contract_version
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: document.contractVersion
+                semanticTerm: "urn:arxiv-int:term:contract-version"

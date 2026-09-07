@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "chunk_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "confidence": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "contract_version": {
+      "type": "string"
+    },
+    "document_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "extractor_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "fact_id": {
+      "primaryKey": true,
+      "type": "string"
+    },
+    "generation_id": {
+      "type": "string"
+    },
+    "identity_snapshot_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "literal_type": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "literal_value": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "object_object_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "predicate_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "span_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "subject_object_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "fact_id",
+    "generation_id",
+    "contract_version"
+  ],
+  "type": "object"
+}

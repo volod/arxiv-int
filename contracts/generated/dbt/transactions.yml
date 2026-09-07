@@ -1,0 +1,104 @@
+sources:
+  - description: Canonical kg relations owned by Alembic.
+    name: kg
+    schema: kg
+    tables:
+      - columns:
+          - description: transaction_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - transactions.transaction_id.type
+                - transactions.transaction_id.nullability
+                - transactions.transaction_id.batch_unique
+                - transactions.transaction_id.unique
+            name: transaction_id
+            tests:
+              - not_null
+              - unique
+          - description: transaction_type must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - transactions.transaction_type.type
+            name: transaction_type
+          - description: amount must match logical type number.
+            meta:
+              arxiv_int_rule_ids:
+                - transactions.amount.type
+                - transactions.amount.decimal
+                - transactions.amount.unit
+            name: amount
+          - description: currency must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - transactions.currency.type
+            name: currency
+          - description: party_subject_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - transactions.party_subject_id.type
+                - transactions.party_subject_id.relationship
+            name: party_subject_id
+            tests:
+              - relationships:
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
+          - description: party_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - transactions.party_object_id.type
+                - transactions.party_object_id.relationship
+            name: party_object_id
+            tests:
+              - relationships:
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - transactions.document_id.type
+                - transactions.document_id.relationship
+            name: document_id
+            tests:
+              - relationships:
+                  arguments:
+                    field: document_id
+                    to: "source('corpus', 'documents')"
+          - description: event_time must match logical type timestamp.
+            meta:
+              arxiv_int_rule_ids:
+                - transactions.event_time.type
+            name: event_time
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - transactions.generation_id.type
+                - transactions.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - transactions.contract_version.type
+                - transactions.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - transactions.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: transactions
+        description: Financial or exchange transactions linked to parties and source documents.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:transactions:1.0.0"
+          primary_key:
+            - transaction_id
+          rule_catalog_version: 1.0.0
+        name: transactions
+version: 2

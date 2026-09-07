@@ -1,0 +1,30 @@
+{
+  "apiVersion": "v3.1.0",
+  "artifacts": {
+    "avro/domain-artifacts-relationship-map.avsc": "974af5139081fa7e0f90734ecc47c9595074a20cf091dd4ff541fe9a2a7faecc",
+    "dbt/domain-artifacts-relationship-map.yml": "b3db17db1dd463362216f635efb622bb8d6002521c27966953d248a266d19b98",
+    "graph/domain-artifacts-relationship-map.sql": "6d177a160d02060e438016504f7253aecedf29c8ed495fda19775f9d03ab594f",
+    "jsonschema/domain-artifacts-relationship-map.schema.json": "0e951e055ebd9e8bbb99651012beb43420ab34d86923670bfe5213e05bb03b6b",
+    "parquet/domain-artifacts-relationship-map.parquet.json": "f2c03d4baca4392217b5bc5dce40284d41c15b8b3623040db7343f3b14bfc1ec",
+    "postgres/domain-artifacts-relationship-map.sql": "0eb0d2f1cbd491147efb0464ae7739ff55e5102cca6f28c08b018f87cf137a36",
+    "postgres/extensions/domain-artifacts-relationship-map.sql": "dc9a878e4dfecbe27a48b57bd7bcdef8e71ad20fca637267647eb5948b07c17a",
+    "pydantic/domain-artifacts-relationship-map.py": "6296e92fe827548c897f79174a1c4d9c8ab00a701560713d25c18417b9bd7edc",
+    "quality/domain-artifacts-relationship-map.rules.json": "b28f3c1bc38994ed748958db7ce4c6cdb0a642f43882ffde02e633a389983b5e"
+  },
+  "canonicalEntity": null,
+  "contractId": "domain-artifacts-relationship-map",
+  "customExtensionKeys": [
+    "graph",
+    "partitionKey",
+    "schema",
+    "table"
+  ],
+  "odcsId": "urn:arxiv-int:contract:domain-artifacts-relationship-map:1.0.0",
+  "odcsVersion": "1.0.0",
+  "postgres": {
+    "partitionKey": "bucket",
+    "schema": "kg",
+    "table": "relationship_edges"
+  },
+  "semanticMetadataHash": "0e69610485706859628856a1c1b197bbed52bb2c1cf61367e9b6930ac5ebed71"
+}

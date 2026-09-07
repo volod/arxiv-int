@@ -1,0 +1,242 @@
+{
+  "contractId": "evaluation-items",
+  "fieldIdentity": "schema-qualified",
+  "fields": {
+    "evaluation_items.contract_version": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "evaluation_items.dataset_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "evaluation_items.evaluation_item_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "evaluation_items.generation_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "evaluation_items.gold_ref": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "evaluation_items.item_kind": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "evaluation_items.label": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "evaluation_items.query_text": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "evaluation_items.split": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    }
+  },
+  "fingerprints": {
+    "avroSha256": "770b5594d6d22cead716d6092d4b4ccb0a7a9ef8c14a9ab38c3d2aaaf86122c1",
+    "generatorVersion": "2.1.0",
+    "postgresSha256": "2087120c83f21dec1d8107cb0353c0956d7b3b0f24741383a16ca40e098e917c",
+    "semanticMetadataHash": "4872b90c395c64cf24c72e4bba2c062dc4a3f48da1596b8096250931c6df70b0"
+  },
+  "history": [
+    {
+      "contractId": "evaluation-items",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "evaluation_items.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "evaluation_items.dataset_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "evaluation_items.evaluation_item_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "evaluation_items.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "evaluation_items.gold_ref": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "evaluation_items.item_kind": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "evaluation_items.label": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "evaluation_items.query_text": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "evaluation_items.split": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "770b5594d6d22cead716d6092d4b4ccb0a7a9ef8c14a9ab38c3d2aaaf86122c1",
+        "generatorVersion": "1.0.0",
+        "postgresSha256": "7083dc9ba5e30fb773b916f9bcc41aaccdf74aa6235236db80cb9242dd508aee",
+        "semanticMetadataHash": "4872b90c395c64cf24c72e4bba2c062dc4a3f48da1596b8096250931c6df70b0"
+      },
+      "odcsId": "urn:arxiv-int:contract:evaluation-items:1.0.0",
+      "projections": {},
+      "version": "1.0.0"
+    },
+    {
+      "contractId": "evaluation-items",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "evaluation_items.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "evaluation_items.dataset_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "evaluation_items.evaluation_item_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "evaluation_items.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "evaluation_items.gold_ref": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "evaluation_items.item_kind": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "evaluation_items.label": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "evaluation_items.query_text": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "evaluation_items.split": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "770b5594d6d22cead716d6092d4b4ccb0a7a9ef8c14a9ab38c3d2aaaf86122c1",
+        "generatorVersion": "2.0.0",
+        "postgresSha256": "2087120c83f21dec1d8107cb0353c0956d7b3b0f24741383a16ca40e098e917c",
+        "semanticMetadataHash": "4872b90c395c64cf24c72e4bba2c062dc4a3f48da1596b8096250931c6df70b0"
+      },
+      "odcsId": "urn:arxiv-int:contract:evaluation-items:1.0.0",
+      "projections": {},
+      "version": "1.0.0"
+    },
+    {
+      "contractId": "evaluation-items",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "evaluation_items.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "evaluation_items.dataset_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "evaluation_items.evaluation_item_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "evaluation_items.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "evaluation_items.gold_ref": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "evaluation_items.item_kind": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "evaluation_items.label": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "evaluation_items.query_text": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "evaluation_items.split": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "770b5594d6d22cead716d6092d4b4ccb0a7a9ef8c14a9ab38c3d2aaaf86122c1",
+        "generatorVersion": "2.1.0",
+        "postgresSha256": "2087120c83f21dec1d8107cb0353c0956d7b3b0f24741383a16ca40e098e917c",
+        "semanticMetadataHash": "4872b90c395c64cf24c72e4bba2c062dc4a3f48da1596b8096250931c6df70b0"
+      },
+      "odcsId": "urn:arxiv-int:contract:evaluation-items:1.0.0",
+      "projections": {},
+      "version": "1.0.0"
+    }
+  ],
+  "odcsId": "urn:arxiv-int:contract:evaluation-items:1.0.0",
+  "projections": {},
+  "version": "1.0.0"
+}

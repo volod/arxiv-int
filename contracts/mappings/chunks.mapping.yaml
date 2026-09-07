@@ -1,0 +1,32 @@
+metadata:
+  domain: arxiv-int
+  sourceContract: chunks
+  canonicalEntity: chunk
+fieldMappings:
+  - sourceField: chunk_id
+    binding: chunk.chunkId
+    semanticTerm: urn:arxiv-int:term:chunk-id
+  - sourceField: document_id
+    binding: chunk.documentId
+    semanticTerm: urn:arxiv-int:term:document-id
+  - sourceField: chunker_id
+    binding: chunk.chunkerId
+    semanticTerm: urn:arxiv-int:term:chunker-id
+  - sourceField: ordinal
+    binding: chunk.ordinal
+    semanticTerm: urn:arxiv-int:term:ordinal
+  - sourceField: text
+    binding: chunk.text
+    semanticTerm: urn:arxiv-int:term:text
+  - sourceField: start_char
+    binding: chunk.startChar
+    semanticTerm: urn:arxiv-int:term:start-char
+  - sourceField: end_char
+    binding: chunk.endChar
+    semanticTerm: urn:arxiv-int:term:end-char
+  - sourceField: generation_id
+    binding: chunk.generationId
+    semanticTerm: urn:arxiv-int:term:generation-id
+  - sourceField: contract_version
+    binding: chunk.contractVersion
+    semanticTerm: urn:arxiv-int:term:contract-version

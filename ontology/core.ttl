@@ -1,0 +1,303 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix ai: <https://arxiv-int.local/ns/ontology#> .
+@prefix aic: <https://arxiv-int.local/ns/class/> .
+@prefix aip: <https://arxiv-int.local/ns/pred/> .
+@prefix unit: <https://arxiv-int.local/ns/unit/> .
+
+########################################
+# Ontology header
+########################################
+
+<urn:arxiv-int:ontology:1.0.0> a owl:Ontology ;
+    rdfs:label "arxiv-int foundation ontology"@en ;
+    rdfs:label "bazovaia ontologiia arxiv-int"@ru ;
+    owl:versionInfo "1.0.0" ;
+    ai:status "active" .
+
+########################################
+# Units and quantity scaffolding
+########################################
+
+unit:one a ai:Unit ;
+    rdfs:label "one"@en ;
+    rdfs:label "edinitsa"@ru ;
+    ai:quantityKind "dimensionless" ;
+    ai:status "active" .
+
+unit:percent a ai:Unit ;
+    rdfs:label "percent"@en ;
+    rdfs:label "protsent"@ru ;
+    ai:quantityKind "dimensionless" ;
+    ai:status "active" .
+
+########################################
+# Corpus and pipeline classes
+########################################
+
+aic:Document a owl:Class ;
+    rdfs:label "Document"@en ;
+    rdfs:label "Dokument"@ru ;
+    ai:termId "class.document" ;
+    ai:status "active" .
+
+aic:Span a owl:Class ;
+    rdfs:label "Span"@en ;
+    rdfs:label "Fragment"@ru ;
+    ai:termId "class.span" ;
+    ai:status "active" .
+
+aic:Chunk a owl:Class ;
+    rdfs:label "Chunk"@en ;
+    rdfs:label "Blok"@ru ;
+    ai:termId "class.chunk" ;
+    ai:status "active" .
+
+aic:Mention a owl:Class ;
+    rdfs:label "Mention"@en ;
+    rdfs:label "Upominanie"@ru ;
+    ai:termId "class.mention" ;
+    ai:status "active" .
+
+aic:Alias a owl:Class ;
+    rdfs:label "Alias"@en ;
+    rdfs:label "Alias"@ru ;
+    ai:termId "class.alias" ;
+    ai:status "active" .
+
+aic:Fact a owl:Class ;
+    rdfs:label "Fact"@en ;
+    rdfs:label "Fakt"@ru ;
+    ai:termId "class.fact" ;
+    ai:status "active" .
+
+aic:Topic a owl:Class ;
+    rdfs:label "Topic"@en ;
+    rdfs:label "Tema"@ru ;
+    ai:termId "class.topic" ;
+    ai:status "active" .
+
+aic:OntologyTerm a owl:Class ;
+    rdfs:label "Ontology term"@en ;
+    rdfs:label "Termin ontologii"@ru ;
+    ai:termId "class.ontology-term" ;
+    ai:status "active" .
+
+aic:Embedding a owl:Class ;
+    rdfs:label "Embedding"@en ;
+    rdfs:label "Vektornoye predstavlenie"@ru ;
+    ai:termId "class.embedding" ;
+    ai:status "active" .
+
+aic:SourceOccurrence a owl:Class ;
+    rdfs:label "Source occurrence"@en ;
+    rdfs:label "Vhozhdenie istochnika"@ru ;
+    ai:termId "class.source-occurrence" ;
+    ai:status "active" .
+
+aic:Transaction a owl:Class ;
+    rdfs:label "Transaction"@en ;
+    rdfs:label "Tranzaktsiia"@ru ;
+    ai:termId "class.transaction" ;
+    ai:status "active" .
+
+aic:CatalogEntry a owl:Class ;
+    rdfs:label "Catalog entry"@en ;
+    rdfs:label "Zapis kataloga"@ru ;
+    ai:termId "class.catalog-entry" ;
+    ai:status "active" .
+
+aic:AnomalyFinding a owl:Class ;
+    rdfs:label "Anomaly finding"@en ;
+    rdfs:label "Anomalnoe nakhodka"@ru ;
+    ai:termId "class.anomaly-finding" ;
+    ai:status "active" .
+
+aic:EvaluationItem a owl:Class ;
+    rdfs:label "Evaluation item"@en ;
+    rdfs:label "Element otsenki"@ru ;
+    ai:termId "class.evaluation-item" ;
+    ai:status "active" .
+
+########################################
+# Knowledge-object classes
+########################################
+
+aic:Object a owl:Class ;
+    rdfs:label "Object"@en ;
+    rdfs:label "Obekt"@ru ;
+    ai:termId "class.object" ;
+    ai:status "active" .
+
+aic:NaturalPerson a owl:Class ;
+    rdfs:subClassOf aic:Object ;
+    rdfs:label "Natural person"@en ;
+    rdfs:label "Fizicheskoe litso"@ru ;
+    ai:termId "class.natural-person" ;
+    ai:status "active" ;
+    owl:disjointWith aic:LegalEntity .
+
+aic:LegalEntity a owl:Class ;
+    rdfs:subClassOf aic:Object ;
+    rdfs:label "Legal entity"@en ;
+    rdfs:label "Iuridicheskoe litso"@ru ;
+    ai:termId "class.legal-entity" ;
+    ai:status "active" .
+
+aic:ProductModel a owl:Class ;
+    rdfs:subClassOf aic:Object ;
+    rdfs:label "Product model"@en ;
+    rdfs:label "Model produkta"@ru ;
+    ai:termId "class.product-model" ;
+    ai:status "active" ;
+    owl:disjointWith aic:EquipmentInstance .
+
+aic:ProductRevision a owl:Class ;
+    rdfs:subClassOf aic:Object ;
+    rdfs:label "Product revision"@en ;
+    rdfs:label "Reviziia produkta"@ru ;
+    ai:termId "class.product-revision" ;
+    ai:status "active" .
+
+aic:EquipmentInstance a owl:Class ;
+    rdfs:subClassOf aic:Object ;
+    rdfs:label "Equipment instance"@en ;
+    rdfs:label "Ekzemplyar oborudovaniia"@ru ;
+    ai:termId "class.equipment-instance" ;
+    ai:status "active" .
+
+aic:Material a owl:Class ;
+    rdfs:subClassOf aic:Object ;
+    rdfs:label "Material"@en ;
+    rdfs:label "Material"@ru ;
+    ai:termId "class.material" ;
+    ai:status "active" .
+
+aic:Account a owl:Class ;
+    rdfs:subClassOf aic:Object ;
+    rdfs:label "Account"@en ;
+    rdfs:label "Schet"@ru ;
+    ai:termId "class.account" ;
+    ai:status "active" .
+
+aic:Location a owl:Class ;
+    rdfs:subClassOf aic:Object ;
+    rdfs:label "Location"@en ;
+    rdfs:label "Mestonakhozhdenie"@ru ;
+    ai:termId "class.location" ;
+    ai:status "active" .
+
+########################################
+# Active predicates (fact.predicateId)
+########################################
+
+aip:mentions a owl:ObjectProperty ;
+    rdfs:label "mentions"@en ;
+    rdfs:label "upominaet"@ru ;
+    ai:termId "pred.mentions" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:Document ;
+    rdfs:range aic:Object .
+
+aip:aliasOf a owl:ObjectProperty ;
+    rdfs:label "alias of"@en ;
+    rdfs:label "alias dlia"@ru ;
+    ai:termId "pred.alias-of" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:Object ;
+    rdfs:range aic:Object .
+
+aip:identifiedBy a owl:DatatypeProperty ;
+    rdfs:label "identified by"@en ;
+    rdfs:label "identifitsirovan kak"@ru ;
+    ai:termId "pred.identified-by" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:Object ;
+    rdfs:range xsd:string .
+
+aip:preferredName a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "preferred name"@en ;
+    rdfs:label "predpochtitelnoe imia"@ru ;
+    ai:termId "pred.preferred-name" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:Object ;
+    rdfs:range xsd:string .
+
+aip:locatedAt a owl:ObjectProperty ;
+    rdfs:label "located at"@en ;
+    rdfs:label "nakhoditsia v"@ru ;
+    ai:termId "pred.located-at" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:Object ;
+    rdfs:range aic:Location .
+
+aip:assignedToTopic a owl:ObjectProperty ;
+    rdfs:label "assigned to topic"@en ;
+    rdfs:label "otnesen k teme"@ru ;
+    ai:termId "pred.assigned-to-topic" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:Object ;
+    rdfs:range aic:Topic .
+
+aip:extractedFrom a owl:ObjectProperty ;
+    rdfs:label "extracted from"@en ;
+    rdfs:label "izvlechen iz"@ru ;
+    ai:termId "pred.extracted-from" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:Fact ;
+    rdfs:range aic:Document .
+
+aip:derivedFrom a owl:ObjectProperty ;
+    rdfs:label "derived from"@en ;
+    rdfs:label "proizvodnyi ot"@ru ;
+    ai:termId "pred.derived-from" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:AnomalyFinding ;
+    rdfs:range aic:Fact .
+
+aip:supersedes a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "supersedes"@en ;
+    rdfs:label "zameniaet"@ru ;
+    ai:termId "pred.supersedes" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:Fact ;
+    rdfs:range aic:Fact .
+
+aip:confidenceScore a owl:DatatypeProperty ;
+    rdfs:label "confidence score"@en ;
+    rdfs:label "otsenka uverennosti"@ru ;
+    ai:termId "pred.confidence-score" ;
+    ai:status "active" ;
+    ai:contractBinding "fact.predicateId" ;
+    ai:quantityKind "dimensionless" ;
+    ai:canonicalUnit unit:one ;
+    rdfs:domain aic:Fact ;
+    rdfs:range xsd:decimal .
+
+########################################
+# Deprecated alias retained for evolution
+########################################
+
+aip:sameAs a owl:ObjectProperty ;
+    rdfs:label "same as (deprecated)"@en ;
+    rdfs:label "tot zhe (ustarevshee)"@ru ;
+    ai:termId "pred.same-as" ;
+    ai:status "deprecated" ;
+    owl:deprecated true ;
+    ai:successor aip:aliasOf ;
+    ai:contractBinding "fact.predicateId" ;
+    rdfs:domain aic:Object ;
+    rdfs:range aic:Object ;
+    skos:exactMatch aip:aliasOf .

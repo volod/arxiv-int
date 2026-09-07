@@ -39,11 +39,138 @@ def test_parser_accepts_readiness_profile_timeout_and_console_only_mode() -> Non
     assert arguments.no_json_report is True
 
 
+def test_parser_accepts_contracts_lint_options() -> None:
+    parser = build_parser()
+    arguments = parser.parse_args(["contracts", "lint", "--skip-datacontract"])
+
+    assert arguments.command == "contracts"
+    assert arguments.contracts_command == "lint"
+    assert arguments.skip_datacontract is True
+
+
+def test_parser_accepts_contracts_generate_and_check() -> None:
+    parser = build_parser()
+    assert parser.parse_args(["contracts", "generate"]).contracts_command == "generate"
+    assert parser.parse_args(["contracts", "check"]).contracts_command == "check"
+    assert parser.parse_args(["contracts", "evolution"]).contracts_command == "evolution"
+
+
+def test_parser_accepts_ontology_check_and_generate() -> None:
+    parser = build_parser()
+    assert parser.parse_args(["ontology", "check"]).ontology_command == "check"
+    assert parser.parse_args(["ontology", "generate"]).ontology_command == "generate"
+
+
+def test_contracts_lint_command_reports_success(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture, tmp_path: Path
+) -> None:
+    from arxiv_int.contracts.lint import ContractLintReport
+
+    monkeypatch.setattr(
+        "arxiv_int.contracts.lint.lint_contracts",
+        lambda root, run_datacontract=True: ContractLintReport((), 15, run_datacontract),
+    )
+    monkeypatch.setattr(
+        "arxiv_int.contracts.lint.contracts_root_for",
+        lambda project_root=None: tmp_path,
+    )
+    monkeypatch.setattr(
+        "arxiv_int.runtime.project_root.find_project_root",
+        lambda explicit=None, environment=None: tmp_path,
+    )
+    caplog.set_level(logging.INFO)
+
+    assert main(["contracts", "lint", "--skip-datacontract"]) == 0
+    assert "contracts lint passed" in caplog.text
+
+
+def test_contracts_generate_and_check_commands(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture, tmp_path: Path
+) -> None:
+    from arxiv_int.contracts.generate import GenerationResult
+
+    monkeypatch.setattr(
+        "arxiv_int.runtime.project_root.find_project_root",
+        lambda explicit=None, environment=None: tmp_path,
+    )
+    monkeypatch.setattr(
+        "arxiv_int.contracts.lint.contracts_root_for",
+        lambda project_root=None: tmp_path,
+    )
+    monkeypatch.setattr(
+        "arxiv_int.contracts.generate.generate_all_contracts",
+        lambda root: GenerationResult(tmp_path, (), "abc123"),
+    )
+    monkeypatch.setattr(
+        "arxiv_int.contracts.generate.check_generation_drift",
+        lambda root: [],
+    )
+    caplog.set_level(logging.INFO)
+
+    assert main(["contracts", "generate"]) == 0
+    assert "generated" in caplog.text
+    assert main(["contracts", "check"]) == 0
+    assert "drift check passed" in caplog.text
+
+
+def test_contracts_evolution_command(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture, tmp_path: Path
+) -> None:
+    from arxiv_int.contracts.evolution import EvolutionCheckReport
+
+    monkeypatch.setattr(
+        "arxiv_int.runtime.project_root.find_project_root",
+        lambda explicit=None, environment=None: tmp_path,
+    )
+    monkeypatch.setattr(
+        "arxiv_int.contracts.lint.contracts_root_for",
+        lambda project_root=None: tmp_path,
+    )
+    monkeypatch.setattr(
+        "arxiv_int.contracts.evolution.check_evolution_policy",
+        lambda root, project_root=None, include_live_sql=True: EvolutionCheckReport((), 15),
+    )
+    caplog.set_level(logging.INFO)
+
+    assert main(["contracts", "evolution", "--skip-live-sql"]) == 0
+    assert "evolution policy passed" in caplog.text
+
+
+def test_ontology_check_and_generate_commands(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture, tmp_path: Path
+) -> None:
+    from arxiv_int.ontology.check import OntologyCheckReport
+
+    monkeypatch.setattr(
+        "arxiv_int.runtime.project_root.find_project_root",
+        lambda explicit=None, environment=None: tmp_path,
+    )
+    monkeypatch.setattr(
+        "arxiv_int.ontology.paths.ontology_root_for",
+        lambda project_root=None: tmp_path / "ontology",
+    )
+    monkeypatch.setattr(
+        "arxiv_int.ontology.generate.generate_ontology_bindings",
+        lambda root: {"ontology.catalog.json": "abc"},
+    )
+    monkeypatch.setattr(
+        "arxiv_int.ontology.check.check_ontology",
+        lambda root, project_root=None, refresh_generated=False: OntologyCheckReport((), 11, 23),
+    )
+    caplog.set_level(logging.INFO)
+
+    assert main(["ontology", "generate"]) == 0
+    assert "generated" in caplog.text
+    assert main(["ontology", "check"]) == 0
+    assert "ontology check passed" in caplog.text
+
+
 def test_readiness_and_services_default_to_pipeline_profiles() -> None:
     parser = build_parser()
 
-    assert parser.parse_args(["readiness"]).profiles == "pipeline"
-    assert parser.parse_args(["services", "up"]).profiles == "pipeline"
+    assert parser.parse_args(["readiness"]).profiles is None
+    assert parser.parse_args(["services", "up"]).profiles is None
+    assert parser.parse_args(["readiness", "--profiles", "core"]).profiles == "core"
 
 
 def test_services_reset_defaults_to_dry_run_and_accepts_apply() -> None:
@@ -153,3 +280,82 @@ def test_config_show_applies_cli_roots_redacts_and_creates_layout(
     assert "filesystem=" in caplog.text
     assert (results / "normalized").is_dir()
     assert pgdata.is_dir()
+
+
+def test_parser_accepts_db_revision_and_apply_options() -> None:
+    parser = build_parser()
+
+    revision = parser.parse_args(["db", "revision", "--message", "add page count"])
+    assert (revision.command, revision.db_command) == ("db", "revision")
+    assert revision.message == "add page count"
+
+    upgrade = parser.parse_args(["db", "upgrade"])
+    assert (upgrade.db_command, upgrade.revision) == ("upgrade", "head")
+    assert parser.parse_args(["db", "downgrade"]).revision == "-1"
+    assert parser.parse_args(["db", "status"]).db_command == "status"
+    assert parser.parse_args(["db", "adopt"]).db_command == "adopt"
+
+
+def test_parser_accepts_store_schema_commands() -> None:
+    parser = build_parser()
+    apply = parser.parse_args(["store", "apply-schema", "--revision", "0002", "--run-id", "r1"])
+    assert apply.store_command == "apply-schema"
+    assert apply.revision == "0002"
+    assert apply.run_id == "r1"
+    inspect = parser.parse_args(["store", "inspect-schema"])
+    assert inspect.store_command == "inspect-schema"
+    assert parser.parse_args(["store", "build-image"]).store_command == "build-image"
+
+
+def test_db_check_command_reports_findings(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture, tmp_path: Path
+) -> None:
+    from arxiv_int.contracts.migrations.check import MigrationCheckReport
+
+    monkeypatch.setattr(
+        "arxiv_int.runtime.project_root.find_project_root",
+        lambda explicit=None, environment=None: tmp_path,
+    )
+    monkeypatch.setattr(
+        "arxiv_int.contracts.lint.contracts_root_for",
+        lambda project_root=None: tmp_path,
+    )
+    monkeypatch.setattr(
+        "arxiv_int.contracts.migrations.commands.check_migrations",
+        lambda project_root, contracts_root: MigrationCheckReport(
+            ("contract metadata has no matching revision",),
+            ("add_column corpus.documents.x",),
+            "0001",
+        ),
+    )
+    caplog.set_level(logging.INFO)
+
+    assert main(["db", "check"]) == 1
+    assert "no matching revision" in caplog.text
+
+
+def test_db_status_reports_not_run_without_a_selected_database(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    from arxiv_int.contracts.migrations.runner import DATABASE_URL_VARIABLE
+
+    monkeypatch.delenv(DATABASE_URL_VARIABLE, raising=False)
+    caplog.set_level(logging.INFO)
+
+    assert main(["db", "status"]) == 2
+    assert "not-run" in caplog.text
+
+
+def test_db_command_reports_project_root_errors(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    from arxiv_int.runtime.project_root import ProjectRootError
+
+    def _fail(explicit=None, environment=None):  # type: ignore[no-untyped-def]
+        raise ProjectRootError("no project root")
+
+    monkeypatch.setattr("arxiv_int.runtime.project_root.find_project_root", _fail)
+    caplog.set_level(logging.INFO)
+
+    assert main(["db", "check"]) == 1
+    assert "no project root" in caplog.text

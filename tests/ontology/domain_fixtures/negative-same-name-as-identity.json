@@ -1,0 +1,26 @@
+{
+  "assertions": [
+    {
+      "subject_id": "a",
+      "subject_types": [
+        "class.natural-person"
+      ],
+      "predicate": "pred.same-name-as",
+      "object_id": "b",
+      "object_types": [
+        "class.natural-person"
+      ]
+    },
+    {
+      "subject_id": "a",
+      "subject_types": [
+        "class.natural-person"
+      ],
+      "predicate": "pred.alias-of",
+      "object_id": "b",
+      "object_types": [
+        "class.natural-person"
+      ]
+    }
+  ]
+}

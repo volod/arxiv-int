@@ -1,0 +1,15 @@
+{
+  "assertions": [
+    {
+      "subject_id": "p1",
+      "subject_types": [
+        "class.natural-person"
+      ],
+      "predicate": "pred.employee-of",
+      "object_id": "co1",
+      "object_types": [
+        "class.legal-entity"
+      ]
+    }
+  ]
+}

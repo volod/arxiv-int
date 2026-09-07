@@ -1,0 +1,430 @@
+{
+  "contractId": "domain-artifacts-relationship-map",
+  "fieldIdentity": "schema-qualified",
+  "fields": {
+    "relationship_edges.anchor_kind": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "relationship_edges.cardinality": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "relationship_edges.confidence": {
+      "logicalType": "number",
+      "physicalType": "",
+      "required": false
+    },
+    "relationship_edges.conflict_group_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "relationship_edges.contract_version": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "relationship_edges.direction": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "relationship_edges.document_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "relationship_edges.edge_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "relationship_edges.evidence_fact_ids": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "relationship_edges.generation_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "relationship_edges.inclusion_policy": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "relationship_edges.object_object_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "relationship_edges.predicate_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "relationship_edges.relation_kind": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "relationship_edges.review_state": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "relationship_edges.span_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "relationship_edges.subject_object_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    }
+  },
+  "fingerprints": {
+    "avroSha256": "974af5139081fa7e0f90734ecc47c9595074a20cf091dd4ff541fe9a2a7faecc",
+    "generatorVersion": "2.1.0",
+    "postgresSha256": "0eb0d2f1cbd491147efb0464ae7739ff55e5102cca6f28c08b018f87cf137a36",
+    "semanticMetadataHash": "0e69610485706859628856a1c1b197bbed52bb2c1cf61367e9b6930ac5ebed71"
+  },
+  "history": [
+    {
+      "contractId": "domain-artifacts-relationship-map",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "relationship_edges.anchor_kind": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.cardinality": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.confidence": {
+          "logicalType": "number",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.conflict_group_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "relationship_edges.direction": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.document_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.edge_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "relationship_edges.evidence_fact_ids": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "relationship_edges.inclusion_policy": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.object_object_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.predicate_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.relation_kind": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.review_state": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.span_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.subject_object_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "974af5139081fa7e0f90734ecc47c9595074a20cf091dd4ff541fe9a2a7faecc",
+        "generatorVersion": "1.0.0",
+        "postgresSha256": "e7e15a30b740341de78c502996710894bea33386fe7e011040beb6a5f6bb81e5",
+        "semanticMetadataHash": "0e69610485706859628856a1c1b197bbed52bb2c1cf61367e9b6930ac5ebed71"
+      },
+      "odcsId": "urn:arxiv-int:contract:domain-artifacts-relationship-map:1.0.0",
+      "projections": {
+        "graph": {
+          "edgeLabel": "RELATIONSHIP",
+          "fromField": "subject_object_id",
+          "idField": "edge_id",
+          "toField": "object_object_id"
+        }
+      },
+      "version": "1.0.0"
+    },
+    {
+      "contractId": "domain-artifacts-relationship-map",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "relationship_edges.anchor_kind": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.cardinality": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.confidence": {
+          "logicalType": "number",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.conflict_group_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "relationship_edges.direction": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.document_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.edge_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "relationship_edges.evidence_fact_ids": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "relationship_edges.inclusion_policy": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.object_object_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.predicate_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.relation_kind": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.review_state": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.span_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.subject_object_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "974af5139081fa7e0f90734ecc47c9595074a20cf091dd4ff541fe9a2a7faecc",
+        "generatorVersion": "2.0.0",
+        "postgresSha256": "0eb0d2f1cbd491147efb0464ae7739ff55e5102cca6f28c08b018f87cf137a36",
+        "semanticMetadataHash": "0e69610485706859628856a1c1b197bbed52bb2c1cf61367e9b6930ac5ebed71"
+      },
+      "odcsId": "urn:arxiv-int:contract:domain-artifacts-relationship-map:1.0.0",
+      "projections": {
+        "graph": {
+          "edgeLabel": "RELATIONSHIP",
+          "fromField": "subject_object_id",
+          "idField": "edge_id",
+          "toField": "object_object_id"
+        }
+      },
+      "version": "1.0.0"
+    },
+    {
+      "contractId": "domain-artifacts-relationship-map",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "relationship_edges.anchor_kind": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.cardinality": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.confidence": {
+          "logicalType": "number",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.conflict_group_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "relationship_edges.direction": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.document_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.edge_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "relationship_edges.evidence_fact_ids": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "relationship_edges.inclusion_policy": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.object_object_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.predicate_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.relation_kind": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.review_state": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.span_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "relationship_edges.subject_object_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "974af5139081fa7e0f90734ecc47c9595074a20cf091dd4ff541fe9a2a7faecc",
+        "generatorVersion": "2.1.0",
+        "postgresSha256": "0eb0d2f1cbd491147efb0464ae7739ff55e5102cca6f28c08b018f87cf137a36",
+        "semanticMetadataHash": "0e69610485706859628856a1c1b197bbed52bb2c1cf61367e9b6930ac5ebed71"
+      },
+      "odcsId": "urn:arxiv-int:contract:domain-artifacts-relationship-map:1.0.0",
+      "projections": {
+        "graph": {
+          "edgeLabel": "RELATIONSHIP",
+          "fromField": "subject_object_id",
+          "idField": "edge_id",
+          "toField": "object_object_id"
+        }
+      },
+      "version": "1.0.0"
+    }
+  ],
+  "odcsId": "urn:arxiv-int:contract:domain-artifacts-relationship-map:1.0.0",
+  "projections": {
+    "graph": {
+      "edgeLabel": "RELATIONSHIP",
+      "fromField": "subject_object_id",
+      "idField": "edge_id",
+      "toField": "object_object_id"
+    }
+  },
+  "version": "1.0.0"
+}

@@ -1,0 +1,80 @@
+sources:
+  - description: Canonical kg relations owned by Alembic.
+    name: kg
+    schema: kg
+    tables:
+      - columns:
+          - description: catalog_entry_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - catalogs.catalog_entry_id.type
+                - catalogs.catalog_entry_id.nullability
+                - catalogs.catalog_entry_id.batch_unique
+                - catalogs.catalog_entry_id.unique
+            name: catalog_entry_id
+            tests:
+              - not_null
+              - unique
+          - description: catalog_kind must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - catalogs.catalog_kind.type
+            name: catalog_kind
+          - description: object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - catalogs.object_id.type
+                - catalogs.object_id.relationship
+            name: object_id
+            tests:
+              - relationships:
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
+          - description: preferred_name must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - catalogs.preferred_name.type
+            name: preferred_name
+          - description: document_count must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - catalogs.document_count.type
+            name: document_count
+          - description: review_state must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - catalogs.review_state.type
+            name: review_state
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - catalogs.generation_id.type
+                - catalogs.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - catalogs.contract_version.type
+                - catalogs.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - catalogs.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: catalogs
+        description: Catalog entries summarizing objects with preferred names and document counts.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:catalogs:1.0.0"
+          primary_key:
+            - catalog_entry_id
+          rule_catalog_version: 1.0.0
+        name: catalog_entries
+version: 2

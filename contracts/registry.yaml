@@ -1,0 +1,121 @@
+contracts:
+  documents:
+    odcs: datasets/documents.odcs.yaml
+    mapping: mappings/documents.mapping.yaml
+    canonicalEntity: document
+    fingerprints:
+      semanticMetadataHash: 310be9094a64330b47ab31641053480fce0d90287febb43b185f9f63b9508bb9
+  spans:
+    odcs: datasets/spans.odcs.yaml
+    mapping: mappings/spans.mapping.yaml
+    canonicalEntity: span
+    fingerprints:
+      semanticMetadataHash: 499653b788b2a74e7afa78eb2cc3e082fd9cad7cd2a3fdd7c3bd23901902307b
+  chunks:
+    odcs: datasets/chunks.odcs.yaml
+    mapping: mappings/chunks.mapping.yaml
+    canonicalEntity: chunk
+    fingerprints:
+      semanticMetadataHash: 307de21efa13da3e18d6dfc8393d9ea9d7c499023dfad346163dab3f32986cd9
+  objects:
+    odcs: datasets/objects.odcs.yaml
+    mapping: mappings/objects.mapping.yaml
+    canonicalEntity: object
+    fingerprints:
+      semanticMetadataHash: aa5b00325935c7f69a3c656bdd632c933c0f7b26f65df199804b354f076df18a
+  aliases:
+    odcs: datasets/aliases.odcs.yaml
+    mapping: mappings/aliases.mapping.yaml
+    canonicalEntity: alias
+    fingerprints:
+      semanticMetadataHash: a561948012ae0f628c1e138304c902213acdd7d7c4d498d8df4b8e1859251d32
+  mentions:
+    odcs: datasets/mentions.odcs.yaml
+    mapping: mappings/mentions.mapping.yaml
+    canonicalEntity: mention
+    fingerprints:
+      semanticMetadataHash: 72bb044006f29893aa53a489944a56b21a090f9b7a85b46f3a41bf55bde4e94d
+  facts:
+    odcs: datasets/facts.odcs.yaml
+    mapping: mappings/facts.mapping.yaml
+    canonicalEntity: fact
+    fingerprints:
+      semanticMetadataHash: d53461b5a7070b3c34a3041e3fce345435aca25afc16866c53a8105159319969
+  topics:
+    odcs: datasets/topics.odcs.yaml
+    mapping: mappings/topics.mapping.yaml
+    canonicalEntity: topic
+    fingerprints:
+      semanticMetadataHash: 7f317a00986dae893ed207882df478882503d7fbde678d9cb7c76d6b681e5151
+  ontology-terms:
+    odcs: datasets/ontology-terms.odcs.yaml
+    mapping: mappings/ontology-terms.mapping.yaml
+    canonicalEntity: ontology_term
+    fingerprints:
+      semanticMetadataHash: c9b2bf052d617fa9387f34dd1568bb46f6d89a46ce0205b73d65e35c45bc5e41
+  embeddings:
+    odcs: datasets/embeddings.odcs.yaml
+    mapping: mappings/embeddings.mapping.yaml
+    canonicalEntity: embedding
+    fingerprints:
+      semanticMetadataHash: aaab1f6568f261e4beec82c080adc97fd9fce7657079038da91ee4a89b599504
+  source-occurrences:
+    odcs: datasets/source-occurrences.odcs.yaml
+    mapping: mappings/source-occurrences.mapping.yaml
+    canonicalEntity: source_occurrence
+    fingerprints:
+      semanticMetadataHash: 2c6102d0cf82a82e0199ed780ac01ecafb561c4c7cf3f15789643945446ffd75
+  transactions:
+    odcs: datasets/transactions.odcs.yaml
+    mapping: mappings/transactions.mapping.yaml
+    canonicalEntity: transaction
+    fingerprints:
+      semanticMetadataHash: 304478e93fdd2d2145ffcb79b902ab56f7e360c7ac89aa53ea8de65074a5b870
+  catalogs:
+    odcs: datasets/catalogs.odcs.yaml
+    mapping: mappings/catalogs.mapping.yaml
+    canonicalEntity: catalog_entry
+    fingerprints:
+      semanticMetadataHash: b22834a1446f8709cb247f26262a511174c1e5dd95f1f40507762c133260e737
+  anomaly-findings:
+    odcs: datasets/anomaly-findings.odcs.yaml
+    mapping: mappings/anomaly-findings.mapping.yaml
+    canonicalEntity: anomaly_finding
+    fingerprints:
+      semanticMetadataHash: 4df06b330e215f4667aa60f05b5d216a75a8271f6560094df85574acc529c0ad
+  evaluation-items:
+    odcs: datasets/evaluation-items.odcs.yaml
+    mapping: mappings/evaluation-items.mapping.yaml
+    canonicalEntity: evaluation_item
+    fingerprints:
+      semanticMetadataHash: 4872b90c395c64cf24c72e4bba2c062dc4a3f48da1596b8096250931c6df70b0
+  domain-artifacts-relationship-map:
+    odcs: datasets/domain-artifacts-relationship-map.odcs.yaml
+    mapping: mappings/domain-artifacts-relationship-map.mapping.yaml
+    canonicalEntity: domain_relationship
+    fingerprints:
+      semanticMetadataHash: 0e69610485706859628856a1c1b197bbed52bb2c1cf61367e9b6930ac5ebed71
+  domain-artifacts-bom:
+    odcs: datasets/domain-artifacts-bom.odcs.yaml
+    mapping: mappings/domain-artifacts-bom.mapping.yaml
+    canonicalEntity: bom_line
+    fingerprints:
+      semanticMetadataHash: 0e834538c0a06ef2d2982cbf51dcba914130681a19c34554b53524f65f51bc9f
+  domain-artifacts-supply-chain:
+    odcs: datasets/domain-artifacts-supply-chain.odcs.yaml
+    mapping: mappings/domain-artifacts-supply-chain.mapping.yaml
+    canonicalEntity: supply_chain_edge
+    fingerprints:
+      semanticMetadataHash: 33903f91359648be4f3a9cafb82f229bfa61c74430d00988d7c7b52119a54fbc
+  domain-artifacts-invoice-payment:
+    odcs: datasets/domain-artifacts-invoice-payment.odcs.yaml
+    mapping: mappings/domain-artifacts-invoice-payment.mapping.yaml
+    canonicalEntity: invoice_payment_row
+    fingerprints:
+      semanticMetadataHash: e804bf161026cc914ff628e80d1ad2d64b34222f347a7acac6103e68c28e5a1f
+  domain-artifacts-registry:
+    odcs: datasets/domain-artifacts-registry.odcs.yaml
+    mapping: mappings/domain-artifacts-registry.mapping.yaml
+    canonicalEntity: domain_artifact_registry
+    fingerprints:
+      semanticMetadataHash: 61f501c3551539e3dd62a9165aa6c4824296163e07274313a4015abdf0c79ded

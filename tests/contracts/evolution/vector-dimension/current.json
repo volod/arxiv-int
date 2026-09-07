@@ -1,0 +1,19 @@
+{
+  "fields": {
+    "emb.id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    }
+  },
+  "fingerprints": {
+    "semanticMetadataHash": "abc"
+  },
+  "projections": {
+    "vector": {
+      "defaultDimensions": 768,
+      "index": "ivfflat"
+    }
+  },
+  "version": "2.0.0"
+}

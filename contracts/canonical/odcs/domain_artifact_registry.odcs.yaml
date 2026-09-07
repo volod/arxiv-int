@@ -1,0 +1,167 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:canonical:domain_artifact_registry:1.0.0
+name: domain_artifact_registry
+status: active
+schema:
+- name: domain_artifact_registry
+  logicalType: object
+  properties:
+  - name: artifact_id
+    logicalType: string
+    primaryKey: true
+    primaryKeyPosition: 1
+    required: true
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_artifact_registry.artifactId
+          semanticTerm: urn:arxiv-int:term:artifact-id
+  - name: artifact_type
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_artifact_registry.artifactType
+          semanticTerm: urn:arxiv-int:term:artifact-type
+  - name: schema_version
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_artifact_registry.schemaVersion
+          semanticTerm: urn:arxiv-int:term:schema-version
+  - name: generator_fingerprint
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_artifact_registry.generatorFingerprint
+          semanticTerm: urn:arxiv-int:term:generator-fingerprint
+  - name: policy_fingerprint
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_artifact_registry.policyFingerprint
+          semanticTerm: urn:arxiv-int:term:policy-fingerprint
+  - name: input_fact_snapshot_id
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_artifact_registry.inputFactSnapshotId
+          semanticTerm: urn:arxiv-int:term:input-fact-snapshot-id
+  - name: identity_snapshot_id
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_artifact_registry.identitySnapshotId
+          semanticTerm: urn:arxiv-int:term:identity-snapshot-id
+  - name: review_inclusion_rules
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_artifact_registry.reviewInclusionRules
+          semanticTerm: urn:arxiv-int:term:review-inclusion-rules
+  - name: uri_or_path
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_artifact_registry.uriOrPath
+          semanticTerm: urn:arxiv-int:term:uri-or-path
+  - name: media_type
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_artifact_registry.mediaType
+          semanticTerm: urn:arxiv-int:term:media-type
+  - name: byte_count
+    logicalType: integer
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_artifact_registry.byteCount
+          semanticTerm: urn:arxiv-int:term:byte-count
+  - name: row_count
+    logicalType: integer
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_artifact_registry.rowCount
+          semanticTerm: urn:arxiv-int:term:row-count
+  - name: checksum
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_artifact_registry.checksum
+          semanticTerm: urn:arxiv-int:term:checksum
+  - name: evidence_coverage
+    logicalType: number
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_artifact_registry.evidenceCoverage
+          semanticTerm: urn:arxiv-int:term:evidence-coverage
+  - name: creation_status
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_artifact_registry.creationStatus
+          semanticTerm: urn:arxiv-int:term:creation-status
+  - name: failure_reason
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_artifact_registry.failureReason
+          semanticTerm: urn:arxiv-int:term:failure-reason
+  - name: run_id
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_artifact_registry.runId
+          semanticTerm: urn:arxiv-int:term:run-id
+  - name: generation_id
+    logicalType: string
+    required: true
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_artifact_registry.generationId
+          semanticTerm: urn:arxiv-int:term:generation-id
+  - name: contract_version
+    logicalType: string
+    required: true
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: domain_artifact_registry.contractVersion
+          semanticTerm: urn:arxiv-int:term:contract-version

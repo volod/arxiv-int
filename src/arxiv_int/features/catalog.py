@@ -12,13 +12,44 @@ from arxiv_int.features.model import FeatureGroup, Requirement
 FEATURE_GROUPS: tuple[FeatureGroup, ...] = (
     FeatureGroup(
         name="contracts",
-        summary="ODCS contract loading and JSON Schema validation",
+        summary="ODCS contract loading, validation, typed loaders, and schema generation",
         owner="contract-governance",
         requirements=(
             Requirement(
-                "jsonschema", "jsonschema", "MIT", "validate contracts and generated schemas"
+                "fastavro", "fastavro", "MIT", "parse and round-trip generated Avro schemas"
+            ),
+            Requirement(
+                "jsonschema", "jsonschema", "MIT", "validate contracts against the ODCS schema"
+            ),
+            Requirement(
+                "pydantic",
+                "pydantic",
+                "MIT",
+                "load ODCS and mapping documents with unknown metadata",
             ),
             Requirement("pyyaml", "yaml", "MIT", "load contract, mapping, and profile documents"),
+            Requirement(
+                "sqlalchemy",
+                "sqlalchemy",
+                "MIT",
+                "hold contract-derived schema metadata and compile review DDL",
+            ),
+            Requirement(
+                "sqlglot", "sqlglot", "MIT", "parse generated PostgreSQL DDL without a live server"
+            ),
+        ),
+    ),
+    FeatureGroup(
+        name="data-quality",
+        summary="Contract-derived Pandera batch checks and typed dataset quality results",
+        owner="contract-governance",
+        requirements=(
+            Requirement(
+                "pandera",
+                "pandera",
+                "MIT",
+                "validate materialized Polars batches against contract rules",
+            ),
         ),
     ),
     FeatureGroup(
@@ -74,6 +105,12 @@ FEATURE_GROUPS: tuple[FeatureGroup, ...] = (
         owner="corpus-foundation",
         requirements=(
             Requirement("duckdb", "duckdb", "MIT", "query normalized datasets out of core"),
+            Requirement(
+                "polars",
+                "polars",
+                "MIT",
+                "typed local tabular batches and disk-backed uniqueness checks",
+            ),
             Requirement("pyarrow", "pyarrow", "Apache-2.0", "read and write partitioned artifacts"),
         ),
     ),
@@ -87,9 +124,34 @@ FEATURE_GROUPS: tuple[FeatureGroup, ...] = (
         summary="canonical PostgreSQL access for bulk load, control tables, and projections",
         owner="canonical-store",
         requirements=(
+            Requirement(
+                "alembic", "alembic", "MIT", "own the migration revision graph and apply revisions"
+            ),
             Requirement("psycopg", "psycopg", "LGPL-3.0-only", "connect and stream binary COPY"),
         ),
         system_dependencies=("a reachable PostgreSQL service with the required extensions",),
+    ),
+    FeatureGroup(
+        name="transform",
+        summary="Python dbt Core invocation for derived staging, intermediate, and mart models",
+        owner="canonical-store",
+        requirements=(
+            Requirement(
+                "dbt-core",
+                "dbt.cli.main",
+                "Apache-2.0",
+                "parse, compile, build, and test described SQL models",
+            ),
+            Requirement(
+                "dbt-postgres",
+                "dbt.adapters.postgres",
+                "Apache-2.0",
+                "materialize derived relations on the local PostgreSQL store",
+            ),
+        ),
+        system_dependencies=(
+            "a reachable PostgreSQL service with the derived schema and dbt role",
+        ),
     ),
     FeatureGroup(
         name="ui",
@@ -103,22 +165,22 @@ STAGE_FEATURES: Mapping[str, tuple[str, ...]] = {
     "preflight": ("contracts", "store"),
     "inventory": ("lake",),
     "extract": ("extraction", "lake"),
-    "normalize": ("lake",),
-    "dedupe": ("lake",),
-    "chunk": ("lake",),
-    "classify": ("lake",),
+    "normalize": ("data-quality", "lake"),
+    "dedupe": ("data-quality", "lake"),
+    "chunk": ("data-quality", "lake"),
+    "classify": ("data-quality", "lake"),
     "load-lexical": ("store",),
-    "nlp": ("lake", "nlp"),
+    "nlp": ("data-quality", "lake", "nlp"),
     "embed": ("embeddings", "gpu", "inference", "lake"),
     "load-vector": ("store",),
-    "topics": ("lake",),
-    "entities": ("lake", "store"),
-    "facts": ("gpu", "inference", "lake", "store"),
+    "topics": ("data-quality", "lake"),
+    "entities": ("data-quality", "lake", "store"),
+    "facts": ("data-quality", "gpu", "inference", "lake", "store"),
     "ontology": ("graph",),
-    "graph": ("graph", "store"),
-    "domain-artifacts": ("lake", "store"),
-    "evaluate": ("evaluation", "lake"),
-    "report": ("lake", "store", "ui"),
+    "graph": ("graph", "store", "transform"),
+    "domain-artifacts": ("data-quality", "lake", "store", "transform"),
+    "evaluate": ("data-quality", "evaluation", "lake"),
+    "report": ("data-quality", "lake", "store", "transform", "ui"),
 }
 
 _BY_NAME = {group.name: group for group in FEATURE_GROUPS}

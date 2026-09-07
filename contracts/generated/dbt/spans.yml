@@ -1,0 +1,80 @@
+sources:
+  - description: Canonical corpus relations owned by Alembic.
+    name: corpus
+    schema: corpus
+    tables:
+      - columns:
+          - description: span_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - spans.span_id.type
+                - spans.span_id.nullability
+                - spans.span_id.batch_unique
+                - spans.span_id.unique
+            name: span_id
+            tests:
+              - not_null
+              - unique
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - spans.document_id.type
+                - spans.document_id.relationship
+            name: document_id
+            tests:
+              - relationships:
+                  arguments:
+                    field: document_id
+                    to: "source('corpus', 'documents')"
+          - description: start_char must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - spans.start_char.type
+            name: start_char
+          - description: end_char must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - spans.end_char.type
+            name: end_char
+          - description: page must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - spans.page.type
+            name: page
+          - description: kind must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - spans.kind.type
+            name: kind
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - spans.generation_id.type
+                - spans.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - spans.contract_version.type
+                - spans.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - spans.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: spans
+        description: Character-anchored spans locating evidence within documents.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:spans:1.0.0"
+          primary_key:
+            - span_id
+          rule_catalog_version: 1.0.0
+        name: spans
+version: 2

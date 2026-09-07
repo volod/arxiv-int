@@ -1,0 +1,57 @@
+{
+  "contractId": "topics",
+  "fields": [
+    {
+      "arrowType": "string",
+      "name": "topic_assignment_id",
+      "nullable": false,
+      "primaryKey": true
+    },
+    {
+      "arrowType": "string",
+      "name": "topic_id",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "label",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "scheme_id",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "document_id",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "float64",
+      "name": "score",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "generation_id",
+      "nullable": false,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "contract_version",
+      "nullable": false,
+      "primaryKey": false
+    }
+  ],
+  "format": "parquet",
+  "partitionKey": "bucket",
+  "sourceOdcsId": "urn:arxiv-int:contract:topics:1.0.0",
+  "sourceVersion": "1.0.0"
+}

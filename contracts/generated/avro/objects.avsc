@@ -1,0 +1,38 @@
+{
+  "fields": [
+    {
+      "name": "object_id",
+      "type": "string"
+    },
+    {
+      "name": "object_type",
+      "type": "string"
+    },
+    {
+      "name": "preferred_label",
+      "type": "string"
+    },
+    {
+      "name": "lifecycle_state",
+      "type": "string"
+    },
+    {
+      "name": "review_state",
+      "type": "string"
+    },
+    {
+      "name": "cluster_id",
+      "type": "string"
+    },
+    {
+      "name": "generation_id",
+      "type": "string"
+    },
+    {
+      "name": "contract_version",
+      "type": "string"
+    }
+  ],
+  "name": "objects",
+  "type": "record"
+}

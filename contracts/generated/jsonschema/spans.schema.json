@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "contract_version": {
+      "type": "string"
+    },
+    "document_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "end_char": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "generation_id": {
+      "type": "string"
+    },
+    "kind": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "page": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "span_id": {
+      "primaryKey": true,
+      "type": "string"
+    },
+    "start_char": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "span_id",
+    "generation_id",
+    "contract_version"
+  ],
+  "type": "object"
+}

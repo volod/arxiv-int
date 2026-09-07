@@ -1,0 +1,18 @@
+{
+  "assertions": [
+    {
+      "subject_id": "obj-1",
+      "subject_types": ["class.object"],
+      "predicate": "pred.preferred-name",
+      "literal_value": "A",
+      "literal_datatype": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    {
+      "subject_id": "obj-1",
+      "subject_types": ["class.object"],
+      "predicate": "pred.preferred-name",
+      "literal_value": "B",
+      "literal_datatype": "http://www.w3.org/2001/XMLSchema#string"
+    }
+  ]
+}

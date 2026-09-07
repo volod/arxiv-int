@@ -1,0 +1,106 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "confidence": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "contract_version": {
+      "type": "string"
+    },
+    "direction": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "document_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "edge_id": {
+      "primaryKey": true,
+      "type": "string"
+    },
+    "event_time": {
+      "format": "date-time",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "evidence_fact_ids": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "from_object_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "generation_id": {
+      "type": "string"
+    },
+    "path_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "product_object_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "review_state": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "role_predicate_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "stage": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "to_object_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "transaction_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "edge_id",
+    "generation_id",
+    "contract_version"
+  ],
+  "type": "object"
+}

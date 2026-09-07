@@ -1,0 +1,10 @@
+{
+  "assertions": [],
+  "registry": [
+    {
+      "artifact_id": "art-2",
+      "artifact_type": "invoice-payment",
+      "creation_status": "failed"
+    }
+  ]
+}

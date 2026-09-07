@@ -1,0 +1,63 @@
+{
+  "contractId": "chunks",
+  "fields": [
+    {
+      "arrowType": "string",
+      "name": "chunk_id",
+      "nullable": false,
+      "primaryKey": true
+    },
+    {
+      "arrowType": "string",
+      "name": "document_id",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "chunker_id",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "int64",
+      "name": "ordinal",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "text",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "int64",
+      "name": "start_char",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "int64",
+      "name": "end_char",
+      "nullable": true,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "generation_id",
+      "nullable": false,
+      "primaryKey": false
+    },
+    {
+      "arrowType": "string",
+      "name": "contract_version",
+      "nullable": false,
+      "primaryKey": false
+    }
+  ],
+  "format": "parquet",
+  "partitionKey": "bucket",
+  "sourceOdcsId": "urn:arxiv-int:contract:chunks:1.0.0",
+  "sourceVersion": "1.0.0"
+}

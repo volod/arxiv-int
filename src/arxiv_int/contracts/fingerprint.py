@@ -4,6 +4,17 @@ import hashlib
 import json
 from typing import Any, cast
 
+_KNOWN_FIELD_KEYS = frozenset(
+    {
+        "sourceField",
+        "binding",
+        "semanticTerm",
+        "canonicalUnit",
+        "quantityKind",
+        "planningUse",
+    }
+)
+
 
 def _normalize(value: Any) -> Any:
     if isinstance(value, dict):
@@ -20,10 +31,18 @@ def _contract_metadata(document: dict[str, Any]) -> dict[str, Any] | None:
     return {key: value for key, value in metadata.items() if key != "domain"}
 
 
-def _field_metadata(item: Any) -> tuple[str, dict[str, Any]] | None:
-    if not isinstance(item, dict) or "sourceField" not in item:
+def _field_metadata(item: Any, *, index: int) -> tuple[str, dict[str, Any]] | None:
+    if not isinstance(item, dict):
         return None
-    key = f"field:{item['sourceField']}"
+    known = _KNOWN_FIELD_KEYS.intersection(item)
+    if not known:
+        return None
+    if "sourceField" not in item:
+        raise ValueError(f"fieldMappings[{index}] is missing required sourceField")
+    source = item["sourceField"]
+    if source is None or str(source).strip() == "":
+        raise ValueError(f"fieldMappings[{index}] has an empty sourceField")
+    key = f"field:{source}"
     value = {name: raw for name, raw in item.items() if name != "sourceField"}
     return key, value
 
@@ -36,10 +55,24 @@ def semantic_metadata(document: dict[str, Any]) -> dict[str, Any]:
         blocks["contract"] = metadata
     field_mappings = document.get("fieldMappings", [])
     items = field_mappings if isinstance(field_mappings, list) else []
-    for item in items:
-        block = _field_metadata(item)
-        if block is not None:
-            blocks[block[0]] = block[1]
+    seen_sources: set[str] = set()
+    seen_bindings: set[str] = set()
+    for index, item in enumerate(items):
+        block = _field_metadata(item, index=index)
+        if block is None:
+            continue
+        key, value = block
+        if key in seen_sources:
+            raise ValueError(f"duplicate field mapping sourceField for {key}")
+        seen_sources.add(key)
+        binding = value.get("binding")
+        if isinstance(binding, str) and binding:
+            if binding in seen_bindings:
+                raise ValueError(f"ambiguous binding '{binding}' used by multiple fields")
+            seen_bindings.add(binding)
+        if key in blocks:
+            raise ValueError(f"duplicate semantic metadata block '{key}'")
+        blocks[key] = value
     return cast(dict[str, Any], _normalize(blocks))
 
 

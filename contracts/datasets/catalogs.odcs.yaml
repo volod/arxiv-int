@@ -1,0 +1,103 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:contract:catalogs:1.0.0
+name: catalogs
+status: active
+domain: arxiv-int
+description:
+  purpose: Catalog entries summarizing objects with preferred names and document counts.
+team:
+  name: arxiv-int
+  members:
+    - username: contracts@arxiv-int.local
+      role: Owner
+servers:
+  - server: normalized-lake
+    type: local
+    description: Partitioned normalized lake under RESULTS_DIR
+    path: normalized/catalogs
+    format: parquet
+customProperties:
+  - property: x-arxiv-int
+    value:
+      schema: kg
+      table: catalog_entries
+      partitionKey: bucket
+schema:
+  - name: catalog_entries
+    physicalName: catalog_entries
+    logicalType: object
+    properties:
+      - name: catalog_entry_id
+        logicalType: string
+        primaryKey: true
+        primaryKeyPosition: 1
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: catalog_entry.catalogEntryId
+                semanticTerm: "urn:arxiv-int:term:catalog-entry-id"
+      - name: catalog_kind
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: catalog_entry.catalogKind
+                semanticTerm: "urn:arxiv-int:term:catalog-kind"
+      - name: object_id
+        logicalType: string
+        relationships:
+          - type: foreignKey
+            to: objects.object_id
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: catalog_entry.objectId
+                semanticTerm: "urn:arxiv-int:term:object-id"
+      - name: preferred_name
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: catalog_entry.preferredName
+                semanticTerm: "urn:arxiv-int:term:preferred-name"
+      - name: document_count
+        logicalType: integer
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: catalog_entry.documentCount
+                semanticTerm: "urn:arxiv-int:term:document-count"
+      - name: review_state
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: catalog_entry.reviewState
+                semanticTerm: "urn:arxiv-int:term:review-state"
+      - name: generation_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: catalog_entry.generationId
+                semanticTerm: "urn:arxiv-int:term:generation-id"
+      - name: contract_version
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: catalog_entry.contractVersion
+                semanticTerm: "urn:arxiv-int:term:contract-version"

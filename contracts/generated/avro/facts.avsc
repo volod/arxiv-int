@@ -1,0 +1,66 @@
+{
+  "fields": [
+    {
+      "name": "fact_id",
+      "type": "string"
+    },
+    {
+      "name": "subject_object_id",
+      "type": "string"
+    },
+    {
+      "name": "predicate_id",
+      "type": "string"
+    },
+    {
+      "name": "object_object_id",
+      "type": "string"
+    },
+    {
+      "name": "literal_value",
+      "type": "string"
+    },
+    {
+      "name": "literal_type",
+      "type": "string"
+    },
+    {
+      "name": "status",
+      "type": "string"
+    },
+    {
+      "name": "confidence",
+      "type": "bytes"
+    },
+    {
+      "name": "document_id",
+      "type": "string"
+    },
+    {
+      "name": "span_id",
+      "type": "string"
+    },
+    {
+      "name": "chunk_id",
+      "type": "string"
+    },
+    {
+      "name": "identity_snapshot_id",
+      "type": "string"
+    },
+    {
+      "name": "extractor_id",
+      "type": "string"
+    },
+    {
+      "name": "generation_id",
+      "type": "string"
+    },
+    {
+      "name": "contract_version",
+      "type": "string"
+    }
+  ],
+  "name": "facts",
+  "type": "record"
+}

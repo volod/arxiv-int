@@ -1,0 +1,29 @@
+metadata:
+  domain: arxiv-int
+  sourceContract: spans
+  canonicalEntity: span
+fieldMappings:
+  - sourceField: span_id
+    binding: span.spanId
+    semanticTerm: urn:arxiv-int:term:span-id
+  - sourceField: document_id
+    binding: span.documentId
+    semanticTerm: urn:arxiv-int:term:document-id
+  - sourceField: start_char
+    binding: span.startChar
+    semanticTerm: urn:arxiv-int:term:start-char
+  - sourceField: end_char
+    binding: span.endChar
+    semanticTerm: urn:arxiv-int:term:end-char
+  - sourceField: page
+    binding: span.page
+    semanticTerm: urn:arxiv-int:term:page
+  - sourceField: kind
+    binding: span.kind
+    semanticTerm: urn:arxiv-int:term:kind
+  - sourceField: generation_id
+    binding: span.generationId
+    semanticTerm: urn:arxiv-int:term:generation-id
+  - sourceField: contract_version
+    binding: span.contractVersion
+    semanticTerm: urn:arxiv-int:term:contract-version

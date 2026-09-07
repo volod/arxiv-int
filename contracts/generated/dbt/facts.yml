@@ -1,0 +1,134 @@
+sources:
+  - description: Canonical kg relations owned by Alembic.
+    name: kg
+    schema: kg
+    tables:
+      - columns:
+          - description: fact_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.fact_id.type
+                - facts.fact_id.nullability
+                - facts.fact_id.batch_unique
+                - facts.fact_id.unique
+            name: fact_id
+            tests:
+              - not_null
+              - unique
+          - description: subject_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.subject_object_id.type
+                - facts.subject_object_id.relationship
+            name: subject_object_id
+            tests:
+              - relationships:
+                  arguments:
+                    field: object_id
+                    to: "source('kg', 'objects')"
+          - description: predicate_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.predicate_id.type
+            name: predicate_id
+          - description: object_object_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.object_object_id.type
+            name: object_object_id
+          - description: literal_value must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.literal_value.type
+            name: literal_value
+          - description: literal_type must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.literal_type.type
+            name: literal_type
+          - description: status must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.status.type
+            name: status
+          - description: confidence must match logical type number.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.confidence.type
+                - facts.confidence.decimal
+            name: confidence
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.document_id.type
+                - facts.document_id.relationship
+            name: document_id
+            tests:
+              - relationships:
+                  arguments:
+                    field: document_id
+                    to: "source('corpus', 'documents')"
+          - description: span_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.span_id.type
+                - facts.span_id.relationship
+            name: span_id
+            tests:
+              - relationships:
+                  arguments:
+                    field: span_id
+                    to: "source('corpus', 'spans')"
+          - description: chunk_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.chunk_id.type
+                - facts.chunk_id.relationship
+            name: chunk_id
+            tests:
+              - relationships:
+                  arguments:
+                    field: chunk_id
+                    to: "source('corpus', 'chunks')"
+          - description: identity_snapshot_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.identity_snapshot_id.type
+            name: identity_snapshot_id
+          - description: extractor_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.extractor_id.type
+            name: extractor_id
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.generation_id.type
+                - facts.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.contract_version.type
+                - facts.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - facts.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: facts
+        description: Extracted subject-predicate-object facts with evidence anchors and confidence.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:facts:1.0.0"
+          primary_key:
+            - fact_id
+          rule_catalog_version: 1.0.0
+        name: facts
+version: 2

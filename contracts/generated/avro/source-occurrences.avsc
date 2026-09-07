@@ -1,0 +1,46 @@
+{
+  "fields": [
+    {
+      "name": "occurrence_id",
+      "type": "string"
+    },
+    {
+      "name": "silo_id",
+      "type": "string"
+    },
+    {
+      "name": "relative_path",
+      "type": "string"
+    },
+    {
+      "name": "scan_id",
+      "type": "string"
+    },
+    {
+      "name": "content_hash",
+      "type": "string"
+    },
+    {
+      "name": "container_path",
+      "type": "string"
+    },
+    {
+      "name": "member_path",
+      "type": "string"
+    },
+    {
+      "name": "status",
+      "type": "string"
+    },
+    {
+      "name": "generation_id",
+      "type": "string"
+    },
+    {
+      "name": "contract_version",
+      "type": "string"
+    }
+  ],
+  "name": "source_occurrences",
+  "type": "record"
+}

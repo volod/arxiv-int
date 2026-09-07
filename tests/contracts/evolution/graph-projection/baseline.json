@@ -1,0 +1,19 @@
+{
+  "fields": {
+    "obj.id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    }
+  },
+  "fingerprints": {
+    "semanticMetadataHash": "abc"
+  },
+  "projections": {
+    "graph": {
+      "idField": "id",
+      "vertexLabel": "Object"
+    }
+  },
+  "version": "1.0.0"
+}

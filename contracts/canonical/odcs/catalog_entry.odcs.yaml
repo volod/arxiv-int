@@ -1,0 +1,78 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:canonical:catalog_entry:1.0.0
+name: catalog_entry
+status: active
+schema:
+  - name: catalog_entry
+    logicalType: object
+    properties:
+      - name: catalog_entry_id
+        logicalType: string
+        required: true
+        primaryKey: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: catalog_entry.catalogEntryId
+                semanticTerm: "urn:arxiv-int:term:catalog-entry-id"
+      - name: catalog_kind
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: catalog_entry.catalogKind
+                semanticTerm: "urn:arxiv-int:term:catalog-kind"
+      - name: object_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: catalog_entry.objectId
+                semanticTerm: "urn:arxiv-int:term:object-id"
+      - name: preferred_name
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: catalog_entry.preferredName
+                semanticTerm: "urn:arxiv-int:term:preferred-name"
+      - name: document_count
+        logicalType: integer
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: catalog_entry.documentCount
+                semanticTerm: "urn:arxiv-int:term:document-count"
+      - name: review_state
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: catalog_entry.reviewState
+                semanticTerm: "urn:arxiv-int:term:review-state"
+      - name: generation_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: catalog_entry.generationId
+                semanticTerm: "urn:arxiv-int:term:generation-id"
+      - name: contract_version
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: catalog_entry.contractVersion
+                semanticTerm: "urn:arxiv-int:term:contract-version"

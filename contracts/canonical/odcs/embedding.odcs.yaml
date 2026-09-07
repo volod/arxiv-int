@@ -1,0 +1,86 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:canonical:embedding:1.0.0
+name: embedding
+status: active
+schema:
+  - name: embedding
+    logicalType: object
+    properties:
+      - name: embedding_id
+        logicalType: string
+        required: true
+        primaryKey: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: embedding.embeddingId
+                semanticTerm: "urn:arxiv-int:term:embedding-id"
+      - name: target_kind
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: embedding.targetKind
+                semanticTerm: "urn:arxiv-int:term:target-kind"
+      - name: target_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: embedding.targetId
+                semanticTerm: "urn:arxiv-int:term:target-id"
+      - name: profile_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: embedding.profileId
+                semanticTerm: "urn:arxiv-int:term:profile-id"
+      - name: dimensions
+        logicalType: integer
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: embedding.dimensions
+                semanticTerm: "urn:arxiv-int:term:dimensions"
+      - name: vector_ref
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: embedding.vectorRef
+                semanticTerm: "urn:arxiv-int:term:vector-ref"
+      - name: model_digest
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: embedding.modelDigest
+                semanticTerm: "urn:arxiv-int:term:model-digest"
+      - name: generation_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: embedding.generationId
+                semanticTerm: "urn:arxiv-int:term:generation-id"
+      - name: contract_version
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: embedding.contractVersion
+                semanticTerm: "urn:arxiv-int:term:contract-version"

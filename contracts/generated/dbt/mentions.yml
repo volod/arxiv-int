@@ -1,0 +1,92 @@
+sources:
+  - description: Canonical kg relations owned by Alembic.
+    name: kg
+    schema: kg
+    tables:
+      - columns:
+          - description: mention_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - mentions.mention_id.type
+                - mentions.mention_id.nullability
+                - mentions.mention_id.batch_unique
+                - mentions.mention_id.unique
+            name: mention_id
+            tests:
+              - not_null
+              - unique
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - mentions.document_id.type
+                - mentions.document_id.relationship
+            name: document_id
+            tests:
+              - relationships:
+                  arguments:
+                    field: document_id
+                    to: "source('corpus', 'documents')"
+          - description: span_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - mentions.span_id.type
+                - mentions.span_id.relationship
+            name: span_id
+            tests:
+              - relationships:
+                  arguments:
+                    field: span_id
+                    to: "source('corpus', 'spans')"
+          - description: chunk_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - mentions.chunk_id.type
+                - mentions.chunk_id.relationship
+            name: chunk_id
+            tests:
+              - relationships:
+                  arguments:
+                    field: chunk_id
+                    to: "source('corpus', 'chunks')"
+          - description: surface_form must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - mentions.surface_form.type
+            name: surface_form
+          - description: object_anchor_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - mentions.object_anchor_id.type
+            name: object_anchor_id
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - mentions.generation_id.type
+                - mentions.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - mentions.contract_version.type
+                - mentions.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - mentions.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: mentions
+        description: Surface-form mentions linking documents, spans, and chunks to object anchors.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:mentions:1.0.0"
+          primary_key:
+            - mention_id
+          rule_catalog_version: 1.0.0
+        name: mentions
+version: 2

@@ -66,7 +66,7 @@ def run_readiness(
         return ReadinessResult(report, None)
     check_tools(report, active_probe, root, timeout)
     try:
-        plan = plan_services(profiles)
+        plan = plan_services(profiles, project_root=root)
     except ValueError as error:
         report.add(
             "config.profiles",
@@ -74,7 +74,7 @@ def run_readiness(
             str(error),
             action="set SERVICE_PROFILES to documented profile names",
         )
-        plan = plan_services("pipeline")
+        plan = plan_services("pipeline", project_root=root)
     check_resources(
         report,
         active_probe,

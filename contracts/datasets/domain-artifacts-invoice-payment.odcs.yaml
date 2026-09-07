@@ -1,0 +1,203 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:contract:domain-artifacts-invoice-payment:1.0.0
+name: domain-artifacts-invoice-payment
+status: active
+domain: arxiv-int
+description:
+  purpose: Invoice lines, payments, credit notes, ledger postings, and allocation
+    match states.
+team:
+  name: arxiv-int
+  members:
+  - username: contracts@arxiv-int.local
+    role: Owner
+servers:
+- server: normalized-lake
+  type: local
+  description: Partitioned normalized lake under RESULTS_DIR
+  path: normalized/domain-artifacts-invoice-payment
+  format: parquet
+customProperties:
+- property: x-arxiv-int
+  value:
+    schema: kg
+    table: invoice_payment_rows
+    partitionKey: bucket
+    graph:
+      edgeLabel: ALLOCATES
+      fromField: payment_object_id
+      toField: invoice_object_id
+      idField: row_id
+schema:
+- name: invoice_payment_rows
+  physicalName: invoice_payment_rows
+  logicalType: object
+  properties:
+  - name: row_id
+    logicalType: string
+    primaryKey: true
+    primaryKeyPosition: 1
+    required: true
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: invoice_payment_row.rowId
+          semanticTerm: urn:arxiv-int:term:row-id
+  - name: row_kind
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: invoice_payment_row.rowKind
+          semanticTerm: urn:arxiv-int:term:row-kind
+  - name: invoice_object_id
+    logicalType: string
+    relationships:
+    - type: foreignKey
+      to: objects.object_id
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: invoice_payment_row.invoiceObjectId
+          semanticTerm: urn:arxiv-int:term:invoice-object-id
+  - name: payment_object_id
+    logicalType: string
+    relationships:
+    - type: foreignKey
+      to: objects.object_id
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: invoice_payment_row.paymentObjectId
+          semanticTerm: urn:arxiv-int:term:payment-object-id
+  - name: line_number
+    logicalType: integer
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: invoice_payment_row.lineNumber
+          semanticTerm: urn:arxiv-int:term:line-number
+  - name: amount
+    logicalType: number
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: invoice_payment_row.amount
+          semanticTerm: urn:arxiv-int:term:amount
+  - name: allocated_amount
+    logicalType: number
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: invoice_payment_row.allocatedAmount
+          semanticTerm: urn:arxiv-int:term:allocated-amount
+  - name: currency
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: invoice_payment_row.currency
+          semanticTerm: urn:arxiv-int:term:currency
+  - name: due_date
+    logicalType: timestamp
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: invoice_payment_row.dueDate
+          semanticTerm: urn:arxiv-int:term:due-date
+  - name: payment_date
+    logicalType: timestamp
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: invoice_payment_row.paymentDate
+          semanticTerm: urn:arxiv-int:term:payment-date
+  - name: match_state
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: invoice_payment_row.matchState
+          semanticTerm: urn:arxiv-int:term:match-state
+  - name: allocation_group_id
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: invoice_payment_row.allocationGroupId
+          semanticTerm: urn:arxiv-int:term:allocation-group-id
+  - name: debit_credit
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: invoice_payment_row.debitCredit
+          semanticTerm: urn:arxiv-int:term:debit-credit
+  - name: evidence_fact_ids
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: invoice_payment_row.evidenceFactIds
+          semanticTerm: urn:arxiv-int:term:evidence-fact-ids
+  - name: document_id
+    logicalType: string
+    relationships:
+    - type: foreignKey
+      to: documents.document_id
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: invoice_payment_row.documentId
+          semanticTerm: urn:arxiv-int:term:document-id
+  - name: review_state
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: invoice_payment_row.reviewState
+          semanticTerm: urn:arxiv-int:term:review-state
+  - name: confidence
+    logicalType: number
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: invoice_payment_row.confidence
+          semanticTerm: urn:arxiv-int:term:confidence
+  - name: generation_id
+    logicalType: string
+    required: true
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: invoice_payment_row.generationId
+          semanticTerm: urn:arxiv-int:term:generation-id
+  - name: contract_version
+    logicalType: string
+    required: true
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: invoice_payment_row.contractVersion
+          semanticTerm: urn:arxiv-int:term:contract-version

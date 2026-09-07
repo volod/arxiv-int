@@ -1,0 +1,137 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "alternative_group_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "anchor_kind": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "bom_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "bom_line_id": {
+      "primaryKey": true,
+      "type": "string"
+    },
+    "child_object_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "completeness_status": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "contract_version": {
+      "type": "string"
+    },
+    "cycle_detected": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "document_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "effectivity_end": {
+      "format": "date-time",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "effectivity_start": {
+      "format": "date-time",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "evidence_fact_ids": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "generation_id": {
+      "type": "string"
+    },
+    "is_mandatory": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "listing_kind": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "parent_object_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "predicate_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "quantity": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "review_state": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "revision_object_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "root_object_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "unit": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "bom_line_id",
+    "generation_id",
+    "contract_version"
+  ],
+  "type": "object"
+}

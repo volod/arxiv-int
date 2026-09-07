@@ -1,0 +1,3 @@
+-- arxiv-int postgres extensions for anomaly-findings
+-- source: urn:arxiv-int:contract:anomaly-findings:1.0.0@1.0.0
+-- table columns and constraints are owned by eval.anomaly_findings metadata revisions

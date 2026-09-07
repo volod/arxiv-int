@@ -1,0 +1,35 @@
+metadata:
+  domain: arxiv-int
+  sourceContract: transactions
+  canonicalEntity: transaction
+fieldMappings:
+  - sourceField: transaction_id
+    binding: transaction.transactionId
+    semanticTerm: urn:arxiv-int:term:transaction-id
+  - sourceField: transaction_type
+    binding: transaction.transactionType
+    semanticTerm: urn:arxiv-int:term:transaction-type
+  - sourceField: amount
+    binding: transaction.amount
+    semanticTerm: urn:arxiv-int:term:amount
+  - sourceField: currency
+    binding: transaction.currency
+    semanticTerm: urn:arxiv-int:term:currency
+  - sourceField: party_subject_id
+    binding: transaction.partySubjectId
+    semanticTerm: urn:arxiv-int:term:party-subject-id
+  - sourceField: party_object_id
+    binding: transaction.partyObjectId
+    semanticTerm: urn:arxiv-int:term:party-object-id
+  - sourceField: document_id
+    binding: transaction.documentId
+    semanticTerm: urn:arxiv-int:term:document-id
+  - sourceField: event_time
+    binding: transaction.eventTime
+    semanticTerm: urn:arxiv-int:term:event-time
+  - sourceField: generation_id
+    binding: transaction.generationId
+    semanticTerm: urn:arxiv-int:term:generation-id
+  - sourceField: contract_version
+    binding: transaction.contractVersion
+    semanticTerm: urn:arxiv-int:term:contract-version

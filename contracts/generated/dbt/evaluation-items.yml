@@ -1,0 +1,74 @@
+sources:
+  - description: Canonical eval relations owned by Alembic.
+    name: eval
+    schema: eval
+    tables:
+      - columns:
+          - description: evaluation_item_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - evaluation-items.evaluation_item_id.type
+                - evaluation-items.evaluation_item_id.nullability
+                - evaluation-items.evaluation_item_id.batch_unique
+                - evaluation-items.evaluation_item_id.unique
+            name: evaluation_item_id
+            tests:
+              - not_null
+              - unique
+          - description: item_kind must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - evaluation-items.item_kind.type
+            name: item_kind
+          - description: gold_ref must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - evaluation-items.gold_ref.type
+            name: gold_ref
+          - description: split must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - evaluation-items.split.type
+            name: split
+          - description: query_text must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - evaluation-items.query_text.type
+            name: query_text
+          - description: label must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - evaluation-items.label.type
+            name: label
+          - description: dataset_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - evaluation-items.dataset_id.type
+            name: dataset_id
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - evaluation-items.generation_id.type
+                - evaluation-items.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - evaluation-items.contract_version.type
+                - evaluation-items.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+        config:
+          meta:
+            arxiv_int_contract_id: evaluation-items
+        description: Frozen evaluation items with gold references, splits, and labels.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:evaluation-items:1.0.0"
+          primary_key:
+            - evaluation_item_id
+          rule_catalog_version: 1.0.0
+        name: evaluation_items
+version: 2

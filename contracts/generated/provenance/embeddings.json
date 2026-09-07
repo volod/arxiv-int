@@ -1,0 +1,30 @@
+{
+  "apiVersion": "v3.1.0",
+  "artifacts": {
+    "avro/embeddings.avsc": "f197d3d683597b82573db07b77d902d76ee3ca3848dced532f8a0a71686ca491",
+    "dbt/embeddings.yml": "c016f76fa79150b64dc6a4edab856d42ac63a05f9cfd5b4dfc2719e6f87675f1",
+    "jsonschema/embeddings.schema.json": "02826857faa069018ef36c3d65b660442b0188effc737268b870036ac05c9f3b",
+    "parquet/embeddings.parquet.json": "137983c37528d119687c6b1dd232951f8e849c472391089f6482bff7e655edfa",
+    "postgres/embeddings.sql": "09990024792a8dec525b9a1e6daece068cd2468c6e69f446ae772b7e5a4bcb45",
+    "postgres/extensions/embeddings.sql": "904a09ae38fc32c25cfcfa62fd1f4571d1d9f095f3a2a0feb9a289b7f3ca3a4a",
+    "postgres/extensions/embeddings.vector.sql": "cc2a0be01374725a599af0b2831eb893237a3ac03237cc4351d8038553e851f1",
+    "pydantic/embeddings.py": "c0e840d8d1d656a44f85542a3aff7dd72078cc42bf123ba0b5a67a3fd6feb230",
+    "quality/embeddings.rules.json": "4dfcc94fb0e9a29fbd05f22cffbcb0f3b2dbd67e62a18e01c4044df02d743f43"
+  },
+  "canonicalEntity": null,
+  "contractId": "embeddings",
+  "customExtensionKeys": [
+    "partitionKey",
+    "schema",
+    "table",
+    "vector"
+  ],
+  "odcsId": "urn:arxiv-int:contract:embeddings:1.0.0",
+  "odcsVersion": "1.0.0",
+  "postgres": {
+    "partitionKey": "bucket",
+    "schema": "search",
+    "table": "embeddings"
+  },
+  "semanticMetadataHash": "aaab1f6568f261e4beec82c080adc97fd9fce7657079038da91ee4a89b599504"
+}

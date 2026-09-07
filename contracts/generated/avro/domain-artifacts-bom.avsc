@@ -1,0 +1,100 @@
+{
+  "fields": [
+    {
+      "name": "bom_line_id",
+      "type": "string"
+    },
+    {
+      "name": "bom_id",
+      "type": "string"
+    },
+    {
+      "name": "root_object_id",
+      "type": "string"
+    },
+    {
+      "name": "parent_object_id",
+      "type": "string"
+    },
+    {
+      "name": "child_object_id",
+      "type": "string"
+    },
+    {
+      "name": "predicate_id",
+      "type": "string"
+    },
+    {
+      "name": "listing_kind",
+      "type": "string"
+    },
+    {
+      "name": "quantity",
+      "type": "bytes"
+    },
+    {
+      "name": "unit",
+      "type": "string"
+    },
+    {
+      "name": "alternative_group_id",
+      "type": "string"
+    },
+    {
+      "name": "is_mandatory",
+      "type": "boolean"
+    },
+    {
+      "name": "effectivity_start",
+      "type": {
+        "logicalType": "timestamp-millis",
+        "type": "long"
+      }
+    },
+    {
+      "name": "effectivity_end",
+      "type": {
+        "logicalType": "timestamp-millis",
+        "type": "long"
+      }
+    },
+    {
+      "name": "revision_object_id",
+      "type": "string"
+    },
+    {
+      "name": "completeness_status",
+      "type": "string"
+    },
+    {
+      "name": "cycle_detected",
+      "type": "boolean"
+    },
+    {
+      "name": "evidence_fact_ids",
+      "type": "string"
+    },
+    {
+      "name": "document_id",
+      "type": "string"
+    },
+    {
+      "name": "anchor_kind",
+      "type": "string"
+    },
+    {
+      "name": "review_state",
+      "type": "string"
+    },
+    {
+      "name": "generation_id",
+      "type": "string"
+    },
+    {
+      "name": "contract_version",
+      "type": "string"
+    }
+  ],
+  "name": "bom_lines",
+  "type": "record"
+}

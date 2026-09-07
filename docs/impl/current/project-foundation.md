@@ -37,11 +37,13 @@ in agreement in both directions.
 
 | Group | State | Declared distributions |
 | --- | --- | --- |
-| `contracts` | populated | `jsonschema` (MIT), `pyyaml` (MIT) |
+| `contracts` | populated | `fastavro` (MIT), `jsonschema` (MIT), `pydantic` (MIT), `pyyaml` (MIT), `sqlalchemy` (MIT), `sqlglot` (MIT) |
+| `data-quality` | populated | `pandera` (MIT) |
 | `graph` | populated | `pyshacl` (Apache-2.0), `rdflib` (BSD-3-Clause) |
 | `inference` | populated | `httpx` (BSD-3-Clause) |
-| `lake` | populated | `duckdb` (MIT), `pyarrow` (Apache-2.0) |
-| `store` | populated | `psycopg[binary]` (LGPL-3.0-only) |
+| `lake` | populated | `duckdb` (MIT), `polars` (MIT), `pyarrow` (Apache-2.0) |
+| `store` | populated | `alembic` (MIT), `psycopg[binary]` (LGPL-3.0-only) |
+| `transform` | populated | `dbt-core` (Apache-2.0), `dbt-postgres` (Apache-2.0) |
 | `embeddings` | reserved for `semantic-retrieval` | none yet |
 | `evaluation` | reserved for `evaluation-foundation` | none yet |
 | `extraction` | reserved for `corpus-foundation` | none yet |
@@ -73,11 +75,15 @@ release. The foundational configuration merge and containment helpers have grown
 ## Contract primitives
 
 `arxiv_int.contracts` provides an explicit-root file registry, an immutable canonical semantic
-model, deterministic semantic metadata hashes, registered generator dispatch, and schema
-snapshot/change/version/baseline primitives. The registry rejects paths outside its root and
-detects drift from a reviewed semantic hash. Later contract-governance work owns project ODCS
-documents, `x-arxiv-int` adapters, concrete physical generators, adjacent-history policy,
-migrations, and live-store checks.
+model, deterministic semantic metadata hashes, registered generator dispatch, schema
+snapshot/change/version/baseline primitives, deterministic multi-format generation, and evolution
+policy with reviewed baselines and Alembic Python revisions. The shipped registry, `x-arxiv-int`
+bindings, loaders, generation tree, and evolution checks are documented in
+[Contracts](contracts.md). Contract-governance ODCS, generation, evolution, and ontology assets are
+documented there; the initial store schema, dbt generations, and rebuildable search/graph projections
+are recorded in [Canonical store](canonical-store.md). The
+[foundation checkpoint](../records/0027-store-review-foundation-and-store-boundaries.md) records
+integrated acceptance and the remaining nonblocking follow-up.
 
 ## Evaluation and retrieval primitives
 
@@ -94,7 +100,7 @@ identity capability's Splink integration.
 
 Output-sensitive tooling is pinned exactly: `complexipy`, `mypy`, `pymarkdownlnt`, `radon`, `ruff`,
 and `shellcheck-py`. Formatting, typing, complexity, and Markdown findings therefore do not move
-with a resolver update. `make bootstrap` still installs only the core plus the `dev` extra.
+with a resolver update. `make bootstrap` still installs the core plus the `dev` and `contracts` extras.
 
 ## Domain interfaces
 
@@ -144,7 +150,10 @@ The locked bootstrap and package identity checks pass, and `make package-check` 
 `arxiv-int 0.1.0 (arxiv_int)`. The required `make ci` gate covers formatting, linting, typing,
 complexity, shell, documentation-link, specification-plan, and deterministic tests, and it passes
 at 172 tests; the complexity gate rejects Radon D-or-worse and cognitive complexity above 15, so
-both subchecks now run to completion. `make quality` adds coverage (90.14%, above the 90.0%
-floor), Markdown lint, and the build. `make build` produces `dist/arxiv_int-0.1.0.tar.gz` and
-`dist/arxiv_int-0.1.0-py3-none-any.whl`. Repair evidence:
-[quality baseline repair](../records/restore-quality-gate-baseline.md).
+both subchecks now run to completion. `make quality` adds a diagnostic coverage report, Markdown
+lint, and the build. A numeric coverage percentage is not an acceptance gate; see
+[behavior-first test policy](../records/0026-foundation-adopt-behavior-first-test-policy.md).
+The quality baseline repair recorded 90.14% total coverage against a then-required 90% floor
+([quality baseline repair](../records/0003-foundation-restore-quality-gate-baseline.md)).
+`make build` produces `dist/arxiv_int-0.1.0.tar.gz` and
+`dist/arxiv_int-0.1.0-py3-none-any.whl`.

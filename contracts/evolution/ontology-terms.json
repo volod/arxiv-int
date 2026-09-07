@@ -1,0 +1,242 @@
+{
+  "contractId": "ontology-terms",
+  "fieldIdentity": "schema-qualified",
+  "fields": {
+    "terms.contract_version": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "terms.domain_uri": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "terms.generation_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "terms.kind": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "terms.label": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "terms.ontology_version": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "terms.range_uri": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "terms.term_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "terms.uri": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    }
+  },
+  "fingerprints": {
+    "avroSha256": "5efec421041548d1fba9feb6e45e75ea65af3cb7830b0ef4b57d700942ef0509",
+    "generatorVersion": "2.1.0",
+    "postgresSha256": "2b9c70d6a548e652a992c368fd6811da82fb7991eb7458a57542ac8f79973cca",
+    "semanticMetadataHash": "c9b2bf052d617fa9387f34dd1568bb46f6d89a46ce0205b73d65e35c45bc5e41"
+  },
+  "history": [
+    {
+      "contractId": "ontology-terms",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "terms.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "terms.domain_uri": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "terms.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "terms.kind": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "terms.label": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "terms.ontology_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "terms.range_uri": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "terms.term_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "terms.uri": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "5efec421041548d1fba9feb6e45e75ea65af3cb7830b0ef4b57d700942ef0509",
+        "generatorVersion": "1.0.0",
+        "postgresSha256": "a575b3f74f8c7b2470bf5fc4db1716ce8c053e2085424958e6b62166406f8a39",
+        "semanticMetadataHash": "c9b2bf052d617fa9387f34dd1568bb46f6d89a46ce0205b73d65e35c45bc5e41"
+      },
+      "odcsId": "urn:arxiv-int:contract:ontology-terms:1.0.0",
+      "projections": {},
+      "version": "1.0.0"
+    },
+    {
+      "contractId": "ontology-terms",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "terms.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "terms.domain_uri": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "terms.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "terms.kind": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "terms.label": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "terms.ontology_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "terms.range_uri": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "terms.term_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "terms.uri": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "5efec421041548d1fba9feb6e45e75ea65af3cb7830b0ef4b57d700942ef0509",
+        "generatorVersion": "2.0.0",
+        "postgresSha256": "2b9c70d6a548e652a992c368fd6811da82fb7991eb7458a57542ac8f79973cca",
+        "semanticMetadataHash": "c9b2bf052d617fa9387f34dd1568bb46f6d89a46ce0205b73d65e35c45bc5e41"
+      },
+      "odcsId": "urn:arxiv-int:contract:ontology-terms:1.0.0",
+      "projections": {},
+      "version": "1.0.0"
+    },
+    {
+      "contractId": "ontology-terms",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "terms.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "terms.domain_uri": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "terms.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "terms.kind": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "terms.label": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "terms.ontology_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "terms.range_uri": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "terms.term_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "terms.uri": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "5efec421041548d1fba9feb6e45e75ea65af3cb7830b0ef4b57d700942ef0509",
+        "generatorVersion": "2.1.0",
+        "postgresSha256": "2b9c70d6a548e652a992c368fd6811da82fb7991eb7458a57542ac8f79973cca",
+        "semanticMetadataHash": "c9b2bf052d617fa9387f34dd1568bb46f6d89a46ce0205b73d65e35c45bc5e41"
+      },
+      "odcsId": "urn:arxiv-int:contract:ontology-terms:1.0.0",
+      "projections": {},
+      "version": "1.0.0"
+    }
+  ],
+  "odcsId": "urn:arxiv-int:contract:ontology-terms:1.0.0",
+  "projections": {},
+  "version": "1.0.0"
+}

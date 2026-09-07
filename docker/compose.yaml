@@ -1,5 +1,11 @@
 name: arxiv-int
 
+# Writable bind mounts must run as the invoking operator. The operator wrapper always
+# injects RUNTIME_UID/RUNTIME_GID from the host process; defaults of 1000 are refused
+# so a bare `docker compose` cannot create inaccessible root/999-owned artifacts.
+x-operator-identity: &operator-identity
+  user: "${RUNTIME_UID:?RUNTIME_UID must be set by the operator wrapper}:${RUNTIME_GID:?RUNTIME_GID must be set by the operator wrapper}"
+
 x-service-defaults: &service-defaults
   init: true
   restart: unless-stopped
@@ -15,9 +21,8 @@ x-database-dependency: &database-dependency
 
 services:
   database:
-    <<: *service-defaults
-    image: paradedb/paradedb:0.25.6-pg17@sha256:044b8cc5b40159714e88e3f546fc74de11cf215c030190cc82c6627015d728ea
-    user: "${RUNTIME_UID:-1000}:${RUNTIME_GID:-1000}"
+    <<: [*service-defaults, *operator-identity]
+    image: arxiv-int/postgres:17-0.25.6-age1.7.0
     profiles: [core, graph, ui, observability]
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-arxiv_int}
@@ -40,9 +45,8 @@ services:
     stop_grace_period: 1m
 
   age-viewer:
-    <<: *service-defaults
+    <<: [*service-defaults, *operator-identity]
     image: arxiv-int/age-viewer:1.0.0
-    user: "${RUNTIME_UID:-1000}:${RUNTIME_GID:-1000}"
     profiles: [graph]
     depends_on: *database-dependency
     ports:
@@ -60,9 +64,8 @@ services:
     stop_grace_period: 30s
 
   grafana:
-    <<: *service-defaults
+    <<: [*service-defaults, *operator-identity]
     image: grafana/grafana:12.4.0@sha256:b0ae311af06228bcfd4a620504b653db80f5b91e94dc3dc2a5b7dab202bcde20
-    user: "${RUNTIME_UID:-1000}:${RUNTIME_GID:-1000}"
     profiles: [ui]
     depends_on: *database-dependency
     environment:
@@ -94,9 +97,8 @@ services:
     stop_grace_period: 30s
 
   prometheus:
-    <<: *service-defaults
+    <<: [*service-defaults, *operator-identity]
     image: prom/prometheus:v3.5.0@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996
-    user: "${RUNTIME_UID:-1000}:${RUNTIME_GID:-1000}"
     profiles: [observability]
     depends_on:
       postgres-exporter:
@@ -125,7 +127,7 @@ services:
     stop_grace_period: 30s
 
   postgres-exporter:
-    <<: *service-defaults
+    <<: [*service-defaults, *operator-identity]
     image: quay.io/prometheuscommunity/postgres-exporter:v0.17.1@sha256:38606faa38c54787525fb0ff2fd6b41b4cfb75d455c1df294927c5f611699b17
     profiles: [observability]
     depends_on: *database-dependency
@@ -171,9 +173,8 @@ services:
     stop_grace_period: 30s
 
   vllm:
-    <<: *service-defaults
+    <<: [*service-defaults, *operator-identity]
     image: vllm/vllm-openai:v0.26.0@sha256:ffb2d59b1c059a5bd8d781320c9f5189de8293693b7d95da54befddaa54abf52
-    user: "${RUNTIME_UID:-1000}:${RUNTIME_GID:-1000}"
     profiles: [vllm]
     gpus: all
     ipc: host

@@ -1,0 +1,110 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:contract:anomaly-findings:1.0.0
+name: anomaly-findings
+status: active
+domain: arxiv-int
+description:
+  purpose: Anomaly findings with severity, status, and evidence summaries for review.
+team:
+  name: arxiv-int
+  members:
+    - username: contracts@arxiv-int.local
+      role: Owner
+servers:
+  - server: normalized-lake
+    type: local
+    description: Partitioned normalized lake under RESULTS_DIR
+    path: normalized/anomaly-findings
+    format: parquet
+customProperties:
+  - property: x-arxiv-int
+    value:
+      schema: eval
+      table: anomaly_findings
+schema:
+  - name: anomaly_findings
+    physicalName: anomaly_findings
+    logicalType: object
+    properties:
+      - name: finding_id
+        logicalType: string
+        primaryKey: true
+        primaryKeyPosition: 1
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: anomaly_finding.findingId
+                semanticTerm: "urn:arxiv-int:term:finding-id"
+      - name: finding_type
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: anomaly_finding.findingType
+                semanticTerm: "urn:arxiv-int:term:finding-type"
+      - name: severity
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: anomaly_finding.severity
+                semanticTerm: "urn:arxiv-int:term:severity"
+      - name: status
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: anomaly_finding.status
+                semanticTerm: "urn:arxiv-int:term:status"
+      - name: subject_object_id
+        logicalType: string
+        relationships:
+          - type: foreignKey
+            to: objects.object_id
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: anomaly_finding.subjectObjectId
+                semanticTerm: "urn:arxiv-int:term:subject-object-id"
+      - name: rule_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: anomaly_finding.ruleId
+                semanticTerm: "urn:arxiv-int:term:rule-id"
+      - name: evidence_summary
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: anomaly_finding.evidenceSummary
+                semanticTerm: "urn:arxiv-int:term:evidence-summary"
+      - name: generation_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: anomaly_finding.generationId
+                semanticTerm: "urn:arxiv-int:term:generation-id"
+      - name: contract_version
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: anomaly_finding.contractVersion
+                semanticTerm: "urn:arxiv-int:term:contract-version"

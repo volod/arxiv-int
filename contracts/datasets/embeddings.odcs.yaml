@@ -1,0 +1,112 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:contract:embeddings:1.0.0
+name: embeddings
+status: active
+domain: arxiv-int
+description:
+  purpose: Vector embedding references for retrieval targets under a profile.
+team:
+  name: arxiv-int
+  members:
+    - username: contracts@arxiv-int.local
+      role: Owner
+servers:
+  - server: normalized-lake
+    type: local
+    description: Partitioned normalized lake under RESULTS_DIR
+    path: normalized/embeddings
+    format: parquet
+customProperties:
+  - property: x-arxiv-int
+    value:
+      schema: search
+      table: embeddings
+      partitionKey: bucket
+      vector:
+        dimensionsField: dimensions
+        defaultDimensions: 1024
+        index: ivfflat
+schema:
+  - name: embeddings
+    physicalName: embeddings
+    logicalType: object
+    properties:
+      - name: embedding_id
+        logicalType: string
+        primaryKey: true
+        primaryKeyPosition: 1
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: embedding.embeddingId
+                semanticTerm: "urn:arxiv-int:term:embedding-id"
+      - name: target_kind
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: embedding.targetKind
+                semanticTerm: "urn:arxiv-int:term:target-kind"
+      - name: target_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: embedding.targetId
+                semanticTerm: "urn:arxiv-int:term:target-id"
+      - name: profile_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: embedding.profileId
+                semanticTerm: "urn:arxiv-int:term:profile-id"
+      - name: dimensions
+        logicalType: integer
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: embedding.dimensions
+                semanticTerm: "urn:arxiv-int:term:dimensions"
+      - name: vector_ref
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: embedding.vectorRef
+                semanticTerm: "urn:arxiv-int:term:vector-ref"
+      - name: model_digest
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: embedding.modelDigest
+                semanticTerm: "urn:arxiv-int:term:model-digest"
+      - name: generation_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: embedding.generationId
+                semanticTerm: "urn:arxiv-int:term:generation-id"
+      - name: contract_version
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: embedding.contractVersion
+                semanticTerm: "urn:arxiv-int:term:contract-version"

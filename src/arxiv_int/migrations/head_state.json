@@ -1,0 +1,2155 @@
+{
+  "revision": "0001",
+  "schemas": [
+    "corpus",
+    "ctl",
+    "eval",
+    "kg",
+    "ontology",
+    "search"
+  ],
+  "stateVersion": 1,
+  "tables": {
+    "corpus.chunks": {
+      "columns": {
+        "bucket": {
+          "comment": "Declared physical partition key from x-arxiv-int.partitionKey.",
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "chunk_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "chunker_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "document_id": {
+          "comment": null,
+          "foreignKeys": [
+            "corpus.documents.document_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "end_char": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "BIGINT"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "ordinal": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "BIGINT"
+        },
+        "start_char": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "BIGINT"
+        },
+        "text": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        }
+      },
+      "comment": "Chunker-partitioned text units derived from documents for retrieval and extraction.",
+      "constraintNames": {
+        "foreignKeys": {
+          "document_id": "fk_chunks_document_id"
+        },
+        "primaryKey": "pk_chunks"
+      },
+      "contractId": "chunks",
+      "primaryKey": [
+        "chunk_id"
+      ],
+      "schema": "corpus",
+      "table": "chunks"
+    },
+    "corpus.documents": {
+      "columns": {
+        "bucket": {
+          "comment": "Declared physical partition key from x-arxiv-int.partitionKey.",
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "byte_size": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "BIGINT"
+        },
+        "content_hash": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "document_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "extractor_profile": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "language": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "media_type": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "text_chars": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "BIGINT"
+        },
+        "title": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        }
+      },
+      "comment": "Normalized document identity and extracted text metadata for the archive corpus.",
+      "constraintNames": {
+        "foreignKeys": {},
+        "primaryKey": "pk_documents"
+      },
+      "contractId": "documents",
+      "primaryKey": [
+        "document_id"
+      ],
+      "schema": "corpus",
+      "table": "documents"
+    },
+    "corpus.source_occurrences": {
+      "columns": {
+        "bucket": {
+          "comment": "Declared physical partition key from x-arxiv-int.partitionKey.",
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "container_path": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "content_hash": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "member_path": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "occurrence_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "relative_path": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "scan_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "silo_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "status": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        }
+      },
+      "comment": "Silo-relative source locations and scan status for archive bytes.",
+      "constraintNames": {
+        "foreignKeys": {},
+        "primaryKey": "pk_source_occurrences"
+      },
+      "contractId": "source-occurrences",
+      "primaryKey": [
+        "occurrence_id"
+      ],
+      "schema": "corpus",
+      "table": "source_occurrences"
+    },
+    "corpus.spans": {
+      "columns": {
+        "bucket": {
+          "comment": "Declared physical partition key from x-arxiv-int.partitionKey.",
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "document_id": {
+          "comment": null,
+          "foreignKeys": [
+            "corpus.documents.document_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "end_char": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "BIGINT"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "kind": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "page": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "BIGINT"
+        },
+        "span_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "start_char": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "BIGINT"
+        }
+      },
+      "comment": "Character-anchored spans locating evidence within documents.",
+      "constraintNames": {
+        "foreignKeys": {
+          "document_id": "fk_spans_document_id"
+        },
+        "primaryKey": "pk_spans"
+      },
+      "contractId": "spans",
+      "primaryKey": [
+        "span_id"
+      ],
+      "schema": "corpus",
+      "table": "spans"
+    },
+    "ctl.domain_artifact_registry": {
+      "columns": {
+        "artifact_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "artifact_type": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "byte_count": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "BIGINT"
+        },
+        "checksum": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "creation_status": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "evidence_coverage": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "NUMERIC"
+        },
+        "failure_reason": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "generator_fingerprint": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "identity_snapshot_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "input_fact_snapshot_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "media_type": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "policy_fingerprint": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "review_inclusion_rules": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "row_count": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "BIGINT"
+        },
+        "run_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "schema_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "uri_or_path": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        }
+      },
+      "comment": "Run artifact registry for domain investigation family outputs and creation statuses.",
+      "constraintNames": {
+        "foreignKeys": {},
+        "primaryKey": "pk_domain_artifact_registry"
+      },
+      "contractId": "domain-artifacts-registry",
+      "primaryKey": [
+        "artifact_id"
+      ],
+      "schema": "ctl",
+      "table": "domain_artifact_registry"
+    },
+    "eval.anomaly_findings": {
+      "columns": {
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "evidence_summary": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "finding_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "finding_type": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "rule_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "severity": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "status": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "subject_object_id": {
+          "comment": null,
+          "foreignKeys": [
+            "kg.objects.object_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        }
+      },
+      "comment": "Anomaly findings with severity, status, and evidence summaries for review.",
+      "constraintNames": {
+        "foreignKeys": {
+          "subject_object_id": "fk_anomaly_findings_subject_object_id"
+        },
+        "primaryKey": "pk_anomaly_findings"
+      },
+      "contractId": "anomaly-findings",
+      "primaryKey": [
+        "finding_id"
+      ],
+      "schema": "eval",
+      "table": "anomaly_findings"
+    },
+    "eval.evaluation_items": {
+      "columns": {
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "dataset_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "evaluation_item_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "gold_ref": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "item_kind": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "label": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "query_text": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "split": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        }
+      },
+      "comment": "Frozen evaluation items with gold references, splits, and labels.",
+      "constraintNames": {
+        "foreignKeys": {},
+        "primaryKey": "pk_evaluation_items"
+      },
+      "contractId": "evaluation-items",
+      "primaryKey": [
+        "evaluation_item_id"
+      ],
+      "schema": "eval",
+      "table": "evaluation_items"
+    },
+    "kg.aliases": {
+      "columns": {
+        "alias_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "alias_kind": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "alias_text": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "bucket": {
+          "comment": "Declared physical partition key from x-arxiv-int.partitionKey.",
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "normalized_text": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "object_id": {
+          "comment": null,
+          "foreignKeys": [
+            "kg.objects.object_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        }
+      },
+      "comment": "Alternate labels and normalized aliases for knowledge-graph objects.",
+      "constraintNames": {
+        "foreignKeys": {
+          "object_id": "fk_aliases_object_id"
+        },
+        "primaryKey": "pk_aliases"
+      },
+      "contractId": "aliases",
+      "primaryKey": [
+        "alias_id"
+      ],
+      "schema": "kg",
+      "table": "aliases"
+    },
+    "kg.bom_lines": {
+      "columns": {
+        "alternative_group_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "anchor_kind": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "bom_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "bom_line_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "bucket": {
+          "comment": "Declared physical partition key from x-arxiv-int.partitionKey.",
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "child_object_id": {
+          "comment": null,
+          "foreignKeys": [
+            "kg.objects.object_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "completeness_status": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "cycle_detected": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "BOOLEAN"
+        },
+        "document_id": {
+          "comment": null,
+          "foreignKeys": [
+            "corpus.documents.document_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "effectivity_end": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TIMESTAMP WITH TIME ZONE"
+        },
+        "effectivity_start": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TIMESTAMP WITH TIME ZONE"
+        },
+        "evidence_fact_ids": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "is_mandatory": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "BOOLEAN"
+        },
+        "listing_kind": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "parent_object_id": {
+          "comment": null,
+          "foreignKeys": [
+            "kg.objects.object_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "predicate_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "quantity": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "NUMERIC"
+        },
+        "review_state": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "revision_object_id": {
+          "comment": null,
+          "foreignKeys": [
+            "kg.objects.object_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "root_object_id": {
+          "comment": null,
+          "foreignKeys": [
+            "kg.objects.object_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "unit": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        }
+      },
+      "comment": "Bill-of-materials hierarchy rows with quantities, alternatives, effectivity, and completeness.",
+      "constraintNames": {
+        "foreignKeys": {
+          "child_object_id": "fk_bom_lines_child_object_id",
+          "document_id": "fk_bom_lines_document_id",
+          "parent_object_id": "fk_bom_lines_parent_object_id",
+          "revision_object_id": "fk_bom_lines_revision_object_id",
+          "root_object_id": "fk_bom_lines_root_object_id"
+        },
+        "primaryKey": "pk_bom_lines"
+      },
+      "contractId": "domain-artifacts-bom",
+      "primaryKey": [
+        "bom_line_id"
+      ],
+      "schema": "kg",
+      "table": "bom_lines"
+    },
+    "kg.catalog_entries": {
+      "columns": {
+        "bucket": {
+          "comment": "Declared physical partition key from x-arxiv-int.partitionKey.",
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "catalog_entry_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "catalog_kind": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "document_count": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "BIGINT"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "object_id": {
+          "comment": null,
+          "foreignKeys": [
+            "kg.objects.object_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "preferred_name": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "review_state": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        }
+      },
+      "comment": "Catalog entries summarizing objects with preferred names and document counts.",
+      "constraintNames": {
+        "foreignKeys": {
+          "object_id": "fk_catalog_entries_object_id"
+        },
+        "primaryKey": "pk_catalog_entries"
+      },
+      "contractId": "catalogs",
+      "primaryKey": [
+        "catalog_entry_id"
+      ],
+      "schema": "kg",
+      "table": "catalog_entries"
+    },
+    "kg.facts": {
+      "columns": {
+        "bucket": {
+          "comment": "Declared physical partition key from x-arxiv-int.partitionKey.",
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "chunk_id": {
+          "comment": null,
+          "foreignKeys": [
+            "corpus.chunks.chunk_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "confidence": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "NUMERIC"
+        },
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "document_id": {
+          "comment": null,
+          "foreignKeys": [
+            "corpus.documents.document_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "extractor_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "fact_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "identity_snapshot_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "literal_type": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "literal_value": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "object_object_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "predicate_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "span_id": {
+          "comment": null,
+          "foreignKeys": [
+            "corpus.spans.span_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "status": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "subject_object_id": {
+          "comment": null,
+          "foreignKeys": [
+            "kg.objects.object_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        }
+      },
+      "comment": "Extracted subject-predicate-object facts with evidence anchors and confidence.",
+      "constraintNames": {
+        "foreignKeys": {
+          "chunk_id": "fk_facts_chunk_id",
+          "document_id": "fk_facts_document_id",
+          "span_id": "fk_facts_span_id",
+          "subject_object_id": "fk_facts_subject_object_id"
+        },
+        "primaryKey": "pk_facts"
+      },
+      "contractId": "facts",
+      "primaryKey": [
+        "fact_id"
+      ],
+      "schema": "kg",
+      "table": "facts"
+    },
+    "kg.invoice_payment_rows": {
+      "columns": {
+        "allocated_amount": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "NUMERIC"
+        },
+        "allocation_group_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "amount": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "NUMERIC"
+        },
+        "bucket": {
+          "comment": "Declared physical partition key from x-arxiv-int.partitionKey.",
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "confidence": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "NUMERIC"
+        },
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "currency": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "debit_credit": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "document_id": {
+          "comment": null,
+          "foreignKeys": [
+            "corpus.documents.document_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "due_date": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TIMESTAMP WITH TIME ZONE"
+        },
+        "evidence_fact_ids": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "invoice_object_id": {
+          "comment": null,
+          "foreignKeys": [
+            "kg.objects.object_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "line_number": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "BIGINT"
+        },
+        "match_state": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "payment_date": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TIMESTAMP WITH TIME ZONE"
+        },
+        "payment_object_id": {
+          "comment": null,
+          "foreignKeys": [
+            "kg.objects.object_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "review_state": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "row_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "row_kind": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        }
+      },
+      "comment": "Invoice lines, payments, credit notes, ledger postings, and allocation match states.",
+      "constraintNames": {
+        "foreignKeys": {
+          "document_id": "fk_invoice_payment_rows_document_id",
+          "invoice_object_id": "fk_invoice_payment_rows_invoice_object_id",
+          "payment_object_id": "fk_invoice_payment_rows_payment_object_id"
+        },
+        "primaryKey": "pk_invoice_payment_rows"
+      },
+      "contractId": "domain-artifacts-invoice-payment",
+      "primaryKey": [
+        "row_id"
+      ],
+      "schema": "kg",
+      "table": "invoice_payment_rows"
+    },
+    "kg.mentions": {
+      "columns": {
+        "bucket": {
+          "comment": "Declared physical partition key from x-arxiv-int.partitionKey.",
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "chunk_id": {
+          "comment": null,
+          "foreignKeys": [
+            "corpus.chunks.chunk_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "document_id": {
+          "comment": null,
+          "foreignKeys": [
+            "corpus.documents.document_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "mention_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "object_anchor_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "span_id": {
+          "comment": null,
+          "foreignKeys": [
+            "corpus.spans.span_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "surface_form": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        }
+      },
+      "comment": "Surface-form mentions linking documents, spans, and chunks to object anchors.",
+      "constraintNames": {
+        "foreignKeys": {
+          "chunk_id": "fk_mentions_chunk_id",
+          "document_id": "fk_mentions_document_id",
+          "span_id": "fk_mentions_span_id"
+        },
+        "primaryKey": "pk_mentions"
+      },
+      "contractId": "mentions",
+      "primaryKey": [
+        "mention_id"
+      ],
+      "schema": "kg",
+      "table": "mentions"
+    },
+    "kg.objects": {
+      "columns": {
+        "bucket": {
+          "comment": "Declared physical partition key from x-arxiv-int.partitionKey.",
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "cluster_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "lifecycle_state": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "object_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "object_type": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "preferred_label": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "review_state": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        }
+      },
+      "comment": "Canonical knowledge-graph objects with lifecycle and review state.",
+      "constraintNames": {
+        "foreignKeys": {},
+        "primaryKey": "pk_objects"
+      },
+      "contractId": "objects",
+      "primaryKey": [
+        "object_id"
+      ],
+      "schema": "kg",
+      "table": "objects"
+    },
+    "kg.relationship_edges": {
+      "columns": {
+        "anchor_kind": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "bucket": {
+          "comment": "Declared physical partition key from x-arxiv-int.partitionKey.",
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "cardinality": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "confidence": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "NUMERIC"
+        },
+        "conflict_group_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "direction": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "document_id": {
+          "comment": null,
+          "foreignKeys": [
+            "corpus.documents.document_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "edge_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "evidence_fact_ids": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "inclusion_policy": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "object_object_id": {
+          "comment": null,
+          "foreignKeys": [
+            "kg.objects.object_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "predicate_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "relation_kind": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "review_state": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "span_id": {
+          "comment": null,
+          "foreignKeys": [
+            "corpus.spans.span_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "subject_object_id": {
+          "comment": null,
+          "foreignKeys": [
+            "kg.objects.object_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        }
+      },
+      "comment": "Typed design/party/product relationship edges with evidence and inclusion state.",
+      "constraintNames": {
+        "foreignKeys": {
+          "document_id": "fk_relationship_edges_document_id",
+          "object_object_id": "fk_relationship_edges_object_object_id",
+          "span_id": "fk_relationship_edges_span_id",
+          "subject_object_id": "fk_relationship_edges_subject_object_id"
+        },
+        "primaryKey": "pk_relationship_edges"
+      },
+      "contractId": "domain-artifacts-relationship-map",
+      "primaryKey": [
+        "edge_id"
+      ],
+      "schema": "kg",
+      "table": "relationship_edges"
+    },
+    "kg.supply_chain_edges": {
+      "columns": {
+        "bucket": {
+          "comment": "Declared physical partition key from x-arxiv-int.partitionKey.",
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "confidence": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "NUMERIC"
+        },
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "direction": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "document_id": {
+          "comment": null,
+          "foreignKeys": [
+            "corpus.documents.document_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "edge_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "event_time": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TIMESTAMP WITH TIME ZONE"
+        },
+        "evidence_fact_ids": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "from_object_id": {
+          "comment": null,
+          "foreignKeys": [
+            "kg.objects.object_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "path_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "product_object_id": {
+          "comment": null,
+          "foreignKeys": [
+            "kg.objects.object_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "review_state": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "role_predicate_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "stage": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "status": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "to_object_id": {
+          "comment": null,
+          "foreignKeys": [
+            "kg.objects.object_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "transaction_id": {
+          "comment": null,
+          "foreignKeys": [
+            "kg.transactions.transaction_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        }
+      },
+      "comment": "Supply-chain stage edges separating quote, order, invoice, ship, receive, and pay claims.",
+      "constraintNames": {
+        "foreignKeys": {
+          "document_id": "fk_supply_chain_edges_document_id",
+          "from_object_id": "fk_supply_chain_edges_from_object_id",
+          "product_object_id": "fk_supply_chain_edges_product_object_id",
+          "to_object_id": "fk_supply_chain_edges_to_object_id",
+          "transaction_id": "fk_supply_chain_edges_transaction_id"
+        },
+        "primaryKey": "pk_supply_chain_edges"
+      },
+      "contractId": "domain-artifacts-supply-chain",
+      "primaryKey": [
+        "edge_id"
+      ],
+      "schema": "kg",
+      "table": "supply_chain_edges"
+    },
+    "kg.transactions": {
+      "columns": {
+        "amount": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "NUMERIC"
+        },
+        "bucket": {
+          "comment": "Declared physical partition key from x-arxiv-int.partitionKey.",
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "currency": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "document_id": {
+          "comment": null,
+          "foreignKeys": [
+            "corpus.documents.document_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "event_time": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TIMESTAMP WITH TIME ZONE"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "party_object_id": {
+          "comment": null,
+          "foreignKeys": [
+            "kg.objects.object_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "party_subject_id": {
+          "comment": null,
+          "foreignKeys": [
+            "kg.objects.object_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "transaction_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "transaction_type": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        }
+      },
+      "comment": "Financial or exchange transactions linked to parties and source documents.",
+      "constraintNames": {
+        "foreignKeys": {
+          "document_id": "fk_transactions_document_id",
+          "party_object_id": "fk_transactions_party_object_id",
+          "party_subject_id": "fk_transactions_party_subject_id"
+        },
+        "primaryKey": "pk_transactions"
+      },
+      "contractId": "transactions",
+      "primaryKey": [
+        "transaction_id"
+      ],
+      "schema": "kg",
+      "table": "transactions"
+    },
+    "ontology.terms": {
+      "columns": {
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "domain_uri": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "kind": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "label": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "ontology_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "range_uri": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "term_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "uri": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        }
+      },
+      "comment": "Controlled ontology terms with URIs, labels, and domain or range constraints.",
+      "constraintNames": {
+        "foreignKeys": {},
+        "primaryKey": "pk_terms"
+      },
+      "contractId": "ontology-terms",
+      "primaryKey": [
+        "term_id"
+      ],
+      "schema": "ontology",
+      "table": "terms"
+    },
+    "search.embeddings": {
+      "columns": {
+        "bucket": {
+          "comment": "Declared physical partition key from x-arxiv-int.partitionKey.",
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "dimensions": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "BIGINT"
+        },
+        "embedding_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "model_digest": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "profile_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "target_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "target_kind": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "vector_ref": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        }
+      },
+      "comment": "Vector embedding references for retrieval targets under a profile.",
+      "constraintNames": {
+        "foreignKeys": {},
+        "primaryKey": "pk_embeddings"
+      },
+      "contractId": "embeddings",
+      "primaryKey": [
+        "embedding_id"
+      ],
+      "schema": "search",
+      "table": "embeddings"
+    },
+    "search.topic_assignments": {
+      "columns": {
+        "bucket": {
+          "comment": "Declared physical partition key from x-arxiv-int.partitionKey.",
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "document_id": {
+          "comment": null,
+          "foreignKeys": [
+            "corpus.documents.document_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "label": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "scheme_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "score": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "NUMERIC"
+        },
+        "topic_assignment_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "topic_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        }
+      },
+      "comment": "Topic assignments linking documents to labeled topics under a scheme.",
+      "constraintNames": {
+        "foreignKeys": {
+          "document_id": "fk_topic_assignments_document_id"
+        },
+        "primaryKey": "pk_topic_assignments"
+      },
+      "contractId": "topics",
+      "primaryKey": [
+        "topic_assignment_id"
+      ],
+      "schema": "search",
+      "table": "topic_assignments"
+    }
+  }
+}

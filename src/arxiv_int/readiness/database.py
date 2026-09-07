@@ -23,7 +23,7 @@ def check_database(
     database_healthy: bool,
 ) -> None:
     """Inspect installed extension versions and current migration applicability."""
-    plan = plan_services(profiles)
+    plan = plan_services(profiles, project_root=config.project_root)
     if not plan.database:
         return
     migrations = config.project_root / "db" / "migrations"
@@ -36,6 +36,14 @@ def check_database(
         )
     else:
         report.add("database.migrations", "ready", "no database migrations are shipped yet")
+    if plan.graph and not plan.age_enabled:
+        report.add(
+            "database.extensions",
+            "degraded",
+            "graph profile selected but AGE compatibility gate is closed",
+            action="run make postgres-image-probe WRITE_GATE=1 after a successful AGE suite",
+        )
+        return
     if not database_healthy:
         report.add(
             "database.extensions",

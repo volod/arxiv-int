@@ -2,9 +2,11 @@
 
 from collections.abc import Sequence
 from dataclasses import dataclass
+from pathlib import Path
 
 from arxiv_int.runtime.config_model import RuntimeConfig
 from arxiv_int.runtime.path_model import runtime_placements
+from arxiv_int.stores.postgres_image.compatibility import load_age_compatibility
 
 PROFILE_SERVICES = {
     "core": ("database",),
@@ -49,6 +51,7 @@ class ServicePlan:
 
     profiles: tuple[str, ...]
     services: tuple[str, ...]
+    age_enabled: bool = True
 
     @property
     def database(self) -> bool:
@@ -63,12 +66,16 @@ class ServicePlan:
         return self.pipeline or "vllm" in self.services
 
     @property
+    def graph(self) -> bool:
+        return "graph" in self.profiles
+
+    @property
     def extensions(self) -> frozenset[str]:
         if not self.database:
             return frozenset()
-        return frozenset(
-            ("pg_search", "vector", "age") if "graph" in self.profiles else ("pg_search", "vector")
-        )
+        if self.graph and self.age_enabled:
+            return frozenset(("pg_search", "vector", "age"))
+        return frozenset(("pg_search", "vector"))
 
     def path_variables(self, config: RuntimeConfig, *, readiness: bool = False) -> frozenset[str]:
         """Select disk checks; all configured roots remain containment boundaries."""
@@ -88,10 +95,27 @@ class ServicePlan:
         return frozenset(variables)
 
 
-def plan_services(profiles: str | Sequence[str]) -> ServicePlan:
+def plan_services(
+    profiles: str | Sequence[str],
+    *,
+    project_root: Path | None = None,
+) -> ServicePlan:
     """Resolve a request without inspecting or preparing the filesystem."""
     selected = parse_profiles(profiles)
+    age_enabled = True
+    if project_root is not None:
+        age_enabled = load_age_compatibility(project_root).age_enabled
     return ServicePlan(
         selected,
         tuple(dict.fromkeys(name for profile in selected for name in PROFILE_SERVICES[profile])),
+        age_enabled=age_enabled,
     )
+
+
+def require_graph_age(plan: ServicePlan) -> None:
+    """Refuse graph startup when the AGE compatibility gate is closed."""
+    if plan.graph and not plan.age_enabled:
+        raise ComposeConfigurationError(
+            "graph profile is disabled until docker/postgres AGE compatibility probes pass; "
+            "run make postgres-image-probe WRITE_GATE=1"
+        )

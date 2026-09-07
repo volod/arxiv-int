@@ -143,7 +143,30 @@ def test_database_output_never_echoes_credentials(tmp_path: Path, code: int, cap
 def test_age_installation_only_required_for_graph(
     tmp_path: Path, profiles: tuple[str, ...], expected: str
 ) -> None:
+    config = _config(tmp_path)
+    postgres = config.project_root / "docker" / "postgres"
+    postgres.mkdir(parents=True)
+    (postgres / "age-compatibility.json").write_text(
+        '{"age_enabled": true, "reason": "fixture", "image_ref": "test", '
+        '"probed_at": "2026-01-01T00:00:00Z", "probe_summary": {}}',
+        encoding="utf-8",
+    )
     report = PreflightReport("database")
     probe = RecordingProbe(CommandResult(0, "age=1/-\npg_search=1/1\nvector=1/1"))
-    check_database(report, _config(tmp_path), profiles, probe, 1, database_healthy=True)
+    check_database(report, config, profiles, probe, 1, database_healthy=True)
     assert report.status == expected
+
+
+def test_graph_without_age_gate_is_degraded_not_blocked(tmp_path: Path) -> None:
+    report = PreflightReport("database")
+    check_database(
+        report,
+        _config(tmp_path),
+        ("graph",),
+        RecordingProbe(CommandResult(0, "pg_search=1/1\nvector=1/1")),
+        1,
+        database_healthy=True,
+    )
+    finding = next(item for item in report.findings if item.name == "database.extensions")
+    assert finding.status == "degraded"
+    assert "AGE compatibility gate is closed" in finding.detail

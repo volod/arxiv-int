@@ -1,0 +1,95 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:contract:aliases:1.0.0
+name: aliases
+status: active
+domain: arxiv-int
+description:
+  purpose: Alternate labels and normalized aliases for knowledge-graph objects.
+team:
+  name: arxiv-int
+  members:
+    - username: contracts@arxiv-int.local
+      role: Owner
+servers:
+  - server: normalized-lake
+    type: local
+    description: Partitioned normalized lake under RESULTS_DIR
+    path: normalized/aliases
+    format: parquet
+customProperties:
+  - property: x-arxiv-int
+    value:
+      schema: kg
+      table: aliases
+      partitionKey: bucket
+schema:
+  - name: aliases
+    physicalName: aliases
+    logicalType: object
+    properties:
+      - name: alias_id
+        logicalType: string
+        primaryKey: true
+        primaryKeyPosition: 1
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: alias.aliasId
+                semanticTerm: "urn:arxiv-int:term:alias-id"
+      - name: object_id
+        logicalType: string
+        relationships:
+          - type: foreignKey
+            to: objects.object_id
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: alias.objectId
+                semanticTerm: "urn:arxiv-int:term:object-id"
+      - name: alias_text
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: alias.aliasText
+                semanticTerm: "urn:arxiv-int:term:alias-text"
+      - name: alias_kind
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: alias.aliasKind
+                semanticTerm: "urn:arxiv-int:term:alias-kind"
+      - name: normalized_text
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: alias.normalizedText
+                semanticTerm: "urn:arxiv-int:term:normalized-text"
+      - name: generation_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: alias.generationId
+                semanticTerm: "urn:arxiv-int:term:generation-id"
+      - name: contract_version
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: alias.contractVersion
+                semanticTerm: "urn:arxiv-int:term:contract-version"

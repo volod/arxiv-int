@@ -1,0 +1,233 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:contract:domain-artifacts-bom:1.0.0
+name: domain-artifacts-bom
+status: active
+domain: arxiv-int
+description:
+  purpose: Bill-of-materials hierarchy rows with quantities, alternatives, effectivity,
+    and completeness.
+team:
+  name: arxiv-int
+  members:
+  - username: contracts@arxiv-int.local
+    role: Owner
+servers:
+- server: normalized-lake
+  type: local
+  description: Partitioned normalized lake under RESULTS_DIR
+  path: normalized/domain-artifacts-bom
+  format: parquet
+customProperties:
+- property: x-arxiv-int
+  value:
+    schema: kg
+    table: bom_lines
+    partitionKey: bucket
+    graph:
+      edgeLabel: PART_OF
+      fromField: child_object_id
+      toField: parent_object_id
+      idField: bom_line_id
+schema:
+- name: bom_lines
+  physicalName: bom_lines
+  logicalType: object
+  properties:
+  - name: bom_line_id
+    logicalType: string
+    primaryKey: true
+    primaryKeyPosition: 1
+    required: true
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: bom_line.bomLineId
+          semanticTerm: urn:arxiv-int:term:bom-line-id
+  - name: bom_id
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: bom_line.bomId
+          semanticTerm: urn:arxiv-int:term:bom-id
+  - name: root_object_id
+    logicalType: string
+    relationships:
+    - type: foreignKey
+      to: objects.object_id
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: bom_line.rootObjectId
+          semanticTerm: urn:arxiv-int:term:root-object-id
+  - name: parent_object_id
+    logicalType: string
+    relationships:
+    - type: foreignKey
+      to: objects.object_id
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: bom_line.parentObjectId
+          semanticTerm: urn:arxiv-int:term:parent-object-id
+  - name: child_object_id
+    logicalType: string
+    relationships:
+    - type: foreignKey
+      to: objects.object_id
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: bom_line.childObjectId
+          semanticTerm: urn:arxiv-int:term:child-object-id
+  - name: predicate_id
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: bom_line.predicateId
+          semanticTerm: urn:arxiv-int:term:predicate-id
+  - name: listing_kind
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: bom_line.listingKind
+          semanticTerm: urn:arxiv-int:term:listing-kind
+  - name: quantity
+    logicalType: number
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: bom_line.quantity
+          semanticTerm: urn:arxiv-int:term:quantity
+  - name: unit
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: bom_line.unit
+          semanticTerm: urn:arxiv-int:term:unit
+  - name: alternative_group_id
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: bom_line.alternativeGroupId
+          semanticTerm: urn:arxiv-int:term:alternative-group-id
+  - name: is_mandatory
+    logicalType: boolean
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: bom_line.isMandatory
+          semanticTerm: urn:arxiv-int:term:is-mandatory
+  - name: effectivity_start
+    logicalType: timestamp
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: bom_line.effectivityStart
+          semanticTerm: urn:arxiv-int:term:effectivity-start
+  - name: effectivity_end
+    logicalType: timestamp
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: bom_line.effectivityEnd
+          semanticTerm: urn:arxiv-int:term:effectivity-end
+  - name: revision_object_id
+    logicalType: string
+    relationships:
+    - type: foreignKey
+      to: objects.object_id
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: bom_line.revisionObjectId
+          semanticTerm: urn:arxiv-int:term:revision-object-id
+  - name: completeness_status
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: bom_line.completenessStatus
+          semanticTerm: urn:arxiv-int:term:completeness-status
+  - name: cycle_detected
+    logicalType: boolean
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: bom_line.cycleDetected
+          semanticTerm: urn:arxiv-int:term:cycle-detected
+  - name: evidence_fact_ids
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: bom_line.evidenceFactIds
+          semanticTerm: urn:arxiv-int:term:evidence-fact-ids
+  - name: document_id
+    logicalType: string
+    relationships:
+    - type: foreignKey
+      to: documents.document_id
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: bom_line.documentId
+          semanticTerm: urn:arxiv-int:term:document-id
+  - name: anchor_kind
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: bom_line.anchorKind
+          semanticTerm: urn:arxiv-int:term:anchor-kind
+  - name: review_state
+    logicalType: string
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: bom_line.reviewState
+          semanticTerm: urn:arxiv-int:term:review-state
+  - name: generation_id
+    logicalType: string
+    required: true
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: bom_line.generationId
+          semanticTerm: urn:arxiv-int:term:generation-id
+  - name: contract_version
+    logicalType: string
+    required: true
+    customProperties:
+    - property: x-arxiv-int
+      value:
+        canonicalBinding:
+          binding: bom_line.contractVersion
+          semanticTerm: urn:arxiv-int:term:contract-version

@@ -1,27 +1,32 @@
 # Workstation Setup and Readiness
 
-Install Git, Make, uv, Docker with the Compose plugin, and Python 3.12 or newer. Create the local
-environment file and set the three operator roots before bootstrapping:
+For the short target workflow and the full command chain, see
+[Operator workflow and atomic commands](operator-workflow.md). `make setup` is the operator
+entry; `make pipeline` remains planned.
+
+Install Git, Make, uv, Docker with the Compose plugin, and Python 3.12 or newer. From a checkout:
 
 ```bash
-cp .env.example .env
-make bootstrap
-make readiness
+make setup
 ```
 
-At minimum, `.env` needs a readable `ARCHIVE_DIR`, a writable `RESULTS_DIR`, a PostgreSQL-compatible
-`PGDATA_DIR`, and a non-placeholder `POSTGRES_PASSWORD`. Compose runs the database and other
-artifact-writing services as the invoking user's UID/GID so those directories stay host-writable.
-Archive and proof directories may have ordinary host write permissions; the pipeline's access contract
-prevents modification. Configure the selected local model identities as they become relevant. The
-storage-class requirements and all derived root defaults are documented in
-[Portable runtime](../impl/current/portable-runtime.md).
+Edit `.env` when requested, then rerun `make setup`. At minimum, `.env` needs a readable
+`ARCHIVE_DIR`, a writable `RESULTS_DIR`, a PostgreSQL-compatible `PGDATA_DIR`, and a
+non-placeholder `POSTGRES_PASSWORD`. Provided-archive proof runs also need a readable
+`PROOF_ARCHIVE_DIR` pointing at the authorized representative slice. Compose runs the database and
+other artifact-writing services as the invoking user's UID/GID so those directories stay
+host-writable. Archive and proof directories may have ordinary host write permissions; the
+pipeline's access contract prevents modification. Configure the selected local model identities as
+they become relevant. The storage-class requirements and all derived root defaults are documented
+in [Portable runtime](../impl/current/portable-runtime.md).
 Rotational disks are acceptable for `PGDATA_DIR`, `MODEL_CACHE_DIR`, and `TMP_DIR`; readiness
 records device type without warning about it. Filesystem, ownership, permissions, and capacity
 requirements still apply.
-If `.env` is absent, `make bootstrap` copies `.env.example` before auditing and reports the required
-edits as blocking findings. On later runs it appends newly introduced template declarations while
-preserving every existing operator value and commented declaration.
+If `.env` is absent, `make setup` or `make bootstrap` copies `.env.example` before continuing and
+reports the required edits as blocking findings. On later runs they append newly introduced template
+declarations while preserving every existing operator value and commented declaration. `make
+bootstrap` remains available when only the locked contributor environment and a readiness audit are
+required.
 
 ## Understanding the report
 

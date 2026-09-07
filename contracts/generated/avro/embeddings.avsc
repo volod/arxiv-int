@@ -1,0 +1,42 @@
+{
+  "fields": [
+    {
+      "name": "embedding_id",
+      "type": "string"
+    },
+    {
+      "name": "target_kind",
+      "type": "string"
+    },
+    {
+      "name": "target_id",
+      "type": "string"
+    },
+    {
+      "name": "profile_id",
+      "type": "string"
+    },
+    {
+      "name": "dimensions",
+      "type": "int"
+    },
+    {
+      "name": "vector_ref",
+      "type": "string"
+    },
+    {
+      "name": "model_digest",
+      "type": "string"
+    },
+    {
+      "name": "generation_id",
+      "type": "string"
+    },
+    {
+      "name": "contract_version",
+      "type": "string"
+    }
+  ],
+  "name": "embeddings",
+  "type": "record"
+}

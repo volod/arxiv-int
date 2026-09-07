@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "contract_version": {
+      "type": "string"
+    },
+    "dimensions": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "embedding_id": {
+      "primaryKey": true,
+      "type": "string"
+    },
+    "generation_id": {
+      "type": "string"
+    },
+    "model_digest": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "profile_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "target_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "target_kind": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "vector_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "embedding_id",
+    "generation_id",
+    "contract_version"
+  ],
+  "type": "object"
+}

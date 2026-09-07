@@ -1,0 +1,37 @@
+# Third-party notices for the project-owned PostgreSQL image
+# (docker/postgres). Keep this file ASCII. Upstream licenses travel with their
+# source trees; this NOTICE names the combinations retained in the image.
+
+## ParadeDB Community (pg_search and packaging)
+
+ParadeDB Community Edition is licensed under the GNU Affero General Public
+License version 3 (AGPL-3.0). Upstream source for the pinned workspace version
+0.25.6 is at https://github.com/paradedb/paradedb. The official Community image
+does not include Apache AGE; this project derives a local image from a pinned
+digest and documents that Community builds lack ParadeDB Enterprise HA and
+read-replica guarantees.
+
+## Apache AGE
+
+Apache AGE is licensed under the Apache License, Version 2.0.
+Copyright 2026 The Apache Software Foundation.
+This product includes software developed at The Apache Software Foundation
+(http://www.apache.org/). Portions of Apache AGE were originally developed by
+Bitnine Co., Ltd. and were donated to the Apache Software Foundation.
+Copyright 2019-2020 Bitnine Co., Ltd.
+
+Pinned source identity: git commit
+e1467f12e0b1d15dd35d3ab93f057a7112d425b8 (tag PG17/v1.7.0-rc0, extension
+default_version 1.7.0). The design-inspected master commit 0e305662 (1.8.0) does
+not compile against PostgreSQL 17 and is not used in this image.
+
+## PostgreSQL and pgvector
+
+PostgreSQL is licensed under the PostgreSQL License.
+pgvector (vector) is licensed under the PostgreSQL License and ships inside the
+pinned ParadeDB Community image used as the base.
+
+## Project packaging
+
+Scripts under docker/postgres/ that assemble the derivative image are covered by
+the arxiv-int MIT license in the repository NOTICE file.
