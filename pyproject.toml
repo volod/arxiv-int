@@ -33,7 +33,7 @@ contracts = [
   "sqlglot>=26,<28",
 ]
 "data-quality" = [
-  "pandera[polars]==0.28.0",
+  "pandera[polars]==0.33.1",
 ]
 dev = [
   "complexipy==6.0.0",
@@ -55,7 +55,7 @@ inference = [
 ]
 lake = [
   "duckdb>=1.1,<2",
-  "polars>=1.17,<2",
+  "polars>=1.20,<2",
   "pyarrow>=18,<23",
 ]
 store = [

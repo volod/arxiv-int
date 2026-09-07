@@ -157,8 +157,8 @@ requires-dist = [
     { name = "httpx", marker = "extra == 'inference'", specifier = ">=0.28,<1" },
     { name = "jsonschema", marker = "extra == 'contracts'", specifier = ">=4.23,<5" },
     { name = "mypy", marker = "extra == 'dev'", specifier = "==1.20.2" },
-    { name = "pandera", extras = ["polars"], marker = "extra == 'data-quality'", specifier = "==0.28.0" },
-    { name = "polars", marker = "extra == 'lake'", specifier = ">=1.17,<2" },
+    { name = "pandera", extras = ["polars"], marker = "extra == 'data-quality'", specifier = "==0.33.1" },
+    { name = "polars", marker = "extra == 'lake'", specifier = ">=1.20,<2" },
     { name = "psycopg", extras = ["binary"], marker = "extra == 'store'", specifier = ">=3.2,<4" },
     { name = "pyarrow", marker = "extra == 'lake'", specifier = ">=18,<23" },
     { name = "pydantic", marker = "extra == 'contracts'", specifier = ">=2.10,<3" },
@@ -1375,7 +1375,7 @@ wheels = [
 
 [[package]]
 name = "pandera"
-version = "0.28.0"
+version = "0.33.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "packaging" },
@@ -1384,9 +1384,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "typing-inspect" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a7/d2/d84250dcb6cbfa0875468c7ce104e44db9ccb8f516e5128c7991319479f0/pandera-0.28.0.tar.gz", hash = "sha256:423875d7e86d590c308cb409c4250f10396462219b7add9ed7112f2f1a6b4b91", size = 570726, upload-time = "2026-01-06T20:37:45.456Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/47/7a/702612a2b5e3335722395d6de71206549f64a43588527f411ff60a7c3456/pandera-0.33.1.tar.gz", hash = "sha256:909e2e269a3f9c17d94c11268f92a5f48e889af633ea1414053993874d613626", size = 976019, upload-time = "2026-09-01T15:56:07.34Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/44/e2/6f0909f476e344c2fd0cb7ea239a36a144c6f989c231a73a36e81d1a1a03/pandera-0.28.0-py3-none-any.whl", hash = "sha256:377b341845b64f7ddfd6a20bbadb6f6f2bdf52e8961176bbe58903679849903b", size = 294245, upload-time = "2026-01-06T20:37:44.095Z" },
+    { url = "https://files.pythonhosted.org/packages/d2/84/107a480f7aa34a6878fb4fb85cda66f37e8aaee769c5917e3eaa2d55222e/pandera-0.33.1-py3-none-any.whl", hash = "sha256:8283bc12f7c85f0b429107d71b55150205f7e5ca59d68117aff971273a3bd2d8", size = 501976, upload-time = "2026-09-01T15:56:05.944Z" },
 ]
 
 [package.optional-dependencies]
