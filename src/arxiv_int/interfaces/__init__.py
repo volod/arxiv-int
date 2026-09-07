@@ -14,10 +14,19 @@ from arxiv_int.interfaces.inference import (
     InferenceProvider,
 )
 from arxiv_int.interfaces.pipeline import StageContext, StageOutcome, StageResult, StageRunner
-from arxiv_int.interfaces.stores import ArtifactStore, CanonicalStore, DatasetRef, StoreStatus
+from arxiv_int.interfaces.sources import BoundingBox, SiloRoot, SourceAnchor, SourceOccurrence
+from arxiv_int.interfaces.stores import (
+    ArtifactStore,
+    CanonicalStore,
+    DatasetRef,
+    StoreStatus,
+    TransformationRunRef,
+    ValidationResultRef,
+)
 
 __all__ = [
     "ArtifactStore",
+    "BoundingBox",
     "CanonicalStore",
     "ChatMessage",
     "DatasetRef",
@@ -28,10 +37,15 @@ __all__ = [
     "GenerationResult",
     "GenerationStatus",
     "InferenceProvider",
+    "SiloRoot",
+    "SourceAnchor",
+    "SourceOccurrence",
     "StageContext",
     "StageOutcome",
     "StageResult",
     "StageRunner",
     "StoreStatus",
     "TextEmbedder",
+    "TransformationRunRef",
+    "ValidationResultRef",
 ]

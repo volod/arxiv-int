@@ -22,6 +22,11 @@ def test_reserved_groups_report_their_owning_capability() -> None:
     assert "reserved for capability: russian-nlp" in text
 
 
+def test_unknown_stage_is_reported_to_the_caller() -> None:
+    with pytest.raises(LookupError):
+        inventory_lines("no-such-stage")
+
+
 def test_stage_inventory_reports_only_the_groups_that_stage_needs() -> None:
     lines = inventory_lines("ontology")
     text = "\n".join(lines)
@@ -31,9 +36,17 @@ def test_stage_inventory_reports_only_the_groups_that_stage_needs() -> None:
     assert "lake [" not in text
 
 
-def test_unknown_stage_is_reported_to_the_caller() -> None:
-    with pytest.raises(LookupError):
-        inventory_lines("no-such-stage")
+def test_stage_inventory_marks_conditional_gpu_and_ui_groups() -> None:
+    embed = "\n".join(inventory_lines("embed"))
+    report = "\n".join(inventory_lines("report"))
+    gpu = "\n".join(inventory_lines())
+
+    assert "requirement: conditional" in embed
+    assert "gpu [" in embed
+    assert "requirement: conditional" in report
+    assert "ui [" in report
+    assert "embed (conditional)" in gpu
+    assert "report (conditional)" in gpu
 
 
 def test_group_lines_wrap_long_stage_lists() -> None:

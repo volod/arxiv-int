@@ -138,7 +138,8 @@ are capped at 4. Default select is
 The committed DAG is synthetic: `stg_documents` (view over `source('corpus','documents')`),
 `int_documents_current` (incremental delete+insert with delete reconciliation), and
 `documents_current` (table). Domain tasks own business models. Python-only preparation uses
-`prepare_document_frame` through the existing `StageRunner` seam; dbt Python models are not used.
+`prepare_document_frame` through the existing `StageRunner` seam documented in
+[Pipeline control](pipeline-control.md); dbt Python models are not used.
 
 Live checks skip unless `ARXIV_INT_RUN_DBT=1` and the pinned image is present. Fixture runs do not
 claim corpus-scale or domain quality.

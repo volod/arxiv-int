@@ -36,7 +36,9 @@ System dependencies are not installed by an extra. The `extraction` group expect
 Apache Tika server plus `tesseract-ocr` and `ocrmypdf` for the scanned-PDF lane, `store` expects a
 reachable PostgreSQL service, `transform` expects that same service with the `derived` schema and
 dbt role, `inference` expects an Ollama system service or the optional vLLM profile, `gpu` expects
-a matching NVIDIA driver and CUDA runtime, and `ui` expects Docker.
+a matching NVIDIA driver and CUDA runtime, and `ui` expects Docker. The `gpu` group is
+conditional on the `embed` and `facts` stages; `ui` is conditional on `report`. Setup profile
+requirements collect required groups only.
 
 Adding a dependency means adding it to the group that owns it in
 `src/arxiv_int/features/catalog.py` and to the matching extra in `pyproject.toml`, then running

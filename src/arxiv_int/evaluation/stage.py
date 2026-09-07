@@ -29,7 +29,7 @@ class EvaluateStage:
         outcome = run_evaluate(request)
         return StageResult(
             stage=self.stage,
-            outcome="completed",
+            outcome="produced",
             detail=f"published evaluation bundle fingerprint={outcome.bundle.fingerprint}",
         )
 

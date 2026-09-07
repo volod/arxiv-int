@@ -121,6 +121,7 @@ All required gates pass. Current pages and the record index link this checkpoint
 dependencies link the accepted record. Only the satisfied checkpoint block was removed. Plan
 counts: 78 at review start (68 agent, 10 human), 77 after (67 agent, 10 human).
 `evaluation-foundation` changes from planned to shipped for its documented fixture foundation.
-No other capability is promoted. Next eligible task:
-`refactor-stage-and-artifact-interface-contracts`. No review-owned service remains running.
+No other capability is promoted. The next eligible task at close was
+[stage and artifact interface contracts](0040-pipeline-refactor-stage-and-artifact-interface-contracts.md).
+No review-owned service remains running.
 Retained evidence includes CUDA snapshots and `make ci` output. No commit or push was made.

@@ -68,7 +68,11 @@ def resolve_requirements(
             f"unknown PIPELINE_PROFILE {settings.pipeline_profile!r}; expected {known}"
         )
     groups = tuple(
-        dict.fromkeys(name for stage in stages for name in STAGE_FEATURES.get(stage, ()))
+        dict.fromkeys(
+            name
+            for stage in stages
+            for name in (STAGE_FEATURES[stage].required if stage in STAGE_FEATURES else ())
+        )
     )
     missing = tuple(
         name for name in groups if name not in IMPLEMENTED_FEATURES or feature_group(name).reserved

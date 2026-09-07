@@ -25,36 +25,6 @@ and name ready/pending human decisions and the dependent work that must wait at 
 
 ### Pipeline control -- `pipeline-control`
 
-#### refactor-stage-and-artifact-interface-contracts
-
-Align foundational stage, extraction and artifact references before concrete adapters depend on them.
-
-- Serves: `pipeline-control` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
-- Agent status: CLEAR
-- Task kind: refactor
-- Audit inputs: [AUD-codebase-13](records/0001-govern-codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
-[Contract identity and reference validation](records/0009-contract-gov-refactor-contract-identity-and-reference-validation.md).
-[Inference and evaluation checkpoint](records/0038-eval-found-review-inference-and-evaluation-boundaries.md).
-- User-visible outcome: Multi-silo inputs, structured source anchors, generation identities and honest
-stage states
-fit the shared interfaces rather than being hidden in string metadata or invented per adapter.
-- Scope boundary: Refine existing Protocol/value types and fake conformance tests; do not implement domain
-stages, a new orchestrator framework, or backend-specific logic in shared interfaces.
-- Data and artifact paths: `src/arxiv_int/interfaces/{pipeline,stores,extraction}.py`, contract mappings,
-`src/arxiv_int/features/catalog.py`, and `tests/interfaces/`.
-- Execution path: Define typed source occurrences/anchors and generation-bearing artifact
-references from
-contracts; distinguish partial/empty/not-selected outcomes and conditional feature requirements;
-keep fixture conformance dependency-light and adapters responsible for actual processing.
-Include typed validation-result and transformation-run references in artifact interfaces; keep
-Pandera/dbt implementation imports in optional adapters.
-- Acceptance gates: Conformance fixtures cover duplicate paths across silos, cell/member anchors, distinct
-generations of one partition, conditional GPU/UI features and failure/partial states; public
-compatibility decisions are recorded; no optional heavy imports enter core; make ci passes.
-- Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-pipeline-publication-and-reuse-boundaries`.
-
 #### implement-run-ledger-and-atomic-artifacts
 
 Create run, stage, shard, lease, checkpoint, error, artifact-manifest, and transitive-lineage state
@@ -66,7 +36,7 @@ with deterministic reuse keys.
 - Dependencies: [Canonical relational schema](records/0021-store-create-canonical-relational-schema.md);
 fixture artifact contracts from
 [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md).
-`refactor-stage-and-artifact-interface-contracts`.
+[Stage and artifact interface contracts](records/0040-pipeline-refactor-stage-and-artifact-interface-contracts.md).
 [Foundation/store checkpoint](records/0027-store-review-foundation-and-store-boundaries.md).
 - User-visible outcome: Every long operation has inspectable state; an interrupted shard resumes,
 and an unchanged shard reuses validated output without loading its heavy implementation.
@@ -235,7 +205,8 @@ Review fixture orchestration before concrete corpus workers depend on its public
 - Serves: `pipeline-control` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
 - Agent status: CLEAR
 - Task kind: checkpoint
-- Dependencies: `refactor-stage-and-artifact-interface-contracts`; `implement-run-ledger-and-atomic-artifacts`;
+- Dependencies: [Stage and artifact interface contracts](records/0040-pipeline-refactor-stage-and-artifact-interface-contracts.md);
+`implement-run-ledger-and-atomic-artifacts`;
 `implement-stage-dag-cli-and-make-targets`; `add-progress-logging-and-resource-telemetry`;
 `implement-evidence-based-pipeline-forecast`; `implement-investigation-profile-and-output-manifest`;
 [Inference and evaluation checkpoint](records/0038-eval-found-review-inference-and-evaluation-boundaries.md).

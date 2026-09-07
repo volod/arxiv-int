@@ -32,3 +32,21 @@ class FeatureGroup:
     def modules(self) -> tuple[str, ...]:
         """Return the import names that prove the group is installed."""
         return tuple(requirement.module for requirement in self.requirements)
+
+
+@dataclass(frozen=True, slots=True)
+class StageFeatureSet:
+    """Required and conditional feature groups one pipeline stage may activate."""
+
+    required: tuple[str, ...] = ()
+    conditional: tuple[str, ...] = ()
+
+    def all_names(self) -> tuple[str, ...]:
+        """Return unique group names with required names first, then conditional."""
+        seen = set(self.required)
+        extra = tuple(name for name in self.conditional if name not in seen)
+        return (*self.required, *extra)
+
+    def includes(self, name: str) -> bool:
+        """Report whether the stage lists the group as required or conditional."""
+        return name in self.required or name in self.conditional

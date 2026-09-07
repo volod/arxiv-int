@@ -31,7 +31,8 @@ organized as named optional groups.
 
 `src/arxiv_int/features/catalog.py` is the single source of truth for group identity: summary,
 owning capability, declared distributions with import name, SPDX licence and purpose, system
-dependencies, and the `STAGE_FEATURES` map from a pipeline stage to the groups it activates.
+dependencies, and the `STAGE_FEATURES` map from a pipeline stage to required and conditional
+groups.
 `pyproject.toml` owns version pins for the groups that carry members, and a unit test keeps the two
 in agreement in both directions.
 
@@ -115,17 +116,11 @@ with a resolver update. `make bootstrap` still installs the core plus the `dev` 
 feature groups provide. They are `typing.Protocol` definitions with small frozen value types and no
 optional import, so an adapter can be declared and tested before its stack is installed.
 
-| Protocol | Seam it defines |
-| --- | --- |
-| `DocumentExtractor` | one extraction backend to `ExtractedDocument` text, media type, and backend metadata |
-| `TextEmbedder` | vectors produced under one `EmbeddingProfile` identity |
-| `InferenceProvider` | local model discovery and one bounded generation with an explicit result status |
-| `ArtifactStore` | locating and publishing normalized dataset generations by `DatasetRef` |
-| `CanonicalStore` | reachability and canonical schema names of the relational store |
-| `StageRunner` | one restartable stage over a declared archive and results root |
-
-Every protocol carries a `feature` attribute naming the group an implementation requires, so the
-orchestrator can report a missing stack before selecting a backend rather than at import time.
+Stage, source-occurrence, generation-bearing artifact, and extraction contracts are documented in
+[Pipeline control](pipeline-control.md). Embedding and inference protocols are documented in
+[Local inference](local-inference.md). Every protocol carries a `feature` attribute naming the
+group an implementation requires, so a missing stack can be reported before a backend is selected
+rather than at import time.
 
 ## Metadata and documentation
 

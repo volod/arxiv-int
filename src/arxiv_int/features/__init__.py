@@ -3,10 +3,13 @@
 from arxiv_int.features.catalog import (
     FEATURE_GROUPS,
     STAGE_FEATURES,
+    conditional_groups_for_stage,
     feature_group,
     groups_for_stage,
     optional_modules,
     providing_group,
+    required_groups_for_stage,
+    stage_features,
     stages_for_group,
 )
 from arxiv_int.features.guard import (
@@ -19,7 +22,7 @@ from arxiv_int.features.guard import (
     module_available,
     require_module,
 )
-from arxiv_int.features.model import FeatureGroup, Requirement
+from arxiv_int.features.model import FeatureGroup, Requirement, StageFeatureSet
 from arxiv_int.features.report import group_lines, inventory_lines
 
 __all__ = [
@@ -31,6 +34,8 @@ __all__ = [
     "FeatureGroup",
     "MissingFeatureError",
     "Requirement",
+    "StageFeatureSet",
+    "conditional_groups_for_stage",
     "feature_group",
     "group_lines",
     "group_status",
@@ -41,5 +46,7 @@ __all__ = [
     "optional_modules",
     "providing_group",
     "require_module",
+    "required_groups_for_stage",
+    "stage_features",
     "stages_for_group",
 ]
