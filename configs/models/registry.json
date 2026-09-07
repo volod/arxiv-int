@@ -1,0 +1,42 @@
+{
+  "models": [
+    {
+      "id": "qwen3.8:27b",
+      "backend": "ollama",
+      "capabilities": ["chat", "structured_output"],
+      "footprint": {
+        "weights_gib": 16.8,
+        "kv_cache_per_1k_context_gib": 0.18,
+        "runtime_overhead_gib": 1.2,
+        "cpu_ram_gib": 24.0,
+        "allow_cpu": true
+      }
+    },
+    {
+      "id": "llama3.2:3b",
+      "backend": "ollama",
+      "capabilities": ["chat", "structured_output"],
+      "footprint": {
+        "weights_gib": 2.2,
+        "kv_cache_per_1k_context_gib": 0.04,
+        "runtime_overhead_gib": 0.6,
+        "cpu_ram_gib": 4.0,
+        "allow_cpu": true
+      }
+    },
+    {
+      "id": "Qwen/Qwen3.8-27B-FP8",
+      "backend": "vllm",
+      "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+      "capabilities": ["chat", "structured_output"],
+      "footprint": {
+        "weights_gib": 28.0,
+        "kv_cache_per_1k_context_gib": 0.35,
+        "runtime_overhead_gib": 1.5,
+        "cpu_ram_gib": 32.0,
+        "cpu_offload_gib": 24.0,
+        "allow_cpu": false
+      }
+    }
+  ]
+}

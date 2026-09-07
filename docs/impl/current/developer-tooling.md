@@ -18,7 +18,8 @@ The Makefile exposes individual checks and two composed workflows:
 
 - `make ci` runs formatting, linting, typing, Radon and cognitive complexity, shell parsing and
   ShellCheck, documentation links, spec-plan integrity, contract generation drift, evolution policy,
-  the migration revision graph (`make db-check`), ontology checks, and deterministic tests.
+  the migration revision graph (`make db-check`), ontology checks, structured-output schema drift,
+  and deterministic tests.
 - `make quality` adds a diagnostic coverage report, Markdown lint, and source/wheel builds.
   A numeric coverage percentage is not an acceptance gate
   ([behavior-first test policy](../records/0026-foundation-adopt-behavior-first-test-policy.md)).

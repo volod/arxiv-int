@@ -17,95 +17,7 @@ queries, COPY, extension DDL, and Cypher retain the narrow exceptions defined in
 Proof tasks retain tool/rule/model fingerprints and required quality outcomes; a skipped validator
 cannot establish a pass. These requirements also apply to later additive contract/migration work.
 
-### Local inference -- `local-inference`
-
-#### implement-local-inference-adapters
-
-Create a provider-neutral local client for Ollama and vLLM covering chat, structured output,
-embeddings, health, model identity, timeout, and cancellation.
-
-- Serves: `local-inference` -- [Local inference](../design/spec.md#local-inference)
-- Agent status: CLEAR
-- Dependencies: Feature groups and domain interfaces described in
-[Project foundation](current/project-foundation.md#feature-groups); runtime roots documented in
-[Portable runtime](current/portable-runtime.md).
-[Readiness probe safety](records/0008-runtime-refactor-readiness-probe-safety.md).
-- User-visible outcome: The same extraction/retrieval code can use the Ollama system service or an
-optional vLLM container through explicit configuration.
-- Scope boundary: Local endpoints only; no hosted fallback, implicit model pull, or systemd
-mutation.
-- Data and artifact paths: `src/arxiv_int/inference/`, `configs/models/`, generated
-structured-output schemas, and `tests/inference/`.
-- Execution path: Implement local API adapters, capability discovery, schema response validation,
-bounded repair, streaming/cancel, retries, model digest capture, and fake servers for
-deterministic tests. Expose reusable model identity/health/cancellation operations for setup;
-explicit asset acquisition and its `models-pull` wrapper belong to
-[retryable setup](records/0022-runtime-implement-retryable-setup-command.md), never to
-inference request execution.
-- Acceptance gates: Provider conformance tests agree on typed results/statuses; unreachable and
-incompatible models fail clearly; prompts and secrets are not logged; no remote hostname passes
-local-only policy by default.
-- Documentation target: `docs/impl/current/local-inference.md`
-- Review checkpoint: `review-production-readiness-and-recovery`.
-
-#### implement-model-resource-scheduler
-
-Schedule GPU-heavy embedding, reranking, OCR, and generation sequentially by default and record
-resource evidence.
-
-- Serves: `local-inference` --
-[Performance and scalability assumptions](../design/spec.md#performance-and-scalability-assumptions)
-- Agent status: RUN NEEDED
-- Audit inputs: [AUD-codebase-14](records/0001-govern-codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: `implement-local-inference-adapters`.
-- User-visible outcome: The 16 GB GPU does not thrash between models, and operators see why a model
-ran, offloaded, skipped, or fell back.
-- Scope boundary: Single-host resource coordination; no cluster scheduler and no unapproved service
-stop.
-- Data and artifact paths: `src/arxiv_int/inference/scheduler.py`, `ctl.resource_lease`, model
-profiles, and `$RUNS_DIR/<run-id>/telemetry/`.
-- Execution path: Replace the current placement-only scheduler with tested host-wide coordination;
-detect GPU/RAM,
-estimate declared footprints, acquire one GPU lease, manage Ollama
-keep-alive/unload through API when allowed, start/stop vLLM profile when requested, and record
-load/throughput/VRAM/power through a narrow telemetry sink that later pipeline logging also
-consumes.
-- Acceptance gates: Simulated contention and real single-CUDA-device smoke account for weights,
-KV cache, context, batch, runtime overhead
-and CPU/database memory; no incompatible workloads overlap;
-cancellation releases leases; model-fit rejection is actionable; CPU fallback is explicit.
-- Documentation target: `docs/impl/current/local-inference.md`
-- Review checkpoint: `review-production-readiness-and-recovery`.
-
 ### Evaluation foundation -- `evaluation-foundation`
-
-#### refactor-evaluation-bundle-validation
-
-Make existing evidence-bundle validation honor the claimed immutable local artifact boundary.
-
-- Serves: `evaluation-foundation` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
-- Agent status: CLEAR
-- Task kind: refactor
-- Audit inputs: [AUD-codebase-05](records/0001-govern-codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: [Quality baseline repair](records/0003-foundation-restore-quality-gate-baseline.md);
-[Evaluation primitives](current/project-foundation.md#evaluation-and-retrieval-primitives).
-- User-visible outcome: A bundle cannot pass verification by reading a matching file outside its own
-tree, and
-malformed manifest identities produce typed failures before reuse.
-- Scope boundary: Strengthen the current publisher/verifier; generic pipeline leases and scalable lake
-publication remain separate tasks. Do not require loading corpus-scale artifacts into memory.
-- Data and artifact paths: `src/arxiv_int/evaluation/bundles.py`,
-`tests/evaluation/test_bundles.py`, and
-`$DATA_DIR/bundle-validation/<run-id>/` with disposable synthetic bundles.
-- Execution path: Reject symlink/nonregular manifest and artifact entries, validate resolved
-containment and
-required manifest fields, normalize reserved names before publication, and test concurrent/no-replace
-publication semantics; declare process-crash versus power-loss durability explicitly.
-- Acceptance gates: Regressions reject an external symlink with matching bytes, corrupt/malformed manifests,
-missing identities and competing publication; valid bundles replay with stable fingerprints and
-no overwrite; documented durability and memory bounds match implementation; make ci passes.
-- Documentation target: `docs/impl/current/evaluation-foundation.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
 
 #### create-evaluation-fixtures-and-metrics
 
@@ -119,7 +31,7 @@ paired evaluation utilities.
 [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
 the evaluation and retrieval primitives
 documented in [Project foundation](current/project-foundation.md#evaluation-and-retrieval-primitives).
-`refactor-evaluation-bundle-validation`.
+[Evaluation bundle validation](records/0033-eval-found-refactor-evaluation-bundle-validation.md).
 - User-visible outcome: Every store/model/pipeline recommendation names the exact frozen items,
 metrics, thresholds, and run artifacts that support it, and every usable stage can publish the same
 proof-bundle shape.
@@ -898,7 +810,9 @@ auto-merge below the approved precision threshold.
 `$RESULTS_DIR/normalized/linkage/`, and `src/arxiv_int/identity/`.
 - Execution path: Create deterministic unresolved anchors before linkage; retain original
 mention/fact anchors
-through versioned merge/split overlays. Use the selected maintained Splink release directly behind
+through versioned merge/split overlays. Clusters are overlays over domain objects, not new ontology
+classes; helper linkage tables stay hidden from catalogs and analyst graph labels per
+[Ontology design](../design/spec.md#ontology-design). Use the selected maintained Splink release directly behind
 the local seam with DuckDB; define
 blocking and comparison specs; train/calibrate from reviewer labels; persist the model, thresholds,
 pair probabilities, and cluster algorithm.
@@ -917,7 +831,8 @@ prior cluster view.
 Project accepted and selected proposed canonical objects/facts into a versioned AGE graph, with
 recursive SQL and open export fallbacks.
 
-- Serves: `identity-ontology-graph` -- [AGE graph projection](../design/spec.md#age-graph-projection)
+- Serves: `identity-ontology-graph` -- [AGE graph projection](../design/spec.md#age-graph-projection);
+[Ontology design](../design/spec.md#ontology-design).
 - Agent status: RUN NEEDED
 - Dependencies: `implement-probabilistic-entity-resolution`;
 `implement-fact-validation-conflict-and-review-overlays`;
@@ -932,12 +847,16 @@ duplication into AGE.
 - Execution path: Batch vertices/edges with stable ids; checkpoint high-water marks; validate
 counts, ids, sampled paths, and SQL/Cypher results; switch active graph version atomically;
 enforce depth/result/time limits.
+Project only semantically meaningful ontology classes and predicates; hide helper/projection
+bookkeeping from analyst-facing labels. Query exports may yield subclasses of a requested class;
+do not invent parallel labels for existing terms.
 Use dbt models and data tests for relational vertex/edge inputs, and named SQL/Cypher assets
 for bounded parity probes. Alembic owns graph lifecycle metadata; the narrow AGE adapter owns
 projection commands and quality results gate the active-pointer transaction.
 - Acceptance gates: Rebuild is deterministic; sampled traversals match recursive SQL; evidence
 lookup succeeds for every sampled edge; AGE-disabled mode exports the same logical graph; failed
-build leaves prior graph active.
+build leaves prior graph active. Analyst-facing labels contain published domain classes only;
+helper types are absent from catalogs and graph entry points.
 - Documentation target: `docs/impl/current/identity-ontology-graph.md`
 - Review checkpoint: `review-knowledge-and-identity-integrity`.
 
@@ -961,6 +880,8 @@ exports, and `$RESULTS_DIR/proofs/identity-ontology-graph/<proof-id>/`.
 - Execution path: Forecast; run entity resolution and ontology validation; build the active AGE or
 relational/open-export graph; reconcile counts and sampled SQL/path parity; resolve edge evidence;
 rerun unchanged and capture linkage/reasoning/projection cache hits.
+Apply [Ontology design](../design/spec.md#ontology-design): additive terms only, hidden helpers,
+and producer/consumer typing on sampled catalog and graph labels.
 - Acceptance gates: Cluster and ontology validators pass at declared policies; graph/fallback counts
 and sampled paths agree with canonical facts; every sampled edge has evidence; unchanged rerun avoids
 heavy linkage and graph rebuild; failed projection never replaces the prior active version.
@@ -991,7 +912,9 @@ this verdict permits fixture implementation, not real-data or CUDA promotion.
 existing test/proof artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
 - Execution path: Read full task snapshots and source changes; trace mention anchors versus clusters,
 merge/split replay, exact fact evidence, ontology/domain
-constraints, financial/product roles, review overlays and SQL/graph parity;
+constraints including [Ontology design](../design/spec.md#ontology-design) (domain terms, hidden
+helpers, additive extension, producer/consumer typing), financial/product roles, review overlays
+and SQL/graph parity;
 replay representative existing tests/validators; add tests for important integrity, correctness,
 and business-logic cases that the stage's now-stable interfaces still miss; reconcile every
 routed note; record concrete findings with evidence, severity, affected consumers and one
@@ -1016,7 +939,8 @@ LLM calls for bounded high-value lanes.
 - Serves: `knowledge-extraction` --
 [Canonical object and fact model](../design/spec.md#canonical-object-and-fact-model)
 - Agent status: RUN NEEDED
-- Dependencies: `evaluate-general-and-domain-ner`; `implement-local-inference-adapters`;
+- Dependencies: `evaluate-general-and-domain-ner`;
+[Local inference adapters](records/0031-inference-implement-local-inference-adapters.md);
 `implement-probabilistic-entity-resolution`; [Domain investigation contracts](records/0014-contract-gov-define-domain-investigation-contracts-and-ontology.md);
 [Canonical relational schema](records/0021-store-create-canonical-relational-schema.md).
 - User-visible outcome: Design/revision, assembly/component, equipment, supplier, order, shipment,
@@ -1031,6 +955,8 @@ financial and product adapters are separate tasks; register ontology asset valid
 through the stage registry; define JSON-schema LLM envelopes; retrieve
 bounded evidence; validate source spans,
 types, units, currencies, model output, and one bounded repair; batch and checkpoint by content hash.
+Reuse existing ontology predicates; do not invent equivalent terms or write disjoint types into
+domain/range slots ([Ontology design](../design/spec.md#ontology-design)).
 Use generated structured-output validation followed by shared Pandera batch checks; preserve
 evidence/semantic validators and write proposed rows through typed SQLAlchemy/COPY adapters.
 - Acceptance gates: Malformed, unsupported, uncited, and span-mismatched outputs are retained as
@@ -1113,12 +1039,15 @@ human-gated.
 contradiction, and evidence checks; create immutable decision events and reversible active views;
 register `validate-facts` separately
 from the upstream ontology configuration stage.
+Honor producer/consumer typing: extractors may emit subclasses; validators accept the declared
+domain/range or a declared superclass handler and reject disjoint types
+([Ontology design](../design/spec.md#ontology-design)).
 Reuse generated Pandera checks and existing ontology/domain predicates; express relational
 duplicate/conflict groups and active review views as described dbt models with data tests. Keep
 immutable review-event writes in typed SQLAlchemy transactions.
 - Acceptance gates: Synthetic and gold contradictions are found with measured precision; every
 active status derives from an audit event; rejected/superseded facts retain evidence; rules are
-versioned and replayable.
+versioned and replayable. Domain/range fixtures accept subclass instances and reject disjoint types.
 - Documentation target: `docs/impl/current/knowledge-extraction.md`
 - Review checkpoint: `review-knowledge-and-identity-integrity`.
 
@@ -1550,8 +1479,9 @@ justifies it.
 
 - Serves: `discovery-visualization` -- [Analysis, graph, and visualization behavior](../design/spec.md#analysis-graph-and-visualization-behavior)
 - Agent status: RUN NEEDED
-- Dependencies: `build-search-graph-and-report-interfaces`; `implement-local-inference-adapters`;
-`implement-model-resource-scheduler`. Lexical retrieval suffices; selected vectors are conditional.
+- Dependencies: `build-search-graph-and-report-interfaces`;
+[Local inference adapters](records/0031-inference-implement-local-inference-adapters.md);
+[Model resource scheduler](records/0032-inference-implement-model-resource-scheduler.md). Lexical retrieval suffices; selected vectors are conditional.
 - User-visible outcome: Analysts may ask questions over selected evidence and receive cited
 answers or explicit
 abstention without leaving the host.
@@ -1633,7 +1563,8 @@ usable pipeline stage and artifact family.
 - Agent status: RUN NEEDED
 - Dependencies: `implement-directory-to-knowledge-base-acceptance`;
 `prove-archive-classification-on-provided-archive`; `prove-discovery-and-visualization-on-provided-archive`;
-`prove-anomaly-analysis-on-provided-archive`; `implement-model-resource-scheduler`;
+`prove-anomaly-analysis-on-provided-archive`;
+[Model resource scheduler](records/0032-inference-implement-model-resource-scheduler.md);
 `create-evaluation-fixtures-and-metrics`. Semantic proof is required only for a selected vector branch.
 `review-investigation-and-report-integrity`.
 - User-visible outcome: One command/report shows which pipeline stages have current proof on the
@@ -1699,7 +1630,8 @@ container mounts, and a network-denied run mode.
 [Operations, backup, and security](../design/spec.md#operations-backup-and-security)
 - Agent status: RUN NEEDED
 - Dependencies: Compose profiles documented in [Portable runtime](current/portable-runtime.md);
-[Canonical relational schema](records/0021-store-create-canonical-relational-schema.md); `implement-local-inference-adapters`;
+[Canonical relational schema](records/0021-store-create-canonical-relational-schema.md);
+[Local inference adapters](records/0031-inference-implement-local-inference-adapters.md);
 `build-search-graph-and-report-interfaces`. Organizer hardening is accepted in its own capability.
 - User-visible outcome: The local stack can process prepared inputs without unintended network
 access or writable archive access, with bounded read-only evidence and report queries.
@@ -1825,8 +1757,10 @@ without embedding the entire archive by default.
 - Serves: `semantic-retrieval` --
 [Search and vector projections](../design/spec.md#search-and-vector-projections)
 - Agent status: RUN NEEDED
-- Dependencies: `implement-stage-dag-cli-and-make-targets`; `implement-local-inference-adapters`;
-`implement-model-resource-scheduler`; `build-paradedb-lexical-load-and-query-path`.
+- Dependencies: `implement-stage-dag-cli-and-make-targets`;
+[Local inference adapters](records/0031-inference-implement-local-inference-adapters.md);
+[Model resource scheduler](records/0032-inference-implement-model-resource-scheduler.md);
+`build-paradedb-lexical-load-and-query-path`.
 - User-visible outcome: Operators can embed a bounded, explainable corpus slice and resume batches
 while preserving model/profile identity.
 - Scope boundary: Implement tier selection and stable pgvector baseline; do not promote a
@@ -1901,7 +1835,8 @@ Review the integrated milestone before promotion of the selected semantic branch
 - Serves: `semantic-retrieval` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
 - Agent status: CLEAR
 - Task kind: checkpoint
-- Dependencies: `prove-semantic-retrieval-on-provided-archive`; `implement-model-resource-scheduler`.
+- Dependencies: `prove-semantic-retrieval-on-provided-archive`;
+[Model resource scheduler](records/0032-inference-implement-model-resource-scheduler.md).
 - User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
 or blocked
 for the named consumers; no-refactoring-needed is a valid conclusion.
@@ -2080,7 +2015,7 @@ Review entity-resolution operating points and ontology terms/constraints that ca
 report meaning.
 
 - Serves: `identity-ontology-graph` --
-[Analysis, graph, and visualization behavior](../design/spec.md#analysis-graph-and-visualization-behavior)
+[Ontology design](../design/spec.md#ontology-design)
 - Agent status: HUMAN-GATED
 - Dependencies: `prove-identity-ontology-graph-on-provided-archive`; held-out linkage curves from
 `implement-probabilistic-entity-resolution`; ontology review package from
@@ -2094,8 +2029,11 @@ ledgers, and evaluation bundles.
 - Execution path: Present pair/cluster errors, threshold curves, ambiguous aliases, term
 definitions, domain/range, and constraint examples; record decisions as versioned configuration
 and ontology commits.
+Review terms against domain meaning, hidden helpers, the rule of three, additive extension, and
+producer/consumer typing.
 - Acceptance gates: Auto-merge precision floor and review band are explicit; disputed terms remain
-draft; every accepted change has rollback/deprecation behavior.
+draft; every accepted change has rollback/deprecation behavior. New terms meet the rule of three
+or a required specification type; helper/non-semantic objects are not published as classes.
 - Documentation target: `docs/impl/current/identity-ontology-graph.md`
 - Review checkpoint: `review-knowledge-and-identity-integrity`.
 

@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0030` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0034` after the rows
 below).
 
 | Record | Scope | Result |
@@ -41,3 +41,7 @@ below).
 | [0027 Foundation and store boundary review](0027-store-review-foundation-and-store-boundaries.md) | Integrated runtime, contracts, canonical store, dbt and projection checkpoint | Accepted; proceed with one routed nonblocking note |
 | [0028 Foundation store acceptance repair](0028-store-refactor-foundation-store-acceptance-boundaries.md) | Verified prerequisite, catalog and publication refusal gaps from 0027 | Accepted; single initial revision and verified publication boundaries |
 | [0029 Retire separate proof-archive root](0029-runtime-retire-separate-proof-archive-root.md) | Remove `PROOF_ARCHIVE_DIR`; proof runs use `ARCHIVE_DIR` and ordinary commands | Accepted |
+| [0030 Pandera Polars concat pin](0030-contract-gov-upgrade-pandera-polars-concat-compat.md) | Pin Pandera 0.33.1 so staging null checks do not emit Polars concat deprecation | Accepted |
+| [0031 Local inference adapters](0031-inference-implement-local-inference-adapters.md) | Provider-neutral Ollama/vLLM client for chat, structured output, embeddings, health, identity, timeout, and cancel | Accepted |
+| [0032 Model resource scheduler](0032-inference-implement-model-resource-scheduler.md) | Host-wide GPU lease, footprint fit, Ollama unload, requested vLLM control, and resource telemetry | Accepted |
+| [0033 Evaluation bundle validation](0033-eval-found-refactor-evaluation-bundle-validation.md) | Immutable local evidence-bundle layout, identity, concurrent no-replace publish, streamed verify | Accepted |

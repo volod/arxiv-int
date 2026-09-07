@@ -16,8 +16,10 @@ or copy private source content. The slice is authorized for bounded processing a
 not full-corpus authorization.
 
 Item-level gold fixtures, tuning and final split seals, and scored labels remain with
-[evaluation-foundation](../plan.md#evaluation-foundation----evaluation-foundation) and later
+[evaluation-foundation](evaluation-foundation.md) and later
 human-gated policy tasks. No final evaluation split has been opened for tuning.
+Immutable local run-bundle validation is available now; remaining fixture and metric work is in
+[create-evaluation-fixtures-and-metrics](../plan.md#create-evaluation-fixtures-and-metrics).
 
 The slice designation is recorded in
 [0023 Representative corpus approval](../records/0023-corpus-approve-representative-corpus-and-gold.md).

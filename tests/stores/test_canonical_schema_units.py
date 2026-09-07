@@ -129,7 +129,7 @@ def test_validate_rows_accepts_omitted_nullable_strings() -> None:
     validate_rows(model, "documents", rows, project_root=root, run_id="unit-docs")
 
 
-def test_validate_rows_rejects_null_document_id() -> None:
+def test_validate_rows_rejects_null_document_id(recwarn: pytest.WarningsRecorder) -> None:
     root, model = _document_model()
     with pytest.raises(StagingRejectedError, match=r"corpus\.documents"):
         validate_rows(
@@ -139,3 +139,5 @@ def test_validate_rows_rejects_null_document_id() -> None:
             project_root=root,
             run_id="unit-bad",
         )
+    concat_warnings = [item for item in recwarn if "how='horizontal'" in str(item.message)]
+    assert concat_warnings == []

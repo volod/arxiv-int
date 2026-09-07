@@ -121,6 +121,8 @@ selected design; the
 records SQLAlchemy/Alembic ownership; the
 [data-quality record](../records/0019-contract-gov-implement-contract-data-quality-checks.md)
 records dataset checks; the
+[Pandera concat pin](../records/0030-contract-gov-upgrade-pandera-polars-concat-compat.md)
+keeps those batch checks warning-free on current Polars; the
 [duplicate SQL retirement](../records/0020-contract-gov-retire-duplicate-dbmate-sql.md)
 removes the leftover `db/` tree and SQL-dump inventory; the
 [canonical relational schema record](../records/0021-store-create-canonical-relational-schema.md)
@@ -146,7 +148,8 @@ Unknown ODCS `quality` types, engines, or rules fail closed at compile time.
 write secret-free evidence under `$DATA_DIR/data-quality/<run-id>/`. `--publish` copies the same
 JSON to `$RUNS_DIR/<run-id>/quality/`. A result is publishable only after required data checks
 executed and passed; missing, unexecuted, failed, or schema-only outcomes stay inspectable and
-blocked. The `data-quality` extra carries Pandera; Polars/PyArrow stay in `lake`. CLI and core
+blocked. The `data-quality` extra carries pinned Pandera `0.33.1`; Polars/PyArrow stay in `lake`
+with Polars `>=1.20`. CLI and core
 paths that do not validate data do not import them. Producers attach ontology/SHACL results;
 unattached required semantic checks are explicit `not-run`. Fixture tests make no held-out model
 or real-archive quality claim. Whole-relation dbt execution uses the runner in

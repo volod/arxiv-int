@@ -1,0 +1,43 @@
+"""Declared footprint accounting for weights, KV cache, offload, and size tokens."""
+
+from arxiv_int.inference.footprint import (
+    ModelFootprint,
+    default_footprint_for,
+    estimate_footprint,
+    with_cpu_offload,
+)
+from arxiv_int.inference.types import ModelIdentity
+
+
+def test_estimates_kv_cache_from_context_and_batch() -> None:
+    footprint = ModelFootprint(
+        weights_gib=16.8,
+        kv_cache_per_1k_context_gib=0.18,
+        runtime_overhead_gib=1.2,
+        cpu_ram_gib=24.0,
+    )
+    short = estimate_footprint(footprint, context_tokens=2048, batch_size=1)
+    wide = estimate_footprint(footprint, context_tokens=32768, batch_size=2)
+    assert short.kv_cache_gib == 0.18 * 2.048
+    assert wide.kv_cache_gib == 0.18 * 32.768 * 2
+    assert short.gpu_gib < wide.gpu_gib
+    assert "weights" in short.reason()
+    assert "KV" in short.reason() or "kv" in short.reason()
+
+
+def test_cpu_offload_reduces_gpu_weights() -> None:
+    footprint = with_cpu_offload(
+        ModelFootprint(weights_gib=28.0, runtime_overhead_gib=1.5, cpu_ram_gib=32.0),
+        24.0,
+    )
+    estimate = estimate_footprint(footprint, context_tokens=2048, batch_size=1)
+    assert estimate.weights_on_gpu_gib == 4.0
+    assert estimate.cpu_offload_gib == 24.0
+    assert estimate.gpu_gib < 8.0
+
+
+def test_default_footprint_does_not_treat_27b_as_3b() -> None:
+    large = default_footprint_for(ModelIdentity("qwen3.8:27b", "", "ollama", frozenset()))
+    small = default_footprint_for(ModelIdentity("llama3.2:3b", "", "ollama", frozenset()))
+    assert large.weights_gib > 10
+    assert small.weights_gib < 4

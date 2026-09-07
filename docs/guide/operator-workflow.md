@@ -75,11 +75,17 @@ handlers in order. A successful infrastructure audit does not mean the archive p
 
    ```bash
    ollama pull "${GENERATION_MODEL:?Set GENERATION_MODEL in .env}"
-   ollama list
+   make models-list
+   make ollama-check
+   make inference-resources
+   make inference-fit MODEL=llama3.2:3b
    ```
 
    Ollama uses its host service storage; `MODEL_CACHE_DIR` does not relocate that service. Model
-   presence is not a memory-fit or quality result. For vLLM, use the configured model/revision and
+   presence is not a memory-fit or quality result. `make inference-resources` reports GPU VRAM,
+   power, and RAM. `make inference-fit` says whether the selected model fits this host, including
+   weights, KV cache, context, batch, overhead, and CPU/database RAM, and whether it would run on
+   CUDA, fall back to CPU, or be rejected. For vLLM, use the configured model/revision and
    include `vllm` in the service profile for each current service/readiness invocation.
 
 5. Build the pinned database image, validate roots/Compose, and start the selected services:
@@ -137,7 +143,7 @@ An independent phase validates its own prerequisites and records evidence for la
 | 4 | `make services-config` | Validate/prepare safe roots and Compose configuration. |
 | 5 | `make postgres-image` | Reuse or build the pinned database image; offline mode refuses a cache miss. |
 | 6 | `make services-pull` | Acquire/cache-check the other selected pinned service images, preserving the locally built database image. |
-| 7 | `make models-pull` | Acquire/cache-check the selected backend's configured model assets. Cached tags are not a memory-fit or quality result. |
+| 7 | `make models-pull` | Acquire/cache-check the selected backend's configured model assets. Cached tags are not a memory-fit or quality result. `make ollama-check` / `make models-list` inspect the local endpoint without pulling. |
 | 8 | `make services-up` | Start/wait for selected containers; offline mode never implicitly pulls. |
 | 9 | `make setup-wait` | Bounded service transport/model health checks; schema initialization follows. |
 | 10 | `make contracts-check`, `make db-check`, `make ontology-check` | Shipped asset validators, invoked without repeating dependency sync. |

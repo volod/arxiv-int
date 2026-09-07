@@ -235,7 +235,9 @@ for regressions and verification limits.
 `GENERATION_MODEL` and `GENERATION_MODEL_REVISION` override the active backend defaults. Compose
 receives the separate vLLM settings, so the default Ollama tag never replaces its Hugging Face model
 identifier. Readiness checks the resolved generation model on the selected backend. Defaults do not
-download models or constitute a model quality evaluation.
+download models or constitute a model quality evaluation. Production chat, structured output,
+embeddings, health, identity, timeout, and cancel use the
+[local inference client](local-inference.md); `make models-pull` still owns asset acquisition.
 
 `.env.example` shows `GENERATION_MODEL=qwen3.8:27b` for Ollama with the revision left unset.
 `GENERATION_MODEL_REVISION` applies only to vLLM and identifies a commit in the selected Hugging Face
