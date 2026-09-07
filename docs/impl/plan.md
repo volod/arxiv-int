@@ -838,7 +838,9 @@ auto-merge below the approved precision threshold.
 `$RESULTS_DIR/normalized/linkage/`, and `src/arxiv_int/identity/`.
 - Execution path: Create deterministic unresolved anchors before linkage; retain original
 mention/fact anchors
-through versioned merge/split overlays. Use the selected maintained Splink release directly behind
+through versioned merge/split overlays. Clusters are overlays over domain objects, not new ontology
+classes; helper linkage tables stay hidden from catalogs and analyst graph labels per
+[Ontology design](../design/spec.md#ontology-design). Use the selected maintained Splink release directly behind
 the local seam with DuckDB; define
 blocking and comparison specs; train/calibrate from reviewer labels; persist the model, thresholds,
 pair probabilities, and cluster algorithm.
@@ -857,7 +859,8 @@ prior cluster view.
 Project accepted and selected proposed canonical objects/facts into a versioned AGE graph, with
 recursive SQL and open export fallbacks.
 
-- Serves: `identity-ontology-graph` -- [AGE graph projection](../design/spec.md#age-graph-projection)
+- Serves: `identity-ontology-graph` -- [AGE graph projection](../design/spec.md#age-graph-projection);
+[Ontology design](../design/spec.md#ontology-design).
 - Agent status: RUN NEEDED
 - Dependencies: `implement-probabilistic-entity-resolution`;
 `implement-fact-validation-conflict-and-review-overlays`;
@@ -872,12 +875,16 @@ duplication into AGE.
 - Execution path: Batch vertices/edges with stable ids; checkpoint high-water marks; validate
 counts, ids, sampled paths, and SQL/Cypher results; switch active graph version atomically;
 enforce depth/result/time limits.
+Project only semantically meaningful ontology classes and predicates; hide helper/projection
+bookkeeping from analyst-facing labels. Query exports may yield subclasses of a requested class;
+do not invent parallel labels for existing terms.
 Use dbt models and data tests for relational vertex/edge inputs, and named SQL/Cypher assets
 for bounded parity probes. Alembic owns graph lifecycle metadata; the narrow AGE adapter owns
 projection commands and quality results gate the active-pointer transaction.
 - Acceptance gates: Rebuild is deterministic; sampled traversals match recursive SQL; evidence
 lookup succeeds for every sampled edge; AGE-disabled mode exports the same logical graph; failed
-build leaves prior graph active.
+build leaves prior graph active. Analyst-facing labels contain published domain classes only;
+helper types are absent from catalogs and graph entry points.
 - Documentation target: `docs/impl/current/identity-ontology-graph.md`
 - Review checkpoint: `review-knowledge-and-identity-integrity`.
 
@@ -901,6 +908,8 @@ exports, and `$RESULTS_DIR/proofs/identity-ontology-graph/<proof-id>/`.
 - Execution path: Forecast; run entity resolution and ontology validation; build the active AGE or
 relational/open-export graph; reconcile counts and sampled SQL/path parity; resolve edge evidence;
 rerun unchanged and capture linkage/reasoning/projection cache hits.
+Apply [Ontology design](../design/spec.md#ontology-design): additive terms only, hidden helpers,
+and producer/consumer typing on sampled catalog and graph labels.
 - Acceptance gates: Cluster and ontology validators pass at declared policies; graph/fallback counts
 and sampled paths agree with canonical facts; every sampled edge has evidence; unchanged rerun avoids
 heavy linkage and graph rebuild; failed projection never replaces the prior active version.
@@ -931,7 +940,9 @@ this verdict permits fixture implementation, not real-data or CUDA promotion.
 existing test/proof artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
 - Execution path: Read full task snapshots and source changes; trace mention anchors versus clusters,
 merge/split replay, exact fact evidence, ontology/domain
-constraints, financial/product roles, review overlays and SQL/graph parity;
+constraints including [Ontology design](../design/spec.md#ontology-design) (domain terms, hidden
+helpers, additive extension, producer/consumer typing), financial/product roles, review overlays
+and SQL/graph parity;
 replay representative existing tests/validators; add tests for important integrity, correctness,
 and business-logic cases that the stage's now-stable interfaces still miss; reconcile every
 routed note; record concrete findings with evidence, severity, affected consumers and one
@@ -972,6 +983,8 @@ financial and product adapters are separate tasks; register ontology asset valid
 through the stage registry; define JSON-schema LLM envelopes; retrieve
 bounded evidence; validate source spans,
 types, units, currencies, model output, and one bounded repair; batch and checkpoint by content hash.
+Reuse existing ontology predicates; do not invent equivalent terms or write disjoint types into
+domain/range slots ([Ontology design](../design/spec.md#ontology-design)).
 Use generated structured-output validation followed by shared Pandera batch checks; preserve
 evidence/semantic validators and write proposed rows through typed SQLAlchemy/COPY adapters.
 - Acceptance gates: Malformed, unsupported, uncited, and span-mismatched outputs are retained as
@@ -1054,12 +1067,15 @@ human-gated.
 contradiction, and evidence checks; create immutable decision events and reversible active views;
 register `validate-facts` separately
 from the upstream ontology configuration stage.
+Honor producer/consumer typing: extractors may emit subclasses; validators accept the declared
+domain/range or a declared superclass handler and reject disjoint types
+([Ontology design](../design/spec.md#ontology-design)).
 Reuse generated Pandera checks and existing ontology/domain predicates; express relational
 duplicate/conflict groups and active review views as described dbt models with data tests. Keep
 immutable review-event writes in typed SQLAlchemy transactions.
 - Acceptance gates: Synthetic and gold contradictions are found with measured precision; every
 active status derives from an audit event; rejected/superseded facts retain evidence; rules are
-versioned and replayable.
+versioned and replayable. Domain/range fixtures accept subclass instances and reject disjoint types.
 - Documentation target: `docs/impl/current/knowledge-extraction.md`
 - Review checkpoint: `review-knowledge-and-identity-integrity`.
 
@@ -2027,7 +2043,7 @@ Review entity-resolution operating points and ontology terms/constraints that ca
 report meaning.
 
 - Serves: `identity-ontology-graph` --
-[Analysis, graph, and visualization behavior](../design/spec.md#analysis-graph-and-visualization-behavior)
+[Ontology design](../design/spec.md#ontology-design)
 - Agent status: HUMAN-GATED
 - Dependencies: `prove-identity-ontology-graph-on-provided-archive`; held-out linkage curves from
 `implement-probabilistic-entity-resolution`; ontology review package from
@@ -2041,8 +2057,11 @@ ledgers, and evaluation bundles.
 - Execution path: Present pair/cluster errors, threshold curves, ambiguous aliases, term
 definitions, domain/range, and constraint examples; record decisions as versioned configuration
 and ontology commits.
+Review terms against domain meaning, hidden helpers, the rule of three, additive extension, and
+producer/consumer typing.
 - Acceptance gates: Auto-merge precision floor and review band are explicit; disputed terms remain
-draft; every accepted change has rollback/deprecation behavior.
+draft; every accepted change has rollback/deprecation behavior. New terms meet the rule of three
+or a required specification type; helper/non-semantic objects are not published as classes.
 - Documentation target: `docs/impl/current/identity-ontology-graph.md`
 - Review checkpoint: `review-knowledge-and-identity-integrity`.
 

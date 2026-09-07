@@ -125,6 +125,9 @@ The governing principles are:
 10. **Usable stages prove themselves on archive data.** A stage group is not complete when only
     fixtures pass; it must publish a validated proof bundle from the operator-provided test archive.
 
+Ontology classes, predicates, and analyst-facing graph labels follow
+[Ontology design](#ontology-design).
+
 ## Scope
 
 The first production-shaped release includes:
@@ -900,6 +903,46 @@ and accepted or explicitly included proposed facts, with citations and confidenc
 calculations retain the input fact ids, formula/rule version, and operands; their evidence is a
 derivation chain, not a fabricated source sentence.
 
+### Ontology design
+
+Pinned Turtle/SHACL assets under `ontology/` are the formal vocabulary. AGE, catalogs, and reports
+project that vocabulary; they do not invent parallel class systems. Ontology evolution stays
+additive under the existing contract/ontology evolution policy: a new meaning is a new term or
+shape, and rewriting an active IRI in place is breaking.
+
+Model the vocabulary with four design rules:
+
+1. **Domain-driven design.** Classes and predicates are semantically meaningful investigation
+   concepts (legal entity, natural person, product, equipment, `part-of`, `pays`, evidenced roles).
+   Helper and non-semantic objects stay hidden: lease rows, run ids, Parquet partitions, JSON
+   bindings, SHACL blank nodes, AGE projection bookkeeping, and `ctl.*` control records are not
+   ontology classes and must not appear as catalog entities or analyst graph labels. Supplier,
+   buyer, manufacturer, employee, representative, and signatory remain roles in time-bounded
+   relations, not competing entity types.
+2. **Don't repeat yourself, using the rule of three.** Reuse an existing term for the same
+   relation. Do not mint a parallel predicate or class for one already mapped to
+   `fact.predicateId`. Add a new term when the same semantic distinction is independently
+   evidenced three times, or when this specification already requires the type. Do not collapse
+   distinct domain concepts (person versus organization, model versus serialized equipment) to
+   share storage.
+3. **Open for extension, closed for modification.** Extend with additive classes, predicates, and
+   SHACL shapes. Existing IRIs keep their meaning so current facts, mappings, and consumers keep
+   working. Required investigation types may be added; changing domain, range, or disjointness of
+   an active term follows breaking-evolution review, not an in-place edit.
+4. **Producer extends, consumer super (covariance and contravariance).** Query, catalog, and graph
+   export producers may yield a requested class or a subclass: a query for organization may include
+   more specific legal-entity types. Assertion consumers (stores, SHACL, application validators)
+   accept the declared domain/range; a more general consumer may handle a more specific produced
+   instance. Extractors must not write a type into a slot whose domain/range is disjoint from it.
+   A valid negative is refusing the assertion or leaving it `proposed`/`conflicted` with the
+   violating types recorded.
+
+Evaluation: fixture graphs and generated bindings contain only published domain classes on
+analyst-facing labels; helper types are absent from catalogs. Duplicate equivalent predicates
+without a mapping fail ontology-check. In-place meaning changes of an active IRI fail evolution
+policy. Domain/range fixtures prove subclass production and superclass consumption, and prove
+disjoint-type writes are rejected. Human ontology review may keep a draft term unpublished.
+
 ### Search and vector projections
 
 The ParadeDB covering index includes only columns required for retrieval, filtering, snippets,
@@ -928,6 +971,7 @@ bounded traversals.
 
 Ontology assets are also exported in open RDF formats such as Turtle, with SHACL shapes for
 validation. AGE is a property-graph query projection; it is not the formal ontology serialization.
+Analyst-facing vertex/edge labels follow [Ontology design](#ontology-design).
 
 ## Pipeline
 
@@ -1904,7 +1948,7 @@ evidence exist. Registry order is the implementation line used by `plan.md`.
 | 9 | `lexical-retrieval` | planned | Held-out Russian relevance, latency, index size, and rebuild gates pass | [Open work](../impl/plan.md#lexical-retrieval----lexical-retrieval) |
 | 10 | `archive-classification` | planned | Hierarchical gold labels, calibrated exceptions, complete source accounting, and reproducibility pass | [Open work](../impl/plan.md#archive-classification----archive-classification) |
 | 11 | `russian-nlp` | planned | Language, morphology, terminology, and NER metrics pass per type | [Open work](../impl/plan.md#russian-nlp----russian-nlp) |
-| 12 | `identity-ontology-graph` | planned | Linkage, ontology, SQL/Cypher parity, rebuild, and bounded traversal gates pass | [Open work](../impl/plan.md#identity-ontology-and-graph----identity-ontology-graph) |
+| 12 | `identity-ontology-graph` | planned | Linkage, ontology design (domain terms, hidden helpers, additive extension, producer/consumer typing), SQL/Cypher parity, rebuild, and bounded traversal gates pass | [Open work](../impl/plan.md#identity-ontology-and-graph----identity-ontology-graph) |
 | 13 | `knowledge-extraction` | planned | Structured extraction, evidence, fact quality, and contradiction gates pass | [Open work](../impl/plan.md#knowledge-extraction----knowledge-extraction) |
 | 14 | `domain-investigation-artifacts` | planned | Reviewed BOM, relationship, supply-chain, invoice/payment, render, and registry gates pass | [Open work](../impl/plan.md#domain-investigation-artifacts----domain-investigation-artifacts) |
 | 15 | `anomaly-analysis` | planned | Per-detector fixtures, cohort/time guards, review-budget precision, provenance, and bounded triage views pass | [Open work](../impl/plan.md#anomaly-analysis----anomaly-analysis) |
