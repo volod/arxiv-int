@@ -4,20 +4,31 @@ from typing import Any
 
 from arxiv_int.query.evidence.model import (
     Citation,
-    DocumentRecord,
     EvidenceAnchor,
     EvidenceCatalog,
     EvidenceError,
-    OccurrenceRecord,
-    PathEvent,
+)
+from arxiv_int.query.evidence.schema import (
+    DOCUMENTS_CONTRACT,
+    OCCURRENCES_CONTRACT,
+    PATH_EVENTS_CONTRACT,
+    ContractRow,
+    ContractRowError,
+    parse_row,
+    serialize_row,
 )
 
 
 def catalog_from_payload(payload: dict[str, Any], schema: str) -> EvidenceCatalog:
     """Build a catalog from a JSON object."""
     return EvidenceCatalog(
-        documents=tuple(_document(item) for item in payload.get("documents") or ()),
-        occurrences=tuple(_occurrence(item) for item in payload.get("occurrences") or ()),
+        documents=tuple(
+            _row(DOCUMENTS_CONTRACT, item, "document") for item in payload.get("documents") or ()
+        ),
+        occurrences=tuple(
+            _row(OCCURRENCES_CONTRACT, item, "occurrence")
+            for item in payload.get("occurrences") or ()
+        ),
         citations=tuple(_citation(item) for item in payload.get("citations") or ()),
         events=tuple(event_from_payload(item) for item in payload.get("events") or ()),
         schema=schema,
@@ -28,78 +39,28 @@ def catalog_payload(catalog: EvidenceCatalog) -> dict[str, Any]:
     """Return a canonical JSON object for one catalog."""
     return {
         "citations": [_citation_payload(item) for item in catalog.citations],
-        "documents": [
-            {
-                "content_hash": item.content_hash,
-                "document_id": item.document_id,
-                "extractor_profile": item.extractor_profile,
-            }
-            for item in catalog.documents
-        ],
+        "documents": [serialize_row(item) for item in catalog.documents],
         "events": [event_payload(item) for item in catalog.events],
-        "occurrences": [_occurrence_payload(item) for item in catalog.occurrences],
+        "occurrences": [serialize_row(item) for item in catalog.occurrences],
         "schema": catalog.schema,
     }
 
 
-def event_from_payload(raw: object) -> PathEvent:
-    """Parse one path-event row."""
-    item = _object(raw, "path event")
-    return PathEvent(
-        event_id=_text(item, "event_id"),
-        document_id=_text(item, "document_id"),
-        silo_id=_text(item, "silo_id"),
-        kind=_text(item, "kind"),
-        relative_path=_text(item, "relative_path"),
-        content_hash=_text(item, "content_hash"),
-        previous_relative_path=_text(item, "previous_relative_path"),
-        occurrence_id=_text(item, "occurrence_id"),
-        ledger_id=_text(item, "ledger_id"),
-        recorded_at=_text(item, "recorded_at"),
-        generation_id=_text(item, "generation_id"),
-        contract_version=_text(item, "contract_version") or "1.0.0",
-    )
+def event_from_payload(raw: object) -> ContractRow:
+    """Parse one path-event row from the document-path-events contract."""
+    return _row(PATH_EVENTS_CONTRACT, raw, "path event")
 
 
-def event_payload(item: PathEvent) -> dict[str, str]:
-    """Serialize one path-event row."""
-    return {
-        "content_hash": item.content_hash,
-        "contract_version": item.contract_version,
-        "document_id": item.document_id,
-        "event_id": item.event_id,
-        "generation_id": item.generation_id,
-        "kind": item.kind,
-        "ledger_id": item.ledger_id,
-        "occurrence_id": item.occurrence_id,
-        "previous_relative_path": item.previous_relative_path,
-        "recorded_at": item.recorded_at,
-        "relative_path": item.relative_path,
-        "silo_id": item.silo_id,
-    }
+def event_payload(item: ContractRow) -> dict[str, str]:
+    """Serialize one path-event row using contract columns only."""
+    return serialize_row(item)
 
 
-def _document(raw: object) -> DocumentRecord:
-    item = _object(raw, "document")
-    return DocumentRecord(
-        document_id=_text(item, "document_id"),
-        content_hash=_text(item, "content_hash"),
-        extractor_profile=_text(item, "extractor_profile"),
-    )
-
-
-def _occurrence(raw: object) -> OccurrenceRecord:
-    item = _object(raw, "occurrence")
-    return OccurrenceRecord(
-        document_id=_text(item, "document_id"),
-        silo_id=_text(item, "silo_id"),
-        relative_path=_text(item, "relative_path"),
-        scan_id=_text(item, "scan_id"),
-        content_hash=_text(item, "content_hash"),
-        container_path=_text(item, "container_path"),
-        member_path=_text(item, "member_path"),
-        occurrence_id=_text(item, "occurrence_id"),
-    )
+def _row(contract_id: str, raw: object, label: str) -> ContractRow:
+    try:
+        return parse_row(contract_id, _object(raw, label))
+    except (ContractRowError, ValueError) as error:
+        raise EvidenceError(str(error)) from error
 
 
 def _citation(raw: object) -> Citation:
@@ -141,19 +102,6 @@ def _anchor(raw: object) -> EvidenceAnchor | None:
         container_path=_text(item, "container_path"),
         member_path=_text(item, "member_path"),
     )
-
-
-def _occurrence_payload(item: OccurrenceRecord) -> dict[str, str]:
-    return {
-        "container_path": item.container_path,
-        "content_hash": item.content_hash,
-        "document_id": item.document_id,
-        "member_path": item.member_path,
-        "occurrence_id": item.identity,
-        "relative_path": item.relative_path,
-        "scan_id": item.scan_id,
-        "silo_id": item.silo_id,
-    }
 
 
 def _citation_payload(item: Citation) -> dict[str, Any]:

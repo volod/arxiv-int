@@ -137,15 +137,14 @@ worker interruption releases the lease and records a failed attempt.
 Postgres `add_shard` assigns the next attempt under a transaction-scoped advisory lock. In-memory
 and SQL ledgers share the same transition rules.
 
-Alembic revision `0002` is frozen DDL for `ctl.run`, `stage_run`, `shard_run`, `reuse_lease`,
-`checkpoint`, `shard_error`, `artifact_manifest`, `artifact_lineage`, and `resource_lease`.
-Revision `0003` adds `ctl.stage_progress`. Revision `0004` adds `ctl.source_tombstone`,
-`ctl.prune_event`, and `ctl.artifact_pin`. Head is `0004`. `ctl.resource_lease` exists for later
-SQL writers; inference still appends JSONL. `0004` downgrade drops reconcile tables only;
-`0003` downgrade drops progress snapshots only; `0002` downgrade drops ledger tables only;
-`0001` teardown remains refused. Complete overlays including reconcile tables stamp `0004`;
-progress-and-ledger overlays stamp `0003`; ledger-only overlays stamp `0002`; complete 0001-era
-overlays stamp `0001` so setup can upgrade to head.
+Alembic revision `0001` is frozen DDL for contract tables, HASH partitions including
+`corpus.document_path_event`, staging clones, projection metadata, `ctl.run`, `stage_run`,
+`shard_run`, `reuse_lease`, `checkpoint`, `shard_error`, `artifact_manifest`, `artifact_lineage`,
+`resource_lease`, `ctl.stage_progress`, `ctl.source_tombstone`, `ctl.prune_event`, and
+`ctl.artifact_pin`. Head is `0001`.
+`ctl.resource_lease` exists for later
+SQL writers; inference still appends JSONL. `0001` teardown remains refused. Complete current
+overlays stamp `0001`. Partial catalogs are refused.
 
 ## DAG registry and operator commands
 
@@ -249,9 +248,13 @@ rechecks checksums in place and leaves bytes unchanged.
 `src/arxiv_int/query/evidence/` resolves content, fact, and report citations to physical sources
 without a placement executor, live model/graph services, or archive writes. It reads a sealed
 evidence catalog (`arxiv-int.evidence-catalog.v1`) of document rows, source occurrences, optional
-citations, and path events, then overlays an imported portable ledger
-(`arxiv-int.path-event-ledger.v1`) whose fields match the intended `corpus.document_path_event`
-relation. SQL/Alembic publication of that relation remains with archive organization.
+citations, and path events. Document and occurrence objects are rows of the registered `documents`
+and `source-occurrences` contracts. Path-event rows and portable ledger files
+(`arxiv-int.path-event-ledger.v1`) are rows of `document-path-events`, the ODCS source of truth for
+`corpus.document_path_event`. Alembic revision `0001` publishes that table. Portable codecs parse
+those rows through the shared ODCS normalizer; they do not keep a parallel field list. Occurrences
+join documents by `content_hash`; path events keep `document_id`. Unknown keys and missing required
+contract fields are refused on import.
 
 `arxiv-int archive locate DOCUMENT_ID` and `make archive-locate DOCUMENT_ID=...` are read-only.
 `--kind fact|report` resolves those citation ids. `--json` writes schema
@@ -380,7 +383,8 @@ invalidation during produce, force retry, and in-memory isolation from SQLAlchem
 behavior is in `tests/integration/postgres/test_run_ledger.py`. Fixture DAG tests live in
 `tests/pipeline/dag/`. Observability tests in `tests/observability/` cover intact
 concurrent log lines, queue overload/shutdown, redaction, stalled versus slow ETA, bounded
-metric labels, and revision `0003` alignment. Forecast tests in `tests/pipeline/forecast/` cover
+metric labels, and revision `0001` ledger/progress alignment. Forecast tests in
+`tests/pipeline/forecast/` cover
 zero-history ranges, replay, device dedup, cache hits, inaccessible/shortfall refusal, stale
 config, missing/uncovered forecasts, simulated free-space loss without partial manifests,
 inventory/delta versus sample, schema drift, CLI standalone versus `--run-id`, Make dry-run, and
@@ -394,11 +398,12 @@ partial, quarantined, schema-drifted, and failed summaries, checksum stability, 
 redaction, latest and lake lookup, bounded anchors, evaluate-stage artifacts, CLI/Make wrappers,
 and optional-import isolation. Evidence lookup tests in `tests/query/evidence/` cover duplicate
 silos, sheet/cell and nested-member anchors, path-only renames, missing/changed files, escaping
-links, ambiguous citations, copy extras, repeated ledger import, CLI/Make wrappers, and
+links, ambiguous citations, copy extras, repeated ledger import, contract-column refusal, CLI/Make
+wrappers, and
 optional-import isolation. Reconciliation tests in `tests/pipeline/reconcile/` cover no-op
 updates, additions, path-only renames, change/remove retraction, partial-scan withholding,
 shared merge/split evidence, rebuild checksum parity, quality-gated activation, dbt source/ref
-lineage, and revision `0004` alignment. Prune tests in `tests/pipeline/prune/` cover
+lineage, and revision `0001` reconcile alignment. Prune tests in `tests/pipeline/prune/` cover
 sole-recovery refusal, protected kinds, and superseded-attempt deletion that leaves live cache
 entries. Fixtures do not prove real-archive extraction quality or
 CUDA worker fit.

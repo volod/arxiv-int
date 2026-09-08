@@ -11,6 +11,7 @@ Contract fingerprints: see CONTRACT_FINGERPRINTS.
 import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
+from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 
 revision: str = "0001"
 down_revision: str | None = None
@@ -22,6 +23,7 @@ CONTRACT_FINGERPRINTS: dict[str, str] = {
     "anomaly-findings": "urn:arxiv-int:contract:anomaly-findings:1.0.0@1.0.0:4df06b330e215f4667aa60f05b5d216a75a8271f6560094df85574acc529c0ad",
     "catalogs": "urn:arxiv-int:contract:catalogs:1.0.0@1.0.0:b22834a1446f8709cb247f26262a511174c1e5dd95f1f40507762c133260e737",
     "chunks": "urn:arxiv-int:contract:chunks:1.0.0@1.0.0:307de21efa13da3e18d6dfc8393d9ea9d7c499023dfad346163dab3f32986cd9",
+    "document-path-events": "urn:arxiv-int:contract:document-path-events:1.0.0@1.0.0:f1c555061b5c0a70599cbec8bf93e5c76fad15c3f0ca9a008f1db15beb9f6ab8",
     "documents": "urn:arxiv-int:contract:documents:1.0.0@1.0.0:310be9094a64330b47ab31641053480fce0d90287febb43b185f9f63b9508bb9",
     "domain-artifacts-bom": "urn:arxiv-int:contract:domain-artifacts-bom:1.0.0@1.0.0:0e834538c0a06ef2d2982cbf51dcba914130681a19c34554b53524f65f51bc9f",
     "domain-artifacts-invoice-payment": "urn:arxiv-int:contract:domain-artifacts-invoice-payment:1.0.0@1.0.0:e804bf161026cc914ff628e80d1ad2d64b34222f347a7acac6103e68c28e5a1f",
@@ -41,6 +43,11 @@ CONTRACT_FINGERPRINTS: dict[str, str] = {
 }
 REVIEW_NOTES: tuple[str, ...] = ()
 IRREVERSIBLE_REASON: str = "initial store teardown would destroy canonical data"
+_NOW = sa.text("now()")
+_RUN_STATUS = (
+    "status IN ('pending','running','succeeded','failed','quarantined',"
+    "'superseded','stale','pruned')"
+)
 
 
 def schema_metadata() -> sa.MetaData:
@@ -93,6 +100,50 @@ def schema_metadata() -> sa.MetaData:
         schema="corpus",
         postgresql_partition_by="HASH (occurrence_id)",
         comment="Silo-relative source locations and scan status for archive bytes.",
+    )
+    sa.Table(
+        "document_path_event",
+        metadata,
+        sa.Column("event_id", sa.Text(), nullable=False, comment=None),
+        sa.Column("document_id", sa.Text(), nullable=False, comment=None),
+        sa.Column("occurrence_id", sa.Text(), nullable=True, comment=None),
+        sa.Column("silo_id", sa.Text(), nullable=False, comment=None),
+        sa.Column("kind", sa.Text(), nullable=False, comment=None),
+        sa.Column("relative_path", sa.Text(), nullable=False, comment=None),
+        sa.Column("previous_relative_path", sa.Text(), nullable=True, comment=None),
+        sa.Column("content_hash", sa.Text(), nullable=False, comment=None),
+        sa.Column("ledger_id", sa.Text(), nullable=True, comment=None),
+        sa.Column(
+            "event_time",
+            postgresql.TIMESTAMP(timezone=True),
+            nullable=False,
+            comment=None,
+        ),
+        sa.Column("generation_id", sa.Text(), nullable=False, comment=None),
+        sa.Column("contract_version", sa.Text(), nullable=False, comment=None),
+        sa.Column(
+            "bucket",
+            sa.Text(),
+            nullable=True,
+            comment="Declared physical partition key from x-arxiv-int.partitionKey.",
+        ),
+        sa.PrimaryKeyConstraint("event_id", name="pk_document_path_event"),
+        sa.ForeignKeyConstraint(
+            ["document_id"],
+            ["corpus.documents.document_id"],
+            name="fk_document_path_event_document_id",
+        ),
+        sa.ForeignKeyConstraint(
+            ["occurrence_id"],
+            ["corpus.source_occurrences.occurrence_id"],
+            name="fk_document_path_event_occurrence_id",
+        ),
+        schema="corpus",
+        postgresql_partition_by="HASH (event_id)",
+        comment=(
+            "Portable path events that record initial, renamed, copied, and imported "
+            "locations for canonical documents."
+        ),
     )
     sa.Table(
         "domain_artifact_registry",
@@ -708,11 +759,13 @@ def schema_metadata() -> sa.MetaData:
         comment="Supply-chain stage edges separating quote, order, invoice, ship, receive, and pay claims.",
     )
     _store_metadata(metadata)
+    _control_metadata(metadata)
     return metadata
 
 
 _PARTITIONED: tuple[tuple[str, str, str], ...] = (
     ("corpus", "chunks", "chunk_id"),
+    ("corpus", "document_path_event", "event_id"),
     ("corpus", "documents", "document_id"),
     ("corpus", "source_occurrences", "occurrence_id"),
     ("corpus", "spans", "span_id"),
@@ -950,6 +1003,290 @@ def _projection_metadata(metadata: sa.MetaData) -> None:
         ),
         schema="ctl",
     )
+
+
+def _ts(name: str) -> sa.Column:  # type: ignore[type-arg]
+    return sa.Column(name, sa.DateTime(timezone=True), nullable=False, server_default=_NOW)
+
+
+def _control_metadata(metadata: sa.MetaData) -> None:
+    sa.Table(
+        "run",
+        metadata,
+        sa.Column("run_id", sa.Text(), primary_key=True),
+        sa.Column("generation_id", sa.Text(), nullable=False),
+        sa.Column("status", sa.Text(), nullable=False),
+        sa.Column("config_fingerprint", sa.Text(), nullable=False),
+        _ts("created_at"),
+        _ts("updated_at"),
+        sa.CheckConstraint(_RUN_STATUS, name="ck_run_status"),
+        schema="ctl",
+    )
+    stage_run = sa.Table(
+        "stage_run",
+        metadata,
+        sa.Column("stage_run_id", sa.Text(), primary_key=True),
+        sa.Column("run_id", sa.Text(), sa.ForeignKey("ctl.run.run_id"), nullable=False),
+        sa.Column("stage_name", sa.Text(), nullable=False),
+        sa.Column("stage_version", sa.Text(), nullable=False),
+        sa.Column("status", sa.Text(), nullable=False),
+        _ts("created_at"),
+        _ts("updated_at"),
+        sa.UniqueConstraint("run_id", "stage_name", name="uq_stage_run_run_stage"),
+        sa.CheckConstraint(_RUN_STATUS, name="ck_stage_run_status"),
+        schema="ctl",
+    )
+    shard_run = sa.Table(
+        "shard_run",
+        metadata,
+        sa.Column("shard_run_id", sa.Text(), primary_key=True),
+        sa.Column(
+            "stage_run_id",
+            sa.Text(),
+            sa.ForeignKey("ctl.stage_run.stage_run_id"),
+            nullable=False,
+        ),
+        sa.Column("run_id", sa.Text(), sa.ForeignKey("ctl.run.run_id"), nullable=False),
+        sa.Column("shard_id", sa.Text(), nullable=False),
+        sa.Column("attempt", sa.Integer(), nullable=False),
+        sa.Column("reuse_key", sa.Text(), nullable=False),
+        sa.Column("identity_json", sa.Text(), nullable=False),
+        sa.Column("status", sa.Text(), nullable=False),
+        sa.Column("lease_id", sa.Text()),
+        sa.Column("cache_hit", sa.Text(), nullable=False),
+        sa.Column("directory", sa.Text()),
+        sa.Column("quality_warnings", sa.Text(), nullable=False),
+        _ts("created_at"),
+        _ts("updated_at"),
+        sa.UniqueConstraint("reuse_key", "attempt", name="uq_shard_run_reuse_attempt"),
+        sa.CheckConstraint(_RUN_STATUS, name="ck_shard_run_status"),
+        sa.CheckConstraint("attempt >= 1", name="ck_shard_run_attempt"),
+        sa.CheckConstraint("cache_hit IN ('true','false')", name="ck_shard_run_cache_hit"),
+        schema="ctl",
+    )
+    reuse_lease = sa.Table(
+        "reuse_lease",
+        metadata,
+        sa.Column("lease_id", sa.Text(), primary_key=True),
+        sa.Column("reuse_key", sa.Text(), nullable=False),
+        sa.Column("holder_shard_run_id", sa.Text(), nullable=False),
+        sa.Column("status", sa.Text(), nullable=False),
+        sa.Column("acquired_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("heartbeat_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("expires_at", sa.DateTime(timezone=True), nullable=False),
+        sa.CheckConstraint(
+            "status IN ('acquired','released','expired','failed')",
+            name="ck_reuse_lease_status",
+        ),
+        schema="ctl",
+    )
+    sa.Table(
+        "checkpoint",
+        metadata,
+        sa.Column("checkpoint_id", sa.Text(), primary_key=True),
+        sa.Column(
+            "shard_run_id",
+            sa.Text(),
+            sa.ForeignKey("ctl.shard_run.shard_run_id"),
+            nullable=False,
+        ),
+        sa.Column("sequence", sa.Integer(), nullable=False),
+        sa.Column("payload_digest", sa.Text(), nullable=False),
+        _ts("created_at"),
+        sa.UniqueConstraint("shard_run_id", "sequence", name="uq_checkpoint_shard_sequence"),
+        schema="ctl",
+    )
+    sa.Table(
+        "shard_error",
+        metadata,
+        sa.Column("error_id", sa.Text(), primary_key=True),
+        sa.Column(
+            "shard_run_id",
+            sa.Text(),
+            sa.ForeignKey("ctl.shard_run.shard_run_id"),
+            nullable=False,
+        ),
+        sa.Column("attempt", sa.Integer(), nullable=False),
+        sa.Column("code", sa.Text(), nullable=False),
+        sa.Column("failure_class", sa.Text(), nullable=False),
+        sa.Column("detail", sa.Text(), nullable=False),
+        _ts("created_at"),
+        sa.CheckConstraint(
+            "failure_class IN ('transient','permanent')", name="ck_shard_error_class"
+        ),
+        schema="ctl",
+    )
+    sa.Table(
+        "artifact_manifest",
+        metadata,
+        sa.Column("manifest_id", sa.Text(), primary_key=True),
+        sa.Column(
+            "shard_run_id",
+            sa.Text(),
+            sa.ForeignKey("ctl.shard_run.shard_run_id"),
+            nullable=False,
+        ),
+        sa.Column("attempt", sa.Integer(), nullable=False),
+        sa.Column("reuse_key", sa.Text(), nullable=False),
+        sa.Column("relative_path", sa.Text(), nullable=False),
+        sa.Column("status", sa.Text(), nullable=False),
+        sa.Column("sha256", sa.Text(), nullable=False),
+        sa.Column("byte_count", sa.BigInteger(), nullable=False),
+        _ts("created_at"),
+        sa.CheckConstraint(
+            "status IN ('staging','accepted','rejected')",
+            name="ck_artifact_manifest_status",
+        ),
+        schema="ctl",
+    )
+    artifact_lineage = sa.Table(
+        "artifact_lineage",
+        metadata,
+        sa.Column("edge_id", sa.Text(), primary_key=True),
+        sa.Column("producer_reuse_key", sa.Text(), nullable=False),
+        sa.Column("consumer_reuse_key", sa.Text(), nullable=False),
+        _ts("created_at"),
+        sa.UniqueConstraint(
+            "producer_reuse_key", "consumer_reuse_key", name="uq_artifact_lineage_edge"
+        ),
+        schema="ctl",
+    )
+    resource_lease = sa.Table(
+        "resource_lease",
+        metadata,
+        sa.Column("lease_id", sa.Text(), primary_key=True),
+        *(
+            sa.Column(name, sa.Text(), nullable=False)
+            for name in (
+                "resource_kind",
+                "device_id",
+                "holder_run_id",
+                "model_id",
+                "backend",
+                "workload",
+                "status",
+                "acquired_at",
+                "released_at",
+                "heartbeat_at",
+                "detail",
+            )
+        ),
+        sa.Column("holder_pid", sa.BigInteger(), nullable=False),
+        sa.Column("gpu_need_gib", DOUBLE_PRECISION(), nullable=False),
+        sa.Column("cpu_ram_gib", DOUBLE_PRECISION(), nullable=False),
+        sa.CheckConstraint(
+            "status IN ('acquired','released','cancelled','rejected')",
+            name="ck_resource_lease_status",
+        ),
+        schema="ctl",
+    )
+    progress = sa.Table(
+        "stage_progress",
+        metadata,
+        sa.Column("progress_id", sa.Text(), primary_key=True),
+        sa.Column(
+            "stage_run_id",
+            sa.Text(),
+            sa.ForeignKey("ctl.stage_run.stage_run_id"),
+            nullable=True,
+        ),
+        sa.Column("run_id", sa.Text(), nullable=False),
+        sa.Column("stage_name", sa.Text(), nullable=False),
+        sa.Column("shard_token", sa.Text(), nullable=False),
+        sa.Column("processed_items", sa.BigInteger(), nullable=False),
+        sa.Column("remaining_items", sa.BigInteger(), nullable=False),
+        sa.Column("byte_count", sa.BigInteger(), nullable=False),
+        sa.Column("error_count", sa.Integer(), nullable=False),
+        sa.Column("throughput_per_s", DOUBLE_PRECISION(), nullable=False),
+        sa.Column("eta_seconds", DOUBLE_PRECISION()),
+        sa.Column("elapsed_seconds", DOUBLE_PRECISION(), nullable=False),
+        sa.Column("worker_state", sa.Text(), nullable=False),
+        sa.Column("cpu_pct", DOUBLE_PRECISION(), nullable=False),
+        sa.Column("ram_available_gib", DOUBLE_PRECISION(), nullable=False),
+        sa.Column("disk_free_gib", DOUBLE_PRECISION(), nullable=False),
+        sa.Column("gpu_util_pct", DOUBLE_PRECISION(), nullable=False),
+        sa.Column("gpu_free_gib", DOUBLE_PRECISION(), nullable=False),
+        sa.Column("pg_size_bytes", sa.BigInteger(), nullable=False),
+        sa.Column("wal_bytes", sa.BigInteger(), nullable=False),
+        sa.Column("dropped_log_records", sa.Integer(), nullable=False),
+        _ts("recorded_at"),
+        sa.CheckConstraint(
+            "worker_state IN ('running','slow','stalled','completed','failed')",
+            name="ck_stage_progress_worker_state",
+        ),
+        schema="ctl",
+    )
+    tombstone = sa.Table(
+        "source_tombstone",
+        metadata,
+        sa.Column("tombstone_id", sa.Text(), primary_key=True),
+        sa.Column("occurrence_id", sa.Text(), nullable=False),
+        sa.Column("silo_id", sa.Text(), nullable=False),
+        sa.Column("relative_path", sa.Text(), nullable=False),
+        sa.Column("content_hash", sa.Text(), nullable=False),
+        sa.Column("scan_id", sa.Text(), nullable=False),
+        sa.Column("generation_id", sa.Text(), nullable=False),
+        sa.Column("last_occurrence", sa.Boolean(), nullable=False),
+        sa.Column("reason", sa.Text(), nullable=False),
+        _ts("created_at"),
+        sa.UniqueConstraint(
+            "occurrence_id", "scan_id", name="uq_source_tombstone_occurrence_scan"
+        ),
+        sa.CheckConstraint(
+            "reason IN ('remove','supersede','retract')",
+            name="ck_source_tombstone_reason",
+        ),
+        schema="ctl",
+    )
+    prune_event = sa.Table(
+        "prune_event",
+        metadata,
+        sa.Column("event_id", sa.Text(), primary_key=True),
+        sa.Column("plan_id", sa.Text(), nullable=False),
+        sa.Column("fingerprint", sa.Text(), nullable=False),
+        sa.Column("status", sa.Text(), nullable=False),
+        sa.Column("bytes_removed", sa.BigInteger(), nullable=False),
+        sa.Column("detail", sa.Text(), nullable=False),
+        _ts("created_at"),
+        sa.CheckConstraint(
+            "status IN ('planned','applied','refused')",
+            name="ck_prune_event_status",
+        ),
+        schema="ctl",
+    )
+    artifact_pin = sa.Table(
+        "artifact_pin",
+        metadata,
+        sa.Column("pin_id", sa.Text(), primary_key=True),
+        sa.Column("directory", sa.Text(), nullable=False),
+        sa.Column("reuse_key", sa.Text(), nullable=False),
+        sa.Column("kind", sa.Text(), nullable=False),
+        sa.Column("generation_id", sa.Text(), nullable=False),
+        _ts("created_at"),
+        sa.CheckConstraint(
+            "kind IN ('pin','review','rollback','backup','ledger')",
+            name="ck_artifact_pin_kind",
+        ),
+        schema="ctl",
+    )
+    sa.Index("ix_shard_run_reuse_key", shard_run.c.reuse_key)
+    sa.Index("ix_stage_run_run_id", stage_run.c.run_id)
+    sa.Index("ix_reuse_lease_reuse_key", reuse_lease.c.reuse_key)
+    sa.Index(
+        "uq_reuse_lease_active_key",
+        reuse_lease.c.reuse_key,
+        unique=True,
+        postgresql_where=sa.text("status = 'acquired'"),
+    )
+    sa.Index("ix_artifact_lineage_producer", artifact_lineage.c.producer_reuse_key)
+    sa.Index("ix_resource_lease_holder_run", resource_lease.c.holder_run_id)
+    sa.Index("ix_stage_progress_run_id", progress.c.run_id)
+    sa.Index("ix_stage_progress_stage_run", progress.c.stage_run_id)
+    sa.Index("ix_stage_progress_recorded_at", progress.c.recorded_at)
+    sa.Index("ix_source_tombstone_content_hash", tombstone.c.content_hash)
+    sa.Index("ix_source_tombstone_generation", tombstone.c.generation_id)
+    sa.Index("ix_prune_event_plan_id", prune_event.c.plan_id)
+    sa.Index("ix_artifact_pin_directory", artifact_pin.c.directory)
 
 
 def upgrade() -> None:

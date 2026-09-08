@@ -47,7 +47,7 @@ def test_locate_cli_json_and_import_without_runtime(
         catalog_path,
         EvidenceCatalog(
             documents=(document("doc-1", digest),),
-            occurrences=(occurrence("doc-1", "alpha", "docs/note.txt", digest),),
+            occurrences=(occurrence("alpha", "docs/note.txt", digest),),
         ),
     )
     code = main(

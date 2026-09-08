@@ -4,15 +4,18 @@ from dataclasses import dataclass
 
 from arxiv_int.interfaces.sources import CoordinateSpace
 from arxiv_int.interfaces.tokens import require_relative_path, require_token
+from arxiv_int.query.evidence.schema import ContractRow
 
 CATALOG_SCHEMA = "arxiv-int.evidence-catalog.v1"
 LEDGER_SCHEMA = "arxiv-int.path-event-ledger.v1"
 RESOLUTION_SCHEMA = "arxiv-int.evidence-resolution.v1"
 IMPORT_SCHEMA = "arxiv-int.path-event-import.v1"
 CITATION_KINDS = frozenset({"content", "fact", "report"})
-PATH_EVENT_KINDS = frozenset({"initial", "rename", "copy", "import"})
 LOCATION_STATUSES = frozenset({"matching", "missing", "changed", "escaped", "unchecked"})
 COPY_KIND = "copy"
+DocumentRecord = ContractRow
+OccurrenceRecord = ContractRow
+PathEvent = ContractRow
 
 
 class EvidenceError(ValueError):
@@ -53,60 +56,6 @@ class EvidenceAnchor:
 
 
 @dataclass(frozen=True, slots=True)
-class DocumentRecord:
-    """Content-hash document identity independent of physical path."""
-
-    document_id: str
-    content_hash: str
-    extractor_profile: str = ""
-
-    def __post_init__(self) -> None:
-        require_token(self.document_id, "document_id")
-        require_token(self.content_hash, "content_hash")
-
-
-@dataclass(frozen=True, slots=True)
-class OccurrenceRecord:
-    """One physical source occurrence bound to a document rendition."""
-
-    document_id: str
-    silo_id: str
-    relative_path: str
-    scan_id: str
-    content_hash: str = ""
-    container_path: str = ""
-    member_path: str = ""
-    occurrence_id: str = ""
-
-    def __post_init__(self) -> None:
-        require_token(self.document_id, "document_id")
-        require_token(self.silo_id, "silo_id")
-        require_relative_path(self.relative_path, "relative_path")
-        require_token(self.scan_id, "scan_id")
-        if self.container_path:
-            require_relative_path(self.container_path, "container_path")
-        if self.member_path:
-            require_relative_path(self.member_path, "member_path")
-        if self.occurrence_id:
-            require_token(self.occurrence_id, "occurrence_id")
-
-    @property
-    def identity(self) -> str:
-        """Return the stable occurrence token used by path events."""
-        return self.occurrence_id or f"{self.silo_id}:{self.relative_path}:{self.scan_id}"
-
-    @property
-    def physical_path(self) -> str:
-        """Return the silo-relative file that actually exists on disk."""
-        return self.container_path or self.relative_path
-
-    @property
-    def is_member(self) -> bool:
-        """Report whether this occurrence is a virtual container member."""
-        return bool(self.member_path)
-
-
-@dataclass(frozen=True, slots=True)
 class Citation:
     """Content, fact, or report pointer with original and normalized anchors."""
 
@@ -125,35 +74,6 @@ class Citation:
         require_token(self.citation_id, "citation_id")
         if self.document_id:
             require_token(self.document_id, "document_id")
-
-
-@dataclass(frozen=True, slots=True)
-class PathEvent:
-    """One portable path-event row for corpus.document_path_event."""
-
-    event_id: str
-    document_id: str
-    silo_id: str
-    kind: str
-    relative_path: str
-    content_hash: str
-    previous_relative_path: str = ""
-    occurrence_id: str = ""
-    ledger_id: str = ""
-    recorded_at: str = ""
-    generation_id: str = ""
-    contract_version: str = "1.0.0"
-
-    def __post_init__(self) -> None:
-        if self.kind not in PATH_EVENT_KINDS:
-            raise ValueError(f"unknown path-event kind {self.kind!r}")
-        require_token(self.event_id, "event_id")
-        require_token(self.document_id, "document_id")
-        require_token(self.silo_id, "silo_id")
-        require_relative_path(self.relative_path, "relative_path")
-        require_token(self.content_hash, "content_hash")
-        if self.previous_relative_path:
-            require_relative_path(self.previous_relative_path, "previous_relative_path")
 
 
 @dataclass(frozen=True, slots=True)

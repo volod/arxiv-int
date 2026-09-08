@@ -1,5 +1,5 @@
 {
-  "revision": "0004",
+  "revision": "0001",
   "schemas": [
     "corpus",
     "ctl",
@@ -98,6 +98,119 @@
       ],
       "schema": "corpus",
       "table": "chunks"
+    },
+    "corpus.document_path_event": {
+      "columns": {
+        "bucket": {
+          "comment": "Declared physical partition key from x-arxiv-int.partitionKey.",
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "content_hash": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "document_id": {
+          "comment": null,
+          "foreignKeys": [
+            "corpus.documents.document_id"
+          ],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "event_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "event_time": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TIMESTAMP WITH TIME ZONE"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "kind": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "ledger_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "occurrence_id": {
+          "comment": null,
+          "foreignKeys": [
+            "corpus.source_occurrences.occurrence_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "previous_relative_path": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "relative_path": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "silo_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        }
+      },
+      "comment": "Portable path events that record initial, renamed, copied, and imported locations for canonical documents.",
+      "constraintNames": {
+        "foreignKeys": {
+          "document_id": "fk_document_path_event_document_id",
+          "occurrence_id": "fk_document_path_event_occurrence_id"
+        },
+        "primaryKey": "pk_document_path_event"
+      },
+      "contractId": "document-path-events",
+      "primaryKey": [
+        "event_id"
+      ],
+      "schema": "corpus",
+      "table": "document_path_event"
     },
     "corpus.documents": {
       "columns": {

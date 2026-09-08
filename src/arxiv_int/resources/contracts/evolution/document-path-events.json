@@ -1,0 +1,152 @@
+{
+  "contractId": "document-path-events",
+  "fieldIdentity": "schema-qualified",
+  "fields": {
+    "document_path_event.content_hash": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "document_path_event.contract_version": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "document_path_event.document_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "document_path_event.event_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "document_path_event.event_time": {
+      "logicalType": "timestamp",
+      "physicalType": "",
+      "required": true
+    },
+    "document_path_event.generation_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "document_path_event.kind": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "document_path_event.ledger_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "document_path_event.occurrence_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "document_path_event.previous_relative_path": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "document_path_event.relative_path": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "document_path_event.silo_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    }
+  },
+  "fingerprints": {
+    "avroSha256": "2dae11203c01c6cf4e37ab62c7275b12511c8b30edbd4bb36f079bbdf75084cd",
+    "generatorVersion": "2.1.0",
+    "postgresSha256": "352a38b8d3f4f8b88cf7c1432f6cf5cb556f02487eba4911de9881f830af2534",
+    "semanticMetadataHash": "f1c555061b5c0a70599cbec8bf93e5c76fad15c3f0ca9a008f1db15beb9f6ab8"
+  },
+  "history": [
+    {
+      "contractId": "document-path-events",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "document_path_event.content_hash": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "document_path_event.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "document_path_event.document_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "document_path_event.event_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "document_path_event.event_time": {
+          "logicalType": "timestamp",
+          "physicalType": "",
+          "required": true
+        },
+        "document_path_event.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "document_path_event.kind": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "document_path_event.ledger_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "document_path_event.occurrence_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "document_path_event.previous_relative_path": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "document_path_event.relative_path": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "document_path_event.silo_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "2dae11203c01c6cf4e37ab62c7275b12511c8b30edbd4bb36f079bbdf75084cd",
+        "generatorVersion": "2.1.0",
+        "postgresSha256": "352a38b8d3f4f8b88cf7c1432f6cf5cb556f02487eba4911de9881f830af2534",
+        "semanticMetadataHash": "f1c555061b5c0a70599cbec8bf93e5c76fad15c3f0ca9a008f1db15beb9f6ab8"
+      },
+      "odcsId": "urn:arxiv-int:contract:document-path-events:1.0.0",
+      "projections": {},
+      "version": "1.0.0"
+    }
+  ],
+  "odcsId": "urn:arxiv-int:contract:document-path-events:1.0.0",
+  "projections": {},
+  "version": "1.0.0"
+}

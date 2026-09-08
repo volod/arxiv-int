@@ -190,9 +190,9 @@ def store_findings(
     *,
     require_head: bool = True,
     require_projections: bool = True,
-    require_ledger: bool | None = None,
-    require_progress: bool | None = None,
-    require_reconcile: bool | None = None,
+    require_ledger: bool = True,
+    require_progress: bool = True,
+    require_reconcile: bool = True,
 ) -> list[str]:
     """Return overlay defects after a successful head upgrade."""
     findings: list[str] = []
@@ -209,13 +209,15 @@ def store_findings(
         findings.append("live catalog is missing roles: " + ", ".join(missing_roles))
     if "documents" not in catalog.staging_tables:
         findings.append("live catalog is missing staging.documents")
+    if "document_path_event" not in catalog.staging_tables:
+        findings.append("live catalog is missing staging.document_path_event")
     findings.extend(
         _overlay_table_findings(
             catalog,
             require_projections=require_projections,
-            require_ledger=require_head if require_ledger is None else require_ledger,
-            require_progress=require_head if require_progress is None else require_progress,
-            require_reconcile=require_head if require_reconcile is None else require_reconcile,
+            require_ledger=require_ledger,
+            require_progress=require_progress,
+            require_reconcile=require_reconcile,
         )
     )
     if require_head and catalog.revision != HEAD_REVISION:

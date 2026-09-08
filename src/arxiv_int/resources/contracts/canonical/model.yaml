@@ -139,6 +139,8 @@ semanticTerms:
     valueType: string
   urn:arxiv-int:term:language:
     valueType: string
+  urn:arxiv-int:term:ledger-id:
+    valueType: string
   urn:arxiv-int:term:lifecycle-state:
     valueType: string
   urn:arxiv-int:term:line-number:
@@ -183,6 +185,8 @@ semanticTerms:
     valueType: string
   urn:arxiv-int:term:party-subject-id:
     valueType: string
+  urn:arxiv-int:term:path-event-id:
+    valueType: string
   urn:arxiv-int:term:path-id:
     valueType: string
   urn:arxiv-int:term:payment-date:
@@ -196,6 +200,8 @@ semanticTerms:
   urn:arxiv-int:term:preferred-label:
     valueType: string
   urn:arxiv-int:term:preferred-name:
+    valueType: string
+  urn:arxiv-int:term:previous-relative-path:
     valueType: string
   urn:arxiv-int:term:product-object-id:
     valueType: string
@@ -310,6 +316,8 @@ entities:
     contract: odcs/embedding.odcs.yaml
   source_occurrence:
     contract: odcs/source_occurrence.odcs.yaml
+  document_path_event:
+    contract: odcs/document_path_event.odcs.yaml
   transaction:
     contract: odcs/transaction.odcs.yaml
   catalog_entry:

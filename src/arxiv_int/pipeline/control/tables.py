@@ -1,4 +1,4 @@
-"""SQLAlchemy metadata for ctl run-ledger tables. Frozen DDL lives in revision 0002."""
+"""SQLAlchemy metadata for ctl run-ledger tables. Frozen DDL lives in revision 0001."""
 
 from datetime import datetime
 

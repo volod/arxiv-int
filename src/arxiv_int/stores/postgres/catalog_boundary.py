@@ -9,18 +9,12 @@ from sqlalchemy import Connection, MetaData, text
 from arxiv_int.contracts.sqlalchemy.catalog import compare_metadata
 from arxiv_int.stores.postgres.constants import (
     HEAD_REVISION,
-    INITIAL_REVISION,
-    LEDGER_REVISION,
-    PROGRESS_REVISION,
     ROLE_DBT,
     ROLE_READER,
     STORE_ROLES,
 )
 
 INITIAL_REVISION_FILE = "0001_initial_store.py"
-LEDGER_REVISION_FILE = "0002_pipeline_run_ledger.py"
-PROGRESS_REVISION_FILE = "0003_stage_progress.py"
-RECONCILE_REVISION_FILE = "0004_source_tombstone_and_prune.py"
 
 
 def _load_revision(project_root: Path, filename: str, module_name: str) -> ModuleType:
@@ -38,58 +32,22 @@ def initial_definition(project_root: Path) -> ModuleType:
     return _load_revision(project_root, INITIAL_REVISION_FILE, "arxiv_int_initial_store")
 
 
-def ledger_definition(project_root: Path) -> ModuleType:
-    """Load the frozen run-ledger revision without executing its upgrade."""
-    return _load_revision(project_root, LEDGER_REVISION_FILE, "arxiv_int_run_ledger")
-
-
-def progress_definition(project_root: Path) -> ModuleType:
-    """Load the frozen stage-progress revision without executing its upgrade."""
-    return _load_revision(project_root, PROGRESS_REVISION_FILE, "arxiv_int_stage_progress")
-
-
-def reconcile_definition(project_root: Path) -> ModuleType:
-    """Load the frozen reconcile revision without executing its upgrade."""
-    return _load_revision(project_root, RECONCILE_REVISION_FILE, "arxiv_int_source_reconcile")
-
-
 def catalog_boundary_findings(
     project_root: Path, connection: Connection, revision: str
 ) -> list[str]:
-    """Reject missing, partial or drifted stores at a known owned revision."""
-    known = {INITIAL_REVISION, LEDGER_REVISION, PROGRESS_REVISION, HEAD_REVISION}
-    if revision not in known:
-        expected = ", ".join(sorted(known))
-        return [f"unsupported store revision {revision}; expected {expected}"]
+    """Reject missing, partial or drifted stores at the owned initial revision."""
+    if revision != HEAD_REVISION:
+        return [f"unsupported store revision {revision}; expected {HEAD_REVISION}"]
     definition = initial_definition(project_root)
     metadata = definition.schema_metadata()
     assert isinstance(metadata, MetaData)
     findings = compare_metadata(connection, metadata)
-    extras: list[MetaData] = []
-    overlay_revisions = {LEDGER_REVISION, PROGRESS_REVISION, HEAD_REVISION}
-    if revision in overlay_revisions:
-        ledger_meta = ledger_definition(project_root).schema_metadata()
-        assert isinstance(ledger_meta, MetaData)
-        findings.extend(compare_metadata(connection, ledger_meta))
-        extras.append(ledger_meta)
-    if revision in {PROGRESS_REVISION, HEAD_REVISION}:
-        progress_meta = progress_definition(project_root).schema_metadata()
-        assert isinstance(progress_meta, MetaData)
-        findings.extend(compare_metadata(connection, progress_meta))
-        extras.append(progress_meta)
-    if revision == HEAD_REVISION:
-        reconcile_meta = reconcile_definition(project_root).schema_metadata()
-        assert isinstance(reconcile_meta, MetaData)
-        findings.extend(compare_metadata(connection, reconcile_meta))
-        extras.append(reconcile_meta)
-    findings.extend(_role_findings(connection, metadata, tuple(extras)))
+    findings.extend(_role_findings(connection, metadata))
     findings.extend(_function_findings(connection, definition.STORE_SQL))
     return findings
 
 
-def _role_findings(
-    connection: Connection, metadata: MetaData, extras: tuple[MetaData, ...] = ()
-) -> list[str]:
+def _role_findings(connection: Connection, metadata: MetaData) -> list[str]:
     findings: list[str] = []
     for role in STORE_ROLES:
         attributes = connection.execute(
@@ -106,19 +64,13 @@ def _role_findings(
             text("SELECT 1 FROM pg_roles WHERE rolname = :role"), {"role": role}
         ).scalar():
             continue
-        findings.extend(_write_privilege_findings(connection, metadata, role, extras=extras))
+        findings.extend(_write_privilege_findings(connection, metadata, role))
     return findings
 
 
-def _write_privilege_findings(
-    connection: Connection,
-    metadata: MetaData,
-    role: str,
-    extras: tuple[MetaData, ...] = (),
-) -> list[str]:
+def _write_privilege_findings(connection: Connection, metadata: MetaData, role: str) -> list[str]:
     findings: list[str] = []
-    extra_tables = tuple(name for extra in extras for name in extra.tables)
-    names = (*metadata.tables, *extra_tables, "public.alembic_version")
+    names = (*metadata.tables, "public.alembic_version")
     for name in names:
         if name.startswith("staging."):
             continue

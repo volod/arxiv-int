@@ -1,4 +1,4 @@
-"""SQLAlchemy metadata for reconcile control tables. Frozen DDL lives in 0004."""
+"""SQLAlchemy metadata for reconcile control tables. Frozen DDL lives in 0001."""
 
 from datetime import datetime
 

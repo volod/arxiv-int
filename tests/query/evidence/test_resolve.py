@@ -47,17 +47,15 @@ def test_duplicate_silos_and_nested_member_and_cell_anchors(tmp_path: Path) -> N
             document("doc-sheet", digest),
         ),
         occurrences=(
-            occurrence("doc-dup", "alpha", "docs/invoice.pdf", digest),
-            occurrence("doc-dup", "beta", "docs/invoice.pdf", digest),
+            occurrence("alpha", "docs/invoice.pdf", digest),
+            occurrence("beta", "docs/invoice.pdf", digest),
             occurrence(
-                "doc-mail",
                 "mail",
                 "mail/bundle.zip",
                 zip_digest,
                 container_path="mail/bundle.zip",
                 member_path="attachments/invoice.pdf",
             ),
-            occurrence("doc-sheet", "alpha", "docs/invoice.pdf", digest),
         ),
         citations=(
             Citation(
@@ -109,6 +107,8 @@ def test_duplicate_silos_and_nested_member_and_cell_anchors(tmp_path: Path) -> N
 
 def test_path_only_rename_missing_changed_and_read_only_catalog(tmp_path: Path) -> None:
     digest = sha256_bytes(_BYTES)
+    missing_digest = sha256_bytes(b"missing-bytes")
+    original_changed = sha256_bytes(b"original-changed")
     changed = sha256_bytes(b"changed")
     silo = tmp_path / "silo"
     write_source(silo, "current/renamed.pdf", _BYTES)
@@ -117,13 +117,13 @@ def test_path_only_rename_missing_changed_and_read_only_catalog(tmp_path: Path) 
     catalog = EvidenceCatalog(
         documents=(
             document("doc-renamed", digest),
-            document("doc-missing", digest),
-            document("doc-changed", digest),
+            document("doc-missing", missing_digest),
+            document("doc-changed", original_changed),
         ),
         occurrences=(
-            occurrence("doc-renamed", "silo", "docs/original.pdf", digest),
-            occurrence("doc-missing", "silo", "docs/gone.pdf", digest),
-            occurrence("doc-changed", "silo", "docs/changed.pdf", digest),
+            occurrence("silo", "docs/original.pdf", digest),
+            occurrence("silo", "docs/gone.pdf", missing_digest),
+            occurrence("silo", "docs/changed.pdf", original_changed),
         ),
         events=(
             event(
@@ -149,8 +149,8 @@ def test_path_only_rename_missing_changed_and_read_only_catalog(tmp_path: Path) 
     assert missing.locations[0].status == "missing"
     drifted = resolve_citation(loaded, "doc-changed", silo_roots=roots)
     assert drifted.locations[0].status == "changed"
-    assert drifted.content_hash == digest
-    assert drifted.locations[0].content_hash == digest
+    assert drifted.content_hash == original_changed
+    assert drifted.locations[0].content_hash == original_changed
     assert _checksums(catalog_path.parent) == before
     assert silo.joinpath("current/renamed.pdf").read_bytes() == _BYTES
     assert changed == sha256_bytes((silo / "docs/changed.pdf").read_bytes())
@@ -167,10 +167,10 @@ def test_escaping_link_and_ambiguous_fact_locations(tmp_path: Path) -> None:
     catalog = EvidenceCatalog(
         documents=(
             document("doc-escape", digest),
-            document("doc-a", digest),
-            document("doc-b", digest),
+            document("doc-a", sha256_bytes(b"doc-a")),
+            document("doc-b", sha256_bytes(b"doc-b")),
         ),
-        occurrences=(occurrence("doc-escape", "silo", "docs/escape.pdf", digest),),
+        occurrences=(occurrence("silo", "docs/escape.pdf", digest),),
         citations=(
             Citation(kind="fact", citation_id="f-a", document_id="doc-a", fact_id="shared-fact"),
             Citation(kind="fact", citation_id="f-b", document_id="doc-b", fact_id="shared-fact"),
@@ -191,7 +191,7 @@ def test_copy_event_adds_additional_current_location(tmp_path: Path) -> None:
     write_source(silo, "classified/original.pdf", _BYTES)
     catalog = EvidenceCatalog(
         documents=(document("doc-copy", digest),),
-        occurrences=(occurrence("doc-copy", "silo", "docs/original.pdf", digest),),
+        occurrences=(occurrence("silo", "docs/original.pdf", digest),),
         events=(
             event(
                 "ev-copy",

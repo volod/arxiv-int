@@ -2032,13 +2032,14 @@ route safely placeable special outcomes to `_unclassified` and `_unreadable`; pr
 component/full-path limits, available hashes, links, devices, target overlap, target free space,
 collisions, backup for `move`, and complete path accounting; use independent verified copies on
 either same or different filesystems; exclude hardlinks;
-consume sealed exports without live database/model services; generate the path-event migration;
+consume sealed exports without live database/model services; reuse the reviewed
+`document-path-events` contract and Alembic `0001` `corpus.document_path_event` table;
 record unplaceable entries as blocked; enforce a silo placement lease, stable duplicate-name
 suffixes, filesystem identity checks, and idempotent path-ledger import; seal
 the ledger before journaling renames or verified copies; expose resume and verified rollback;
 reuse the shared read-only
 `archive locate` resolver.
-Generate the path-event change as a reviewed Alembic Python revision; use typed Polars/Arrow
+Do not mint a second path-event schema. Use typed Polars/Arrow
 ledger operations and shared Pandera checks on sealed inputs and output ledgers. The placement
 executor remains independent of live dbt/database services.
 - Acceptance gates: Dry-run is byte-for-byte reproducible; apply requires the exact accepted plan and

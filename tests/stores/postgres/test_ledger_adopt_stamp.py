@@ -1,17 +1,16 @@
-"""Adoption stamps 0001 when the live overlay has projection tables but no ledger."""
+"""Adoption refuses a current-model catalog that is missing run-ledger tables."""
 
 from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
 
-from arxiv_int.contracts.migrations.runner import DATABASE_URL_VARIABLE, STATUS_OK, RunnerOutcome
+from arxiv_int.contracts.migrations.runner import DATABASE_URL_VARIABLE, STATUS_FAILED
 from arxiv_int.quality.project_root import discover_project_root
 from arxiv_int.stores.postgres.adopt import adopt_database
 from arxiv_int.stores.postgres.constants import (
     CANONICAL_SCHEMAS,
     HASH_MODULUS,
-    INITIAL_REVISION,
     PARTITIONED_TABLES,
     PROJECTION_METADATA_TABLES,
     STORE_ROLES,
@@ -19,7 +18,7 @@ from arxiv_int.stores.postgres.constants import (
 from arxiv_int.stores.postgres.inspect_live import LiveStoreCatalog, PartitionSpec
 
 
-def test_adopt_stamps_initial_when_ledger_tables_are_absent(
+def test_adopt_refuses_when_ledger_tables_are_absent(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     monkeypatch.setenv(DATABASE_URL_VARIABLE, "postgresql://x")
@@ -36,7 +35,7 @@ def test_adopt_stamps_initial_when_ledger_tables_are_absent(
         ),
         checks=("ck_facts_object_xor_literal", "ck_facts_provenance", "ck_facts_status"),
         roles=STORE_ROLES,
-        staging_tables=("documents",),
+        staging_tables=("documents", "document_path_event"),
         revision=None,
         extensions=("vector",),
         control_tables=PROJECTION_METADATA_TABLES,
@@ -50,11 +49,9 @@ def test_adopt_stamps_initial_when_ledger_tables_are_absent(
         "arxiv_int.stores.postgres.adopt.require_safe_adoption", lambda *_a, **_k: None
     )
     monkeypatch.setattr("arxiv_int.stores.postgres.adopt.inspect_store", lambda *_a, **_k: catalog)
-    monkeypatch.setattr(
-        "arxiv_int.stores.postgres.adopt.stamp",
-        lambda *_a, **_k: RunnerOutcome(STATUS_OK, "stamped"),
-    )
     monkeypatch.setattr("arxiv_int.stores.postgres.adopt.catalog_boundary_findings", lambda *_a: [])
     report = adopt_database(discover_project_root(Path(__file__)), url="postgresql://x", run_id="s")
-    assert report.ok
-    assert report.stamped_revision == INITIAL_REVISION
+    assert not report.ok
+    assert report.outcome.status == STATUS_FAILED
+    assert "run ledger tables" in " ".join(report.findings)
+    assert report.stamped_revision is None

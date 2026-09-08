@@ -1,4 +1,4 @@
-"""Live run-ledger tables and 0001/0002 overlay stamps on the pinned store."""
+"""Live run-ledger tables on the pinned store after the initial revision."""
 
 import os
 import shutil
@@ -8,14 +8,14 @@ import pytest
 from sqlalchemy import create_engine, text
 
 from arxiv_int.contracts.lint import contracts_root_for
-from arxiv_int.contracts.migrations.runner import downgrade, upgrade
+from arxiv_int.contracts.migrations.runner import downgrade
 from arxiv_int.pipeline.control.executor import ShardExecutor
 from arxiv_int.pipeline.control.model import ShardWork
 from arxiv_int.pipeline.control.postgres import PostgresControlLedger
 from arxiv_int.quality.project_root import discover_project_root
 from arxiv_int.stores.postgres.adopt import adopt_database
 from arxiv_int.stores.postgres.apply import apply_revisions
-from arxiv_int.stores.postgres.constants import HEAD_REVISION, INITIAL_REVISION
+from arxiv_int.stores.postgres.constants import HEAD_REVISION
 from arxiv_int.stores.postgres.disposable import disposable_store
 from arxiv_int.stores.postgres_image.pins import load_image_pins
 from tests.pipeline.control.identities import identity, passing_checks
@@ -49,7 +49,7 @@ def _work() -> ShardWork:
     )
 
 
-def test_ledger_downgrade_keeps_canonical_rows(tmp_path: Path) -> None:
+def test_ledger_exists_at_head_and_teardown_is_refused(tmp_path: Path) -> None:
     root = _root()
     contracts = contracts_root_for(root)
     pins = load_image_pins(root)
@@ -68,12 +68,13 @@ def test_ledger_downgrade_keeps_canonical_rows(tmp_path: Path) -> None:
                 assert connection.execute(text("SELECT to_regclass('ctl.run')")).scalar()
         finally:
             engine.dispose()
-        down = downgrade(root, contracts, url=store.url, revision="0001")
-        assert down.ok, down.detail
+        down = downgrade(root, contracts, url=store.url, revision="base")
+        assert not down.ok
+        assert "destroy canonical data" in down.detail
         engine = create_engine(store.url)
         try:
             with engine.connect() as connection:
-                assert connection.execute(text("SELECT to_regclass('ctl.run')")).scalar() is None
+                assert connection.execute(text("SELECT to_regclass('ctl.run')")).scalar()
                 count = connection.execute(
                     text("SELECT count(*) FROM corpus.documents WHERE document_id = 'keep-ledger'")
                 ).scalar()
@@ -112,21 +113,20 @@ def test_postgres_ledger_cache_hit_skips_the_worker(tmp_path: Path) -> None:
             engine.dispose()
 
 
-def test_adopt_stamps_0001_without_ledger_then_upgrades(tmp_path: Path) -> None:
+def test_adopt_stamps_head_on_complete_unstamped_catalog(tmp_path: Path) -> None:
     root = _root()
-    contracts = contracts_root_for(root)
     pins = load_image_pins(root)
     with disposable_store(root, tmp_path / "pgdata", pins=pins) as store:
-        assert upgrade(root, contracts, url=store.url, revision="0001").ok
+        assert apply_revisions(root, url=store.url, run_id="adopt-src", revision="head").ok
         engine = create_engine(store.url)
         try:
             with engine.begin() as connection:
                 connection.execute(text("DELETE FROM alembic_version"))
         finally:
             engine.dispose()
-        adopted = adopt_database(root, url=store.url, run_id="adopt-0001")
+        adopted = adopt_database(root, url=store.url, run_id="adopt-head")
         assert adopted.ok, adopted.findings
-        assert adopted.stamped_revision == INITIAL_REVISION
-        report = apply_revisions(root, url=store.url, run_id="after-0001", revision="head")
+        assert adopted.stamped_revision == HEAD_REVISION
+        report = apply_revisions(root, url=store.url, run_id="after-adopt", revision="head")
         assert report.ok, report.findings
         assert report.revision == HEAD_REVISION

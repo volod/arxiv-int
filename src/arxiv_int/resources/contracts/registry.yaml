@@ -65,6 +65,12 @@ contracts:
     canonicalEntity: source_occurrence
     fingerprints:
       semanticMetadataHash: 2c6102d0cf82a82e0199ed780ac01ecafb561c4c7cf3f15789643945446ffd75
+  document-path-events:
+    odcs: datasets/document-path-events.odcs.yaml
+    mapping: mappings/document-path-events.mapping.yaml
+    canonicalEntity: document_path_event
+    fingerprints:
+      semanticMetadataHash: f1c555061b5c0a70599cbec8bf93e5c76fad15c3f0ca9a008f1db15beb9f6ab8
   transactions:
     odcs: datasets/transactions.odcs.yaml
     mapping: mappings/transactions.mapping.yaml

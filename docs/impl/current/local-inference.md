@@ -55,7 +55,7 @@ unless `--allow-service-control` (or `allow_service_control=True`) is set. CUDA 
 telemetry snapshots VRAM after load and after unload.
 
 Lease rows use the `ctl.resource_lease` shape and are appended to
-`$SERVICE_STATE_DIR/inference/ctl.resource_lease.jsonl`. Alembic `0002` creates that table; inference
+`$SERVICE_STATE_DIR/inference/ctl.resource_lease.jsonl`. Alembic `0001` creates that table; inference
 does not yet dual-write SQL rows (`insert_resource_lease` is the bound helper when a caller does).
 Telemetry JSONL is `$RUNS_DIR/<run-id>/telemetry/resource-events.jsonl`
 (load time, throughput, VRAM, power, util). Pipeline stages append `pipeline.resource` events to

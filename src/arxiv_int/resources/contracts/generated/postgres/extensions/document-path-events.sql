@@ -1,0 +1,5 @@
+-- arxiv-int postgres extensions for document-path-events
+-- source: urn:arxiv-int:contract:document-path-events:1.0.0@1.0.0
+-- table columns and constraints are owned by corpus.document_path_event metadata revisions
+-- HASH partition template for corpus.document_path_event USING (bucket)
+-- CREATE TABLE corpus.document_path_event_p0 PARTITION OF corpus.document_path_event FOR VALUES WITH (MODULUS 16, REMAINDER 0);

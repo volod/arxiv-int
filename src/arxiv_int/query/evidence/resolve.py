@@ -6,13 +6,18 @@ from pathlib import Path
 from arxiv_int.query.evidence.model import (
     COPY_KIND,
     Citation,
-    DocumentRecord,
     EvidenceCatalog,
     EvidenceError,
     EvidenceResolution,
     SourceLocation,
 )
 from arxiv_int.query.evidence.overlay import LocationTrack, overlay_events
+from arxiv_int.query.evidence.schema import (
+    ContractRow,
+    occurrence_identity,
+    occurrence_is_member,
+    occurrence_physical_path,
+)
 from arxiv_int.query.evidence.validate import location_status
 
 _CONTENT = "content"
@@ -43,12 +48,14 @@ def resolve_citation(
             ambiguous=citation_ambiguous,
             findings=tuple(findings),
         )
+    document_id = document.get("document_id")
+    content_hash = document.get("content_hash")
     occurrences = tuple(
-        item for item in catalog.occurrences if item.document_id == document.document_id
+        item for item in catalog.occurrences if item.get("content_hash") == content_hash
     )
     if not occurrences:
-        findings.append(f"no source occurrences for {document.document_id}")
-    tracks = overlay_events(occurrences, catalog.events, document.document_id)
+        findings.append(f"no source occurrences for {document_id}")
+    tracks = overlay_events(occurrences, catalog.events, document_id)
     roots = silo_roots or {}
     locations = tuple(item for track in tracks for item in _expand_track(track, document, roots))
     ambiguous = citation_ambiguous or _colliding_currents(tracks)
@@ -56,12 +63,12 @@ def resolve_citation(
         findings.append("ambiguous source locations")
     return EvidenceResolution(
         citation=citation,
-        document_id=document.document_id,
-        content_hash=document.content_hash,
+        document_id=document_id,
+        content_hash=content_hash,
         locations=locations,
         original_anchor=citation.original,
         normalized_anchor=citation.normalized,
-        extractor_profile=document.extractor_profile,
+        extractor_profile=document.get("extractor_profile"),
         ambiguous=ambiguous,
         findings=tuple(findings),
     )
@@ -91,19 +98,19 @@ def _select_citation(catalog: EvidenceCatalog, token: str, kind: str) -> tuple[C
     return matches[0], len(documents) > 1
 
 
-def _document_for(catalog: EvidenceCatalog, document_id: str) -> DocumentRecord | None:
+def _document_for(catalog: EvidenceCatalog, document_id: str) -> ContractRow | None:
     if not document_id:
         return None
-    found = [item for item in catalog.documents if item.document_id == document_id]
+    found = [item for item in catalog.documents if item.get("document_id") == document_id]
     return found[0] if found else None
 
 
 def _expand_track(
     track: LocationTrack,
-    document: DocumentRecord,
+    document: ContractRow,
     silo_roots: Mapping[str, Path],
 ) -> tuple[SourceLocation, ...]:
-    content_hash = track.occurrence.content_hash or document.content_hash
+    content_hash = track.occurrence.get("content_hash") or document.get("content_hash")
     primary = _location(
         track,
         current_path=track.current_path,
@@ -132,27 +139,28 @@ def _location(
     content_hash: str,
     silo_roots: Mapping[str, Path],
 ) -> SourceLocation:
+    occurrence = track.occurrence
     if role == COPY_KIND:
         physical = current_path
-    elif track.occurrence.is_member:
-        physical = track.occurrence.physical_path
+    elif occurrence_is_member(occurrence):
+        physical = occurrence_physical_path(occurrence)
     else:
         physical = current_path
     status = location_status(
-        silo_roots.get(track.occurrence.silo_id),
+        silo_roots.get(occurrence.get("silo_id")),
         physical,
         content_hash,
     )
     return SourceLocation(
-        silo_id=track.occurrence.silo_id,
+        silo_id=occurrence.get("silo_id"),
         original_path=track.original_path,
         current_path=current_path,
         content_hash=content_hash,
         status=status,
-        scan_id=track.occurrence.scan_id,
-        occurrence_id=track.occurrence.identity,
-        container_path=track.occurrence.container_path,
-        member_path=track.occurrence.member_path,
+        scan_id=occurrence.get("scan_id"),
+        occurrence_id=occurrence_identity(occurrence),
+        container_path=occurrence.get("container_path"),
+        member_path=occurrence.get("member_path"),
         role=role,
     )
 
@@ -160,9 +168,9 @@ def _location(
 def _colliding_currents(tracks: tuple[LocationTrack, ...]) -> bool:
     seen: set[tuple[str, str]] = set()
     for track in tracks:
-        if track.occurrence.is_member:
+        if occurrence_is_member(track.occurrence):
             continue
-        key = (track.occurrence.silo_id, track.current_path)
+        key = (track.occurrence.get("silo_id"), track.current_path)
         if key in seen:
             return True
         seen.add(key)

@@ -21,6 +21,7 @@ BUCKET_FUNCTION = "ctl.partition_bucket"
 # Physical HASH key is the logical primary key so foreign keys stay valid.
 PARTITIONED_TABLES: tuple[tuple[str, str, str], ...] = (
     ("corpus", "chunks", "chunk_id"),
+    ("corpus", "document_path_event", "event_id"),
     ("corpus", "documents", "document_id"),
     ("corpus", "source_occurrences", "occurrence_id"),
     ("corpus", "spans", "span_id"),
@@ -40,6 +41,7 @@ PARTITIONED_TABLES: tuple[tuple[str, str, str], ...] = (
 
 OWNED_TABLES: tuple[tuple[str, str], ...] = (
     ("corpus", "chunks"),
+    ("corpus", "document_path_event"),
     ("corpus", "documents"),
     ("corpus", "source_occurrences"),
     ("corpus", "spans"),
@@ -71,10 +73,8 @@ FACT_STATUSES: tuple[str, ...] = (
 
 EMBEDDING_PROFILES_TABLE = "search.embedding_profiles"
 ALEMBIC_VERSION_TABLE = "alembic_version"
-HEAD_REVISION = "0004"
-LEDGER_REVISION = "0002"
+HEAD_REVISION = "0001"
 INITIAL_REVISION = "0001"
-PROGRESS_REVISION = "0003"
 PROJECTION_METADATA_TABLES: tuple[str, ...] = (
     "projections",
     "projection_active",

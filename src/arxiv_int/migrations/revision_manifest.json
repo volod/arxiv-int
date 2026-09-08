@@ -4,25 +4,7 @@
       "downRevision": null,
       "file": "0001_initial_store.py",
       "message": "initial canonical store schema",
-      "sha256": "6e8765b80ed3433326f59b3c9dea3d767135b79decff744a31acb764d657cc70"
-    },
-    "0002": {
-      "downRevision": "0001",
-      "file": "0002_pipeline_run_ledger.py",
-      "message": "pipeline run ledger tables",
-      "sha256": "26dc41cb753036eb2a0c1f1d8d961f48365118382af51a7de79e30c87e67302d"
-    },
-    "0003": {
-      "downRevision": "0002",
-      "file": "0003_stage_progress.py",
-      "message": "pipeline stage progress overlay",
-      "sha256": "9f9e5537d9a58fbcf3f78a89d358b5a7c63d0f548c143f10dd8e9b5850506dea"
-    },
-    "0004": {
-      "downRevision": "0003",
-      "file": "0004_source_tombstone_and_prune.py",
-      "message": "pipeline source tombstone, prune-event, and artifact-pin overlay",
-      "sha256": "2e9997722371608fd7c7a7ae375a103540c9b6e82f7e5e94097978c114286b4f"
+      "sha256": "ea08ba71dae753d1d04d00a8b3e39e3e51fdd4d60c2a1be5c18a939a1b63039c"
     }
   }
 }

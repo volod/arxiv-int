@@ -4,12 +4,15 @@ import hashlib
 from pathlib import Path
 
 from arxiv_int.query.evidence.catalog import write_catalog, write_ledger
-from arxiv_int.query.evidence.model import (
-    DocumentRecord,
-    EvidenceAnchor,
-    EvidenceCatalog,
-    OccurrenceRecord,
-    PathEvent,
+from arxiv_int.query.evidence.model import EvidenceAnchor, EvidenceCatalog
+from arxiv_int.query.evidence.schema import (
+    DEFAULT_CONTRACT_VERSION,
+    DOCUMENTS_CONTRACT,
+    FIXTURE_GENERATION_ID,
+    OCCURRENCES_CONTRACT,
+    PATH_EVENTS_CONTRACT,
+    ContractRow,
+    parse_row,
 )
 
 
@@ -33,13 +36,21 @@ def sealed_paths(tmp_path: Path) -> tuple[Path, Path]:
     return evidence / "catalog.json", evidence / "path-events.json"
 
 
-def document(document_id: str, content_hash: str, profile: str = "fixture") -> DocumentRecord:
-    """Return one sealed document row."""
-    return DocumentRecord(document_id, content_hash, profile)
+def document(document_id: str, content_hash: str, profile: str = "fixture") -> ContractRow:
+    """Return one sealed document row from the documents contract."""
+    return parse_row(
+        DOCUMENTS_CONTRACT,
+        {
+            "document_id": document_id,
+            "content_hash": content_hash,
+            "extractor_profile": profile,
+            "generation_id": FIXTURE_GENERATION_ID,
+            "contract_version": DEFAULT_CONTRACT_VERSION,
+        },
+    )
 
 
 def occurrence(
-    document_id: str,
     silo_id: str,
     relative_path: str,
     content_hash: str,
@@ -47,17 +58,24 @@ def occurrence(
     scan_id: str = "scan-1",
     container_path: str = "",
     member_path: str = "",
-) -> OccurrenceRecord:
-    """Return one sealed occurrence bound to a document."""
-    return OccurrenceRecord(
-        document_id=document_id,
-        silo_id=silo_id,
-        relative_path=relative_path,
-        scan_id=scan_id,
-        content_hash=content_hash,
-        container_path=container_path,
-        member_path=member_path,
-    )
+    occurrence_id: str = "",
+) -> ContractRow:
+    """Return one sealed occurrence from the source-occurrences contract."""
+    token = occurrence_id or f"{silo_id}:{relative_path}:{scan_id}"
+    payload: dict[str, str] = {
+        "occurrence_id": token,
+        "silo_id": silo_id,
+        "relative_path": relative_path,
+        "scan_id": scan_id,
+        "content_hash": content_hash,
+        "generation_id": FIXTURE_GENERATION_ID,
+        "contract_version": DEFAULT_CONTRACT_VERSION,
+    }
+    if container_path:
+        payload["container_path"] = container_path
+    if member_path:
+        payload["member_path"] = member_path
+    return parse_row(OCCURRENCES_CONTRACT, payload)
 
 
 def event(
@@ -69,23 +87,28 @@ def event(
     content_hash: str,
     *,
     previous: str = "",
-    recorded_at: str = "2026-01-01T00:00:00Z",
+    event_time: str = "2026-01-01T00:00:00Z",
     ledger_id: str = "org-1",
     occurrence_id: str = "",
-) -> PathEvent:
-    """Return one portable path-event row."""
-    return PathEvent(
-        event_id=event_id,
-        document_id=document_id,
-        silo_id=silo_id,
-        kind=kind,
-        relative_path=relative_path,
-        content_hash=content_hash,
-        previous_relative_path=previous,
-        occurrence_id=occurrence_id,
-        ledger_id=ledger_id,
-        recorded_at=recorded_at,
-    )
+) -> ContractRow:
+    """Return one portable path-event row from the document-path-events contract."""
+    payload: dict[str, str] = {
+        "event_id": event_id,
+        "document_id": document_id,
+        "silo_id": silo_id,
+        "kind": kind,
+        "relative_path": relative_path,
+        "content_hash": content_hash,
+        "event_time": event_time,
+        "ledger_id": ledger_id,
+        "generation_id": FIXTURE_GENERATION_ID,
+        "contract_version": DEFAULT_CONTRACT_VERSION,
+    }
+    if previous:
+        payload["previous_relative_path"] = previous
+    if occurrence_id:
+        payload["occurrence_id"] = occurrence_id
+    return parse_row(PATH_EVENTS_CONTRACT, payload)
 
 
 def cell_anchor() -> EvidenceAnchor:
@@ -117,7 +140,7 @@ def save_catalog(path: Path, catalog: EvidenceCatalog) -> Path:
     return path
 
 
-def save_ledger(path: Path, events: tuple[PathEvent, ...], ledger_id: str = "org-1") -> Path:
+def save_ledger(path: Path, events: tuple[ContractRow, ...], ledger_id: str = "org-1") -> Path:
     """Write a portable ledger and return the path."""
     write_ledger(path, ledger_id, events)
     return path

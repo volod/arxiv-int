@@ -11,6 +11,7 @@ caller passes a temporary project root.
 `src/arxiv_int/resources/contracts/registry.yaml` binds each dataset id to an ODCS file, a physical-to-canonical mapping,
 a canonical entity, and a reviewed semantic metadata hash. Shipped datasets cover documents, spans,
 chunks, objects, aliases, mentions, facts, topics, ontology terms, embeddings, source occurrences,
+document path events,
 transactions, catalogs, anomaly findings, evaluation items, and domain investigation artifact
 families (relationship map, BOM, supply chain, invoice/payment, registry).
 
@@ -35,9 +36,10 @@ properties remain accepted for fixtures.
 `src/arxiv_int/contracts/generate/` exports Avro, JSON Schema, and Pydantic models through Data
 Contract CLI, then focused adapters for Parquet/Arrow descriptors, partition templates, ParadeDB
 search DDL, pgvector dimensions, AGE projection stubs, and provenance sidecars. PostgreSQL DDL is no
-longer a generic CLI export: `src/arxiv_int/contracts/sqlalchemy/` normalizes ODCS into typed
-`NormalizedTable`/`NormalizedColumn` definitions, builds one schema-qualified SQLAlchemy Core
-`MetaData` with a shared naming convention, and compiles review DDL with the PostgreSQL dialect.
+longer a generic CLI export: `src/arxiv_int/contracts/catalog/normalize.py` normalizes ODCS into typed
+`NormalizedTable`/`NormalizedColumn` definitions. `src/arxiv_int/contracts/sqlalchemy/` builds one
+schema-qualified SQLAlchemy Core `MetaData` from that model with a shared naming convention, and
+compiles review DDL with the PostgreSQL dialect.
 Per-contract files land at `src/arxiv_int/resources/contracts/generated/postgres/<id>.sql` and the ordered owned-schema
 script at `src/arxiv_int/resources/contracts/generated/postgres/baseline.sql`, beside a `manifest.json` of fingerprints.
 
@@ -86,9 +88,7 @@ schema state the history produces. `src/arxiv_int/contracts/migrations/` impleme
 - `arxiv-int db upgrade --sql` writes offline review SQL under `$DATA_DIR/migrations/<run-id>/`.
 - `arxiv-int db adopt` / `make db-adopt` live-adopts when that URL is set: relocates leftover
   `public` tables into owned schemas when destinations are missing, refuses partial or drifted
-  catalogs, and stamps `0004` when the overlay includes reconcile tables, `0003` when it includes
-  ledger and progress tables, `0002` when it includes ledger tables only, or `0001` for a complete
-  0001-era catalog without them. Without a URL
+  catalogs, and stamps `0001` when the overlay matches the current initial revision. Without a URL
   it reports why stamping stays refused.
 
 Generated revisions are deterministic and frozen: a historical revision never imports today's
@@ -102,12 +102,14 @@ Autogeneration against a live database uses the same owned-object filter through
 environment.
 
 Before any deployment or public release, the operator authorized consolidation into the single
-`0001_initial_store.py` revision. It freezes the complete initial store; generated catalog JSON is
+`0001_initial_store.py` revision. It freezes the complete current store; generated catalog JSON is
 retained only as per-run evidence under `DATA_DIR`, not as a second committed schema authority.
 The [boundary repair](../records/0028-store-refactor-foundation-store-acceptance-boundaries.md)
-records the amendment. Historical task snapshots describe their original implementation; their
+and [prerelease consolidation](../records/0052-store-refactor-prerelease-migration-consolidation.md)
+record the amendment. Historical task snapshots describe their original implementation; their
 superseded revision numbers are not upgrade requirements for this unreleased baseline. Head is
-`0004` for the ctl reconcile overlay on the run-ledger and stage-progress overlays documented in
+`0001`. Overlay tables that were briefly authored as `0002`-`0005` during development now live in
+that initial revision, as documented in
 [Canonical store](canonical-store.md).
 
 Live initial schema, HASH partitions, roles, staging COPY, and disposable apply evidence are

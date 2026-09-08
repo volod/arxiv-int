@@ -83,6 +83,123 @@ sources:
           rule_catalog_version: 1.0.0
         name: chunks
       - columns:
+          - description: event_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - document-path-events.event_id.type
+                - document-path-events.event_id.nullability
+                - document-path-events.event_id.batch_unique
+                - document-path-events.event_id.unique
+            name: event_id
+            tests:
+              - not_null
+              - unique
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - document-path-events.document_id.type
+                - document-path-events.document_id.nullability
+                - document-path-events.document_id.relationship
+            name: document_id
+            tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    field: document_id
+                    to: "source('corpus', 'documents')"
+          - description: occurrence_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - document-path-events.occurrence_id.type
+                - document-path-events.occurrence_id.relationship
+            name: occurrence_id
+            tests:
+              - relationships:
+                  arguments:
+                    field: occurrence_id
+                    to: "source('corpus', 'source_occurrences')"
+          - description: silo_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - document-path-events.silo_id.type
+                - document-path-events.silo_id.nullability
+            name: silo_id
+            tests:
+              - not_null
+          - description: kind must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - document-path-events.kind.type
+                - document-path-events.kind.nullability
+            name: kind
+            tests:
+              - not_null
+          - description: relative_path must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - document-path-events.relative_path.type
+                - document-path-events.relative_path.nullability
+            name: relative_path
+            tests:
+              - not_null
+          - description: previous_relative_path must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - document-path-events.previous_relative_path.type
+            name: previous_relative_path
+          - description: content_hash must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - document-path-events.content_hash.type
+                - document-path-events.content_hash.nullability
+            name: content_hash
+            tests:
+              - not_null
+          - description: ledger_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - document-path-events.ledger_id.type
+            name: ledger_id
+          - description: event_time must match logical type timestamp.
+            meta:
+              arxiv_int_rule_ids:
+                - document-path-events.event_time.type
+                - document-path-events.event_time.nullability
+            name: event_time
+            tests:
+              - not_null
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - document-path-events.generation_id.type
+                - document-path-events.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - document-path-events.contract_version.type
+                - document-path-events.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - document-path-events.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: document-path-events
+        description: Portable path events that record initial, renamed, copied, and imported locations for canonical documents.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:document-path-events:1.0.0"
+          primary_key:
+            - event_id
+          rule_catalog_version: 1.0.0
+        name: document_path_event
+      - columns:
           - description: document_id must match logical type string.
             meta:
               arxiv_int_rule_ids:

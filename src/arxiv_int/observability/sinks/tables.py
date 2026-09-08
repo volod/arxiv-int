@@ -1,4 +1,4 @@
-"""SQLAlchemy metadata for ctl.stage_progress. Frozen DDL lives in revision 0003."""
+"""SQLAlchemy metadata for ctl.stage_progress. Frozen DDL lives in revision 0001."""
 
 from datetime import datetime
 
