@@ -11,11 +11,15 @@ from arxiv_int.interfaces import (
     GenerationRequest,
     GenerationResult,
     InferenceProvider,
+    SiloRoot,
+    SourceOccurrence,
     StageContext,
     StageResult,
     StageRunner,
     StoreStatus,
     TextEmbedder,
+    TransformationRunRef,
+    ValidationResultRef,
 )
 
 
@@ -26,8 +30,13 @@ class FakeExtractor:
     def supports(self, media_type: str) -> bool:
         return media_type == "text/plain"
 
-    def extract(self, source: Path) -> ExtractedDocument:
-        return ExtractedDocument(text=source.name, media_type="text/plain", metadata={})
+    def extract(self, source: Path, occurrence: SourceOccurrence) -> ExtractedDocument:
+        return ExtractedDocument(
+            text=source.name,
+            media_type="text/plain",
+            occurrence=occurrence,
+            extractor_profile=self.name,
+        )
 
 
 class FakeEmbedder:
@@ -62,10 +71,10 @@ class FakeArtifactStore:
     feature = "lake"
 
     def locate(self, ref: DatasetRef) -> Path:
-        return Path(ref.dataset)
+        return Path(ref.dataset) / ref.generation_id
 
     def publish(self, ref: DatasetRef, staged: Path) -> Path:
-        return staged
+        return staged / ref.generation_id
 
 
 class FakeCanonicalStore:
@@ -84,7 +93,39 @@ class FakeStageRunner:
     depends_on: tuple[str, ...] = ("preflight",)
 
     def run(self, context: StageContext) -> StageResult:
-        return StageResult(stage=self.stage, outcome="completed", detail=context.run_id)
+        return StageResult(
+            stage=self.stage,
+            outcome="produced",
+            detail=context.generation_id,
+            outputs=(
+                DatasetRef(
+                    dataset="source-occurrences",
+                    contract_version="1.0.0",
+                    generation_id=context.generation_id,
+                    partition={"scan_id": context.run_id},
+                ),
+            ),
+            validations=(
+                ValidationResultRef(
+                    contract_id="urn:arxiv-int:contract:source-occurrences:1.0.0",
+                    generation_id=context.generation_id,
+                    catalog_fingerprint="sha256:catalog",
+                    status="pass",
+                    publishable=True,
+                ),
+            ),
+            transformations=(
+                TransformationRunRef(
+                    run_id=context.run_id,
+                    generation_id=context.generation_id,
+                    command="parse",
+                    status="not-run",
+                    input_fingerprint="sha256:input",
+                    model_fingerprint="sha256:model",
+                    activatable=False,
+                ),
+            ),
+        )
 
 
 def test_backends_satisfy_their_protocols() -> None:
@@ -101,35 +142,32 @@ def test_an_unrelated_object_does_not_satisfy_a_protocol() -> None:
     assert not isinstance(object(), StageRunner)
 
 
-def test_extraction_result_keeps_backend_metadata() -> None:
-    document = FakeExtractor().extract(Path("report.txt"))
+def test_extraction_result_keeps_backend_metadata_and_occurrence() -> None:
+    occurrence = SourceOccurrence(silo_id="alpha", relative_path="report.txt", scan_id="scan-1")
+    document = FakeExtractor().extract(Path("report.txt"), occurrence)
 
     assert document.text == "report.txt"
+    assert document.occurrence == occurrence
     assert isinstance(document.metadata, Mapping)
 
 
-def test_stage_result_reports_the_run_it_belongs_to() -> None:
+def test_stage_result_reports_the_generation_it_belongs_to() -> None:
     context = StageContext(
         stage="inventory",
         run_id="run-1",
-        archive_dir=Path("/archive"),
+        generation_id="gen-1",
+        silos=(SiloRoot("alpha", Path("/archive-alpha")),),
         results_dir=Path("/results"),
         options={},
     )
 
     result = FakeStageRunner().run(context)
 
-    assert result.outcome == "completed"
-    assert result.detail == "run-1"
-    assert result.outputs == ()
-
-
-def test_dataset_reference_compares_by_value_and_carries_no_absolute_path() -> None:
-    partition = {"bucket": "ab"}
-    reference = DatasetRef(dataset="chunks", contract_version="1.0.0", partition=partition)
-
-    assert reference == DatasetRef(dataset="chunks", contract_version="1.0.0", partition=partition)
-    assert FakeArtifactStore().locate(reference) == Path("chunks")
+    assert result.outcome == "produced"
+    assert result.detail == "gen-1"
+    assert result.outputs[0].generation_id == "gen-1"
+    assert result.validations[0].publishable is True
+    assert result.transformations[0].activatable is False
 
 
 def test_embedding_profile_identifies_comparable_vectors() -> None:

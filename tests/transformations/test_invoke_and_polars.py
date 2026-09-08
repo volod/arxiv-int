@@ -5,6 +5,7 @@ import pytest
 
 from arxiv_int.features import MissingFeatureError, feature_group
 from arxiv_int.interfaces.pipeline import StageContext
+from arxiv_int.interfaces.sources import SiloRoot
 from arxiv_int.transformations.invoke import dbt_cli_args, invoke_dbt
 from arxiv_int.transformations.polars_prep import prepare_document_frame, run_polars_prepare
 
@@ -66,13 +67,15 @@ def test_polars_prepare_uses_the_stage_seam() -> None:
     context = StageContext(
         stage="normalize",
         run_id="r1",
-        archive_dir=Path("."),
+        generation_id="g1",
+        silos=(SiloRoot("archive", Path(".")),),
         results_dir=Path("."),
         options={"contract_version": "1.0.0"},
     )
     prepared, result = run_polars_prepare(context, polars.DataFrame({"document_id": ["a"]}))
-    assert result.outcome == "completed"
+    assert result.outcome == "produced"
     assert result.outputs[0].dataset == "documents"
+    assert result.outputs[0].generation_id == "g1"
     assert prepared.height == 1
 
 

@@ -5,9 +5,11 @@ Russian-language document archives. It is designed to inventory an immutable arc
 contents, topics, entities and relations, and produce searchable knowledge, catalogs, graphs,
 anomaly findings and evidence-bearing reports on one CUDA host.
 
-Configuration, readiness checks, local service management, typed foundation primitives, and
-quality gates exist today. The archive-to-knowledge pipeline is **not runnable yet**. Its stages
-and analyst commands remain in the [forward plan](docs/impl/plan.md). See
+Configuration, readiness checks, local service management, typed foundation primitives,
+quality gates, a fixture DAG orchestrator, and serialized progress logs exist today. The
+archive-to-knowledge pipeline is
+**not complete**: most corpus stages remain in the
+[forward plan](docs/impl/plan.md). See
 [current implementation](docs/impl/current.md) for available behavior and the
 [specification](docs/design/spec.md) and [architecture](docs/design/architecture.md) for the target.
 
@@ -28,23 +30,28 @@ work on retries, and reports what still needs attention. Edit `.env`; `.venv` is
 automatically. No activation or manual exports are required. Storage requirements are in the
 [setup guide](docs/guide/setup.md).
 
-Infrastructure-ready is not pipeline-ready. Pipeline stages remain unimplemented.
+Infrastructure-ready is not pipeline-ready. Concrete corpus stages remain unimplemented.
 
-### 2. Archive to analyst results -- planned, unavailable now
+### 2. Archive to analyst results -- orchestration only
 
-After setup, run the full pipeline with the default `.env` settings:
+After setup, the DAG commands allocate a unique run id and walk the selected profile. The default
+investigation profile still names unimplemented stages, so `make pipeline` fails explicitly rather
+than activating a complete knowledge base. `make run-finalize RUN_ID=...` seals the run's
+`knowledge-base.json`; only a succeeded profile replaces `$RUNS_DIR/active-generation.json`.
 
 ```bash
+make run-create
 make pipeline
 ```
 
-The target will run preflight, resource forecast, all required stages, quality checks, evaluation
-and report publication. It will return the run id, knowledge-base manifest, report entry path and
-status/resume commands if interrupted. Outputs use configured operator roots; partial results
-cannot appear complete. Resource limits and archive-scope authorization still apply.
+`make run-create` prints a `run-<hex>` id. Use that id with `make forecast`, `make stage`,
+`make run-status`, `make resume`, and `make run-finalize`; do not pass Make's developer
+`RUN_ID=local` fallback.
+Outputs use configured operator roots. Resource limits and archive-scope authorization still
+apply.
 
-See the [step-by-step operator workflow](docs/guide/operator-workflow.md) for the underlying atomic
-command chain, expected results, recovery and analyst commands. The aggregate targets reuse those
+See the [step-by-step operator workflow](docs/guide/operator-workflow.md) for the atomic command
+chain, what is available now, and the remaining planned stages. The aggregate targets reuse those
 same command handlers and checks.
 
 ### 3. Organize an archive -- separate planned utility
@@ -74,6 +81,11 @@ arxiv-int contracts --help
 arxiv-int data-quality check DATASET --run-id RUN_ID --input PATH
 arxiv-int transform parse|compile|build|test --run-id RUN_ID
 arxiv-int store projections-build|status|cleanup --run-id RUN_ID
+arxiv-int run create|status|resume|finalize|artifacts
+arxiv-int pipeline forecast|run|update|rebuild|invalidate
+arxiv-int stage STAGE --run-id RUN_ID
+arxiv-int inspect DATASET|RUN|latest [--limit N] [--json]
+arxiv-int artifacts prune --stale
 ```
 
 `info` is a packaging and executable-path smoke test. `features` lists optional dependency groups,
@@ -83,6 +95,11 @@ unexecuted required check cannot look publishable. `transform` parses, compiles,
 isolated derived dbt models; a failed or unexecuted required live check cannot look like a pass.
 `store projections-*` builds, switches, and cleans ParadeDB/pgvector/AGE projections without making
 them canonical; a failed build cannot replace an active pointer.
+`run` / `pipeline` / `stage` / `inspect` / `artifacts prune` freeze a unique run id and walk or
+maintain the selected DAG. `inspect` summarizes published artifacts without recomputing them.
+A default investigation run refuses unimplemented required stages. Fixture knowledge-base
+publication writes `$RUNS_DIR/<run-id>/knowledge-base.json` and activates only a complete
+requested profile.
 Domain commands arrive as their specified capabilities are implemented.
 
 ## Development

@@ -2,9 +2,11 @@
 
 The local database service is a project-owned ParadeDB Community derivative that keeps one
 PostgreSQL major, `pg_search`, pgvector, and a pinned Apache AGE build together. Relational schema
-application is in place: the single initial Alembic revision `0001` owns contract tables, HASH
+application is in place: the irreversible initial Alembic revision `0001` owns contract tables, HASH
 partitions, provenance constraints, roles, staging, the empty `derived` schema, and versioned
-projection metadata. A local dbt project builds isolated derived generations
+projection metadata. Head is `0003`, which adds `ctl.stage_progress` on top of the `0002` ctl
+run-ledger overlay. A local dbt project
+builds isolated derived generations
 and projection inputs. Search, vector, and graph projections are rebuildable and are never
 canonical.
 
@@ -12,7 +14,9 @@ Accepted records:
 [0018 Build pinned ParadeDB + AGE image](../records/0018-store-build-pinned-paradedb-age-image.md);
 [0021 Canonical relational schema](../records/0021-store-create-canonical-relational-schema.md);
 [0024 dbt transformation foundation](../records/0024-store-implement-dbt-transformation-foundation.md);
-[0025 Projections](../records/0025-store-implement-rebuildable-search-and-graph-projections.md).
+[0025 Projections](../records/0025-store-implement-rebuildable-search-and-graph-projections.md);
+[0041 Run ledger](../records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md);
+[0043 Progress logging](../records/0043-pipeline-add-progress-logging-and-resource-telemetry.md).
 The [foundation checkpoint](../records/0027-store-review-foundation-and-store-boundaries.md) and
 [boundary repair](../records/0028-store-refactor-foundation-store-acceptance-boundaries.md) record
 the integrated review and prerelease migration consolidation.
@@ -71,13 +75,16 @@ beside it. Missing image or URL is `not-run`, never a pass.
 
 ## Canonical schema
 
-`src/arxiv_int/migrations/versions/0001_initial_store.py` is the only initial revision and head is
-`0001`. The operator authorized consolidation before any deployed database or public release.
-It freezes the complete SQLAlchemy definitions and narrow PostgreSQL-specific SQL, without importing
-current contracts or runtime DDL copies. `revision_manifest.json` pins its checksum;
-`head_state.json` tracks the contract state used by future revision generation. After deployment,
-schema changes require new reviewed revisions. Initial teardown explicitly refuses destructive
-downgrade; repeat-at-head preserves rows, and failed initial application rolls back transactionally.
+`src/arxiv_int/migrations/versions/0001_initial_store.py` is the only initial revision. Head is
+`0003` (`0003_stage_progress.py`), which revises frozen `0002` (`0002_pipeline_run_ledger.py`).
+The operator authorized 0001 consolidation before any
+deployed database or public release. Each revision freezes SQLAlchemy definitions and narrow
+PostgreSQL-specific SQL, without importing current contracts or runtime DDL copies.
+`revision_manifest.json` pins checksums; `head_state.json` tracks the contract state used by
+future revision generation. After deployment, schema changes require new reviewed revisions.
+Initial teardown explicitly refuses destructive 0001 downgrade. 0003 downgrade drops progress
+snapshots only. 0002 downgrade drops ledger tables
+only. Repeat-at-head preserves rows, and failed application rolls back transactionally.
 
 No generated catalog JSON snapshots are committed. Contract metadata and the frozen initial
 revision are the comparison authorities. Live inspection checks owned columns, key order and
@@ -107,8 +114,9 @@ runs shared contract batch quality (with explicit Polars dtypes so omitted nulla
 `StagingRejectedError` before COPY so inherited `NOT NULL` on staging cannot mask the gate.
 
 Live adoption relocates `public.<table>` into the owned schema when the destination is missing,
-refuses partial or drifted catalogs, and stamps `0001` only for a complete equivalent initial store.
-`ctl.runs` ledger tables remain a later task.
+refuses partial or drifted catalogs, and stamps `0003` when the overlay includes ledger and
+progress tables, `0002` when it includes ledger tables only, or `0001` for a complete 0001-era
+catalog without those overlays; setup then upgrades to head.
 
 ## Relational transformations
 
@@ -138,7 +146,8 @@ are capped at 4. Default select is
 The committed DAG is synthetic: `stg_documents` (view over `source('corpus','documents')`),
 `int_documents_current` (incremental delete+insert with delete reconciliation), and
 `documents_current` (table). Domain tasks own business models. Python-only preparation uses
-`prepare_document_frame` through the existing `StageRunner` seam; dbt Python models are not used.
+`prepare_document_frame` through the existing `StageRunner` seam documented in
+[Pipeline control](pipeline-control.md); dbt Python models are not used.
 
 Live checks skip unless `ARXIV_INT_RUN_DBT=1` and the pinned image is present. Fixture runs do not
 claim corpus-scale or domain quality.

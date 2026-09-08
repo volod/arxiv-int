@@ -2,7 +2,12 @@
 
 import textwrap
 
-from arxiv_int.features.catalog import FEATURE_GROUPS, groups_for_stage, stages_for_group
+from arxiv_int.features.catalog import (
+    FEATURE_GROUPS,
+    STAGE_FEATURES,
+    groups_for_stage,
+    stages_for_group,
+)
 from arxiv_int.features.guard import group_status, install_command
 from arxiv_int.features.model import FeatureGroup
 from arxiv_int.metadata import project_info
@@ -10,9 +15,17 @@ from arxiv_int.metadata import project_info
 LINE_WIDTH = 96
 
 
-def group_lines(group: FeatureGroup) -> list[str]:
+def _stage_phrase(stage: str, group_name: str) -> str:
+    spec = STAGE_FEATURES[stage]
+    if group_name in spec.conditional:
+        return f"{stage} (conditional)"
+    return stage
+
+
+def group_lines(group: FeatureGroup, *, stage: str | None = None) -> list[str]:
     """Return the reported lines for one declared group."""
-    stages = ", ".join(stages_for_group(group.name)) or "none"
+    stages = ", ".join(_stage_phrase(item, group.name) for item in stages_for_group(group.name))
+    stages = stages or "none"
     lines = [f"{group.name} [{group_status(group)}] {group.summary}"]
     lines.extend(
         textwrap.wrap(
@@ -22,6 +35,8 @@ def group_lines(group: FeatureGroup) -> list[str]:
             subsequent_indent="    ",
         )
     )
+    if stage is not None and group.name in STAGE_FEATURES[stage].conditional:
+        lines.append("  requirement: conditional")
     if group.reserved:
         lines.append(f"  reserved for capability: {group.owner}")
     else:
@@ -41,4 +56,4 @@ def inventory_lines(stage: str | None = None) -> list[str]:
     noun = "feature group" if len(groups) == 1 else "feature groups"
     scope = noun if stage is None else f"{noun} for stage '{stage}'"
     header = f"{info.distribution} {info.version}: {len(groups)} {scope}"
-    return [header, *(line for group in groups for line in group_lines(group))]
+    return [header, *(line for group in groups for line in group_lines(group, stage=stage))]

@@ -51,3 +51,5 @@ def test_investigation_requirements_name_unimplemented_providers(tmp_path: Path)
     assert requirements.unimplemented_stages
     assert requirements.missing_providers
     assert "extraction" in requirements.missing_providers or "nlp" in requirements.missing_providers
+    assert "gpu" not in requirements.feature_groups
+    assert "ui" not in requirements.feature_groups

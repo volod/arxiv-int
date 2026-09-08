@@ -5,9 +5,8 @@ purpose. `pyproject.toml` owns version pins for the groups that carry members; a
 members is reserved for the capability named by `owner` and has no extra yet.
 """
 
-from collections.abc import Mapping
-
-from arxiv_int.features.model import FeatureGroup, Requirement
+from arxiv_int.features.model import FeatureGroup, Requirement, StageFeatureSet
+from arxiv_int.features.stages import STAGE_FEATURES
 
 FEATURE_GROUPS: tuple[FeatureGroup, ...] = (
     FeatureGroup(
@@ -161,28 +160,6 @@ FEATURE_GROUPS: tuple[FeatureGroup, ...] = (
     ),
 )
 
-STAGE_FEATURES: Mapping[str, tuple[str, ...]] = {
-    "preflight": ("contracts", "store"),
-    "inventory": ("lake",),
-    "extract": ("extraction", "lake"),
-    "normalize": ("data-quality", "lake"),
-    "dedupe": ("data-quality", "lake"),
-    "chunk": ("data-quality", "lake"),
-    "classify": ("data-quality", "lake"),
-    "load-lexical": ("store",),
-    "nlp": ("data-quality", "lake", "nlp"),
-    "embed": ("embeddings", "gpu", "inference", "lake"),
-    "load-vector": ("store",),
-    "topics": ("data-quality", "lake"),
-    "entities": ("data-quality", "lake", "store"),
-    "facts": ("data-quality", "gpu", "inference", "lake", "store"),
-    "ontology": ("graph",),
-    "graph": ("graph", "store", "transform"),
-    "domain-artifacts": ("data-quality", "lake", "store", "transform"),
-    "evaluate": ("data-quality", "evaluation", "lake"),
-    "report": ("data-quality", "lake", "store", "transform", "ui"),
-}
-
 _BY_NAME = {group.name: group for group in FEATURE_GROUPS}
 
 
@@ -202,18 +179,34 @@ def providing_group(module: str) -> FeatureGroup:
     raise LookupError(f"module '{module}' is not declared by any feature group")
 
 
-def groups_for_stage(stage: str) -> tuple[FeatureGroup, ...]:
-    """Return the groups one pipeline stage needs before it can run."""
-    if stage not in STAGE_FEATURES:
+def stage_features(stage: str) -> StageFeatureSet:
+    """Return the required and conditional groups declared for one stage."""
+    try:
+        return STAGE_FEATURES[stage]
+    except KeyError as error:
         known = ", ".join(STAGE_FEATURES)
-        raise LookupError(f"unknown stage '{stage}'; declared stages are {known}")
-    return tuple(feature_group(name) for name in STAGE_FEATURES[stage])
+        raise LookupError(f"unknown stage '{stage}'; declared stages are {known}") from error
+
+
+def groups_for_stage(stage: str) -> tuple[FeatureGroup, ...]:
+    """Return required and conditional groups one pipeline stage may activate."""
+    return tuple(feature_group(name) for name in stage_features(stage).all_names())
+
+
+def required_groups_for_stage(stage: str) -> tuple[FeatureGroup, ...]:
+    """Return groups that must be present before the stage can run."""
+    return tuple(feature_group(name) for name in stage_features(stage).required)
+
+
+def conditional_groups_for_stage(stage: str) -> tuple[FeatureGroup, ...]:
+    """Return groups that apply only when the matching optional branch is selected."""
+    return tuple(feature_group(name) for name in stage_features(stage).conditional)
 
 
 def stages_for_group(name: str) -> tuple[str, ...]:
     """Return the pipeline stages that activate one declared group."""
     feature_group(name)
-    return tuple(stage for stage, groups in STAGE_FEATURES.items() if name in groups)
+    return tuple(stage for stage, spec in STAGE_FEATURES.items() if spec.includes(name))
 
 
 def optional_modules() -> frozenset[str]:

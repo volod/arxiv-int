@@ -19,7 +19,7 @@ from arxiv_int.contracts.sqlalchemy.catalog import compare_live_catalog
 from arxiv_int.contracts.sqlalchemy.model import load_schema_model_from_root
 from arxiv_int.stores.postgres.catalog_boundary import catalog_boundary_findings
 from arxiv_int.stores.postgres.catalog_evidence import capture_catalog
-from arxiv_int.stores.postgres.constants import HEAD_REVISION
+from arxiv_int.stores.postgres.constants import HEAD_REVISION, LEDGER_REVISION
 from arxiv_int.stores.postgres.disposable import disposable_store, image_present
 from arxiv_int.stores.postgres.evidence import catalog_as_dict, write_evidence
 from arxiv_int.stores.postgres.inspect_live import inspect_store, store_findings
@@ -83,7 +83,19 @@ def inspect_and_compare(
             if target is not None:
                 findings.extend(catalog_boundary_findings(project_root, connection, target))
             if not at_applied_revision or catalog.revision is not None:
-                findings.extend(store_findings(catalog))
+                findings.extend(
+                    store_findings(
+                        catalog,
+                        require_head=not at_applied_revision,
+                        require_ledger=(
+                            not at_applied_revision
+                            or catalog.revision in {LEDGER_REVISION, HEAD_REVISION}
+                        ),
+                        require_progress=(
+                            not at_applied_revision or catalog.revision == HEAD_REVISION
+                        ),
+                    )
+                )
             payload = catalog_as_dict(catalog)
             payload["owned_definitions"] = capture_catalog(connection)
             return findings, payload, catalog.revision

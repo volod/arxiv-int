@@ -6,7 +6,9 @@ from sqlalchemy import Connection, text
 
 from arxiv_int.stores.postgres.constants import (
     CANONICAL_SCHEMAS,
+    LEDGER_TABLES,
     OWNED_TABLES,
+    PROGRESS_TABLES,
     PROJECTION_METADATA_TABLES,
     STORE_ROLES,
 )
@@ -23,6 +25,8 @@ def _owned_names() -> tuple[str, ...]:
                 *(f"{schema}.{table}" for schema, table in OWNED_TABLES),
                 *(f"staging.{table}" for _, table in OWNED_TABLES),
                 *(f"ctl.{table}" for table in PROJECTION_METADATA_TABLES),
+                *(f"ctl.{table}" for table in LEDGER_TABLES),
+                *(f"ctl.{table}" for table in PROGRESS_TABLES),
                 "search.embedding_profiles",
             }
         )

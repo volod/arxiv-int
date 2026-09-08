@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0040` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0049` after the rows
 below).
 
 | Record | Scope | Result |
@@ -51,3 +51,12 @@ below).
 | [0037 Grafana first-boot health](0037-runtime-allow-grafana-first-boot-health.md) | Grafana healthcheck start period, SQLite WAL, and disabled plugin preinstall | Accepted |
 | [0038 Inference and evaluation boundary review](0038-eval-found-review-inference-and-evaluation-boundaries.md) | Integrated inference lease, evaluation bundle, metric, export, and proof checkpoint | Accepted; proceed for pipeline interface integration |
 | [0039 Heavy Docker exclusion and Gemma/Qwen models](0039-foundation-exclude-heavy-docker-and-llama-smokes.md) | Drop llama3.2:3b pytest smokes; mark Docker tests `heavy`; keep `make ci` Docker-free | Accepted |
+| [0040 Stage and artifact interface contracts](0040-pipeline-refactor-stage-and-artifact-interface-contracts.md) | Typed multi-silo sources, generation-bearing artifacts, honest stage outcomes, conditional GPU/UI | Accepted |
+| [0041 Run ledger and atomic artifacts](0041-pipeline-implement-run-ledger-and-atomic-artifacts.md) | Run/stage/shard ledger, reuse keys, leases, atomic manifests, Alembic `0002` | Accepted |
+| [0042 Stage DAG CLI and Make targets](0042-pipeline-implement-stage-dag-cli-and-make-targets.md) | Dependency-aware registry, fixture DAG, run/stage/update/resume/invalidate/rebuild/prune CLI and Make | Accepted |
+| [0043 Progress logging and resource telemetry](0043-pipeline-add-progress-logging-and-resource-telemetry.md) | Serialized logs, throttled progress, bounded metrics, `ctl.stage_progress`, Grafana pipeline dashboards | Accepted |
+| [0044 Evidence-based pipeline forecast](0044-pipeline-implement-evidence-based-pipeline-forecast.md) | Read-only pre-run time/storage forecast, device-deduped free-space refusal, and stage-boundary rechecks | Accepted |
+| [0045 Investigation profile and output manifest](0045-pipeline-implement-investigation-profile-and-output-manifest.md) | Profile declarations, knowledge-base publication, active generation pointer, and run finalize | Accepted |
+| [0046 Pipeline publication and reuse review](0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md) | Integrated fixture and disposable store checkpoint | Accepted; proceed with nonblocking note |
+| [0047 Pipeline publication and reuse repair](0047-pipeline-repair-pipeline-publication-and-reuse-integrity.md) | Focused integrity prerequisite for 0046 | Accepted |
+| [0048 Stage artifact inspection](0048-pipeline-add-stage-artifact-inspection.md) | Read-only run/dataset artifact summaries | Accepted |

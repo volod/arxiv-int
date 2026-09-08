@@ -9,10 +9,10 @@ from arxiv_int.contracts.sqlalchemy.model import ContractSchemaModel, load_schem
 from arxiv_int.quality.project_root import discover_project_root
 from arxiv_int.stores.postgres.constants import (
     CANONICAL_SCHEMAS,
+    CONTROL_TABLES,
     HASH_MODULUS,
     HEAD_REVISION,
     PARTITIONED_TABLES,
-    PROJECTION_METADATA_TABLES,
     STORE_ROLES,
 )
 from arxiv_int.stores.postgres.hashing import partition_bucket, partition_bucket_sql
@@ -73,9 +73,45 @@ def test_store_findings_empty_when_overlay_matches() -> None:
         staging_tables=("documents",),
         revision=HEAD_REVISION,
         extensions=("vector",),
-        control_tables=PROJECTION_METADATA_TABLES,
+        control_tables=CONTROL_TABLES,
     )
     assert store_findings(catalog) == []
+
+
+def test_store_findings_report_missing_ledger_tables() -> None:
+    catalog = LiveStoreCatalog(
+        schemas=(*CANONICAL_SCHEMAS, "staging", "derived"),
+        partitioned=tuple(
+            PartitionSpec(f"{schema}.{table}", f"HASH ({pk})", HASH_MODULUS)
+            for schema, table, pk in PARTITIONED_TABLES
+        ),
+        checks=("ck_facts_object_xor_literal", "ck_facts_provenance", "ck_facts_status"),
+        roles=STORE_ROLES,
+        staging_tables=("documents",),
+        revision=HEAD_REVISION,
+        extensions=("vector",),
+        control_tables=CONTROL_TABLES[:4],
+    )
+    findings = store_findings(catalog)
+    assert any("run ledger tables" in item for item in findings)
+
+
+def test_store_findings_report_missing_progress_tables() -> None:
+    catalog = LiveStoreCatalog(
+        schemas=(*CANONICAL_SCHEMAS, "staging", "derived"),
+        partitioned=tuple(
+            PartitionSpec(f"{schema}.{table}", f"HASH ({pk})", HASH_MODULUS)
+            for schema, table, pk in PARTITIONED_TABLES
+        ),
+        checks=("ck_facts_object_xor_literal", "ck_facts_provenance", "ck_facts_status"),
+        roles=STORE_ROLES,
+        staging_tables=("documents",),
+        revision=HEAD_REVISION,
+        extensions=("vector",),
+        control_tables=tuple(name for name in CONTROL_TABLES if name != "stage_progress"),
+    )
+    findings = store_findings(catalog)
+    assert any("stage progress tables" in item for item in findings)
 
 
 def test_quality_frame_keeps_omitted_strings_typed() -> None:

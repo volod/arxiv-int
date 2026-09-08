@@ -8,10 +8,13 @@ from sqlalchemy import Connection, bindparam, text
 
 from arxiv_int.stores.postgres.constants import (
     CANONICAL_SCHEMAS,
+    CONTROL_TABLES,
     DERIVED_SCHEMA,
     HASH_MODULUS,
     HEAD_REVISION,
+    LEDGER_TABLES,
     PARTITIONED_TABLES,
+    PROGRESS_TABLES,
     PROJECTION_METADATA_TABLES,
     STAGING_SCHEMA,
     STORE_ROLES,
@@ -111,7 +114,7 @@ def inspect_store(connection: Connection) -> LiveStoreCatalog:
         connection,
         "SELECT tablename FROM pg_tables WHERE schemaname = 'ctl' AND tablename IN :names "
         "ORDER BY 1",
-        {"names": list(PROJECTION_METADATA_TABLES)},
+        {"names": list(CONTROL_TABLES)},
     )
     partitioned = tuple(
         PartitionSpec(str(row[0]), str(row[1] or ""), int(row[2])) for row in partition_rows
@@ -145,8 +148,42 @@ def _partition_findings(catalog: LiveStoreCatalog) -> list[str]:
     return findings
 
 
+def _overlay_table_findings(
+    catalog: LiveStoreCatalog,
+    *,
+    require_projections: bool,
+    require_ledger: bool,
+    require_progress: bool,
+) -> list[str]:
+    findings: list[str] = []
+    if require_projections:
+        missing_proj = sorted(set(PROJECTION_METADATA_TABLES) - set(catalog.control_tables))
+        if missing_proj:
+            findings.append(
+                "live catalog is missing projection metadata: " + ", ".join(missing_proj)
+            )
+    if require_ledger:
+        missing_ledger = sorted(set(LEDGER_TABLES) - set(catalog.control_tables))
+        if missing_ledger:
+            findings.append(
+                "live catalog is missing run ledger tables: " + ", ".join(missing_ledger)
+            )
+    if require_progress:
+        missing_progress = sorted(set(PROGRESS_TABLES) - set(catalog.control_tables))
+        if missing_progress:
+            findings.append(
+                "live catalog is missing stage progress tables: " + ", ".join(missing_progress)
+            )
+    return findings
+
+
 def store_findings(
-    catalog: LiveStoreCatalog, *, require_head: bool = True, require_projections: bool = True
+    catalog: LiveStoreCatalog,
+    *,
+    require_head: bool = True,
+    require_projections: bool = True,
+    require_ledger: bool | None = None,
+    require_progress: bool | None = None,
 ) -> list[str]:
     """Return overlay defects after a successful head upgrade."""
     findings: list[str] = []
@@ -163,12 +200,14 @@ def store_findings(
         findings.append("live catalog is missing roles: " + ", ".join(missing_roles))
     if "documents" not in catalog.staging_tables:
         findings.append("live catalog is missing staging.documents")
-    if require_projections:
-        missing_proj = sorted(set(PROJECTION_METADATA_TABLES) - set(catalog.control_tables))
-        if missing_proj:
-            findings.append(
-                "live catalog is missing projection metadata: " + ", ".join(missing_proj)
-            )
+    findings.extend(
+        _overlay_table_findings(
+            catalog,
+            require_projections=require_projections,
+            require_ledger=require_head if require_ledger is None else require_ledger,
+            require_progress=require_head if require_progress is None else require_progress,
+        )
+    )
     if require_head and catalog.revision != HEAD_REVISION:
         findings.append(f"live revision is {catalog.revision!r}, expected {HEAD_REVISION!r}")
     return findings

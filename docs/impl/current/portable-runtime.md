@@ -9,9 +9,13 @@ creates a missing `.env`, names required edits, syncs the locked extra union, ac
 cache-checks selected images and models, starts services, waits for transport and model health,
 applies eligible Alembic revisions to the configured service only, and re-probes readiness.
 Retries reuse verified fingerprints and still probe services, wait, and readiness. Concurrent
-setup against the same targets is refused. Pipeline stages remain unimplemented:
-infrastructure-ready never means pipeline-available. `make pipeline` stays
-[planned](../plan.md#pipeline-control----pipeline-control). See the
+setup against the same targets is refused. Typed stage and artifact interfaces, a generic run
+ledger, serialized progress logs, a fixture DAG CLI, knowledge-base publication, and read-only
+artifact inspection exist under
+[Pipeline control](pipeline-control.md). Concrete corpus stages remain
+[planned](../plan.md#pipeline-control----pipeline-control). A default investigation run still
+refuses unimplemented stages. Infrastructure-ready never means an archive-to-report run is
+available. See the
 [operator workflow](../../guide/operator-workflow.md) for the atomic chain and the
 [accepted setup record](../records/0022-runtime-implement-retryable-setup-command.md).
 
@@ -107,7 +111,7 @@ service-state placements remain degraded warnings.
 `arxiv_int.runtime.inspect_filesystem()` records the resolved path, filesystem type, device id,
 rotational flag when the operating system exposes it, accessible free bytes, ownership capability,
 and read-only mount state. This evidence is retained with every configured placement and is exposed
-to later readiness, forecast, and run-manifest work. `arxiv_int.runtime.path_model` owns the typed
+to readiness, the pipeline forecast, and later run-manifest work. `arxiv_int.runtime.path_model` owns the typed
 association between each variable, resolved path, and storage class.
 
 After a report has no blocking findings, `create_results_layout()` creates the fixed

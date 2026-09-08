@@ -7,38 +7,76 @@ from types import ModuleType
 from sqlalchemy import Connection, MetaData, text
 
 from arxiv_int.contracts.sqlalchemy.catalog import compare_metadata
-from arxiv_int.stores.postgres.constants import HEAD_REVISION, ROLE_DBT, ROLE_READER, STORE_ROLES
+from arxiv_int.stores.postgres.constants import (
+    HEAD_REVISION,
+    INITIAL_REVISION,
+    LEDGER_REVISION,
+    ROLE_DBT,
+    ROLE_READER,
+    STORE_ROLES,
+)
 
 INITIAL_REVISION_FILE = "0001_initial_store.py"
+LEDGER_REVISION_FILE = "0002_pipeline_run_ledger.py"
+PROGRESS_REVISION_FILE = "0003_stage_progress.py"
 
 
-def initial_definition(project_root: Path) -> ModuleType:
-    """Load the selected checkout's frozen initial definition without executing its upgrade."""
-    path = project_root / "src/arxiv_int/migrations/versions" / INITIAL_REVISION_FILE
-    spec = importlib.util.spec_from_file_location("arxiv_int_initial_store", path)
+def _load_revision(project_root: Path, filename: str, module_name: str) -> ModuleType:
+    path = project_root / "src/arxiv_int/migrations/versions" / filename
+    spec = importlib.util.spec_from_file_location(module_name, path)
     if spec is None or spec.loader is None:
-        raise ValueError("initial store definition is unavailable")
+        raise ValueError(f"revision definition is unavailable: {filename}")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
 
 
+def initial_definition(project_root: Path) -> ModuleType:
+    """Load the selected checkout's frozen initial definition without executing its upgrade."""
+    return _load_revision(project_root, INITIAL_REVISION_FILE, "arxiv_int_initial_store")
+
+
+def ledger_definition(project_root: Path) -> ModuleType:
+    """Load the frozen run-ledger revision without executing its upgrade."""
+    return _load_revision(project_root, LEDGER_REVISION_FILE, "arxiv_int_run_ledger")
+
+
+def progress_definition(project_root: Path) -> ModuleType:
+    """Load the frozen stage-progress revision without executing its upgrade."""
+    return _load_revision(project_root, PROGRESS_REVISION_FILE, "arxiv_int_stage_progress")
+
+
 def catalog_boundary_findings(
     project_root: Path, connection: Connection, revision: str
 ) -> list[str]:
-    """Reject missing, partial or drifted initial stores; no snapshot files are required."""
-    if revision != HEAD_REVISION:
-        return [f"unsupported store revision {revision}; expected {HEAD_REVISION}"]
+    """Reject missing, partial or drifted stores at a known owned revision."""
+    known = {INITIAL_REVISION, LEDGER_REVISION, HEAD_REVISION}
+    if revision not in known:
+        expected = ", ".join(sorted(known))
+        return [f"unsupported store revision {revision}; expected {expected}"]
     definition = initial_definition(project_root)
     metadata = definition.schema_metadata()
     assert isinstance(metadata, MetaData)
     findings = compare_metadata(connection, metadata)
-    findings.extend(_role_findings(connection, metadata))
+    extras: list[MetaData] = []
+    if revision in {LEDGER_REVISION, HEAD_REVISION}:
+        ledger_meta = ledger_definition(project_root).schema_metadata()
+        assert isinstance(ledger_meta, MetaData)
+        findings.extend(compare_metadata(connection, ledger_meta))
+        extras.append(ledger_meta)
+    if revision == HEAD_REVISION:
+        progress_meta = progress_definition(project_root).schema_metadata()
+        assert isinstance(progress_meta, MetaData)
+        findings.extend(compare_metadata(connection, progress_meta))
+        extras.append(progress_meta)
+    findings.extend(_role_findings(connection, metadata, tuple(extras)))
     findings.extend(_function_findings(connection, definition.STORE_SQL))
     return findings
 
 
-def _role_findings(connection: Connection, metadata: MetaData) -> list[str]:
+def _role_findings(
+    connection: Connection, metadata: MetaData, extras: tuple[MetaData, ...] = ()
+) -> list[str]:
     findings: list[str] = []
     for role in STORE_ROLES:
         attributes = connection.execute(
@@ -55,13 +93,20 @@ def _role_findings(connection: Connection, metadata: MetaData) -> list[str]:
             text("SELECT 1 FROM pg_roles WHERE rolname = :role"), {"role": role}
         ).scalar():
             continue
-        findings.extend(_write_privilege_findings(connection, metadata, role))
+        findings.extend(_write_privilege_findings(connection, metadata, role, extras=extras))
     return findings
 
 
-def _write_privilege_findings(connection: Connection, metadata: MetaData, role: str) -> list[str]:
+def _write_privilege_findings(
+    connection: Connection,
+    metadata: MetaData,
+    role: str,
+    extras: tuple[MetaData, ...] = (),
+) -> list[str]:
     findings: list[str] = []
-    for name in (*metadata.tables, "public.alembic_version"):
+    extra_tables = tuple(name for extra in extras for name in extra.tables)
+    names = (*metadata.tables, *extra_tables, "public.alembic_version")
+    for name in names:
         if name.startswith("staging."):
             continue
         writable = connection.execute(

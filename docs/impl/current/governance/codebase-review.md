@@ -28,8 +28,9 @@ queue bounds are explicitly distinguished from reproduced failures in the record
 The [forward plan](../../plan.md) retains focused refactoring and enforcement work before affected
 consumers. Completed foundation repairs are linked from current-state pages and accepted records:
 shared root policy, configuration parity, profile-aware service planning, probe safety, contract
-identity/reference validation, and durable-record/dependency checks. Remaining routed notes still
-own typed stage/artifact contracts. Host-wide GPU scheduling is
+identity/reference validation, and durable-record/dependency checks. Typed stage and artifact
+interfaces are [record 0040](../../records/0040-pipeline-refactor-stage-and-artifact-interface-contracts.md).
+Host-wide GPU scheduling is
 [record 0032](../../records/0032-inference-implement-model-resource-scheduler.md). Evidence bundle
 validation is [record 0033](../../records/0033-eval-found-refactor-evaluation-bundle-validation.md).
 Remaining telemetry tasks own their implementation gaps, avoiding duplicate backlog entries.

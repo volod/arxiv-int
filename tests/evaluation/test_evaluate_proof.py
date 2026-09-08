@@ -32,6 +32,7 @@ from arxiv_int.evaluation.proof_ops import (
 )
 from arxiv_int.evaluation.stage import EvaluateStage
 from arxiv_int.interfaces.pipeline import StageContext, StageRunner
+from arxiv_int.interfaces.sources import SiloRoot
 
 
 def test_evaluate_stage_publishes_a_replayable_bundle(
@@ -71,7 +72,8 @@ def test_evaluate_stage_publishes_a_replayable_bundle(
         StageContext(
             stage="evaluate",
             run_id="eval-stage",
-            archive_dir=tmp_path / "archive",
+            generation_id="eval-stage",
+            silos=(SiloRoot("archive", tmp_path / "archive"),),
             results_dir=tmp_path / "stage-runs",
             options={
                 "project_root": str(real_root),
@@ -81,7 +83,7 @@ def test_evaluate_stage_publishes_a_replayable_bundle(
             },
         )
     )
-    assert result.outcome == "completed"
+    assert result.outcome == "produced"
 
 
 def test_proof_discovery_and_unknown_capability(tmp_path: Path) -> None:

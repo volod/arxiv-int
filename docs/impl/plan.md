@@ -25,268 +25,6 @@ and name ready/pending human decisions and the dependent work that must wait at 
 
 ### Pipeline control -- `pipeline-control`
 
-#### refactor-stage-and-artifact-interface-contracts
-
-Align foundational stage, extraction and artifact references before concrete adapters depend on them.
-
-- Serves: `pipeline-control` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
-- Agent status: CLEAR
-- Task kind: refactor
-- Audit inputs: [AUD-codebase-13](records/0001-govern-codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
-[Contract identity and reference validation](records/0009-contract-gov-refactor-contract-identity-and-reference-validation.md).
-[Inference and evaluation checkpoint](records/0038-eval-found-review-inference-and-evaluation-boundaries.md).
-- User-visible outcome: Multi-silo inputs, structured source anchors, generation identities and honest
-stage states
-fit the shared interfaces rather than being hidden in string metadata or invented per adapter.
-- Scope boundary: Refine existing Protocol/value types and fake conformance tests; do not implement domain
-stages, a new orchestrator framework, or backend-specific logic in shared interfaces.
-- Data and artifact paths: `src/arxiv_int/interfaces/{pipeline,stores,extraction}.py`, contract mappings,
-`src/arxiv_int/features/catalog.py`, and `tests/interfaces/`.
-- Execution path: Define typed source occurrences/anchors and generation-bearing artifact
-references from
-contracts; distinguish partial/empty/not-selected outcomes and conditional feature requirements;
-keep fixture conformance dependency-light and adapters responsible for actual processing.
-Include typed validation-result and transformation-run references in artifact interfaces; keep
-Pandera/dbt implementation imports in optional adapters.
-- Acceptance gates: Conformance fixtures cover duplicate paths across silos, cell/member anchors, distinct
-generations of one partition, conditional GPU/UI features and failure/partial states; public
-compatibility decisions are recorded; no optional heavy imports enter core; make ci passes.
-- Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-pipeline-publication-and-reuse-boundaries`.
-
-#### implement-run-ledger-and-atomic-artifacts
-
-Create run, stage, shard, lease, checkpoint, error, artifact-manifest, and transitive-lineage state
-with deterministic reuse keys.
-
-- Serves: `pipeline-control` --
-[Resumability, idempotency, and provenance](../design/spec.md#resumability-idempotency-and-provenance)
-- Agent status: CLEAR
-- Dependencies: [Canonical relational schema](records/0021-store-create-canonical-relational-schema.md);
-fixture artifact contracts from
-[Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md).
-`refactor-stage-and-artifact-interface-contracts`.
-[Foundation/store checkpoint](records/0027-store-review-foundation-and-store-boundaries.md).
-- User-visible outcome: Every long operation has inspectable state; an interrupted shard resumes,
-and an unchanged shard reuses validated output without loading its heavy implementation.
-- Scope boundary: Implement generic control mechanics; stage-specific processing stays in its owning
-capability.
-- Data and artifact paths: `ctl.*` tables, `$RUNS_DIR/<run-id>/manifests/`,
-`src/arxiv_int/pipeline/control/`, and `tests/pipeline/control/`.
-- Execution path: Define stage-owned code/dependency/input fingerprints, transitive artifact edges,
-cache validation, concurrent reuse leases, state transitions, atomic sibling writes, bounded retry
-taxonomy, stale-lease recovery, and downstream invalidation planning.
-Use Alembic-managed control tables and bound SQLAlchemy transactions; bind validation and dbt
-model/input/rule fingerprints into reuse keys. Activation requires all applicable quality checks,
-including global checks, and successful model results for the exact generation; warnings and
-quarantine coverage remain visible.
-- Acceptance gates: Property/state-machine tests reject illegal transitions; crash injection proves
-no partial output is accepted; unchanged rerun validates manifests and does not invoke the heavy
-worker; a changed owned fingerprint marks exactly the reachable closure stale; forced retry creates
-a new attempt without overwriting evidence.
-- Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-pipeline-publication-and-reuse-boundaries`.
-
-#### implement-stage-dag-cli-and-make-targets
-
-Complete the dependency-aware stage registry, independent stage command, end-to-end and incremental
-runners, resume, status, invalidate, rebuild, and stale-prune planning interfaces.
-
-- Serves: `pipeline-control` -- [CLI and Make interface](../design/spec.md#cli-and-make-interface)
-- Agent status: CLEAR
-- Dependencies: `implement-run-ledger-and-atomic-artifacts`.
-- User-visible outcome: Operators can run or update one stage or a `--from`/`--to` dependency
-closure, inspect invalidation, start a fresh generation, and resume by run id through CLI or Make.
-- Scope boundary: Orchestrate in-process/local workers first with fixture DAGs; full preflight,
-forecast and publication assembly belongs to `implement-investigation-profile-and-output-manifest`.
-Do not introduce Airflow, Prefect, Celery, Redis, or Kubernetes.
-- Data and artifact paths: `src/arxiv_int/cli.py`, `src/arxiv_int/pipeline/registry.py`, `Makefile`,
-and `tests/pipeline/orchestration/`.
-- Execution path: Build the typed registry with fixture runners first; declare required/conditional
-input contracts,
-resource estimates, validators, and dependencies;
-resolve parameters; validate required
-upstream manifests; add run/update/stage/status/resume/invalidate/rebuild and prune-plan commands;
-keep Make wrappers thin and destructive application separately confirmed. Provide `make run-create`
-and `make stage STAGE=... RUN_ID=...`, backed by the same run-context/stage handlers as `make pipeline`.
-Resolve defaults from `.env` without activation or manual exports; allocate a unique run id instead
-of inheriting Make's developer `RUN_ID=local` fallback. Freeze profile/configuration for subsequent
-atomic calls and refuse drift or stale upstream inputs. Reuse setup's declarative requirement seam;
-do not maintain parallel feature/service lists. Document command order in the operator workflow.
-Invoke the shared dbt runner for declared relational model selections and the common Pandera
-validator at producer boundaries; propagate failed/not-run quality outcomes and generation leases
-without introducing a second scheduler.
-- Acceptance gates: DAG, range, skip, invalid dependency, update, resume, targeted invalidate,
-fresh-generation rebuild, prune dry-run, force, and signal-handling tests pass; CLI help lists
-defaults and precedence; bare Make and CLI defaults agree. Aggregate and independent fixture stages
-sharing a run context produce equivalent logical manifests/lineage and refuse the same invalid
-inputs; failure halts downstream work in both paths. Unregistered required
-stages and stale upstream snapshots fail explicitly. The directory-to-report gate exercises concrete
-stages after they become available.
-- Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-pipeline-publication-and-reuse-boundaries`.
-
-#### add-progress-logging-and-resource-telemetry
-
-Provide serialized human logs, structured logs, periodic database progress, and bounded resource
-metrics for every stage.
-
-- Serves: `pipeline-control` --
-[Logging, progress, and observability](../design/spec.md#logging-progress-and-observability)
-- Agent status: CLEAR
-- Audit inputs: [AUD-codebase-15](records/0001-govern-codebase-and-workflow-audit.md#audit-handoff).
-- Dependencies: `implement-stage-dag-cli-and-make-targets`.
-- User-visible outcome: Long runs continuously report processed/remaining items, bytes, throughput,
-ETA, errors, and resource pressure without garbled concurrent output.
-- Scope boundary: Record operational metadata; do not place document content, prompts, secrets, or
-unbounded ids in logs/metric labels.
-- Data and artifact paths: `src/arxiv_int/observability/`, `$RUNS_DIR/<run-id>/logs/`,
-`ctl.stage_run`, Grafana provisioning, and logging tests.
-- Execution path: Extend the existing logging and timing interfaces with time/count-throttled
-progress, explicit queue bounds/overload behavior, heartbeats, psutil/NVML/disk/Postgres metrics,
-redaction filters, JSONL schema, and final
-manifests.
-- Acceptance gates: Concurrent-log tests produce intact lines; redaction fixtures remove secrets and
-corpus text; stalled worker and ETA states are distinguishable; metric labels have bounded
-cardinality.
-- Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-pipeline-publication-and-reuse-boundaries`.
-
-#### implement-evidence-based-pipeline-forecast
-
-Implement a read-only command that predicts requested work, duration, output/peak storage, and
-free-space safety before a pipeline run.
-
-- Serves: `pipeline-control` --
-[Pre-run forecast and resource refusal](../design/spec.md#pre-run-forecast-and-resource-refusal)
-- Agent status: CLEAR
-- Dependencies: `implement-run-ledger-and-atomic-artifacts`;
-`add-progress-logging-and-resource-telemetry`; runtime storage evidence documented in
-[Portable runtime](current/portable-runtime.md).
-- User-visible outcome: Before starting, an operator sees stage-by-stage cache hits, changed work,
-time and data-size ranges, peak scratch/rebuild needs, accessible disk free space, confidence, and a
-clear ready/degraded/blocked decision.
-- Scope boundary: Perform inventory, sampling, manifest, telemetry, and filesystem checks only; do
-not load heavy models, materialize production artifacts, invent precise estimates, or bypass hard
-space reserves.
-- Data and artifact paths: `src/arxiv_int/pipeline/forecast/`, `configs/capacity/`, forecast JSON
-Schema/contracts, prior run manifests/telemetry, and `$RUNS_DIR/<forecast-id>/forecast/`.
-- Execution path: Implement estimators against fixture manifests before concrete stages; use
-bounded directory
-metadata sampling when no inventory exists, then consume inventory/delta and cache manifests when
-available. Resolve comparable runs and bounded format samples;
-estimate lower/upper output, time, WAL, temp, staging, rebuild, rollback, backup, and
-selected pipeline output costs; the organizer estimates placement independently; deduplicate
-filesystem devices across the archive, results, and
-database roots; read accessible free bytes; emit evidence/coefficient provenance and a fingerprinted
-console/JSON decision; add stage-boundary free-space rechecks. Expose `make forecast RUN_ID=...`
-and the equivalent CLI option to use the created run's frozen inputs and retain its forecast under
-that run. The aggregate command calls the same estimator and refusal handler; standalone forecasts
-remain available without creating a production generation.
-- Acceptance gates: Zero-history fixtures yield conservative low-confidence ranges; estimates replay
-from captured evidence; shared devices are counted once; inaccessible paths and upper-bound peak plus
-reserve shortfalls exit non-zero before heavy work; stale forecasts are rejected; simulated free-space
-loss checkpoints before allocation without accepting partial output. Atomic and aggregate forecast
-decisions agree for the same captured inputs; changed configuration cannot reuse a stale forecast.
-- Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-pipeline-publication-and-reuse-boundaries`.
-
-#### implement-investigation-profile-and-output-manifest
-
-Publish an explicit requested profile and coherent knowledge-base generation with honest completion states.
-
-- Serves: `pipeline-control` -- [End-to-end run and output contract](../design/spec.md#end-to-end-run-and-output-contract)
-- Agent status: CLEAR
-- Dependencies: `implement-stage-dag-cli-and-make-targets`; `implement-evidence-based-pipeline-forecast`.
-- User-visible outcome: The default investigation command names every required output and report
-entry point; a
-lexical-only request is visibly a smaller profile.
-- Scope boundary: Implement profile selection, contract validation, publication, and exit semantics
-using fixture
-runners; do not claim concrete extraction or full-pipeline acceptance from mocks.
-- Data and artifact paths: `configs/pipeline/`, `src/arxiv_int/pipeline/`, output-manifest contracts,
-`$RUNS_DIR/<run-id>/knowledge-base.json`, and orchestration fixtures.
-- Execution path: Declare required versus conditional stages and output families; seal
-artifact/snapshot ids,
-counts/checksums, coverage and report path; validate then switch one active generation pointer;
-write diagnostic reports for partial/failed runs and reconcile orphan staging after crashes.
-Connect concrete profile declarations to setup's shared requirement seam. Assemble bare
-`make pipeline` / `arxiv-int pipeline run` from the same create, preflight, forecast, stage and
-finalize handlers as the documented atomic chain. Expose `make run-finalize RUN_ID=...` and
-`arxiv-int run finalize RUN_ID`; report rendering alone cannot activate a generation. Return the run
-id, logical status, manifest/report paths and exact status/resume commands; enforce missing-provider,
-quality, resource and authorization gates before dependent work. Update the operator workflow with
-the actual profile order and availability while concrete stages remain pending.
-- Acceptance gates: Fixtures cover complete, valid-empty, partial, failed, blocked, interrupted,
-and not-selected
-states, specified exit codes, stale dependency refusal, and crash recovery across file/database
-publication; a partial run cannot replace the last complete generation. No-argument Make and CLI
-runs read `.env` in fresh shells; the explicit atomic chain yields equivalent logical artifacts,
-lineage, quality and final states. Missing setup/required stages refuse execution, optional disabled
-branches stay explicit, and interruption preserves one resumable generation.
-- Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-pipeline-publication-and-reuse-boundaries`.
-
-#### review-pipeline-publication-and-reuse-boundaries
-
-Review fixture orchestration before concrete corpus workers depend on its publication protocol.
-
-- Serves: `pipeline-control` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
-- Agent status: CLEAR
-- Task kind: checkpoint
-- Dependencies: `refactor-stage-and-artifact-interface-contracts`; `implement-run-ledger-and-atomic-artifacts`;
-`implement-stage-dag-cli-and-make-targets`; `add-progress-logging-and-resource-telemetry`;
-`implement-evidence-based-pipeline-forecast`; `implement-investigation-profile-and-output-manifest`;
-[Inference and evaluation checkpoint](records/0038-eval-found-review-inference-and-evaluation-boundaries.md).
-- User-visible outcome:
-Concrete adapters inherit a checked run/lease/quality/publication boundary.
-- Scope boundary:
-Fixture DAG and disposable store integration only; source delta/prune and archive proofs stay in
-the later corpus/control checkpoint, avoiding a dependency on workers this checkpoint gates.
-Review integrated behavior, not just test totals; no speculative rewrite or model promotion.
-- Data and artifact paths: Accepted producer records, current fixtures and retained proof evidence;
-`$DATA_DIR/architecture-review/<run-id>/`.
-- Execution path:
-Trace aggregate versus atomic execution, frozen parameters, exact-generation quality, file/database
-publication order, concurrent reuse, forced attempts, expired leases, cancellation and reserve loss.
-Inject failure around the active-pointer switch; reconcile logs, ledger and visible artifacts.
-Map each producer invariant to evidence; add missing behavior regressions at stable seams.
-- Acceptance gates:
-Equivalent commands produce equivalent logical manifests; missing/global checks, stale forecasts,
-partial or failed stages never activate. Cache hits skip heavy work; interrupted publication
-preserves one resumable attempt and the prior complete generation.
-Record refactor/no-refactor and proceed/proceed-with-nonblocking-notes/blocked verdicts. Plan a
-focused prerequisite repair for any blocker and keep this checkpoint open until it passes.
-Run `make ci`; coverage is diagnostic. Route each nonblocking note to one explicit owner.
-- Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: none; this is the bounded checkpoint.
-
-#### add-stage-artifact-inspection
-
-Report what a normal pipeline stage produced without recomputing it.
-
-- Serves: `pipeline-control` -- [CLI and Make interface](../design/spec.md#cli-and-make-interface)
-- Agent status: RUN NEEDED
-- Dependencies: `implement-stage-dag-cli-and-make-targets`.
-- User-visible outcome: After any stage or complete pipeline run, the operator can inspect row and
-byte counts, partitions, contract conformance, bounded source anchors, quarantines, and failures by
-run id.
-- Scope boundary: Read and summarize normal run artifacts; do not introduce development-only paths
-or commands, rerun stages, mutate artifacts, or treat an inspection as proof acceptance.
-- Data and artifact paths: `src/arxiv_int/inspect/`, `$RESULTS_DIR/normalized/`,
-`$RUNS_DIR/<run-id>/`, `src/arxiv_int/cli.py`, `Makefile`, and inspection fixtures.
-- Execution path: Add `arxiv-int inspect RUN_ID` and the matching run-artifact lookup using the
-pipeline registry and contracts; render console and JSON summaries with bounded samples and masked
-secrets; inspect the real run produced after each available stage implementation.
-Read retained Pandera/dbt quality results and sanitized model lineage; show rule scope, failed
-counts, quarantine references and not-run status without executing transformations.
-- Acceptance gates: Normal empty, partial, quarantined, and schema-drifted run artifacts produce
-stable summaries; inspection leaves checksums unchanged; summaries contain no secrets, unbounded
-corpus text, development alias, or machine-specific path.
-- Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
-
 #### implement-incremental-reconciliation-and-stale-pruning
 
 Reconcile archive and implementation deltas through artifact lineage, retract stale active data,
@@ -295,8 +33,8 @@ and provide safe partial update, full rebuild, and physical-prune paths.
 - Serves: `pipeline-control` --
 [Resumability, idempotency, and provenance](../design/spec.md#resumability-idempotency-and-provenance)
 - Agent status: CLEAR
-- Dependencies: `implement-run-ledger-and-atomic-artifacts`;
-`implement-stage-dag-cli-and-make-targets`; [0025](records/0025-store-implement-rebuildable-search-and-graph-projections.md);
+- Dependencies: [Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md);
+[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md); [0025](records/0025-store-implement-rebuildable-search-and-graph-projections.md);
 `implement-streaming-inventory`.
 - User-visible outcome: Added, changed, renamed, or removed files and later analysis-code changes
 update only affected descendants, while operators can deliberately rebuild everything or reclaim
@@ -332,7 +70,7 @@ Resolve every content, fact and report citation to physical sources and exact me
 
 - Serves: `pipeline-control` -- [Source and evidence identity](../design/spec.md#source-and-evidence-identity)
 - Agent status: CLEAR
-- Dependencies: `implement-streaming-inventory`; `implement-run-ledger-and-atomic-artifacts`;
+- Dependencies: `implement-streaming-inventory`; [Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md);
 `implement-normalization-dedupe-and-chunking`.
 - User-visible outcome: Search and report users can find original and current source locations,
 including duplicate files, container members and renamed sources before any organizer is installed.
@@ -357,7 +95,7 @@ planning with the supplied archive and publish the pipeline-control proof bundle
 - Serves: `pipeline-control` --
 [Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
 - Agent status: RUN NEEDED
-- Dependencies: `implement-evidence-based-pipeline-forecast`;
+- Dependencies: [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md);
 `prove-corpus-foundation-on-provided-archive`; [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md);
 `implement-evidence-and-source-location-lookup`.
 - User-visible outcome: The supplied archive demonstrates that unchanged inputs skip heavy work,
@@ -390,9 +128,13 @@ Review the integrated milestone before lexical loading, classification and NLP c
 - Agent status: CLEAR
 - Task kind: checkpoint
 - Dependencies: `implement-normalization-dedupe-and-chunking`;
-`implement-evidence-and-source-location-lookup`; `implement-investigation-profile-and-output-manifest`;
-`add-progress-logging-and-resource-telemetry`; [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
-`review-pipeline-publication-and-reuse-boundaries`; `implement-incremental-reconciliation-and-stale-pruning`.
+`implement-evidence-and-source-location-lookup`;
+[Investigation profile and output manifest](records/0045-pipeline-implement-investigation-profile-and-output-manifest.md);
+[Progress logging and resource telemetry](records/0043-pipeline-add-progress-logging-and-resource-telemetry.md);
+[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
+[Publication/reuse checkpoint](records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md);
+`implement-incremental-reconciliation-and-stale-pruning`.
+- Audit inputs: [AUD-review-pipeline-publication-and-reuse-boundaries-2](records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md#audit-handoff).
 - User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
 or blocked
 for the named consumers; no-refactoring-needed is a valid conclusion.
@@ -433,9 +175,9 @@ metadata.
 - Agent status: RUN NEEDED
 - Dependencies: Runtime roots documented in [Portable runtime](current/portable-runtime.md);
 [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
-`implement-stage-dag-cli-and-make-targets`;
-`implement-evidence-based-pipeline-forecast`.
-`review-pipeline-publication-and-reuse-boundaries`.
+[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md);
+[Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md).
+[Publication/reuse checkpoint](records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md).
 - User-visible outcome: The operator can inventory one or more multi-terabyte silos without loading
 them into RAM and can see per-silo coverage, bytes, duplicates, and unsupported/encrypted inputs.
 - Scope boundary: Read files and archive-member metadata only; no text extraction and no
@@ -529,7 +271,7 @@ current proof bundle.
 [Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `implement-normalization-dedupe-and-chunking`;
-`implement-stage-dag-cli-and-make-targets`; `implement-evidence-based-pipeline-forecast`;
+[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md); [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md);
 [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md);
 [Representative corpus approval](records/0023-corpus-approve-representative-corpus-and-gold.md).
 - User-visible outcome: The supplied file silos have inspectable inventory, extraction,
@@ -561,7 +303,7 @@ facets, and identifier lookup.
 [Search and vector projections](../design/spec.md#search-and-vector-projections)
 - Agent status: RUN NEEDED
 - Dependencies: [0025](records/0025-store-implement-rebuildable-search-and-graph-projections.md);
-`implement-stage-dag-cli-and-make-targets`.
+[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md).
 `review-corpus-and-control-integrity`.
 - User-visible outcome: The full normalized corpus or chosen partition is searchable with
 evidence-bearing results and stable filter behavior.
@@ -684,7 +426,7 @@ UDC-derived classes or one explicit exceptional outcome.
 - Agent status: RUN NEEDED
 - Research: yes
 - Dependencies: `establish-versioned-udc-derived-scheme`;
-`implement-normalization-dedupe-and-chunking`; `implement-stage-dag-cli-and-make-targets`.
+`implement-normalization-dedupe-and-chunking`; [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md).
 Reviewed real-corpus quality is accepted by the separate proof/human tasks.
 `review-corpus-and-control-integrity`.
 - Human review handoff:
@@ -800,7 +542,7 @@ versioned dictionaries without changing source evidence.
 [Russian-language and document analysis](../design/spec.md#russian-language-and-document-analysis)
 - Agent status: RUN NEEDED
 - Dependencies: `implement-normalization-dedupe-and-chunking`;
-`implement-stage-dag-cli-and-make-targets`.
+[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md).
 `review-corpus-and-control-integrity`.
 - User-visible outcome: Russian and mixed-language documents expose normalized terms, lemmas where
 useful, abbreviations, and corpus terminology for search and extraction.
@@ -883,7 +625,7 @@ Bind evolving ontology and source-asserted place/time semantics to reproducible 
 - Agent status: CLEAR
 - Dependencies: [Versioned ontology assets](records/0013-contract-gov-establish-versioned-ontology-assets.md);
 [Domain contracts](records/0014-contract-gov-define-domain-investigation-contracts-and-ontology.md);
-`implement-stage-dag-cli-and-make-targets`; [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
+[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md); [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 - Human review handoff:
 [approve-entity-merge-and-ontology-policy](#approve-entity-merge-and-ontology-policy)
 ontology/geotemporal candidate semantics and compatibility examples;
@@ -1249,7 +991,7 @@ proof bundle.
 [Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `implement-fact-validation-conflict-and-review-overlays`;
-`prove-russian-nlp-on-provided-archive`; `implement-evidence-based-pipeline-forecast`.
+`prove-russian-nlp-on-provided-archive`; [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md).
 - Human review handoff:
 [approve-fact-review-and-publication-policy](#approve-fact-review-and-publication-policy)
 final measured type thresholds, evidence and review-cost packet.
@@ -1382,7 +1124,7 @@ creating another source of truth.
 [Domain investigation artifacts](../design/spec.md#domain-investigation-artifacts)
 - Agent status: CLEAR
 - Dependencies: `build-party-and-transaction-artifacts`;
-`build-product-bom-and-supply-chain-artifacts`; `implement-run-ledger-and-atomic-artifacts`.
+`build-product-bom-and-supply-chain-artifacts`; [Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md).
 - Human review handoff:
 [approve-domain-artifact-semantics-and-inclusion](#approve-domain-artifact-semantics-and-inclusion)
 family semantics, graph/table reconciliation, valid-empty/conflict and inclusion examples.
@@ -1666,7 +1408,8 @@ company/product/person catalogs and the analyst entry report through CLI and a s
 - Agent status: CLEAR
 - Dependencies: `calibrate-russian-tokenization-and-bm25`; `build-and-validate-age-projection`;
 `register-and-expose-domain-artifacts`; `build-company-product-and-person-catalogs`;
-`implement-anomaly-review-and-triage-exports`; `implement-investigation-profile-and-output-manifest`.
+`implement-anomaly-review-and-triage-exports`;
+[Investigation profile and output manifest](records/0045-pipeline-implement-investigation-profile-and-output-manifest.md).
 `implement-evidence-and-source-location-lookup`.
 `review-domain-artifact-and-triage-boundaries`.
 - Human review handoff:
@@ -1860,7 +1603,7 @@ current-state evidence references.
 - Serves: `evaluation-evidence` --
 [Implementation boundaries](../design/spec.md#implementation-boundaries)
 - Agent status: CLEAR
-- Dependencies: [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md); `implement-run-ledger-and-atomic-artifacts`.
+- Dependencies: [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md); [Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md).
 - User-visible outcome: A stale run cannot continue to support a changed published claim.
 - Scope boundary: Build ongoing evidence validation; routine review of each change remains part of that
 change, not a deferred audit. Do not invent missing benchmarks.
@@ -1882,7 +1625,8 @@ Exercise the complete investigation command on a mixed deterministic fixture and
 - Serves: `evaluation-evidence` -- [End-to-end run and output contract](../design/spec.md#end-to-end-run-and-output-contract)
 - Agent status: CLEAR
 - Dependencies: `build-search-graph-and-report-interfaces`; `implement-hierarchical-file-classification`;
-`implement-investigation-profile-and-output-manifest`; [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
+[Investigation profile and output manifest](records/0045-pipeline-implement-investigation-profile-and-output-manifest.md);
+[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 - User-visible outcome: One directory-to-report command proves every required family is wired
 through real baseline
 stage adapters, independent of optional vectors, viewers and archive organization.
@@ -1955,7 +1699,7 @@ rebuild on two progressively larger corpus slices.
 [Performance and scalability assumptions](../design/spec.md#performance-and-scalability-assumptions)
 - Agent status: RUN NEEDED
 - Research: yes
-- Dependencies: `publish-provided-archive-end-to-end-proof`; `implement-evidence-based-pipeline-forecast`;
+- Dependencies: `publish-provided-archive-end-to-end-proof`; [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md);
 [Representative corpus approval](records/0023-corpus-approve-representative-corpus-and-gold.md);
 `implement-backup-restore-and-rebuild-runbook`;
 `test-failure-and-capacity-boundaries`. Optional branches participate only when selected.
@@ -2079,7 +1823,8 @@ index, and stale lease behavior before full-corpus authorization.
 [Resumability, idempotency, and provenance](../design/spec.md#resumability-idempotency-and-provenance)
 - Agent status: RUN NEEDED
 - Dependencies: `implement-backup-restore-and-rebuild-runbook`;
-`add-progress-logging-and-resource-telemetry`; `implement-evidence-based-pipeline-forecast`;
+[Progress logging and resource telemetry](records/0043-pipeline-add-progress-logging-and-resource-telemetry.md);
+[Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md);
 `implement-incremental-reconciliation-and-stale-pruning`. Organizer failure injection is separate.
 - Human review handoff:
 [accept-recovery-and-security-posture](#accept-recovery-and-security-posture)
@@ -2194,7 +1939,7 @@ without embedding the entire archive by default.
 - Serves: `semantic-retrieval` --
 [Search and vector projections](../design/spec.md#search-and-vector-projections)
 - Agent status: RUN NEEDED
-- Dependencies: `implement-stage-dag-cli-and-make-targets`;
+- Dependencies: [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md);
 [Local inference adapters](records/0031-inference-implement-local-inference-adapters.md);
 [Model resource scheduler](records/0032-inference-implement-model-resource-scheduler.md);
 `build-paradedb-lexical-load-and-query-path`.
@@ -2248,7 +1993,7 @@ measured not-selected verdict.
 [Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `compare-pgvector-paradedb-native-and-fallback-seam`;
-`prove-lexical-retrieval-on-provided-archive`; `implement-evidence-based-pipeline-forecast`.
+`prove-lexical-retrieval-on-provided-archive`; [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md).
 - User-visible outcome: Operators can inspect actual archive embeddings, vector/hybrid results,
 resource cost, and citations, or see why the branch remains disabled with lexical fallback working.
 - Scope boundary: Use only the forecast-approved selected tier and configured local models; do not
@@ -2315,7 +2060,7 @@ organization in both copy-to-target and in-place move modes.
 [Separate archive organization utility](../design/spec.md#separate-archive-organization-utility)
 - Agent status: CLEAR
 - Dependencies: `implement-hierarchical-file-classification`;
-`implement-run-ledger-and-atomic-artifacts`; `implement-backup-restore-and-rebuild-runbook`
+[Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md); `implement-backup-restore-and-rebuild-runbook`
 for move recovery semantics; use disposable roots for acceptance.
 `implement-evidence-and-source-location-lookup`.
 

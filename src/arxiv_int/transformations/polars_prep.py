@@ -31,12 +31,13 @@ def run_polars_prepare(context: StageContext, frame: Any) -> tuple[Any, StageRes
         DatasetRef(
             dataset="documents",
             contract_version=context.options.get("contract_version", "1.0.0"),
+            generation_id=context.generation_id,
             partition={"run_id": context.run_id},
         ),
     )
     return prepared, StageResult(
         stage=context.stage,
-        outcome="completed",
+        outcome="produced",
         detail="polars document preparation",
         outputs=outputs,
     )

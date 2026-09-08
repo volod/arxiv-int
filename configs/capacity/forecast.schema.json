@@ -1,0 +1,197 @@
+{
+  "$id": "https://arxiv-int.local/capacity/forecast.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "actions": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "coefficients": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "evidence_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "envelope",
+              "telemetry",
+              "sample",
+              "declared"
+            ],
+            "type": "string"
+          },
+          "value": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "name",
+          "value",
+          "source",
+          "evidence_id"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "confidence": {
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "type": "string"
+    },
+    "config_fingerprint": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "critical_path": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "decision": {
+      "enum": [
+        "ready",
+        "degraded",
+        "blocked",
+        "unknown"
+      ],
+      "type": "string"
+    },
+    "devices": {
+      "items": {
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "envelope_fingerprint": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "excluded": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "fingerprint": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "forecast_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "host": {
+      "type": "object"
+    },
+    "inventory_source": {
+      "enum": [
+        "sample",
+        "inventory",
+        "delta"
+      ],
+      "type": "string"
+    },
+    "not_selected": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "outputs": {
+      "type": "object"
+    },
+    "plan": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "production": {
+      "type": "boolean"
+    },
+    "profile": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "run_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "schema": {
+      "const": "arxiv-int.forecast.v1"
+    },
+    "source_snapshot": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "stages": {
+      "items": {
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "time": {
+      "additionalProperties": false,
+      "properties": {
+        "lower_seconds": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "upper_seconds": {
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "lower_seconds",
+        "upper_seconds"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema",
+    "forecast_id",
+    "run_id",
+    "production",
+    "profile",
+    "plan",
+    "decision",
+    "confidence",
+    "fingerprint",
+    "config_fingerprint",
+    "source_snapshot",
+    "envelope_fingerprint",
+    "inventory_source",
+    "stages",
+    "devices",
+    "outputs",
+    "time",
+    "critical_path",
+    "host",
+    "coefficients",
+    "actions",
+    "excluded",
+    "not_selected"
+  ],
+  "title": "PipelineForecast",
+  "type": "object"
+}

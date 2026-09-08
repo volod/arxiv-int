@@ -96,6 +96,14 @@ arxiv_int_export_tool_caches() {
   export MYPY_CACHE_DIR="${MYPY_CACHE_DIR:-$DATA_DIR/cache/mypy}"
 }
 
+arxiv_int_require_created_run_id() {
+  local run_id="${1:-}"
+  if [ -z "$run_id" ] || [ "$run_id" = "local" ]; then
+    printf '%s\n' "ERROR: set RUN_ID to the id returned by make run-create (not the developer local fallback)" >&2
+    return 1
+  fi
+}
+
 arxiv_int_load_env() {
   arxiv_int_resolve_env || return 1
   arxiv_int_export_tool_caches

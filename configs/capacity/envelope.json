@@ -1,0 +1,32 @@
+{
+  "amplification_lower": 2.5,
+  "amplification_upper": 4.0,
+  "backup_fraction": 0.0,
+  "families": {
+    "artifacts": 0.04,
+    "backups": 0.0,
+    "database_heap": 0.22,
+    "graph": 0.05,
+    "indexes": 0.14,
+    "logs": 0.02,
+    "normalized": 0.43,
+    "vectors": 0.1
+  },
+  "format_sample_limit": 200,
+  "large_input_bytes": 53687091200,
+  "log_bytes_per_stage": 1048576,
+  "rebuild_multiplier": 1.0,
+  "rollback_fraction": 0.2,
+  "rotational_time_lower": 1.5,
+  "rotational_time_upper": 3.0,
+  "safety_reserve_bytes": 1073741824,
+  "safety_reserve_ratio": 0.05,
+  "sample_file_limit": 10000,
+  "schema": "arxiv-int.capacity.envelope.v1",
+  "seconds_per_gib_lower": 20.0,
+  "seconds_per_gib_upper": 240.0,
+  "staging_fraction": 0.2,
+  "temp_fraction": 0.15,
+  "truncated_upper_factor": 2.0,
+  "wal_fraction": 0.25
+}

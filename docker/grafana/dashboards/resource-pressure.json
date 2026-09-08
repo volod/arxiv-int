@@ -1,0 +1,52 @@
+{
+  "annotations": { "list": [] },
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "arxiv-int-postgres" },
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "targets": [
+        {
+          "datasource": { "type": "grafana-postgresql-datasource", "uid": "arxiv-int-postgres" },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT recorded_at AS time, stage_name, cpu_pct, ram_available_gib, disk_free_gib, gpu_util_pct, gpu_free_gib FROM ctl.stage_progress WHERE $__timeFilter(recorded_at) ORDER BY recorded_at",
+          "refId": "A"
+        }
+      ],
+      "title": "CPU RAM disk GPU",
+      "type": "table"
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "arxiv-int-postgres" },
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
+      "id": 2,
+      "targets": [
+        {
+          "datasource": { "type": "grafana-postgresql-datasource", "uid": "arxiv-int-postgres" },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT recorded_at AS time, stage_name, pg_size_bytes, wal_bytes FROM ctl.stage_progress WHERE $__timeFilter(recorded_at) ORDER BY recorded_at",
+          "refId": "A"
+        }
+      ],
+      "title": "Postgres heap and WAL bytes",
+      "type": "table"
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["arxiv-int", "pipeline"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "title": "Resource pressure",
+  "uid": "arxiv-int-resource-pressure",
+  "version": 1
+}
