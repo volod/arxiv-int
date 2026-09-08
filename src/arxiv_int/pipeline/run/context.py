@@ -9,7 +9,6 @@ from uuid import uuid4
 from arxiv_int.contracts.generate.normalize import normalize_json, sha256_text
 from arxiv_int.interfaces.sources import SiloRoot
 from arxiv_int.interfaces.tokens import freeze_str_mapping, require_token
-from arxiv_int.pipeline.control.fingerprints import OWNED_FINGERPRINT_FIELDS
 
 _SENSITIVE_MARKERS = ("PASSWORD", "SECRET", "TOKEN", "DATABASE_URL", "CREDENTIAL")
 
@@ -76,10 +75,3 @@ def snapshot_silos(silos: tuple[SiloRoot, ...]) -> str:
             digest = hashlib.sha256(path.read_bytes()).hexdigest()
             parts.append(f"{silo.silo_id}:{relative}:{digest}")
     return sha256_text("\n".join(parts) if parts else "empty-archive")
-
-
-def owned_fingerprints(configuration_fingerprint: str) -> dict[str, str]:
-    """Fill every owned fingerprint field for fixture and generic stage identities."""
-    values = {name: "stage-v1" for name in OWNED_FINGERPRINT_FIELDS}
-    values["configuration_fingerprint"] = configuration_fingerprint
-    return values

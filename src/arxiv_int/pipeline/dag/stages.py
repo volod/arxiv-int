@@ -62,6 +62,7 @@ def production_specs() -> tuple[StageSpec, ...]:
                 dbt_select=(),
                 runner=None,
                 optional=name in OPTIONAL_STAGES,
+                code_paths=("evaluation",) if name == "evaluate" else (),
             )
         )
     return tuple(specs)

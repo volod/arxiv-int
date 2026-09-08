@@ -1,10 +1,10 @@
 """Typed stage specifications and the dependency-aware registry."""
 
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 
 from arxiv_int.interfaces.pipeline import StageRunner
-from arxiv_int.interfaces.tokens import require_token
+from arxiv_int.interfaces.tokens import freeze_str_mapping, require_token
 from arxiv_int.pipeline.dag.graph import topological_order
 from arxiv_int.pipeline.run.errors import CyclicDependencyError, UnknownStageError
 
@@ -33,10 +33,25 @@ class StageSpec:
     dbt_select: tuple[str, ...]
     runner: StageRunner | None
     optional: bool = False
+    dependency_packages: tuple[str, ...] = ()
+    contracts: tuple[str, ...] = ()
+    code_paths: tuple[str, ...] = ()
+    dbt_models: tuple[str, ...] = ()
+    dbt_inputs: tuple[str, ...] = ()
+    dbt_rules: tuple[str, ...] = ()
+    tools: Mapping[str, str] = field(default_factory=dict)
+    models: Mapping[str, str] = field(default_factory=dict)
+    prompts: Mapping[str, str] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         require_token(self.name, "name")
         require_token(self.version, "version")
+        for name in ("tools", "models", "prompts"):
+            values = freeze_str_mapping(getattr(self, name))
+            for key, value in values.items():
+                require_token(key, name)
+                require_token(value, name)
+            object.__setattr__(self, name, values)
         for index, item in enumerate(self.depends_on):
             require_token(item, f"depends_on[{index}]")
 
@@ -90,18 +105,5 @@ class StageRegistry:
             if spec.name != name:
                 updated.append(spec)
                 continue
-            updated.append(
-                StageSpec(
-                    spec.name,
-                    spec.version,
-                    spec.depends_on,
-                    spec.required_inputs,
-                    spec.conditional_inputs,
-                    spec.resource_estimate,
-                    spec.validators,
-                    spec.dbt_select,
-                    runner,
-                    spec.optional,
-                )
-            )
+            updated.append(replace(spec, runner=runner))
         return StageRegistry(updated)

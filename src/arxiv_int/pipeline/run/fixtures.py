@@ -1,6 +1,7 @@
 """In-process fixture stage runners used by DAG tests and CLI fixtures."""
 
 from collections.abc import Callable
+from dataclasses import replace
 
 from arxiv_int.interfaces.pipeline import StageContext, StageResult
 from arxiv_int.interfaces.stores import DatasetRef
@@ -59,7 +60,7 @@ def fixture_specs(
         "omega": FixtureStage("omega"),
     }
     estimate = ResourceEstimate()
-    specs = (
+    specs: tuple[StageSpec, ...] = (
         StageSpec("alpha", "1", (), (), (), estimate, (), (), runners["alpha"]),
         StageSpec(
             "beta", "1", ("alpha",), ("alpha",), (), estimate, validators, (), runners["beta"]
@@ -76,6 +77,17 @@ def fixture_specs(
             runners["gamma"],
         ),
         StageSpec("omega", "1", ("beta",), ("beta",), (), estimate, (), (), runners["omega"], True),
+    )
+    specs = tuple(
+        replace(
+            spec,
+            tools={
+                "fixture-runner": "FixtureStage",
+                "feature": runners[spec.name].feature,
+                "outcome": runners[spec.name]._outcome,
+            },
+        )
+        for spec in specs
     )
     return specs, runners
 

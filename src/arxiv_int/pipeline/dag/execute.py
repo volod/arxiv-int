@@ -11,10 +11,11 @@ from arxiv_int.pipeline.control.artifacts import ArtifactPublishError, validate_
 from arxiv_int.pipeline.control.executor import ShardDecision, ShardExecutor
 from arxiv_int.pipeline.control.fingerprints import ReuseIdentity, reuse_key
 from arxiv_int.pipeline.control.model import ShardWork
+from arxiv_int.pipeline.control.owned import owned_fingerprints
 from arxiv_int.pipeline.control.quality import activation_decision
 from arxiv_int.pipeline.dag.registry import StageRegistry, StageSpec
 from arxiv_int.pipeline.quality.bound import QualityBoundary, apply_boundary
-from arxiv_int.pipeline.run.context import RunContext, owned_fingerprints
+from arxiv_int.pipeline.run.context import RunContext
 from arxiv_int.pipeline.run.errors import QualityBoundaryError, UnregisteredStageError
 from arxiv_int.pipeline.run.persist import StageExecution
 from arxiv_int.pipeline.run.reuse_index import ReuseEntry
@@ -51,7 +52,7 @@ def stage_identity(
         dict(context.parameters) or {"none": "none"},
         inputs,
         upstream_keys,
-        owned_fingerprints(context.config_fingerprint),
+        owned_fingerprints(spec, context.project_root, context.config_fingerprint),
     )
 
 

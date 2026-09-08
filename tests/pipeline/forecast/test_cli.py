@@ -42,6 +42,7 @@ def _checkout(tmp_path: Path) -> Path:
     (archive / "doc.txt").write_text("x", encoding="utf-8")
     checkout = tmp_path / "checkout"
     checkout.mkdir()
+    (checkout / "uv.lock").write_bytes((PROJECT_ROOT / "uv.lock").read_bytes())
     (checkout / "pyproject.toml").write_text("[project]\nname='fixture'\n", encoding="utf-8")
     (checkout / ".env").write_text(
         f"ARCHIVE_DIR={archive}\nRESULTS_DIR={tmp_path / 'results'}\n"

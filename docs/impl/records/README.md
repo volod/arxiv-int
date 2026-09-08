@@ -69,3 +69,4 @@ below).
 | [0055 Source reconciliation and prune safety repair](0055-pipeline-repair-source-reconciliation-and-prune-safety.md) | Focused integrity prerequisite for 0054 | Accepted |
 | [0056 Pipeline-control re-proof after the repair](0056-pipeline-reprove-pipeline-control-after-reconciliation-repair.md) | Current provided-archive control bundle covering the repaired reconcile and prune modules | Accepted |
 | [0057 Retire the committed proof export](0057-eval-found-retire-committed-proof-export.md) | Delete the Git-bound exporter, its packaged identity policy, and the bundle fields that only described an export | Accepted |
+| [0058 Owned stage fingerprints](0058-pipeline-bind-real-owned-stage-fingerprints.md) | Bind stage reuse to declared contract, rule, dbt, code, dependency, tool, model and prompt assets | Accepted |

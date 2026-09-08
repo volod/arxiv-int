@@ -22,6 +22,7 @@ def make_context(tmp_path: Path, *, profile: str = "fixture", text: str = "one")
     runs = tmp_path / "runs"
     root = tmp_path / "project"
     root.mkdir(parents=True, exist_ok=True)
+    (root / "uv.lock").write_bytes((Path(__file__).resolve().parents[2] / "uv.lock").read_bytes())
     silos = (SiloRoot("default", archive),)
     secret = {"ARCHIVE_DIR": str(archive), "RESULTS_DIR": str(results)}
     run_id = allocate_run_id()

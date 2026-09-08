@@ -23,7 +23,8 @@ See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface
 [record 0053](../records/0053-pipeline-prove-pipeline-control-on-provided-archive.md),
 [checkpoint 0054](../records/0054-pipeline-review-control-integration-boundaries.md),
 [repair 0055](../records/0055-pipeline-repair-source-reconciliation-and-prune-safety.md), and
-[record 0056](../records/0056-pipeline-reprove-pipeline-control-after-reconciliation-repair.md).
+[record 0056](../records/0056-pipeline-reprove-pipeline-control-after-reconciliation-repair.md), and
+[record 0058](../records/0058-pipeline-bind-real-owned-stage-fingerprints.md).
 
 ## Stage, source, and artifact seams
 
@@ -104,6 +105,53 @@ reuse keys, and every owned fingerprint in `OWNED_FINGERPRINT_FIELDS` (code, dep
 schema, tool, model, prompt, configuration, validation catalog, and dbt model, input, and rule).
 `reuse_key()` is SHA-256 over that identity. A changed owned fingerprint selects matching shards,
 then `stale_closure()` walks consumer edges.
+
+Stage identities now read actual assets through `pipeline.control.owned.owned_sources()` and
+`owned_fingerprints()` before every reuse lookup. `StageSpec` declares the consumed `contracts`
+(registry keys; `validators` also imply contracts), additional `code_paths` relative to the
+installed `arxiv_int` package, `dependency_packages` (uv package names), and dbt asset paths relative
+to the authored dbt project. Existing overlay-or-packaged resource resolution applies. Missing
+contracts, generated schemas, catalogs, declared paths or locked dependencies fail before reuse;
+there is no placeholder fallback. Moving an unchanged asset tree leaves its identity unchanged.
+
+| Owned field | Source |
+| --- | --- |
+| `code_fingerprint` | Bytes of shared control/DAG/run/quality/interfaces modules, the runner source file and declared `code_paths`; stage declaration modules are excluded from the shared set because their selected values are hashed separately |
+| `dependency_fingerprint` | Installed distribution name/version and selected requirement metadata, Python version, uv lock format and selected package records with transitive dependencies; PyYAML is shared, validators add Pandera/Polars, real dbt models add dbt Core/Postgres |
+| `contract_fingerprint` | Selected `FileRegistry` entries plus their referenced ODCS and mapping file bytes |
+| `schema_fingerprint` | Selected generated JSON Schema, Parquet, Avro, PostgreSQL (including extension DDL) and Pydantic schemas |
+| `tool_fingerprint` | Frozen `StageSpec.tools` mapping of tool names to pinned versions or content digests |
+| `model_fingerprint` | Frozen `StageSpec.models` mapping of model names to immutable revisions or content digests |
+| `prompt_fingerprint` | Frozen `StageSpec.prompts` mapping of prompt names to content digests or immutable versions |
+| `configuration_fingerprint` | Existing frozen run configuration digest, unchanged |
+| `validation_catalog_fingerprint` | Selected validators' `generated/quality/<contract>.rules.json` bytes and shared Pandera rule-engine code |
+| `dbt_model_fingerprint` | Declared `dbt_models` files plus shared `dbt_project.yml` and macros when models are declared |
+| `dbt_input_fingerprint` | Existing `dbt_select`, declared `dbt_inputs`, selected contracts' generated dbt YAML and their consumed table definitions in the combined `generated/dbt/sources.yml` |
+| `dbt_rule_fingerprint` | Declared `dbt_rules` files, including model test YAML and singular tests, plus the selected generated source/test definitions |
+
+File identities use sorted relative names and raw-byte SHA-256 through the existing bounded reader.
+Each field is SHA-256 over canonical JSON containing stage name, field name and its source values.
+An empty declaration means the stage uses no asset of that kind; its digest remains specific to that
+stage and field. Fixture stages declare their actual runner, feature and outcome as tool values;
+unused model/prompt sets are empty. `with_runner()` preserves all declarations. Old placeholder
+identities intentionally miss once; accepted artifacts remain intact.
+
+Stage owners declare the complete asset dependency set, including helper modules, upstream dbt
+models and source/test YAML used by the selected transformation. This binder does not interpret
+Jinja or implement another dbt selector engine. Declare shared files only where they are consumed;
+shared project/macro edits affect every declared dbt producer. The existing fixture quality adapter
+uses synthetic dbt selections without real models. Real producer tasks must bind actual model,
+input and rule paths when replacing it. Tool/model/prompt declarations must contain public immutable
+identities, never credentials. Hashing these declarations imports no backend or model.
+
+The lock comes from the requested project; disposable resource overlays without a project/lock use
+the editable distribution checkout. A wheel deployment supplies its workspace `uv.lock`; a missing
+lock in a project fails closed. Selected package records include all locked platform/extra variants
+conservatively. Unrelated package pins and documentation edits leave stage identities unchanged.
+Additional runtime dependencies belong in `dependency_packages`; changing an owned dependency,
+contract, rule, dbt asset or declared tool/model/prompt changes the producer key and propagates through
+upstream keys to consumers. `keys_matching_owned_change()` and `stale_closure()` retain their existing
+field-selection and consumer-edge behavior. An unchanged rerun validates artifacts with zero workers.
 
 Statuses for run, stage, and shard are `pending`, `running`, `succeeded`, `failed`, `quarantined`,
 `superseded`, `stale`, and `pruned`. Leases move `acquired` to `released`, `expired`, or `failed`.

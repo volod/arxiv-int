@@ -49,7 +49,7 @@ class WrongGenerationQuality(FixtureQuality):
 @pytest.mark.parametrize("kind", ["validation", "transform"])
 def test_stage_refuses_quality_for_another_generation(tmp_path: Path, kind: str) -> None:
     registry, _ = fixture_registry(
-        validators=("beta",) if kind == "validation" else (),
+        validators=("documents",) if kind == "validation" else (),
         dbt_select=("gamma",) if kind == "transform" else (),
     )
     context = make_context(tmp_path)

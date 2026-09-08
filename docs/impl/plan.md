@@ -26,43 +26,6 @@ and name ready/pending human decisions and the dependent work that must wait at 
 
 ### Pipeline control -- `pipeline-control`
 
-#### bind-real-owned-stage-fingerprints
-
-Replace the placeholder stage identity so a changed contract, validator, transformation, tool or
-model invalidates the shards it actually affects.
-
-- Serves: `pipeline-control` --
-[Resumability, idempotency, and provenance](../design/spec.md#resumability-idempotency-and-provenance)
-- Agent status: CLEAR
-- Dependencies: [Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md);
-[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md);
-[Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
-[Contract data-quality checks](records/0019-contract-gov-implement-contract-data-quality-checks.md);
-[dbt transformation foundation](records/0024-store-implement-dbt-transformation-foundation.md);
-[Control integration checkpoint](records/0054-pipeline-review-control-integration-boundaries.md).
-- User-visible outcome: Editing a contract, a Pandera rule, a dbt model, a pinned tool or a model
-makes the next run recompute exactly the affected shards instead of serving a cache hit produced
-under the previous definitions.
-- Scope boundary: Populate the existing `OWNED_FINGERPRINT_FIELDS` identity from the assets that
-already exist and let each stage declare its own model/prompt/tool values; do not add a new
-fingerprint field, a new registry, or a corpus stage. Fixture stages may still declare fixture
-values, but they must be real values for those fixtures rather than one shared constant.
-- Data and artifact paths: `src/arxiv_int/pipeline/run/context.py`,
-`src/arxiv_int/pipeline/control/fingerprints.py`, `src/arxiv_int/pipeline/dag/execute.py`,
-existing contract, rule-catalog and dbt asset roots; mirrored tests under `tests/pipeline/`.
-- Execution path: Derive contract, schema and validation-catalog fingerprints from the registered
-contract and rule assets, dbt model/input/rule fingerprints from the dbt project, code and
-dependency fingerprints from the packaged distribution and lock, and let a stage supply
-tool/model/prompt values through its spec; keep `configuration_fingerprint` as it is. Record which
-asset each field reads so a reviewer can reproduce it.
-- Acceptance gates: Every owned field has a documented source and no field is a shared literal;
-changing one contract, one rule, one dbt model or one declared tool changes only the reuse keys of
-the shards that depend on it and leaves the others cached; an unchanged tree still cache-hits with
-zero workers; `stale_closure()` still walks consumer edges from the changed field. Run the pipeline
-suites and `make ci`; a provided-archive rerun is tracked separately.
-- Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
-
 #### bound-archive-snapshot-hashing
 
 Stop rehashing whole archive files into memory when a run is created and on every later command.
@@ -199,7 +162,7 @@ Review the integrated milestone before lexical loading, classification and NLP c
 - Agent status: CLEAR
 - Task kind: checkpoint
 - Dependencies: `implement-normalization-dedupe-and-chunking`;
-`bind-real-owned-stage-fingerprints`; `bound-archive-snapshot-hashing`;
+[Owned stage fingerprints](records/0058-pipeline-bind-real-owned-stage-fingerprints.md); `bound-archive-snapshot-hashing`;
 [Control integration checkpoint](records/0054-pipeline-review-control-integration-boundaries.md);
 [Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md);
 [Investigation profile and output manifest](records/0045-pipeline-implement-investigation-profile-and-output-manifest.md);
