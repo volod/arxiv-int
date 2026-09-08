@@ -37,6 +37,7 @@ def test_make_help_lists_pipeline_targets() -> None:
         "forecast",
         "run-finalize",
         "inspect",
+        "archive-locate",
     ):
         assert name in help_text
 
@@ -71,6 +72,14 @@ def test_make_inspect_is_read_only_and_requires_created_run_id() -> None:
     assert "arxiv_int_require_created_run_id" in text
     assert 'inspect "run-abc"' in text
     assert "--force" not in text
+
+
+def test_make_archive_locate_is_read_only_and_does_not_require_a_run() -> None:
+    text = _dry_run("archive-locate", "DOCUMENT_ID=doc-1", "CATALOG=catalog.json")
+    assert 'archive locate "doc-1"' in text
+    assert '--catalog "catalog.json"' in text
+    assert "--force" not in text
+    assert "arxiv_int_require_created_run_id" not in text
 
 
 def test_make_pipeline_passes_from_to_without_hardcoded_paths() -> None:

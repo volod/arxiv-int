@@ -262,11 +262,13 @@ Use the returned run id and replace query/document placeholders with actual valu
 | `arxiv-int run resume RUN_ID` / `make resume` | available | Resume the recorded generation after an interruption. |
 | `arxiv-int pipeline update` / `make update` | available | Reconcile a changed archive into a new generation. |
 | `arxiv-int run artifacts RUN_ID`, `arxiv-int inspect RUN_ID\|DATASET\|latest` / `make inspect` | available | Summarize published artifacts, quality, lineage, anchors, quarantines and failures without recomputing them. |
+| `arxiv-int archive locate DOCUMENT_ID` / `make archive-locate` | available | Resolve a content, fact, or report citation to original and current source locations from sealed manifests. |
+| `arxiv-int archive import-ledger PATH` | available | Import a portable organizer path-event ledger idempotently. |
 | Open `$RUNS_DIR/<run-id>/reports/index.html` | available (diagnostic) | Read the finalize diagnostic; the specified analyst report remains planned. |
 | `arxiv-int catalog company --run RUN_ID`, `arxiv-int catalog product --run RUN_ID`, `arxiv-int catalog person --run RUN_ID` | planned | Inspect roles, aliases, identities and evidence in the three catalogs. |
 | Follow financial-party, transaction, supply-chain and BOM links | planned | Trace quantities, relations and gaps to source anchors. |
 | `arxiv-int anomalies list --run RUN_ID` | planned | Review detector, baseline, severity and supporting/contradicting evidence. |
-| `arxiv-int search lexical "QUERY"`, `arxiv-int archive locate DOCUMENT_ID` | planned | Find source-anchored hits; verify the result's generation. |
+| `arxiv-int search lexical "QUERY"` | planned | Find source-anchored hits; verify the result's generation. |
 
 Use `.venv/bin/arxiv-int` when the executable is not on the shell's path. After the session, the
 available `make services-down` stops project containers and preserves their data. Host Ollama is

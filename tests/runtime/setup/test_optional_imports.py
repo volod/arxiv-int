@@ -17,6 +17,7 @@ ROOT = Path(__file__).parents[3]
         ["features"],
         ["inference", "--help"],
         ["evaluation", "--help"],
+        ["archive", "--help"],
     ],
 )
 def test_base_cli_does_not_require_optional_packages(arguments: list[str]) -> None:

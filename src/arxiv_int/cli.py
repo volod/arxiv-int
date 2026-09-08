@@ -245,6 +245,9 @@ def build_parser() -> argparse.ArgumentParser:
     from arxiv_int.inspect.cli import add_inspect_parser
 
     add_inspect_parser(subcommands)
+    from arxiv_int.query.evidence.cli import add_archive_parser
+
+    add_archive_parser(subcommands)
     from arxiv_int.pipeline.cli import add_pipeline_parsers
 
     add_pipeline_parsers(subcommands)
@@ -572,6 +575,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_setup_command(args)
     if args.command == "data-quality":
         return _run_data_quality(args)
+    return _run_package_command(args)
+
+
+def _run_package_command(args: argparse.Namespace) -> int:
+    """Dispatch commands whose handlers live in optional packages."""
     if args.command == "transform":
         from arxiv_int.transformations.commands import run_transform_command
 
@@ -588,6 +596,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         from arxiv_int.inspect.commands import run_inspect_command
 
         return run_inspect_command(args)
+    if args.command == "archive":
+        from arxiv_int.query.evidence.commands import run_archive_command
+
+        return run_archive_command(args)
     if args.command in {"pipeline", "stage", "run", "artifacts"}:
         from arxiv_int.pipeline.dag.dispatch import run_pipeline_command
 

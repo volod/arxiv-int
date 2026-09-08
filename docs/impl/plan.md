@@ -25,29 +25,6 @@ and name ready/pending human decisions and the dependent work that must wait at 
 
 ### Pipeline control -- `pipeline-control`
 
-#### implement-evidence-and-source-location-lookup
-
-Resolve every content, fact and report citation to physical sources and exact member/page/cell anchors.
-
-- Serves: `pipeline-control` -- [Source and evidence identity](../design/spec.md#source-and-evidence-identity)
-- Agent status: CLEAR
-- Dependencies: `implement-streaming-inventory`; [Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md);
-`implement-normalization-dedupe-and-chunking`.
-- User-visible outcome: Search and report users can find original and current source locations,
-including duplicate files, container members and renamed sources before any organizer is installed.
-- Scope boundary: Read-only resolution and explicit path-event import; no placement executor,
-reclassification, arbitrary filesystem opening, or requirement for live model/graph services.
-- Data and artifact paths: `src/arxiv_int/query/evidence/`, source/path-event contracts,
-`corpus.document_path_event`, portable source manifests, CLI and network-free resolver fixtures.
-- Execution path: Expose `archive locate DOCUMENT_ID` and a typed citation resolver using canonical
-rows or sealed manifests; map content to all source occurrences and original/normalized anchors;
-validate root containment and current hashes; import portable organizer ledgers idempotently.
-- Acceptance gates: Fixtures cover duplicate silos, sheet/cell and nested-member anchors, path-only
-renames, missing/changed files, ambiguous locations, escaping links and repeated ledger import;
-resolution never rewrites original provenance, changes bytes or requires placement services.
-- Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
-
 #### prove-pipeline-control-on-provided-archive
 
 Exercise idempotency, incremental reconciliation, invalidation, forecasting, rebuild, and prune
@@ -58,7 +35,7 @@ planning with the supplied archive and publish the pipeline-control proof bundle
 - Agent status: RUN NEEDED
 - Dependencies: [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md);
 `prove-corpus-foundation-on-provided-archive`; [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md);
-`implement-evidence-and-source-location-lookup`.
+[Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
 - User-visible outcome: The supplied archive demonstrates that unchanged inputs skip heavy work,
 deltas update only affected artifacts, stale data retracts safely, insufficient space blocks early,
 and a clean generation can be rebuilt.
@@ -89,7 +66,7 @@ Review the integrated milestone before lexical loading, classification and NLP c
 - Agent status: CLEAR
 - Task kind: checkpoint
 - Dependencies: `implement-normalization-dedupe-and-chunking`;
-`implement-evidence-and-source-location-lookup`;
+[Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md);
 [Investigation profile and output manifest](records/0045-pipeline-implement-investigation-profile-and-output-manifest.md);
 [Progress logging and resource telemetry](records/0043-pipeline-add-progress-logging-and-resource-telemetry.md);
 [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
@@ -428,7 +405,7 @@ Review searchable/classifiable corpus accounting before archive quality and poli
 - Task kind: checkpoint
 - Dependencies: `review-corpus-and-control-integrity`; `calibrate-russian-tokenization-and-bm25`;
 `establish-versioned-udc-derived-scheme`; `implement-hierarchical-file-classification`;
-`implement-evidence-and-source-location-lookup`.
+[Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
 - User-visible outcome:
 Retrieval and classification proofs consume coherent source, vocabulary and query identities.
 - Scope boundary:
@@ -462,7 +439,7 @@ Classify the supplied archive and validate its complete hierarchical mapping and
 - Dependencies: `implement-hierarchical-file-classification`;
 `prove-pipeline-control-on-provided-archive`;
 [Representative corpus approval](records/0023-corpus-approve-representative-corpus-and-gold.md).
-`implement-evidence-and-source-location-lookup`.
+[Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
 `review-retrieval-and-classification-boundaries`.
 - Human review handoff:
 [approve-classification-policy](#approve-classification-policy)
@@ -1372,7 +1349,7 @@ company/product/person catalogs and the analyst entry report through CLI and a s
 `register-and-expose-domain-artifacts`; `build-company-product-and-person-catalogs`;
 `implement-anomaly-review-and-triage-exports`;
 [Investigation profile and output manifest](records/0045-pipeline-implement-investigation-profile-and-output-manifest.md).
-`implement-evidence-and-source-location-lookup`.
+[Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
 `review-domain-artifact-and-triage-boundaries`.
 - Human review handoff:
 [accept-operator-discovery-workflows](#accept-operator-discovery-workflows)
@@ -2025,7 +2002,7 @@ organization in both copy-to-target and in-place move modes.
 - Dependencies: `implement-hierarchical-file-classification`;
 [Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md); `implement-backup-restore-and-rebuild-runbook`
 for move recovery semantics; use disposable roots for acceptance.
-`implement-evidence-and-source-location-lookup`.
+[Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
 
 - Human review handoff:
 [approve-archive-organization-plan](#approve-archive-organization-plan)

@@ -1410,7 +1410,7 @@ make transform-build RUN_ID=...                      make data-quality DATASET=.
 make services-down         make services-reset       make services-status
 make logs
 make run-create            make forecast RUN_ID=...   make run-finalize RUN_ID=...
-make inspect RUN_ID=...    make update
+make inspect RUN_ID=...    make archive-locate DOCUMENT_ID=...    make update
 make proof CAPABILITY=...  make stage STAGE=...       make resume RUN_ID=...
 make search QUERY=...      make graph-up              make ui-up
 make eval                  make test                  make integration-test

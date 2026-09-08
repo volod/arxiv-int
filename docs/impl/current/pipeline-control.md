@@ -3,7 +3,8 @@
 Typed stage, source, and artifact references, a generic run ledger, serialized progress
 logging with bounded resource telemetry, a fixture-first DAG CLI, a read-only pre-run
 forecast, profile-declared knowledge-base publication, read-only stage artifact inspection,
-incremental source reconciliation, and two-phase stale prune are available. Concrete corpus
+incremental source reconciliation, two-phase stale prune, and read-only citation/source
+location lookup are available. Concrete corpus
 stages remain
 [planned](../plan.md#pipeline-control----pipeline-control).
 
@@ -15,8 +16,9 @@ See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface
 [record 0045](../records/0045-pipeline-implement-investigation-profile-and-output-manifest.md),
 [checkpoint 0046](../records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md),
 [repair 0047](../records/0047-pipeline-repair-pipeline-publication-and-reuse-integrity.md),
-[record 0048](../records/0048-pipeline-add-stage-artifact-inspection.md), and
-[record 0049](../records/0049-pipeline-implement-incremental-reconciliation-and-stale-pruning.md).
+[record 0048](../records/0048-pipeline-add-stage-artifact-inspection.md),
+[record 0049](../records/0049-pipeline-implement-incremental-reconciliation-and-stale-pruning.md), and
+[record 0051](../records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
 
 ## Stage, source, and artifact seams
 
@@ -169,6 +171,8 @@ new generation and skips cache reuse.
 | `arxiv-int pipeline invalidate STAGE --run-id RUN_ID` / `make invalidate` | Logical stale closure; no deletes |
 | `arxiv-int run status RUN_ID` / `make run-status RUN_ID=...` | Per-stage ledger status plus latest progress snapshot |
 | `arxiv-int inspect RUN_ID\|DATASET\|latest` / `make inspect RUN_ID=...` | Read-only row/byte, partition, quality, and failure summary |
+| `arxiv-int archive locate DOCUMENT_ID` / `make archive-locate DOCUMENT_ID=...` | Read-only citation to original and current source locations |
+| `arxiv-int archive import-ledger PATH` | Idempotent import of a portable path-event ledger |
 | `arxiv-int run artifacts RUN_ID` | Alias of inspect for one frozen run |
 | `arxiv-int run resume RUN_ID` / `make resume RUN_ID=...` | Continue after halt or SIGINT |
 | `arxiv-int run finalize RUN_ID` / `make run-finalize RUN_ID=...` | Seal `knowledge-base.json`; activate only a complete profile |
@@ -239,6 +243,25 @@ checksum validity, contract conformance, quarantines, and failures. Directories 
 transformations or published `run_results.json`, never from a live transform. Empty, partial,
 quarantined, failed, and schema-drifted trees still produce a stable summary. Inspection
 rechecks checksums in place and leaves bytes unchanged.
+
+## Evidence and source location lookup
+
+`src/arxiv_int/query/evidence/` resolves content, fact, and report citations to physical sources
+without a placement executor, live model/graph services, or archive writes. It reads a sealed
+evidence catalog (`arxiv-int.evidence-catalog.v1`) of document rows, source occurrences, optional
+citations, and path events, then overlays an imported portable ledger
+(`arxiv-int.path-event-ledger.v1`) whose fields match the intended `corpus.document_path_event`
+relation. SQL/Alembic publication of that relation remains with archive organization.
+
+`arxiv-int archive locate DOCUMENT_ID` and `make archive-locate DOCUMENT_ID=...` are read-only.
+`--kind fact|report` resolves those citation ids. `--json` writes schema
+`arxiv-int.evidence-resolution.v1` to stdout. Explicit `--catalog` and `--ledger` skip operator
+`ARCHIVE_DIR` / `PGDATA_DIR`. `--silo SILO_ID=ROOT` is the only filesystem access: it checks
+silo-root containment and current hashes. Locations stay silo-relative POSIX paths. Duplicate
+silos remain distinct occurrences. Nested members hash the container file, not a virtual member
+path. Original occurrence rows are never rewritten; rename and copy events overlay current paths.
+Missing, changed, and escaped-link files are explicit statuses. `arxiv-int archive import-ledger`
+merges events by `event_id` and refuses conflicting payloads without rewriting a matching store.
 
 ## Pre-run forecast and resource refusal
 
@@ -369,7 +392,10 @@ orphan reconcile, report cannot activate, aggregate versus atomic logical equiva
 finalize, and optional-import isolation. Inspection tests in `tests/inspect/` cover empty,
 partial, quarantined, schema-drifted, and failed summaries, checksum stability, secret/path
 redaction, latest and lake lookup, bounded anchors, evaluate-stage artifacts, CLI/Make wrappers,
-and optional-import isolation. Reconciliation tests in `tests/pipeline/reconcile/` cover no-op
+and optional-import isolation. Evidence lookup tests in `tests/query/evidence/` cover duplicate
+silos, sheet/cell and nested-member anchors, path-only renames, missing/changed files, escaping
+links, ambiguous citations, copy extras, repeated ledger import, CLI/Make wrappers, and
+optional-import isolation. Reconciliation tests in `tests/pipeline/reconcile/` cover no-op
 updates, additions, path-only renames, change/remove retraction, partial-scan withholding,
 shared merge/split evidence, rebuild checksum parity, quality-gated activation, dbt source/ref
 lineage, and revision `0004` alignment. Prune tests in `tests/pipeline/prune/` cover

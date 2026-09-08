@@ -1,7 +1,7 @@
 # Stage DAG, run ledger, forecast, inspect, and prune.
 ##@ Pipeline
 .PHONY: pipeline run-create stage resume update rebuild invalidate prune \
-	run-status forecast run-finalize inspect
+	run-status forecast run-finalize inspect archive-locate
 
 pipeline: ## Run the selected profile DAG; allocates a unique run id
 	@$(require_cli)
@@ -56,6 +56,16 @@ run-status: ## Show per-stage progress (RUN_ID= from make run-create)
 	@$(load_env) && \
 		arxiv_int_require_created_run_id "$(RUN_ID)" && \
 		"$(CLI)" run status "$(RUN_ID)"
+
+archive-locate: ## Resolve citation source locations (DOCUMENT_ID= CATALOG=)
+	@$(require_cli)
+	@test -n "$(DOCUMENT_ID)" || { echo "ERROR: set DOCUMENT_ID=<id>"; exit 1; }
+	@$(load_env) && \
+		"$(CLI)" archive locate "$(DOCUMENT_ID)" \
+		$(if $(KIND),--kind "$(KIND)",) \
+		$(if $(CATALOG),--catalog "$(CATALOG)",) \
+		$(if $(LEDGER),--ledger "$(LEDGER)",) \
+		$(if $(filter 1,$(JSON)),--json,)
 
 inspect: ## Summarize published stage artifacts (RUN_ID= from make run-create)
 	@$(require_cli)
