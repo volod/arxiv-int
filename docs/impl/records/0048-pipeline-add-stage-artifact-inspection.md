@@ -56,9 +56,9 @@ attempt trees, execute Pandera or dbt, or treat a summary as proof acceptance.
 
 `arxiv-int inspect RUN_ID|DATASET|latest` and `make inspect RUN_ID=...` require a created run id.
 `arxiv-int run artifacts RUN_ID` is the same handler. Package import stays dependency-light so
-base CLI help works before optional extras. Contract conformance is `matching`, `drifted`, or
-`unregistered`. Directories outside `$RUNS_DIR` render as `<path>`. Cache-hit runs report the
-reused attempt directory.
+base CLI help works before optional extras. Explicit `--runs-dir` skips `ARCHIVE_DIR` /
+`PGDATA_DIR`. Contract conformance is `matching`, `drifted`, or `unregistered`. Directories
+outside `$RUNS_DIR` render as `<path>`. Cache-hit runs report the reused attempt directory.
 
 Current-state page: [Pipeline control](../current/pipeline-control.md).
 
@@ -74,6 +74,7 @@ Current-state page: [Pipeline control](../current/pipeline-control.md).
 | Latest and lake lookup | `test_latest_and_lake_dataset_lookup` | pass; `--limit` bounds lake rows |
 | Bounded anchors | `test_bounded_source_anchors` | pass; first two of three |
 | CLI and `run artifacts --json` | `tests/inspect/test_cli.py` | pass; JSON on stdout; `local` exit 1 |
+| GitHub CI without operator roots | `test_inspect_cli_and_run_artifacts_alias` with runtime config refused | pass; explicit `--runs-dir` does not load `ARCHIVE_DIR` / `PGDATA_DIR` |
 | Evaluate stage artifacts | `test_inspect_evaluate_stage_artifacts` | pass; `outcome=produced`; tree valid |
 | Make wrapper | `tests/pipeline/orchestration/test_make.py::test_make_inspect_is_read_only_and_requires_created_run_id` | pass |
 | Optional imports | `tests/inspect/test_optional_imports.py`; `tests/runtime/setup/test_optional_imports.py` | pass; no pandera/dbt/sqlalchemy/pyarrow at module import; base CLI `-S` help stays light |

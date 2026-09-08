@@ -192,7 +192,9 @@ workers, execute Pandera or dbt, write attempt trees, or treat a summary as proo
 developer `local` fallback. `arxiv-int inspect latest` uses the newest `run-*` context.
 `arxiv-int inspect DATASET` reads `$RESULTS_DIR/normalized/<dataset>/` and matching run outputs.
 `--json` writes schema `arxiv-int.inspect.v1` to stdout; `--limit N` bounds partitions, quality
-rows, lineage, and anchors.
+rows, lineage, and anchors. Explicit `--runs-dir` (and optional `--results-dir`) inspect a
+published tree without requiring `ARCHIVE_DIR` or `PGDATA_DIR`. Unflagged operator inspect still
+loads runtime configuration for those roots.
 
 Each stage line reports status, honest outcome, attempt, cache-hit, bytes, retained row counts,
 checksum validity, contract conformance, quarantines, and failures. Directories are
