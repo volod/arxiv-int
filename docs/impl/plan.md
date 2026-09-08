@@ -33,6 +33,7 @@ Review the integrated milestone before lexical loading, classification and NLP c
 - Agent status: CLEAR
 - Task kind: checkpoint
 - Dependencies: `implement-normalization-dedupe-and-chunking`;
+[Control integration checkpoint](records/0054-pipeline-review-control-integration-boundaries.md);
 [Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md);
 [Investigation profile and output manifest](records/0045-pipeline-implement-investigation-profile-and-output-manifest.md);
 [Progress logging and resource telemetry](records/0043-pipeline-add-progress-logging-and-resource-telemetry.md);
@@ -78,11 +79,14 @@ metadata.
 
 - Serves: `corpus-foundation` -- [Pipeline](../design/spec.md#pipeline)
 - Agent status: RUN NEEDED
-- Dependencies: Runtime roots documented in [Portable runtime](current/portable-runtime.md);
+- Dependencies: [Control integration checkpoint](records/0054-pipeline-review-control-integration-boundaries.md);
+[Source reconciliation and prune safety](records/0055-pipeline-repair-source-reconciliation-and-prune-safety.md);
+Runtime roots documented in [Portable runtime](current/portable-runtime.md);
 [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
 [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md);
 [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md).
 [Publication/reuse checkpoint](records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md).
+- Audit inputs: [AUD-review-control-integration-boundaries-2](records/0054-pipeline-review-control-integration-boundaries.md#audit-handoff).
 - User-visible outcome: The operator can inventory one or more multi-terabyte silos without loading
 them into RAM and can see per-silo coverage, bytes, duplicates, and unsupported/encrypted inputs.
 - Scope boundary: Read files and archive-member metadata only; no text extraction and no
@@ -1441,7 +1445,8 @@ Review the integrated milestone before provided-archive end-to-end proof and sca
 - Agent status: CLEAR
 - Task kind: checkpoint
 - Dependencies: `build-search-graph-and-report-interfaces`;
-`implement-directory-to-knowledge-base-acceptance`; `implement-anomaly-review-and-triage-exports`.
+`implement-directory-to-knowledge-base-acceptance`; `implement-anomaly-review-and-triage-exports`;
+`provision-local-dashboards-and-age-viewer`.
 - User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
 or blocked
 for the named consumers; no-refactoring-needed is a valid conclusion.
@@ -1798,7 +1803,7 @@ Review the integrated milestone before full-corpus authorization.
 - Agent status: CLEAR
 - Task kind: checkpoint
 - Dependencies: `run-representative-scale-pilots`; `test-failure-and-capacity-boundaries`;
-`implement-backup-restore-and-rebuild-runbook`.
+`implement-backup-restore-and-rebuild-runbook`; `implement-published-evidence-freshness-checks`.
 `review-recovery-before-scale-pilots`.
 - Human review handoff:
 [authorize-full-corpus-run](#authorize-full-corpus-run)

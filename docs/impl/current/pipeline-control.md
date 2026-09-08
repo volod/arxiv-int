@@ -19,8 +19,11 @@ See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface
 [repair 0047](../records/0047-pipeline-repair-pipeline-publication-and-reuse-integrity.md),
 [record 0048](../records/0048-pipeline-add-stage-artifact-inspection.md),
 [record 0049](../records/0049-pipeline-implement-incremental-reconciliation-and-stale-pruning.md),
-[record 0051](../records/0051-pipeline-implement-evidence-and-source-location-lookup.md), and
-[record 0053](../records/0053-pipeline-prove-pipeline-control-on-provided-archive.md).
+[record 0051](../records/0051-pipeline-implement-evidence-and-source-location-lookup.md),
+[record 0053](../records/0053-pipeline-prove-pipeline-control-on-provided-archive.md),
+[checkpoint 0054](../records/0054-pipeline-review-control-integration-boundaries.md),
+[repair 0055](../records/0055-pipeline-repair-source-reconciliation-and-prune-safety.md), and
+[record 0056](../records/0056-pipeline-reprove-pipeline-control-after-reconciliation-repair.md).
 
 ## Stage, source, and artifact seams
 
@@ -201,9 +204,16 @@ derived attempts. Inventory remains
 [planned](../plan.md#implement-streaming-inventory); the reconciler consumes the same
 `arxiv-int.source-manifest.v1` contract that inventory will later emit.
 
-A scan hashes readable files per silo without writing archive bytes. Incomplete, unreadable, or
-unstable silos cannot emit removal tombstones. Diff kinds are add, content-change, path-rename,
-and remove. Path-only renames reuse the content-hash shard and do not invoke workers. Root-stage
+A scan hashes readable files per silo in bounded chunks without writing archive bytes, so peak
+memory does not scale with file size. Incomplete, unreadable, or
+unstable silos cannot emit removal tombstones, and they retract no active row either: the active
+view drops a row only when every path supporting it lies in a silo both scans completed.
+Diff kinds are add, content-change, path-rename,
+and remove. A rename pairs a removal with an addition inside one silo only; a file that moves
+between silos is an honest remove plus add, because occurrences and path events are silo-scoped.
+Rename and change events carry `previous_silo_id`, and a removal carries `content_remains` when the
+same bytes still exist elsewhere.
+Path-only renames reuse the content-hash shard and do not invoke workers. Root-stage
 reuse identity is the content-hash shard once `document_id` is bound; the forecast cache plan
 walks those shards so a no-op rerun is a cache hit. Orchestration writes
 `$RUNS_DIR/<run-id>/delta/{manifest,delta,tombstones}.json`. Invalidation writes
@@ -213,7 +223,9 @@ walks those shards so a no-op rerun is a cache hit. Orchestration writes
 `pipeline rebuild` force-runs an isolated generation and records baseline match.
 
 Last-occurrence tombstones retract derived rows whose content hash is gone. Shared remaining
-paths, merge/split/review overlays, and content that still exists elsewhere stay. dbt
+paths, merge/split/review overlays, and content that still exists elsewhere stay; a removal that
+is not the last occurrence leaves its content-hash shard live rather than stale, so a still-active
+document's attempt never becomes prune-eligible. dbt
 `stg_source_tombstones` and `int_active_documents` recompute the set-based active view from
 `ctl.source_tombstone`. Typed SQLAlchemy writers live in
 `arxiv_int.pipeline.reconcile.postgres` and `tables`; the package initializer does not import
@@ -222,8 +234,11 @@ SQLAlchemy. Required quality checks still precede every active-pointer switch.
 Prune is two-phase. Dry-run ids land under `$RUNS_DIR/prune-plans/` with a copy under the latest
 `$RUNS_DIR/<run-id>/prune/`. Apply rechecks the fingerprint and refuses active generations,
 pins, `review/`, `rollback/`, decision or move ledgers, backups, and the sole recovery copy.
-Superseded attempt directories become eligible once a live generation exists. Apply retains
-checksums under `$RUNS_DIR/pruned/` and compact lineage; it never deletes archive sources.
+Superseded attempt directories become eligible once a live generation exists. Apply checks every
+listed directory for protection, root containment and symlinks before removing anything, so a
+refusal leaves each tree whole and deletion never follows a link out of `RUNS_DIR`. Apply retains
+checksums under `$RUNS_DIR/pruned/` and compact lineage; it never deletes archive sources. The
+prune event records measured `bytes_removed` alongside `directories_removed`.
 
 ## Provided-archive control proof
 
@@ -238,8 +253,12 @@ The bundle is Git `no-export` (`git_bound: []`) with separate raw-proof and tran
 fingerprints. Required gates are zero workers on a no-op rerun, exact affected/unaffected shards
 for each delta, tombstones and active rows, targeted code invalidation, simulated free-space
 refusal before allocation, rebuild checksum parity, sole-recovery prune refusal, and an
-unmodified source snapshot. Host proof `0053-host-2` is recorded in
-[record 0053](../records/0053-pipeline-prove-pipeline-control-on-provided-archive.md).
+unmodified source snapshot. The current bundle is host proof `0056-host`, published after the
+reconciliation and prune repair and recorded in
+[record 0056](../records/0056-pipeline-reprove-pipeline-control-after-reconciliation-repair.md);
+it supersedes `0053-host-2` in
+[record 0053](../records/0053-pipeline-prove-pipeline-control-on-provided-archive.md), which stays
+the account of the code it proved. Both runs report the same scenario counts on the same archive.
 
 ## Stage artifact inspection
 
@@ -296,7 +315,8 @@ command. `make forecast RUN_ID=...` requires a created run id and writes
 Inventory prefers a delta manifest, then an inventory manifest, then bounded directory metadata
 sampling (no file contents). Cache hits come from the reuse index. Comparable telemetry, when
 present, comes from prior `logs/observability-manifest.json` and `progress.jsonl`. Coefficients
-and the 2.5-4.0 amplification envelope live in `src/arxiv_int/resources/configs/capacity/envelope.json` (schema
+and the 2.5-4.0 amplification envelope live in
+`src/arxiv_int/resources/configs/capacity/envelope.json` (schema
 `arxiv-int.capacity.envelope.v1`). The decision schema is `arxiv-int.forecast.v1`.
 
 Filesystem roots are inspected and grouped by device id so a shared disk is budgeted once. Cost
@@ -420,9 +440,13 @@ links, ambiguous citations, copy extras, repeated ledger import, contract-column
 wrappers, and
 optional-import isolation. Reconciliation tests in `tests/pipeline/reconcile/` cover no-op
 updates, additions, path-only renames, change/remove retraction, partial-scan withholding,
+an incomplete scan that retracts no active row, a non-last-occurrence removal that keeps its shard
+live, a move between silos that is not one rename, same-silo rename preference, chunked hashing of
+large files,
 shared merge/split evidence, rebuild checksum parity, quality-gated activation, dbt source/ref
 lineage, and revision `0001` reconcile alignment. Prune tests in `tests/pipeline/prune/` cover
-sole-recovery refusal, protected kinds, and superseded-attempt deletion that leaves live cache
+sole-recovery refusal, protected kinds, refusal of a symlinked escape from the runs root, measured
+removed bytes, and superseded-attempt deletion that leaves live cache
 entries. Pipeline-control proof tests in `tests/evaluation/proof/test_pipeline_control.py` cover
 the named gates, dispatcher/CLI publish and check, unreadable archives, copy budgets, and
 path-free no-export bundles. Fixtures do not prove real-archive extraction quality or
@@ -430,7 +454,13 @@ CUDA worker fit.
 
 Checkpoint 0046 validates fixture publication and reuse, with live disposable SQL lease/crash checks
 and a CUDA-host resource probe. Record 0053 publishes the provided-archive control proof for
-then-usable stages. Concrete producer fingerprints, validators, database activation and remaining
-corpus stages stay with the
-[corpus/control checkpoint](../plan.md#review-corpus-and-control-integrity). The local lock is
+then-usable stages. Checkpoint 0054 reviews the producers accepted after 0046 -- inspection,
+reconciliation, prune, package layout, evidence lookup and the frozen store revision -- and repair
+0055 fixes the reconciliation and prune defects it found; record 0056 republishes the
+provided-archive bundle on the repaired code, so `0056-host` is the current real-archive evidence.
+A removal that is not the last occurrence is outside that scenario's reach and stays
+fixture-covered. Concrete producer fingerprints,
+validators, database activation and remaining corpus stages stay with the
+[corpus/control checkpoint](../plan.md#review-corpus-and-control-integrity). Source link policy
+stays with [streaming inventory](../plan.md#implement-streaming-inventory). The local lock is
 intentionally coarse; the review does not establish parallel corpus throughput or power-loss recovery.

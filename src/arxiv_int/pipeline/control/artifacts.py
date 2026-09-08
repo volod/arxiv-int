@@ -147,7 +147,7 @@ def _checksum_files(directory: Path, files: dict[str, object]) -> dict[str, File
         path = directory / str(name)
         if path.is_symlink() or not path.is_file():
             raise ArtifactPublishError(f"published file is missing: {name}")
-        digest, size = _hash_file(path)
+        digest, size = hash_file(path)
         expected_digest = str(spec.get("sha256") or "")
         expected_size = int(spec.get("bytes", -1))
         if digest != expected_digest or size != expected_size:
@@ -194,7 +194,8 @@ def sha256_text_bytes(payload: bytes) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
-def _hash_file(path: Path) -> tuple[str, int]:
+def hash_file(path: Path) -> tuple[str, int]:
+    """Return the SHA-256 digest and byte count of one file read in bounded chunks."""
     hasher = hashlib.sha256()
     total = 0
     with path.open("rb") as handle:

@@ -90,6 +90,7 @@ def _active_view(
 ) -> ActiveView:
     view = retract(view_from_occurrences(_readable(previous)), tombs)
     current_hashes = {item.content_hash for item in _readable(current)}
+    observable = _observable_silos(previous, current)
     kept: list[DerivedRow] = []
     extra_retracted: list[str] = []
     for row in view.rows:
@@ -97,6 +98,9 @@ def _active_view(
             kept.append(row)
             continue
         if row.shared_with or row.review_state in {"review", "merged", "split"}:
+            kept.append(row)
+            continue
+        if not _fully_observed(row, observable):
             kept.append(row)
             continue
         extra_retracted.append(row.row_id)
@@ -112,6 +116,18 @@ def _active_view(
 
 def _readable(manifest: SourceManifest) -> tuple[SourceOccurrence, ...]:
     return tuple(item for silo in manifest.silos for item in silo.occurrences if item.readable)
+
+
+def _observable_silos(previous: SourceManifest, current: SourceManifest) -> frozenset[str]:
+    """Silos whose absent content is real evidence, mirroring the removal rule in the diff."""
+    if not (previous.comparable and current.comparable):
+        return frozenset()
+    return previous.complete_silos() & current.complete_silos()
+
+
+def _fully_observed(row: DerivedRow, observable: frozenset[str]) -> bool:
+    """Return whether every path supporting one row was rescanned completely."""
+    return all(path.split(":", 1)[0] in observable for path in row.paths)
 
 
 def load_previous_manifest(runs_dir: Path, run_id: str) -> SourceManifest | None:

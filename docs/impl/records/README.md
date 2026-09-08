@@ -65,3 +65,6 @@ below).
 | [0051 Evidence and source location lookup](0051-pipeline-implement-evidence-and-source-location-lookup.md) | Read-only `archive locate`, citation resolver, ODCS path-event schema, Alembic `0005` | Accepted |
 | [0052 Prerelease migration consolidation](0052-store-refactor-prerelease-migration-consolidation.md) | Collapse overlay revisions into one initial store revision before any release | Accepted |
 | [0053 Pipeline-control provided-archive proof](0053-pipeline-prove-pipeline-control-on-provided-archive.md) | Forecast, cache-hit, resume, delta, invalidation, rebuild, and prune proof on a bounded archive copy | accepted |
+| [0054 Control integration boundary review](0054-pipeline-review-control-integration-boundaries.md) | Reconciliation, prune, inspection, evidence and revision checkpoint before the first corpus stage | Accepted; proceed with nonblocking note |
+| [0055 Source reconciliation and prune safety repair](0055-pipeline-repair-source-reconciliation-and-prune-safety.md) | Focused integrity prerequisite for 0054 | Accepted |
+| [0056 Pipeline-control re-proof after the repair](0056-pipeline-reprove-pipeline-control-after-reconciliation-repair.md) | Current provided-archive control bundle covering the repaired reconcile and prune modules | Accepted |

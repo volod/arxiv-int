@@ -17,6 +17,7 @@ def diff_manifests(previous: SourceManifest, current: SourceManifest) -> SourceD
     after = current.occurrence_map()
     complete = previous.complete_silos() & current.complete_silos()
     comparable = previous.comparable and current.comparable
+    remaining = _content_counts(current)
     added_keys = [key for key in after if key not in before]
     removed_keys = [
         key for key in before if key not in after and _silo_of(key) in complete and comparable
@@ -25,7 +26,7 @@ def diff_manifests(previous: SourceManifest, current: SourceManifest) -> SourceD
     for key in sorted(set(before) & set(after)):
         old, new = before[key], after[key]
         if old.content_hash != new.content_hash:
-            changed.append(_event("content-change", new, old.content_hash, old.relative_path))
+            changed.append(_event("content-change", new, old))
     renamed, leftover_added, leftover_removed = _pair_renames(
         [before[key] for key in removed_keys],
         [after[key] for key in added_keys],
@@ -34,7 +35,10 @@ def diff_manifests(previous: SourceManifest, current: SourceManifest) -> SourceD
         tuple(_event("add", item) for item in leftover_added)
         + tuple(changed)
         + tuple(renamed)
-        + tuple(_event("remove", item) for item in leftover_removed)
+        + tuple(
+            _event("remove", item, remains=remaining.get(item.content_hash, 0) > 0)
+            for item in leftover_removed
+        )
     )
     withheld = tuple(
         sorted(
@@ -60,14 +64,12 @@ def tombstones_for(
     generation_id: str,
 ) -> tuple[Tombstone, ...]:
     """Create tombstones for comparable removals; last-occurrence flags shared evidence."""
-    remaining = _content_counts(current)
     records: list[Tombstone] = []
     previous_map = previous.occurrence_map()
     for event in delta.of_kind("remove"):
         old = previous_map.get(f"{event.silo_id}:{event.relative_path}")
         if old is None:
             continue
-        last = remaining.get(old.content_hash, 0) == 0
         records.append(
             Tombstone(
                 TOMBSTONE_SCHEMA,
@@ -77,7 +79,7 @@ def tombstones_for(
                 old.content_hash,
                 current.scan_id,
                 generation_id,
-                last,
+                not event.content_remains,
             )
         )
     return tuple(records)
@@ -87,20 +89,25 @@ def _pair_renames(
     removed: list[SourceOccurrence],
     added: list[SourceOccurrence],
 ) -> tuple[tuple[DeltaEvent, ...], tuple[SourceOccurrence, ...], tuple[SourceOccurrence, ...]]:
-    by_hash: dict[str, list[SourceOccurrence]] = {}
+    """Pair a removal with an addition of the same content inside the same silo only.
+
+    A file that appears in another silo is a distinct occurrence, and the silo-scoped
+    path-event ledger cannot express a rename that crosses silos.
+    """
+    by_key: dict[tuple[str, str], list[SourceOccurrence]] = {}
     for item in sorted(removed, key=lambda occ: occ.path_key):
-        by_hash.setdefault(item.content_hash, []).append(item)
+        by_key.setdefault((item.silo_id, item.content_hash), []).append(item)
     renamed: list[DeltaEvent] = []
     leftover_added: list[SourceOccurrence] = []
     claimed: set[str] = set()
     for item in sorted(added, key=lambda occ: occ.path_key):
-        candidates = by_hash.get(item.content_hash, [])
+        candidates = by_key.get((item.silo_id, item.content_hash), [])
         if not candidates:
             leftover_added.append(item)
             continue
         old = candidates.pop(0)
         claimed.add(old.path_key)
-        renamed.append(_event("path-rename", item, old.content_hash, old.relative_path))
+        renamed.append(_event("path-rename", item, old))
     leftover_removed = tuple(item for item in removed if item.path_key not in claimed)
     return tuple(renamed), tuple(leftover_added), leftover_removed
 
@@ -108,16 +115,19 @@ def _pair_renames(
 def _event(
     kind: str,
     item: SourceOccurrence,
-    previous_hash: str = "",
-    previous_path: str = "",
+    previous: SourceOccurrence | None = None,
+    *,
+    remains: bool = False,
 ) -> DeltaEvent:
     return DeltaEvent(
         kind,
         item.silo_id,
         item.relative_path,
         item.content_hash,
-        previous_path,
-        previous_hash,
+        previous.relative_path if previous is not None else "",
+        previous.content_hash if previous is not None else "",
+        previous.silo_id if previous is not None else "",
+        remains,
     )
 
 

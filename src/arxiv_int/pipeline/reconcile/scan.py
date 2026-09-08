@@ -1,12 +1,12 @@
 """Build complete comparable source manifests without modifying archive bytes."""
 
-import hashlib
 import logging
 from dataclasses import replace
 from pathlib import Path
 from uuid import uuid4
 
 from arxiv_int.interfaces.sources import SiloRoot
+from arxiv_int.pipeline.control.artifacts import hash_file
 from arxiv_int.pipeline.reconcile.model import SiloScan, SourceManifest, SourceOccurrence
 from arxiv_int.pipeline.run.context import RunContext
 
@@ -80,7 +80,7 @@ def _read_occurrence(silo_id: str, root: Path, path: Path) -> SourceOccurrence:
     relative = path.relative_to(root).as_posix()
     try:
         first = path.stat()
-        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        digest, _size = hash_file(path)
         second = path.stat()
     except OSError:
         return SourceOccurrence(silo_id, relative, "unreadable", False, False)

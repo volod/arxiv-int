@@ -1791,9 +1791,12 @@ block independent fixture implementation.
 
 Checkpoint placement follows dependency risk, not just the end of a large capability group. Add
 bounded reviews after inference/evaluation foundations, pipeline publication orchestration,
-retrieval/classification integration, domain-artifact/anomaly integration, and recovery preparation
+control integration before the first corpus producers, retrieval/classification integration,
+domain-artifact/anomaly integration, and recovery preparation
 before scale pilots. Each names the exact producer records, cross-module invariants and first gated
-consumers. The knowledge/identity checkpoint additionally covers dynamic ontology snapshots,
+consumers. Producers accepted after a checkpoint closes are reviewed by a later round before their
+own first consumer starts; the closed round cannot stand in for them. The knowledge/identity
+checkpoint additionally covers dynamic ontology snapshots,
 geotemporal assertions and domain distinctions. Wire required consumer dependencies explicitly;
 a `Review checkpoint` label alone does not block execution. Reviews neither reopen accepted
 0029-0033 nor replace their evidence; they verify integration with the later producers.

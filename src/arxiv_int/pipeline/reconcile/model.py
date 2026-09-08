@@ -93,6 +93,8 @@ class DeltaEvent:
     content_hash: str
     previous_path: str = ""
     previous_hash: str = ""
+    previous_silo_id: str = ""
+    content_remains: bool = False
 
     def __post_init__(self) -> None:
         if self.kind not in KINDS:
@@ -100,6 +102,8 @@ class DeltaEvent:
         require_token(self.silo_id, "silo_id")
         require_relative_path(self.relative_path, "relative_path")
         require_token(self.content_hash, "content_hash")
+        if self.previous_path and not self.previous_silo_id:
+            raise ValueError("a previous path must name the silo it belonged to")
 
 
 @dataclass(frozen=True, slots=True)

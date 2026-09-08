@@ -14,7 +14,7 @@ from arxiv_int.pipeline.run.fixtures import (
     FIXTURE_PROFILE_STAGES,
     fixture_registry,
 )
-from arxiv_int.pipeline.run.persist import save_context, write_json
+from arxiv_int.pipeline.run.persist import load_json, save_context, write_json
 from arxiv_int.pipeline.run.reuse_index import load_reuse_index, load_superseded
 from tests.pipeline.conftest import make_context
 
@@ -91,3 +91,47 @@ def test_rebuild_then_prune_removes_superseded_attempts(tmp_path: Path) -> None:
     live = load_reuse_index(context.runs_dir)
     assert live
     assert all(Path(entry.directory).is_dir() for entry in live.values())
+
+
+def test_apply_refuses_a_symlinked_escape_from_the_runs_root(tmp_path: Path) -> None:
+    registry, _runners = fixture_registry()
+    context = make_context(tmp_path)
+    orchestrator = Orchestrator(registry, context.runs_dir)
+    first = orchestrator.execute_plan(context, _plan(registry))  # type: ignore[arg-type]
+    rebuilt = rebuild_context(context)
+    save_context(rebuilt)
+    orchestrator.execute_plan(rebuilt, _plan(registry), force=True)  # type: ignore[arg-type]
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    keep = outside / "precious.txt"
+    keep.write_text("keep", encoding="utf-8")
+    attempt = Path(first.executions[0].directory)
+    (attempt / "escape").symlink_to(outside, target_is_directory=True)
+    plan = build_prune_plan(context.runs_dir)
+    assert plan.eligible
+    with pytest.raises(PruneRefusedError, match="symlink"):
+        apply_prune_plan(context.runs_dir, plan.plan_id)
+    assert keep.is_file()
+    assert attempt.is_dir()
+
+
+def test_apply_records_removed_bytes(tmp_path: Path) -> None:
+    registry, _runners = fixture_registry()
+    context = make_context(tmp_path)
+    orchestrator = Orchestrator(registry, context.runs_dir)
+    orchestrator.execute_plan(context, _plan(registry))  # type: ignore[arg-type]
+    rebuilt = rebuild_context(context)
+    save_context(rebuilt)
+    orchestrator.execute_plan(rebuilt, _plan(registry), force=True)  # type: ignore[arg-type]
+    plan = build_prune_plan(context.runs_dir)
+    expected = sum(
+        item.stat().st_size
+        for entry in plan.eligible
+        for item in Path(entry.directory).rglob("*")
+        if item.is_file()
+    )
+    assert expected > 0
+    apply_prune_plan(context.runs_dir, plan.plan_id)
+    event = load_json(context.runs_dir / "prune-plans" / f"{plan.plan_id}.event.json")
+    assert event["bytes_removed"] == expected
+    assert event["directories_removed"] == len(plan.eligible)

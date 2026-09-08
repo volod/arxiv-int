@@ -21,7 +21,7 @@ def affected_hashes(delta: SourceDelta) -> frozenset[str]:
                 hashes.add(event.previous_hash)
             hashes.add(event.content_hash)
             continue
-        if event.kind == "remove":
+        if event.kind == "remove" and not event.content_remains:
             hashes.add(event.content_hash)
     return frozenset(hashes)
 
@@ -41,7 +41,7 @@ def invalidate_hashes(
     index: Mapping[str, ReuseEntry],
     edges: Sequence[tuple[str, str]],
 ) -> frozenset[str]:
-    """Mark owning shards and descendants for change/remove, never path-only rename."""
+    """Mark owning shards and descendants for a change or last-occurrence removal only."""
     roots = [
         entry.reuse_key
         for entry in index.values()
@@ -52,10 +52,11 @@ def invalidate_hashes(
 
 
 def _invalidation_roots(delta: SourceDelta) -> frozenset[str]:
+    """Content whose derived shards lost their last supporting occurrence."""
     roots: set[str] = set()
     for event in delta.events:
         if event.kind == "content-change" and event.previous_hash:
             roots.add(event.previous_hash)
-        elif event.kind == "remove":
+        elif event.kind == "remove" and not event.content_remains:
             roots.add(event.content_hash)
     return frozenset(roots)

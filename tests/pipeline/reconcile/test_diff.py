@@ -1,8 +1,12 @@
 """Source-manifest scan, diff, tombstone, and shared-evidence fixtures."""
 
+import hashlib
 from pathlib import Path
 
+import pytest
+
 from arxiv_int.interfaces.sources import SiloRoot
+from arxiv_int.pipeline.reconcile.closure import invalidate_hashes
 from arxiv_int.pipeline.reconcile.diff import diff_manifests, tombstones_for
 from arxiv_int.pipeline.reconcile.model import SiloScan, SourceManifest, SourceOccurrence
 from arxiv_int.pipeline.reconcile.scan import content_hashes, scan_silos
@@ -13,6 +17,7 @@ from arxiv_int.pipeline.reconcile.views import (
     split_row,
     view_from_occurrences,
 )
+from arxiv_int.pipeline.run.reuse_index import ReuseEntry
 
 
 def _occ(silo: str, path: str, digest: str) -> SourceOccurrence:
@@ -106,3 +111,85 @@ def test_merge_split_and_review_keep_shared_evidence() -> None:
     after = retract(view, (tomb,))
     assert "cluster-1" in after.retained or "doc-c" in after.retained
     assert after.retracted == ()
+
+
+def test_non_last_occurrence_removal_keeps_the_shard_live() -> None:
+    previous = _manifest(_occ("main", "a.txt", "aaa"), _occ("main", "dup.txt", "aaa"))
+    current = _manifest(_occ("main", "dup.txt", "aaa"))
+    delta = diff_manifests(previous, current)
+    tombs = tombstones_for(delta, previous, current, "gen-1")
+    assert [item.last_occurrence for item in tombs] == [False]
+    entry = ReuseEntry(
+        "k1", "alpha", "aaa", 1, "/runs/k1", "succeeded", 10, "run-1", "gen-1", False
+    )
+    assert invalidate_hashes(delta, {"k1": entry}, ()) == frozenset()
+
+
+def test_a_move_between_silos_is_not_reported_as_one_rename() -> None:
+    previous = SourceManifest(
+        "scan-a",
+        (
+            SiloScan("alpha", True, True, (_occ("alpha", "x.txt", "aaa"),)),
+            SiloScan("beta", True, True, ()),
+        ),
+        True,
+    )
+    current = SourceManifest(
+        "scan-b",
+        (
+            SiloScan("alpha", True, True, ()),
+            SiloScan("beta", True, True, (_occ("beta", "y.txt", "aaa"),)),
+        ),
+        True,
+    )
+    delta = diff_manifests(previous, current)
+    for event in delta.of_kind("path-rename"):
+        assert event.previous_silo_id == event.silo_id
+    kinds = {event.kind for event in delta.events}
+    assert kinds == {"add", "remove"}
+    tombs = tombstones_for(delta, previous, current, "gen-1")
+    assert [(item.silo_id, item.last_occurrence) for item in tombs] == [("alpha", False)]
+
+
+def test_rename_prefers_the_pairing_inside_one_silo() -> None:
+    previous = SourceManifest(
+        "scan-a",
+        (
+            SiloScan("alpha", True, True, (_occ("alpha", "x.txt", "aaa"),)),
+            SiloScan("beta", True, True, (_occ("beta", "x.txt", "aaa"),)),
+        ),
+        True,
+    )
+    current = SourceManifest(
+        "scan-b",
+        (
+            SiloScan("alpha", True, True, (_occ("alpha", "moved.txt", "aaa"),)),
+            SiloScan("beta", True, True, (_occ("beta", "x.txt", "aaa"),)),
+        ),
+        True,
+    )
+    delta = diff_manifests(previous, current)
+    renames = delta.of_kind("path-rename")
+    assert [(item.silo_id, item.previous_silo_id, item.previous_path) for item in renames] == [
+        ("alpha", "alpha", "x.txt")
+    ]
+
+
+def test_scan_hashes_large_files_without_reading_them_whole(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = tmp_path / "silo"
+    root.mkdir()
+    payload = b"chunked-source-bytes\n" * 4096
+    (root / "big.bin").write_bytes(payload)
+    original = Path.read_bytes
+
+    def refuse(self: Path) -> bytes:
+        if self.name == "big.bin":
+            raise AssertionError("source scan must not read a whole file into memory")
+        return original(self)
+
+    monkeypatch.setattr(Path, "read_bytes", refuse)
+    manifest = scan_silos((SiloRoot("main", root),))
+    digest = hashlib.sha256(payload).hexdigest()
+    assert content_hashes(manifest) == (digest,)

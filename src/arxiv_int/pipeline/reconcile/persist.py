@@ -184,12 +184,14 @@ def _silo_payload(silo: Any) -> dict[str, Any]:
     }
 
 
-def _event_payload(event: Any) -> dict[str, str]:
+def _event_payload(event: Any) -> dict[str, object]:
     return {
         "content_hash": event.content_hash,
+        "content_remains": event.content_remains,
         "kind": event.kind,
         "previous_hash": event.previous_hash,
         "previous_path": event.previous_path,
+        "previous_silo_id": event.previous_silo_id,
         "relative_path": event.relative_path,
         "silo_id": event.silo_id,
     }

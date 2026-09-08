@@ -7,7 +7,7 @@ from arxiv_int.pipeline.prune.compact import compact_lineage, retain_many
 from arxiv_int.pipeline.prune.model import PRUNE_SCHEMA, PruneEvent
 from arxiv_int.pipeline.prune.plan import PRUNE_DIR, fingerprint_for
 from arxiv_int.pipeline.prune.protect import blocked_directories, protections
-from arxiv_int.pipeline.run.persist import load_json
+from arxiv_int.pipeline.run.persist import load_json, write_json
 from arxiv_int.pipeline.run.reuse_index import (
     ReuseEntry,
     load_lineage,
@@ -28,12 +28,15 @@ def apply_prune_plan(runs_dir: Path, plan_id: str) -> int:
     index, superseded, eligible, blocked_dirs = _recheck(runs_dir)
     if fingerprint_for(eligible) != str(payload.get("fingerprint")):
         raise PruneRefusedError("prune plan is stale; rerun the dry-run")
-    retain_many(runs_dir, eligible)
     listed = tuple(str(item) for item in payload["directories"])
-    removed = _delete_listed(runs_dir, listed, blocked_dirs)
+    targets = _checked_targets(runs_dir, listed, blocked_dirs)
+    retain_many(runs_dir, eligible)
+    removed_bytes = sum(_remove_tree(target) for target in targets)
     _save_after_delete(runs_dir, index, superseded, listed)
-    _write_event(runs_dir, plan_id, str(payload.get("fingerprint", "")), removed)
-    return removed
+    _write_event(
+        runs_dir, plan_id, str(payload.get("fingerprint", "")), removed_bytes, len(targets)
+    )
+    return len(targets)
 
 
 def _recheck(
@@ -49,16 +52,19 @@ def _recheck(
     return index, superseded, eligible, blocked_dirs
 
 
-def _delete_listed(runs_dir: Path, directories: Sequence[str], blocked_dirs: frozenset[str]) -> int:
+def _checked_targets(
+    runs_dir: Path, directories: Sequence[str], blocked_dirs: frozenset[str]
+) -> tuple[Path, ...]:
+    """Refuse the whole plan before deleting anything, so no tree is half removed."""
     root = runs_dir.resolve()
-    removed = 0
+    targets: list[Path] = []
     for directory in directories:
         target = Path(directory).resolve()
         _refuse_protected(directory, target, blocked_dirs, root)
         if target.is_dir():
-            _remove_tree(target)
-            removed += 1
-    return removed
+            _refuse_links(target)
+            targets.append(target)
+    return tuple(targets)
 
 
 def _refuse_protected(
@@ -68,6 +74,15 @@ def _refuse_protected(
         raise PruneRefusedError(f"refusing to delete protected data: {target}")
     if root not in target.parents:
         raise PruneRefusedError(f"refusing to delete path outside RUNS_DIR: {target}")
+
+
+def _refuse_links(target: Path) -> None:
+    """Refuse an attempt tree containing a symlink; deletion must never follow one out."""
+    for child in target.iterdir():
+        if child.is_symlink():
+            raise PruneRefusedError(f"refusing to delete a tree containing a symlink: {child}")
+        if child.is_dir():
+            _refuse_links(child)
 
 
 def _save_after_delete(
@@ -95,14 +110,19 @@ def _save_after_delete(
     )
 
 
-def _write_event(runs_dir: Path, plan_id: str, fingerprint: str, removed: int) -> PruneEvent:
-    from arxiv_int.pipeline.run.persist import write_json
-
-    event = PruneEvent(PRUNE_SCHEMA, plan_id, fingerprint, "applied", removed, (), "")
+def _write_event(
+    runs_dir: Path,
+    plan_id: str,
+    fingerprint: str,
+    removed_bytes: int,
+    directories: int,
+) -> PruneEvent:
+    event = PruneEvent(PRUNE_SCHEMA, plan_id, fingerprint, "applied", removed_bytes, (), "")
     write_json(
         runs_dir / PRUNE_DIR / f"{plan_id}.event.json",
         {
             "bytes_removed": event.bytes_removed,
+            "directories_removed": directories,
             "fingerprint": event.fingerprint,
             "plan_id": event.plan_id,
             "schema": event.schema,
@@ -112,10 +132,14 @@ def _write_event(runs_dir: Path, plan_id: str, fingerprint: str, removed: int) -
     return event
 
 
-def _remove_tree(directory: Path) -> None:
+def _remove_tree(directory: Path) -> int:
+    """Delete one checked tree and return the bytes it held."""
+    removed = 0
     for child in directory.iterdir():
         if child.is_dir():
-            _remove_tree(child)
+            removed += _remove_tree(child)
         else:
+            removed += child.stat().st_size
             child.unlink()
     directory.rmdir()
+    return removed

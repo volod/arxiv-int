@@ -148,3 +148,21 @@ def test_dbt_source_ref_lineage_covers_artifact_edges() -> None:
         ("source.arxiv_int.ctl_reconcile.source_tombstone", "tomb-key"),
     )
     assert lineage_matches(edges, parent_map, aliases)
+
+
+def test_incomplete_scan_retracts_no_active_rows(tmp_path: Path) -> None:
+    registry, _runners = fixture_registry()
+    context = make_context(tmp_path, text="one")
+    (context.silos[0].root / "keep.txt").write_text("keep", encoding="utf-8")
+    orchestrator = Orchestrator(registry, context.runs_dir)
+    orchestrator.execute_plan(context, _plan(registry))  # type: ignore[arg-type]
+    for path in sorted(context.silos[0].root.iterdir()):
+        path.unlink()
+    context.silos[0].root.rmdir()
+    updated = update_context(context)
+    save_context(updated)
+    delta, view = prepare_update(context, updated, orchestrator)
+    assert delta.of_kind("remove") == ()
+    assert delta.withheld_removals
+    assert view.retracted == ()
+    assert len(view.rows) == 2
