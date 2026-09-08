@@ -45,6 +45,9 @@ def test_cli_help_lists_defaults_and_precedence() -> None:
     assert stage.run_id == "run-abc"
     prune = parser.parse_args(["artifacts", "prune", "--stale"])
     assert prune.apply is False
+    inspect = parser.parse_args(["inspect", "latest"])
+    assert inspect.command == "inspect"
+    assert inspect.target == "latest"
 
 
 def test_production_investigation_names_unregistered_required_stages() -> None:

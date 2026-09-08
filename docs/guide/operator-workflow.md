@@ -261,7 +261,7 @@ Use the returned run id and replace query/document placeholders with actual valu
 | `arxiv-int run status RUN_ID` / `make run-status` | available | Inspect per-stage progress, latest worker state, and `$RUNS_DIR/<run-id>/logs/`. |
 | `arxiv-int run resume RUN_ID` / `make resume` | available | Resume the recorded generation after an interruption. |
 | `arxiv-int pipeline update` / `make update` | available | Reconcile a changed archive into a new generation. |
-| `arxiv-int run artifacts RUN_ID`, `arxiv-int inspect RUN_ID` | planned | Inspect manifest, artifact states, coverage, provenance and errors. |
+| `arxiv-int run artifacts RUN_ID`, `arxiv-int inspect RUN_ID\|DATASET\|latest` / `make inspect` | available | Summarize published artifacts, quality, lineage, anchors, quarantines and failures without recomputing them. |
 | Open `$RUNS_DIR/<run-id>/reports/index.html` | available (diagnostic) | Read the finalize diagnostic; the specified analyst report remains planned. |
 | `arxiv-int catalog company --run RUN_ID`, `arxiv-int catalog product --run RUN_ID`, `arxiv-int catalog person --run RUN_ID` | planned | Inspect roles, aliases, identities and evidence in the three catalogs. |
 | Follow financial-party, transaction, supply-chain and BOM links | planned | Trace quantities, relations and gaps to source anchors. |

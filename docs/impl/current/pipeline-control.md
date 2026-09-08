@@ -2,8 +2,9 @@
 
 Typed stage, source, and artifact references, a generic run ledger, serialized progress
 logging with bounded resource telemetry, a fixture-first DAG CLI, a read-only pre-run
-forecast, and profile-declared knowledge-base publication are available. Concrete corpus
-stages remain [planned](../plan.md#pipeline-control----pipeline-control).
+forecast, profile-declared knowledge-base publication, and read-only stage artifact inspection
+are available. Concrete corpus stages remain
+[planned](../plan.md#pipeline-control----pipeline-control).
 
 See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface-contracts.md),
 [record 0041](../records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md),
@@ -11,8 +12,9 @@ See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface
 [record 0043](../records/0043-pipeline-add-progress-logging-and-resource-telemetry.md),
 [record 0044](../records/0044-pipeline-implement-evidence-based-pipeline-forecast.md), and
 [record 0045](../records/0045-pipeline-implement-investigation-profile-and-output-manifest.md),
-[checkpoint 0046](../records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md), and
-[repair 0047](../records/0047-pipeline-repair-pipeline-publication-and-reuse-integrity.md).
+[checkpoint 0046](../records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md),
+[repair 0047](../records/0047-pipeline-repair-pipeline-publication-and-reuse-integrity.md), and
+[record 0048](../records/0048-pipeline-add-stage-artifact-inspection.md).
 
 ## Stage, source, and artifact seams
 
@@ -162,6 +164,8 @@ new generation and skips cache reuse.
 | `arxiv-int pipeline rebuild` / `make rebuild` | Fresh generation without cache reuse |
 | `arxiv-int pipeline invalidate STAGE --run-id RUN_ID` / `make invalidate` | Logical stale closure; no deletes |
 | `arxiv-int run status RUN_ID` / `make run-status RUN_ID=...` | Per-stage ledger status plus latest progress snapshot |
+| `arxiv-int inspect RUN_ID\|DATASET\|latest` / `make inspect RUN_ID=...` | Read-only row/byte, partition, quality, and failure summary |
+| `arxiv-int run artifacts RUN_ID` | Alias of inspect for one frozen run |
 | `arxiv-int run resume RUN_ID` / `make resume RUN_ID=...` | Continue after halt or SIGINT |
 | `arxiv-int run finalize RUN_ID` / `make run-finalize RUN_ID=...` | Seal `knowledge-base.json`; activate only a complete profile |
 | `arxiv-int artifacts prune --stale` / `make prune` | Dry-run stale derived attempts; `--apply --plan PLAN_ID` is separate |
@@ -179,6 +183,24 @@ or not-run checks halt downstream work. The directory-to-report gate waits on co
 
 `stage STAGE=preflight` as a registered worker remains unimplemented. Aggregate commands still
 run an archive-readability preflight handler before forecast.
+
+## Stage artifact inspection
+
+`src/arxiv_int/inspect/` summarizes what a normal stage already published. It does not rerun
+workers, execute Pandera or dbt, write attempt trees, or treat a summary as proof acceptance.
+`arxiv-int inspect RUN_ID` and `make inspect RUN_ID=...` require a created run id, not Make's
+developer `local` fallback. `arxiv-int inspect latest` uses the newest `run-*` context.
+`arxiv-int inspect DATASET` reads `$RESULTS_DIR/normalized/<dataset>/` and matching run outputs.
+`--json` writes schema `arxiv-int.inspect.v1` to stdout; `--limit N` bounds partitions, quality
+rows, lineage, and anchors.
+
+Each stage line reports status, honest outcome, attempt, cache-hit, bytes, retained row counts,
+checksum validity, contract conformance, quarantines, and failures. Directories are
+`$RUNS_DIR`-relative POSIX paths. Quality comes from attempt `quality.json` plus published
+`$RUNS_DIR/<run-id>/quality/result.json`. Sanitized dbt lineage comes from quality
+transformations or published `run_results.json`, never from a live transform. Empty, partial,
+quarantined, failed, and schema-drifted trees still produce a stable summary. Inspection
+rechecks checksums in place and leaves bytes unchanged.
 
 ## Pre-run forecast and resource refusal
 
@@ -306,7 +328,10 @@ alignment, lexical subset, schema drift, complete activate, valid-empty succeed,
 replace complete, failed diagnostic without activation, unreadable preflight, interrupted 130
 plus resume then activate, stale upstream, crash after-manifest, crash after-catalog-write plus
 orphan reconcile, report cannot activate, aggregate versus atomic logical equivalence, CLI/Make
-finalize, and optional-import isolation. Fixtures do not prove real-archive extraction quality or
+finalize, and optional-import isolation. Inspection tests in `tests/inspect/` cover empty,
+partial, quarantined, schema-drifted, and failed summaries, checksum stability, secret/path
+redaction, latest and lake lookup, bounded anchors, evaluate-stage artifacts, CLI/Make wrappers,
+and optional-import isolation. Fixtures do not prove real-archive extraction quality or
 CUDA worker fit.
 
 Checkpoint 0046 validates fixture publication and reuse, with live disposable SQL lease/crash checks

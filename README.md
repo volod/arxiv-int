@@ -81,9 +81,10 @@ arxiv-int contracts --help
 arxiv-int data-quality check DATASET --run-id RUN_ID --input PATH
 arxiv-int transform parse|compile|build|test --run-id RUN_ID
 arxiv-int store projections-build|status|cleanup --run-id RUN_ID
-arxiv-int run create|status|resume|finalize
+arxiv-int run create|status|resume|finalize|artifacts
 arxiv-int pipeline forecast|run|update|rebuild|invalidate
 arxiv-int stage STAGE --run-id RUN_ID
+arxiv-int inspect DATASET|RUN|latest [--limit N] [--json]
 arxiv-int artifacts prune --stale
 ```
 
@@ -94,10 +95,11 @@ unexecuted required check cannot look publishable. `transform` parses, compiles,
 isolated derived dbt models; a failed or unexecuted required live check cannot look like a pass.
 `store projections-*` builds, switches, and cleans ParadeDB/pgvector/AGE projections without making
 them canonical; a failed build cannot replace an active pointer.
-`run` / `pipeline` / `stage` / `artifacts prune` freeze a unique run id and walk or maintain the
-selected DAG. A default investigation run refuses unimplemented required stages. Fixture
-knowledge-base publication writes `$RUNS_DIR/<run-id>/knowledge-base.json` and activates only a
-complete requested profile.
+`run` / `pipeline` / `stage` / `inspect` / `artifacts prune` freeze a unique run id and walk or
+maintain the selected DAG. `inspect` summarizes published artifacts without recomputing them.
+A default investigation run refuses unimplemented required stages. Fixture knowledge-base
+publication writes `$RUNS_DIR/<run-id>/knowledge-base.json` and activates only a complete
+requested profile.
 Domain commands arrive as their specified capabilities are implemented.
 
 ## Development

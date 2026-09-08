@@ -242,6 +242,9 @@ def build_parser() -> argparse.ArgumentParser:
     from arxiv_int.evaluation.export_cli import add_evaluation_parser
 
     add_evaluation_parser(subcommands)
+    from arxiv_int.inspect.cli import add_inspect_parser
+
+    add_inspect_parser(subcommands)
     from arxiv_int.pipeline.cli import add_pipeline_parsers
 
     add_pipeline_parsers(subcommands)
@@ -581,6 +584,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         from arxiv_int.evaluation.export_commands import run_evaluation_command
 
         return run_evaluation_command(args)
+    if args.command == "inspect":
+        from arxiv_int.inspect.commands import run_inspect_command
+
+        return run_inspect_command(args)
     if args.command in {"pipeline", "stage", "run", "artifacts"}:
         from arxiv_int.pipeline.dispatch import run_pipeline_command
 

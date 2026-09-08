@@ -140,3 +140,10 @@ def _add_run_group(
     finalize.add_argument("run_id")
     finalize.add_argument("--runs-dir", type=Path, default=None)
     finalize.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
+    artifacts_run = run_commands.add_parser(
+        "artifacts", help="summarize published stage artifacts for one run"
+    )
+    artifacts_run.add_argument("run_id")
+    from arxiv_int.inspect.cli import add_run_artifacts_parser
+
+    add_run_artifacts_parser(artifacts_run)

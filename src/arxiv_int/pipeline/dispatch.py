@@ -128,6 +128,10 @@ def _run(args: argparse.Namespace, token: CancelToken) -> int:
             _LOG.info("%s", format_progress(latest))
             _LOG.info("worker_state=%s", latest.worker_state)
         return 0
+    if action == "artifacts":
+        from arxiv_int.inspect.commands import run_inspect_command
+
+        return run_inspect_command(args)
     context = load_context(Path(runs_dir), run_id)
     if action == "finalize":
         return finalize_run(context)

@@ -36,6 +36,7 @@ def test_make_help_lists_pipeline_targets() -> None:
         "run-status",
         "forecast",
         "run-finalize",
+        "inspect",
     ):
         assert name in help_text
 
@@ -63,6 +64,13 @@ def test_make_stage_and_resume_refuse_developer_run_id_fallback() -> None:
     explicit = _dry_run("stage", "STAGE=inventory", "RUN_ID=run-abc")
     assert '--run-id "run-abc"' in explicit
     assert "arxiv_int_require_created_run_id" in explicit
+
+
+def test_make_inspect_is_read_only_and_requires_created_run_id() -> None:
+    text = _dry_run("inspect", "RUN_ID=run-abc")
+    assert "arxiv_int_require_created_run_id" in text
+    assert 'inspect "run-abc"' in text
+    assert "--force" not in text
 
 
 def test_make_pipeline_passes_from_to_without_hardcoded_paths() -> None:

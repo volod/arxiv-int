@@ -44,7 +44,7 @@ KIND ?= all
 	proof-export identity-policy-check evaluation-fixtures-check inference-schemas-check \
 	eval proof \
 	pipeline run-create stage resume update rebuild invalidate prune run-status forecast \
-	run-finalize \
+	run-finalize inspect \
 	ci-checks ci ci-github build quality code-quality quality-report
 
 help: ## List available targets
@@ -330,6 +330,14 @@ run-status: ## Show per-stage progress (RUN_ID= from make run-create)
 	@source "$(COMMON_SH)" && arxiv_int_load_env && \
 		arxiv_int_require_created_run_id "$(RUN_ID)" && \
 		"$(VENV)/bin/arxiv-int" run status "$(RUN_ID)"
+
+inspect: ## Summarize published stage artifacts (RUN_ID= from make run-create)
+	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }
+	@source "$(COMMON_SH)" && arxiv_int_load_env && \
+		arxiv_int_require_created_run_id "$(RUN_ID)" && \
+		"$(VENV)/bin/arxiv-int" inspect "$(RUN_ID)" \
+		$(if $(LIMIT),--limit $(LIMIT),) \
+		$(if $(filter 1,$(JSON)),--json,)
 
 update: ## Incremental DAG update from the current archive
 	@test -x "$(VENV)/bin/arxiv-int" || { echo "ERROR: run 'make bootstrap' first"; exit 1; }

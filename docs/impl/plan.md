@@ -25,31 +25,6 @@ and name ready/pending human decisions and the dependent work that must wait at 
 
 ### Pipeline control -- `pipeline-control`
 
-#### add-stage-artifact-inspection
-
-Report what a normal pipeline stage produced without recomputing it.
-
-- Serves: `pipeline-control` -- [CLI and Make interface](../design/spec.md#cli-and-make-interface)
-- Agent status: RUN NEEDED
-- Dependencies: [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md).
-- User-visible outcome: After any stage or complete pipeline run, the operator can inspect row and
-byte counts, partitions, contract conformance, bounded source anchors, quarantines, and failures by
-run id.
-- Scope boundary: Read and summarize normal run artifacts; do not introduce development-only paths
-or commands, rerun stages, mutate artifacts, or treat an inspection as proof acceptance.
-- Data and artifact paths: `src/arxiv_int/inspect/`, `$RESULTS_DIR/normalized/`,
-`$RUNS_DIR/<run-id>/`, `src/arxiv_int/cli.py`, `Makefile`, and inspection fixtures.
-- Execution path: Add `arxiv-int inspect RUN_ID` and the matching run-artifact lookup using the
-pipeline registry and contracts; render console and JSON summaries with bounded samples and masked
-secrets; inspect the real run produced after each available stage implementation.
-Read retained Pandera/dbt quality results and sanitized model lineage; show rule scope, failed
-counts, quarantine references and not-run status without executing transformations.
-- Acceptance gates: Normal empty, partial, quarantined, and schema-drifted run artifacts produce
-stable summaries; inspection leaves checksums unchanged; summaries contain no secrets, unbounded
-corpus text, development alias, or machine-specific path.
-- Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
-
 #### implement-incremental-reconciliation-and-stale-pruning
 
 Reconcile archive and implementation deltas through artifact lineage, retract stale active data,
