@@ -310,7 +310,7 @@ arxiv-int/
     query/
     reporting/
     security/
-    evaluation/                 # bundles, export, fixtures, families, proof, evaluate, scoring
+    evaluation/                 # bundles, fixtures, families, proof, evaluate, scoring
     quality/
   tests/                        # mirrors src/arxiv_int subpackages
   docs/

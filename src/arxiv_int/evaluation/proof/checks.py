@@ -83,7 +83,7 @@ def redact_summary_text(text: str) -> str:
 
 
 def refuse_corpus_leak(text: str, forbidden: Mapping[str, str] | None = None) -> None:
-    """Refuse unobfuscated identity or source strings in a Git-bound summary."""
+    """Refuse unobfuscated identity or source strings in a published proof summary."""
     tokens = dict(SYNTHETIC_IDENTITY_TOKENS)
     tokens.update(forbidden or {})
     for label, original in tokens.items():
@@ -92,7 +92,7 @@ def refuse_corpus_leak(text: str, forbidden: Mapping[str, str] | None = None) ->
 
 
 def refuse_proof_payloads(payloads: Mapping[str, str]) -> None:
-    """Refuse identity tokens and private paths in Git-bound proof payloads."""
+    """Refuse identity tokens and private paths in published proof payloads."""
     for name, text in payloads.items():
         if name == "identities.json" or name.endswith("/identities.json"):
             raise ProofRedactionError("proof directory contains identities.json")

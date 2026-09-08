@@ -1,5 +1,6 @@
 """Provided-archive pipeline-control proof on a disposable copy."""
 
+import json
 from pathlib import Path
 
 import pytest
@@ -34,10 +35,15 @@ def test_pipeline_control_proof_passes_required_gates(tmp_path: Path) -> None:
     after = snapshot_sources((SiloRoot("default", archive),))
     assert before.fingerprint == after.fingerprint
     assert (archive / "keep.txt").read_text(encoding="ascii") == "keep\n"
-    assert published.directory.joinpath("export.json").is_file()
-    export_text = published.directory.joinpath("export.json").read_text(encoding="utf-8")
-    assert '"result": "no-export"' in export_text
-    assert '"git_bound": []' in export_text
+    assert not published.directory.joinpath("export.json").exists()
+    assert not published.directory.joinpath("policy.json").exists()
+    scenario = json.loads(published.directory.joinpath("scenario.json").read_text(encoding="utf-8"))
+    assert scenario["archive_unmodified"] is True
+    assert scenario["deltas"]["remove"]["last_occurrence"] >= 1
+    fingerprint = json.loads(
+        published.directory.joinpath("fingerprint.json").read_text(encoding="utf-8")
+    )
+    assert fingerprint == {"data_class": "raw", "raw_fingerprint": published.fingerprint}
     gates_text = published.directory.joinpath("gates.json").read_text(encoding="utf-8")
     for name in GATE_NAMES:
         assert f'"{name}": "pass"' in gates_text
@@ -133,5 +139,5 @@ def test_gate_helper_requires_every_named_gate() -> None:
     assert "noop_zero_workers" in GATE_NAMES
     complete = {name: "pass" for name in GATE_NAMES}
     assert all_gates_passed(complete)
-    incomplete = {name: "pass" for name in GATE_NAMES if name != "no_export"}
+    incomplete = {name: "pass" for name in GATE_NAMES if name != "archive_unmodified"}
     assert not all_gates_passed(incomplete)

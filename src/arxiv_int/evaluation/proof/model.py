@@ -16,7 +16,6 @@ VALIDATOR_CHECKSUMS = "artifact-checksums"
 VALIDATOR_SPLIT = "split-leakage"
 VALIDATOR_LEDGER = "item-ledger"
 VALIDATOR_STAGE = "stage-validation"
-VALIDATOR_EXPORT = "identity-export"
 
 
 @dataclass(frozen=True, slots=True)
@@ -81,7 +80,7 @@ def capability_registry_document() -> dict[str, object]:
             ),
             "evaluation-foundation": _target(
                 ["evaluate"],
-                [VALIDATOR_BUNDLE, VALIDATOR_SPLIT, VALIDATOR_LEDGER, VALIDATOR_EXPORT],
+                [VALIDATOR_BUNDLE, VALIDATOR_SPLIT, VALIDATOR_LEDGER],
                 proof_kind="fixtures",
             ),
             "identity-ontology-graph": _target(

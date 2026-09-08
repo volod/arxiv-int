@@ -1,4 +1,4 @@
-"""Dependency-free evaluation primitives, fixtures, bundles, and proof export."""
+"""Dependency-free evaluation primitives, fixtures, bundles, and capability proofs."""
 
 from arxiv_int.evaluation.bundles import (
     BundleSpec,
@@ -20,18 +20,6 @@ from arxiv_int.evaluation.evaluate.errors import (
 )
 from arxiv_int.evaluation.evaluate.run import EvaluateRequest, run_evaluate
 from arxiv_int.evaluation.evaluate.stage import EvaluateStage
-from arxiv_int.evaluation.export.errors import (
-    ExportCollisionError,
-    ExportError,
-    ExportLeakError,
-    ExportUnsupportedError,
-)
-from arxiv_int.evaluation.export.exporter import (
-    ExportMapping,
-    ExportRequest,
-    PublishedExport,
-    export_proof_bundle,
-)
 from arxiv_int.evaluation.scoring.linkage import LinkageLabel, LinkageMetrics, score_linkage
 from arxiv_int.evaluation.scoring.metrics import ExtractionMetrics, extraction_metrics, text_metrics
 from arxiv_int.evaluation.scoring.paired import (
@@ -50,12 +38,6 @@ __all__ = [
     "BundleSpec",
     "EvaluateRequest",
     "EvaluateStage",
-    "ExportCollisionError",
-    "ExportError",
-    "ExportLeakError",
-    "ExportMapping",
-    "ExportRequest",
-    "ExportUnsupportedError",
     "ExtractionMetrics",
     "LinkageLabel",
     "LinkageMetrics",
@@ -65,8 +47,6 @@ __all__ = [
     "ProofExistsError",
     "ProofUnknownCapabilityError",
     "PublishedBundle",
-    "PublishedExport",
-    "export_proof_bundle",
     "extraction_metrics",
     "paired_comparison",
     "paired_verdict",

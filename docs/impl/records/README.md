@@ -68,3 +68,4 @@ below).
 | [0054 Control integration boundary review](0054-pipeline-review-control-integration-boundaries.md) | Reconciliation, prune, inspection, evidence and revision checkpoint before the first corpus stage | Accepted; proceed with nonblocking note |
 | [0055 Source reconciliation and prune safety repair](0055-pipeline-repair-source-reconciliation-and-prune-safety.md) | Focused integrity prerequisite for 0054 | Accepted |
 | [0056 Pipeline-control re-proof after the repair](0056-pipeline-reprove-pipeline-control-after-reconciliation-repair.md) | Current provided-archive control bundle covering the repaired reconcile and prune modules | Accepted |
+| [0057 Retire the committed proof export](0057-eval-found-retire-committed-proof-export.md) | Delete the Git-bound exporter, its packaged identity policy, and the bundle fields that only described an export | Accepted |

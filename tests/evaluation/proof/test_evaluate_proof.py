@@ -139,7 +139,6 @@ def test_proof_publish_rejects_unvalidated_and_stale(
         stages={"evaluate": "validated"},
         validators={
             "evaluation-bundle": "pass",
-            "identity-export": "pass",
             "item-ledger": "pass",
             "split-leakage": "pass",
             "stage:evaluate": "pass",

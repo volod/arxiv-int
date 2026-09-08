@@ -24,43 +24,6 @@ in place.
 a prerequisite on the producer. Follow the [handoff workflow](../guide/planning-workflow.md#human-review-handoffs)
 and name ready/pending human decisions and the dependent work that must wait at task completion.
 
-### Evaluation foundation -- `evaluation-foundation`
-
-#### retire-committed-proof-export
-
-Remove the Git-bound proof export path so no archive-derived artifact can be prepared for a commit.
-
-- Serves: `evaluation-foundation` --
-[Published proof and evaluation data](../design/spec.md#published-proof-and-evaluation-data)
-- Agent status: CLEAR
-- Dependencies: [Committed proof identity obfuscation](records/0035-eval-found-implement-committed-proof-identity-obfuscation.md);
-[Inference and evaluation checkpoint](records/0038-eval-found-review-inference-and-evaluation-boundaries.md);
-[Pipeline-control re-proof](records/0056-pipeline-reprove-pipeline-control-after-reconciliation-repair.md).
-- User-visible outcome: No command, packaged policy or Make target can turn source-derived proof
-data into repository files; a proof bundle stays under the configured roots and a reviewer validates
-it there.
-- Scope boundary: Remove the export path, its packaged identity policy and the bundle fields that
-exist only to describe an export; keep everything a proof records about artifacts, checksums, gates
-and fingerprints, and keep every secret, path and leak rule that is independent of it. Do not touch
-synthetic test fixtures and do not change where proofs are written.
-- Data and artifact paths: `src/arxiv_int/evaluation/export/`, `src/arxiv_int/evaluation/cli.py`,
-`src/arxiv_int/evaluation/proof/`, `src/arxiv_int/resources/configs/evaluation/proof-identity-policy.json`,
-`make/eval.mk`, `tests/evaluation/export/`, `docs/impl/current/evaluation-foundation.md`, and
-`docs/guide/development.md`.
-- Execution path: Delete the exporter package, its policy asset, the `evaluation export-proof` and
-`evaluation identity-policy` commands and the `proof-export` and `identity-policy-check` targets,
-and drop that check from `ci-checks`; remove `export.json`, the transformed-fingerprint half of
-`policy.json` and the `git_bound` field from published bundles while keeping the bundle's own raw
-fingerprint and verdict; delete the export tests and any fixture that only served them; rewrite the
-affected current-state sections to describe in-place review against the configured roots.
-- Acceptance gates: No module, command, Make target, packaged asset, test or document references a
-Git-bound export or an identity-obfuscation policy; a published bundle still records artifacts,
-checksums, gates and its fingerprint and still passes `evaluation proof check`; the removed CI check
-leaves `make ci` green without weakening a remaining gate; a repository scan finds no
-archive-derived file. Record the superseded bundle shape rather than rewriting accepted records.
-- Documentation target: `docs/impl/current/evaluation-foundation.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
-
 ### Pipeline control -- `pipeline-control`
 
 #### bind-real-owned-stage-fingerprints
@@ -244,7 +207,8 @@ Review the integrated milestone before lexical loading, classification and NLP c
 [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 [Publication/reuse checkpoint](records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md);
 [Incremental reconciliation and stale pruning](records/0049-pipeline-implement-incremental-reconciliation-and-stale-pruning.md).
-- Audit inputs: [AUD-review-pipeline-publication-and-reuse-boundaries-2](records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md#audit-handoff).
+- Audit inputs: [AUD-review-pipeline-publication-and-reuse-boundaries-2](records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md#audit-handoff);
+[AUD-retire-committed-proof-export-1](records/0057-eval-found-retire-committed-proof-export.md#audit-handoff).
 - User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
 or blocked
 for the named consumers; no-refactoring-needed is a valid conclusion.

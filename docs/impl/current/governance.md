@@ -69,12 +69,13 @@ agent to report the human task, ready/pending state, packet/inspection path, dec
 consumer. `make plan-status` resolves dependency readiness; it does not itself judge packet quality
 or print these completion handoffs. Human judgment is not replaced by the structural checker.
 
-The specification defines pinned dynamic ontology/geotemporal/domain semantics and now forbids
+The specification defines pinned dynamic ontology/geotemporal/domain semantics and forbids
 committing any archive-derived artifact: proof, gold and dataset files stay under the configured
-roots and are reviewed in place. The superseded Git-bound exporter of
-[record 0035](../records/0035-eval-found-implement-committed-proof-identity-obfuscation.md) is still
-present; its removal is owned by
-[retire-committed-proof-export](../plan.md#retire-committed-proof-export).
+roots and are reviewed in place. The export path of
+[record 0035](../records/0035-eval-found-implement-committed-proof-identity-obfuscation.md) has been
+retired with its packaged identity policy; no command, Make target or packaged asset can turn
+source-derived proof data into repository files
+([record 0057](../records/0057-eval-found-retire-committed-proof-export.md)).
 Ontology/geotemporal contracts remain planned. Accepted records 0029-0033 and their runtime
 behavior are preserved.
 

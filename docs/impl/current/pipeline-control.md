@@ -249,8 +249,10 @@ and 16 MiB total. Add/change/rename/remove, fingerprint bump, rebuild, and prune
 on that copy. The supplied archive is not written. Then-usable stages are registered `preflight`
 plus the fixture DAG; inventory and later corpus stages are not part of this proof.
 
-The bundle is Git `no-export` (`git_bound: []`) with separate raw-proof and transformed-export
-fingerprints. Required gates are zero workers on a no-op rerun, exact affected/unaffected shards
+The bundle stays under `RESULTS_DIR` and is reviewed there. It holds `proof-manifest.json`,
+`summary.txt`, `gates.json`, `scenario.json`, `forecast-summary.json` and a `fingerprint.json`
+recording the raw fingerprint of its own manifest, so a reviewer can confirm the bundle a record
+names. Required gates are zero workers on a no-op rerun, exact affected/unaffected shards
 for each delta, tombstones and active rows, targeted code invalidation, simulated free-space
 refusal before allocation, rebuild checksum parity, sole-recovery prune refusal, and an
 unmodified source snapshot. The current bundle is host proof `0056-host`, published after the
@@ -259,6 +261,10 @@ reconciliation and prune repair and recorded in
 it supersedes `0053-host-2` in
 [record 0053](../records/0053-pipeline-prove-pipeline-control-on-provided-archive.md), which stays
 the account of the code it proved. Both runs report the same scenario counts on the same archive.
+Both were published in the superseded bundle shape, whose `export.json` and identity-policy
+`policy.json` were retired by
+[record 0057](../records/0057-eval-found-retire-committed-proof-export.md); their scenario counts
+now live in `scenario.json` and the `no_export` gate is gone with the export path.
 
 ## Stage artifact inspection
 

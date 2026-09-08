@@ -56,7 +56,7 @@ RETRIEVAL_K = 5
 LATENCY_P95 = 95.0
 DEFAULT_BOOTSTRAP_SEED = 13
 
-# Synthetic labels that must never appear in Git-bound proof summaries.
+# Synthetic labels that must never appear in a published proof summary.
 SYNTHETIC_IDENTITY_TOKENS = {
     "person": "Fixture Person",
     "company": "Fixture Company",

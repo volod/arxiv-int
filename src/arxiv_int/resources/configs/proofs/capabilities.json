@@ -72,8 +72,7 @@
       "required_validators": [
         "evaluation-bundle",
         "split-leakage",
-        "item-ledger",
-        "identity-export"
+        "item-ledger"
       ],
       "usable_stages": [
         "evaluate"

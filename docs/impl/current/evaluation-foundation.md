@@ -8,7 +8,8 @@ fixture proof.
 See [record 0033](../records/0033-eval-found-refactor-evaluation-bundle-validation.md),
 [record 0035](../records/0035-eval-found-implement-committed-proof-identity-obfuscation.md),
 [record 0036](../records/0036-eval-found-create-evaluation-fixtures-and-metrics.md), and
-[record 0038](../records/0038-eval-found-review-inference-and-evaluation-boundaries.md).
+[record 0038](../records/0038-eval-found-review-inference-and-evaluation-boundaries.md), and
+[record 0057](../records/0057-eval-found-retire-committed-proof-export.md).
 
 ## Frozen fixtures
 
@@ -110,7 +111,6 @@ Modules:
 | `evaluation/accuracy.py`, `domain_eval.py`, `geo_eval.py`, `anomaly_eval.py`, `scoring.py` | Paired metrics and missing-evidence refusal |
 | `evaluation/stage.py`, `evaluate_run.py` | Evaluate stage and bundle publication |
 | `evaluation/proof_*.py` | Capability registry, freshness, redaction, dispatcher |
-| `evaluation/export_*.py`, `exporter.py` | Git-bound identity obfuscation from a verified bundle |
 
 `manifest.json` and `scores.jsonl` are reserved root names. Extra artifact names are normalized to
 relative posix paths before those reservations are applied. Absolute names, parent traversal, empty
@@ -139,38 +139,36 @@ opened path stays under the resolved bundle root (`/proc/self/fd` on Linux), and
 chunks. Publisher callers still pass extra artifacts as in-memory bytes; scores rows are written
 incrementally.
 
-## Git-bound identity export
+## Published proof bundles
 
-`export_proof_bundle()` copies selected artifacts from a verified run bundle to explicit Git-bound
-paths. It does not mutate the source bundle, archive silos, local proofs, or human-review packets,
-and it does not commit. Policy version 1 uses public namespace `arxiv-int/proof-identity/v1` and
-SHA-256; there is no secret key or rotation service.
+A capability proof is written under `RESULTS_DIR/proofs/<capability>/<proof-id>/` and reviewed
+there. Nothing copies it, an excerpt of it, or its location into this repository; there is no
+command, Make target or packaged asset that turns source-derived proof data into repository files.
 
-The source bundle may include `identities.json` declaring person, company and product entities,
-aliases, typed email/phone/address/account fields, and character spans. Empty catalogs are valid
-for synthetic fixtures with no real identities. Entity labels hash stable ids so same-name entities
-stay distinct. Shared contacts hash normalized field values so repeats stay comparable. Phone,
-address and account substitutes keep required shape and replacement check digits. Colliding
-substitutes and residual source identities refuse export. Unsupported binaries are refused rather
-than copied raw. `identities.json` itself cannot be exported.
+An `evaluation-foundation` bundle holds `proof-manifest.json`, `summary.txt` and
+`fingerprint.json`. A `pipeline-control` bundle adds `gates.json`, `scenario.json` and
+`forecast-summary.json`. The manifest carries the capability, proof and run ids, `data_class`,
+verdict, input fingerprints, stage and validator outcomes, and a sha256/byte record for every
+artifact. `fingerprint.json` records `data_class` and the `raw_fingerprint` of the manifest bytes,
+so a reviewer can confirm the bundle they hold is the one a record names.
 
-Text, JSON and JSONL are rewritten together, including queries, labels, expected answers, graph
-references and remapped spans. Dates, coordinates, quantities and units are not independently
-hashed. Exported manifests record `data_class=transformed` so metrics are not labelled raw-archive
-results. The complete source-to-substitute map stays under `$DATA_DIR/proof-export/<run-id>/`.
-The identity-free receipt carries policy, source-bundle and export fingerprints.
+`publish_capability_proof()` refuses an unregistered capability, a capability whose usable stages
+have no publisher, and an occupied destination, including a symlink at that name. Every payload
+passes the leak rules before it is written: configured roots are replaced by their variable names,
+a private path marker refuses publication, synthetic identity labels refuse publication, and an
+`identities.json` entry anywhere in the tree refuses both publication and check.
+
+`check_capability_proof()` re-reads a published directory, resolves the capability's expected
+fingerprints, enforces the checksum, freshness and usable-stage gates, walks the tree for leaks and
+nonregular entries, and returns the manifest fingerprint.
 
 Commands:
 
 ```text
-arxiv-int evaluation export-proof --source-bundle DIR --map ARTIFACT=DEST --run-id ID
-arxiv-int evaluation identity-policy generate|check
-make proof-export SOURCE_BUNDLE=... MAP="a=b" RUN_ID=...
-make identity-policy-check
+arxiv-int evaluation proof discover|publish|check|generate-registry
+make proof CAPABILITY=... RUN_ID=...
+make evaluation-fixtures-check
 ```
-
-Relative destinations resolve against `--destination-root` or the project root. Repeated runs from
-different roots and mapping order produce the same export fingerprint and bytes.
 
 ## Tests and verification
 
@@ -178,14 +176,12 @@ Deterministic tests under `tests/evaluation/` cover happy-path publication, fing
 corruption, unregistered files, reserved names, path escape, an external symlink with matching
 bytes, a symlinked artifact directory, a fifo, a symlinked manifest, a destination symlink,
 malformed and non-canonical manifests, missing identities, invalid digests, and competing
-publishers. Export tests cover cross-root/order determinism, same-name nonmatch, alias and shared
-contact consistency, graph joins, span remap, phone/address/account check digits, collision and
-leak refusal, original-byte preservation, local-only files, binary refusal, and transformed
-manifest marking. Fixture tests cover split leakage, ledger replay, positive/negative polarity,
-missing-evidence and non-finite metric refusal, ontology/geotemporal/domain negatives after
-identity export, proof discovery, unknown capability, stale fingerprints, missing checksums,
-unvalidated stages, evaluate/proof no-replace publication, leaking proof trees, and retired
-`PROOF_ARCHIVE_DIR` isolation from evaluation roots.
+publishers. Fixture tests cover split leakage, ledger replay, positive/negative polarity,
+missing-evidence and non-finite metric refusal, ontology/geotemporal/domain negatives, proof
+discovery, unknown capability, stale fingerprints, missing checksums, unvalidated stages,
+evaluate/proof no-replace publication, leaking proof trees, the published proof-bundle shape with
+its refusal of any export or identity-policy command, and retired `PROOF_ARCHIVE_DIR` isolation
+from evaluation roots.
 Fixture coverage does not prove real-archive quality.
 
 The inference/evaluation checkpoint also covers cross-process GPU leases, requested-model
@@ -193,12 +189,12 @@ identity mismatch, and parser registration without optional HTTP extras. See
 [record 0038](../records/0038-eval-found-review-inference-and-evaluation-boundaries.md).
 
 Disposable synthetic bundle evidence lives under `$DATA_DIR/bundle-validation/<run-id>/`.
-Synthetic export evidence lives under `$DATA_DIR/proof-export/<run-id>/`. Synthetic evaluate and
-fixture-proof evidence lives under `$DATA_DIR/evaluation/<run-id>/`. Those trees are not
-provided-archive proofs.
+Synthetic evaluate and fixture-proof evidence lives under `$DATA_DIR/evaluation/<run-id>/`. Those
+trees are not provided-archive proofs.
 
-Proof and human-review packets stay under the configured roots. The exporter is still present but
-is no longer a sanctioned path: the specification now forbids committing any archive-derived
-artifact, and removal is owned by
-[retire-committed-proof-export](../plan.md#retire-committed-proof-export). See
+Proof and human-review packets stay under the configured roots and a reviewer validates them in
+place. The Git-bound exporter, its packaged proof-identity policy, the `identity-export` validator
+and the `no_export` gate were retired by
+[record 0057](../records/0057-eval-found-retire-committed-proof-export.md); the superseded bundle
+shape it removed is recorded there. See
 [published proof and evaluation data](../../design/spec.md#published-proof-and-evaluation-data).

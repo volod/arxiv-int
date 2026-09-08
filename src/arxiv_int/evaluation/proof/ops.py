@@ -10,7 +10,6 @@ from arxiv_int.evaluation.bundles.manifest import canonical_json
 from arxiv_int.evaluation.evaluate.errors import ProofError, ProofExistsError, ProofIntegrityError
 from arxiv_int.evaluation.evaluate.paths import fixture_root, published_proof_dir
 from arxiv_int.evaluation.evaluate.run import EvaluateRequest, run_evaluate
-from arxiv_int.evaluation.export.policy import DATA_CLASS_TRANSFORMED, POLICY_ID, policy_fingerprint
 from arxiv_int.evaluation.families import load_fixture_catalog
 from arxiv_int.evaluation.fixtures.guard import item_ledger
 from arxiv_int.evaluation.fixtures.kinds import DATA_CLASS_RAW
@@ -23,7 +22,6 @@ from arxiv_int.evaluation.proof.checks import (
 )
 from arxiv_int.evaluation.proof.model import (
     VALIDATOR_BUNDLE,
-    VALIDATOR_EXPORT,
     VALIDATOR_LEDGER,
     VALIDATOR_SPLIT,
     CapabilityProofTarget,
@@ -35,6 +33,12 @@ from arxiv_int.evaluation.proof.model import (
 from arxiv_int.resources.paths import configs_output_root
 
 IMPLEMENTED_PROOFS = frozenset({"evaluation-foundation", "pipeline-control"})
+FINGERPRINT_FILENAME = "fingerprint.json"
+
+
+def fingerprint_document(data_class: str, raw_fingerprint: str) -> dict[str, object]:
+    """Return the self-identifying fingerprint document written beside a proof manifest."""
+    return {"data_class": data_class, "raw_fingerprint": raw_fingerprint}
 
 
 @dataclass(frozen=True, slots=True)
@@ -121,7 +125,6 @@ def publish_capability_proof(
         stages={"evaluate": "validated"},
         validators={
             VALIDATOR_BUNDLE: "pass",
-            VALIDATOR_EXPORT: "pass",
             VALIDATOR_LEDGER: "pass",
             VALIDATOR_SPLIT: "pass",
             "stage:evaluate": "pass",
@@ -136,18 +139,13 @@ def publish_capability_proof(
     validate_proof_manifest(manifest.as_json_dict(), target, fingerprints)
     summary = proof_summary(manifest)
     payload = canonical_json(manifest.as_json_dict())
-    policy_payload = canonical_json(
-        {
-            "data_class": DATA_CLASS_TRANSFORMED,
-            "policy_fingerprint": policy_fingerprint(),
-            "policy_id": POLICY_ID,
-        }
-    )
+    raw = digest_bytes(payload)
+    fingerprint_payload = canonical_json(fingerprint_document(DATA_CLASS_RAW, raw))
     refuse_proof_payloads(
         {
             "proof-manifest.json": payload.decode("utf-8"),
             "summary.txt": summary,
-            "policy.json": policy_payload.decode("utf-8"),
+            FINGERPRINT_FILENAME: fingerprint_payload.decode("utf-8"),
         }
     )
     destination = published_proof_dir(results_dir, capability, run_id)
@@ -155,8 +153,8 @@ def publish_capability_proof(
     manifest_path = destination / "proof-manifest.json"
     manifest_path.write_bytes(payload)
     (destination / "summary.txt").write_text(summary + "\n", encoding="utf-8")
-    (destination / "policy.json").write_bytes(policy_payload)
-    return ProofPublishResult(destination, manifest_path, digest_bytes(payload), summary)
+    (destination / FINGERPRINT_FILENAME).write_bytes(fingerprint_payload)
+    return ProofPublishResult(destination, manifest_path, raw, summary)
 
 
 def check_capability_proof(directory: Path, project_root: Path, fixture_fingerprint: str) -> str:

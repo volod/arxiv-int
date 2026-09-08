@@ -16,7 +16,6 @@ GATE_NAMES = (
     "prune_extra_stale",
     "archive_unmodified",
     "preflight_validated",
-    "no_export",
 )
 
 
@@ -46,7 +45,6 @@ def evaluate_gates(report: ControlScenarioReport) -> dict[str, str]:
             report.source_before.fingerprint == report.source_after.fingerprint
         ),
         "preflight_validated": _flag(report.preflight_validated),
-        "no_export": "pass",
     }
 
 

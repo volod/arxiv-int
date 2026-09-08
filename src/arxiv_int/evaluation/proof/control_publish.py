@@ -1,4 +1,4 @@
-"""Publish a path-free pipeline-control proof bundle."""
+"""Publish a path-free pipeline-control proof bundle under the configured results root."""
 
 from pathlib import Path
 
@@ -6,7 +6,6 @@ from arxiv_int.evaluation.bundles.layout import digest_bytes
 from arxiv_int.evaluation.bundles.manifest import canonical_json
 from arxiv_int.evaluation.evaluate.errors import ProofIntegrityError
 from arxiv_int.evaluation.evaluate.paths import proof_work_dir, published_proof_dir
-from arxiv_int.evaluation.export.policy import DATA_CLASS_TRANSFORMED, POLICY_ID, policy_fingerprint
 from arxiv_int.evaluation.fixtures.kinds import DATA_CLASS_RAW
 from arxiv_int.evaluation.proof.checks import refuse_proof_payloads, validate_proof_manifest
 from arxiv_int.evaluation.proof.control_copy import (
@@ -26,7 +25,12 @@ from arxiv_int.evaluation.proof.model import (
     load_capability_registry,
     require_capability,
 )
-from arxiv_int.evaluation.proof.ops import ProofPublishResult, proof_summary
+from arxiv_int.evaluation.proof.ops import (
+    FINGERPRINT_FILENAME,
+    ProofPublishResult,
+    fingerprint_document,
+    proof_summary,
+)
 
 
 def publish_pipeline_control_proof(
@@ -56,7 +60,7 @@ def write_control_proof(
     workspace: ProofWorkspace,
     report: ControlScenarioReport,
 ) -> ProofPublishResult:
-    """Validate gates and write the Git-bound proof directory."""
+    """Validate gates and write the published proof directory."""
     del workspace
     gates = evaluate_gates(report)
     if not all_gates_passed(gates):
@@ -82,24 +86,15 @@ def write_control_proof(
     )
     validate_proof_manifest(manifest.as_json_dict(), target, fingerprints)
     summary = proof_summary(manifest)
-    export_doc = {
-        "git_bound": [],
-        "policy_id": POLICY_ID,
-        "result": "no-export",
-        "scenario": _scenario_payload(report),
-    }
-    policy_doc = {
-        "data_class": DATA_CLASS_TRANSFORMED,
-        "policy_fingerprint": policy_fingerprint(),
-        "policy_id": POLICY_ID,
-        "raw_fingerprint": "",
-        "transformed_fingerprint": "",
-    }
+    manifest_payload = canonical_json(manifest.as_json_dict())
+    raw = digest_bytes(manifest_payload)
     payloads = {
-        "proof-manifest.json": canonical_json(manifest.as_json_dict()).decode("utf-8"),
+        "proof-manifest.json": manifest_payload.decode("utf-8"),
         "summary.txt": summary + "\n",
-        "policy.json": canonical_json(policy_doc).decode("utf-8"),
-        "export.json": canonical_json(export_doc).decode("utf-8"),
+        FINGERPRINT_FILENAME: canonical_json(fingerprint_document(DATA_CLASS_RAW, raw)).decode(
+            "utf-8"
+        ),
+        "scenario.json": canonical_json(_scenario_payload(report)).decode("utf-8"),
         "gates.json": canonical_json(gates).decode("utf-8"),
         "forecast-summary.json": canonical_json(
             {
@@ -113,13 +108,6 @@ def write_control_proof(
     _claim_destination(destination)
     for name, text in payloads.items():
         (destination / name).write_text(text, encoding="utf-8")
-    raw = digest_bytes((destination / "proof-manifest.json").read_bytes())
-    transformed = digest_bytes((destination / "export.json").read_bytes())
-    policy_doc["raw_fingerprint"] = raw
-    policy_doc["transformed_fingerprint"] = transformed
-    policy_bytes = canonical_json(policy_doc)
-    refuse_proof_payloads({"policy.json": policy_bytes.decode("utf-8")})
-    (destination / "policy.json").write_bytes(policy_bytes)
     return ProofPublishResult(destination, destination / "proof-manifest.json", raw, summary)
 
 

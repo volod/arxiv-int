@@ -24,7 +24,7 @@ The root `Makefile` includes grouped fragments under `make/` (`bootstrap`, `serv
 - `make ci` runs formatting, linting, typing, Radon and cognitive complexity, shell parsing and
   ShellCheck, documentation links, spec-plan integrity, contract generation drift, evolution policy
   without disposable Postgres, the migration revision graph (`make db-check`), ontology checks,
-  structured-output schema drift, identity-policy and evaluation-fixture drift, and deterministic
+  structured-output schema drift, evaluation-fixture drift, and deterministic
   tests (`make test` passes `-m "not heavy"`). It does not start Docker.
 - `make test-heavy` runs tests marked `heavy`: live Compose `docker compose config` rendering,
   disposable Postgres apply of baseline SQL, and declared store/dbt/projection/image suites.

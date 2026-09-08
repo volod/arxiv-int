@@ -1,13 +1,12 @@
-"""Cross-module evaluate, proof, export, and retired-archive boundary checks."""
+"""Cross-module evaluate, proof, and retired-path boundary checks."""
 
 import json
 from pathlib import Path
 
 import pytest
 
-from arxiv_int.evaluation.bundles import publish_run_bundle
+from arxiv_int.cli import main
 from arxiv_int.evaluation.bundles.errors import BundleExistsError
-from arxiv_int.evaluation.bundles.manifest import canonical_json
 from arxiv_int.evaluation.evaluate.errors import (
     MissingEvidenceError,
     ProofExistsError,
@@ -20,12 +19,10 @@ from arxiv_int.evaluation.evaluate.paths import (
     published_proof_dir,
 )
 from arxiv_int.evaluation.evaluate.run import EvaluateRequest, run_evaluate
-from arxiv_int.evaluation.export.exporter import ExportMapping, ExportRequest, export_proof_bundle
 from arxiv_int.evaluation.families import all_items
 from arxiv_int.evaluation.fixtures.guard import item_ledger
 from arxiv_int.evaluation.proof.ops import check_capability_proof, publish_capability_proof
-from arxiv_int.evaluation.scoring.geo import score_geotemporal, score_ontology
-from tests.evaluation.bundles.bundle_support import spec
+from arxiv_int.resources.paths import configs_root
 
 
 def test_evaluate_same_run_cannot_replace_the_bundle(
@@ -107,67 +104,37 @@ def test_leaking_or_identity_catalog_proof_tree_cannot_check(
         check_capability_proof(published.directory, real_root, ledger.fingerprint)
 
 
-def test_exported_ontology_and_geotemporal_meanings_survive(
+def test_no_command_or_asset_can_export_proof_data_into_the_repository(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setenv("DATA_DIR", str(tmp_path / "data"))
-    items = {item.item_id: item for item in all_items()}
-    ontology = items["ontology-draft-tuning"]
-    geo = items["geo-unknown-crs-final"]
-    payload = {
-        "draft_allowed": ontology.gold["allowed"],
-        "action": ontology.gold["action"],
-        "source_valid_start": geo.gold["source_valid_start"],
-        "recorded_time": geo.gold["recorded_time"],
-        "unknown_crs": geo.gold["unknown_crs"],
-        "crs": geo.gold["crs"],
-        "label": "Fixture Person Alpha",
-    }
-    source = tmp_path / "bundle"
-    publish_run_bundle(
-        source,
-        spec(),
-        [{"item_id": ontology.item_id, "score": 1.0}],
-        artifacts={
-            "items.json": canonical_json(payload).decode("utf-8"),
-            "identities.json": canonical_json(
-                {
-                    "schema_version": 1,
-                    "entities": [
-                        {
-                            "id": "person:alpha",
-                            "kind": "person",
-                            "labels": ["Fixture Person Alpha"],
-                            "aliases": [],
-                        }
-                    ],
-                    "fields": [],
-                    "spans": [],
-                }
-            ).decode("utf-8"),
-        },
+    real_root = Path(__file__).resolve().parents[2]
+    for argv in (
+        ["evaluation", "export-proof", "--source-bundle", str(tmp_path), "--run-id", "x"],
+        ["evaluation", "identity-policy", "check"],
+    ):
+        with pytest.raises(SystemExit):
+            main(argv)
+    assert not (configs_root(real_root) / "evaluation" / "proof-identity-policy.json").exists()
+    published = publish_capability_proof(
+        project_root=real_root,
+        capability="evaluation-foundation",
+        run_id="proof-no-export",
+        results_dir=tmp_path / "results",
+        runs_dir=tmp_path / "runs",
     )
-    dest = tmp_path / "export"
-    export_proof_bundle(
-        ExportRequest(
-            source_bundle=source,
-            mappings=(
-                ExportMapping("items.json", Path("items.json")),
-                ExportMapping("manifest.json", Path("manifest.json")),
-            ),
-            run_id="boundary-export",
-            project_root=tmp_path / "proj",
-            destination_root=dest,
-        )
-    )
-    rewritten = json.loads((dest / "items.json").read_text(encoding="utf-8"))
-    assert "Fixture Person Alpha" not in json.dumps(rewritten)
-    assert rewritten["draft_allowed"] is False
-    assert rewritten["unknown_crs"] is True
-    assert rewritten["crs"] in {None, ""}
-    assert score_ontology(ontology.gold, ontology.gold)["draft_refused"] == 1.0
-    assert score_geotemporal(rewritten, rewritten)["source_recorded_distinct"] == 1.0
-    assert score_geotemporal(rewritten, rewritten)["unknown_crs_kept"] == 1.0
+    assert sorted(item.name for item in published.directory.iterdir()) == [
+        "fingerprint.json",
+        "proof-manifest.json",
+        "summary.txt",
+    ]
+    fingerprint = json.loads((published.directory / "fingerprint.json").read_text(encoding="utf-8"))
+    assert fingerprint == {"data_class": "raw", "raw_fingerprint": published.fingerprint}
+    manifest = json.loads((published.directory / "proof-manifest.json").read_text(encoding="utf-8"))
+    assert manifest["verdict"] and manifest["artifacts"]
+    assert "identity-export" not in manifest["validators"]
+    ledger = item_ledger(all_items())
+    assert check_capability_proof(published.directory, real_root, ledger.fingerprint)
 
 
 def test_retired_proof_archive_is_not_an_evaluation_root(

@@ -53,7 +53,7 @@ lint-spec-plan: ## Check capability registry, task structure, status, and orderi
 plan-status: ## Count tasks by lane/status and show the next eligible work
 	@"$(VENV)/bin/arxiv-int-plan" --root "$(PROJECT_ROOT)"
 
-ci-checks: format-check lint typecheck complexity-gate shell-lint-gate lint-doc-links lint-spec-plan contracts-check contracts-evolution db-check ontology-check inference-schemas-check identity-policy-check evaluation-fixtures-check
+ci-checks: format-check lint typecheck complexity-gate shell-lint-gate lint-doc-links lint-spec-plan contracts-check contracts-evolution db-check ontology-check inference-schemas-check evaluation-fixtures-check
 
 ci: ci-checks test ## Run the required local and GitHub CI gate
 

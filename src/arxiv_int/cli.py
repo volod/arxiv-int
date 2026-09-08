@@ -589,9 +589,9 @@ def _run_package_command(args: argparse.Namespace) -> int:
 
         return run_inference_command(args)
     if args.command == "evaluation":
-        from arxiv_int.evaluation.export.commands import run_evaluation_command
+        from arxiv_int.evaluation.evaluate.commands import run_evaluate_cli
 
-        return run_evaluation_command(args)
+        return run_evaluate_cli(args)
     if args.command == "inspect":
         from arxiv_int.inspect.commands import run_inspect_command
 

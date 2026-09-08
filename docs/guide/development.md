@@ -106,8 +106,6 @@ they are small, deterministic, safe to publish, and required for CI.
 | `make data-quality` | Validate `DATASET` contents for `RUN_ID` (`INPUT=...` required) |
 | `make eval` | Score frozen evaluation fixtures into `$RUNS_DIR/<run-id>/evaluation` (`RUN_ID=`) |
 | `make proof` | Publish a capability proof (`CAPABILITY=`, `RUN_ID=`) |
-| `make proof-export` | Write identity-obfuscated Git-bound copies (`SOURCE_BUNDLE=`, `MAP=`, `RUN_ID=`) |
-| `make identity-policy-check` | Fail when the committed proof-identity policy drifts |
 | `make evaluation-fixtures-check` | Fail when frozen fixtures or the proof registry drift |
 | `make transform-parse` | Parse the dbt project for `RUN_ID` without materializing relations |
 | `make transform-compile` | Compile selected dbt models for `RUN_ID` |
