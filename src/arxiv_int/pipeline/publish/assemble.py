@@ -55,6 +55,7 @@ def fingerprint_document(document: KnowledgeBase) -> str:
     payload = document_payload(document)
     payload["fingerprint"] = ""
     payload["active"] = False
+    payload["catalog_path"] = ""
     return sha256_text(normalize_json(payload))
 
 
@@ -106,7 +107,7 @@ def _logical_status(
     if status.halt_reason == "interrupted":
         return "interrupted"
     required = tuple(item for item in outputs if item.required)
-    if any(item.outcome == "failed" for item in required):
+    if any(item.outcome in {"failed", "not-selected"} for item in required):
         return "failed"
     if any(item.outcome == "partial" for item in required):
         return "partial"
@@ -116,7 +117,7 @@ def _logical_status(
         return "failed"
     expected = set(profile.required_stages)
     executed = {item.stage for item in status.executions}
-    if expected - executed - set(status.not_selected):
+    if expected - executed:
         return "partial"
     return "succeeded"
 

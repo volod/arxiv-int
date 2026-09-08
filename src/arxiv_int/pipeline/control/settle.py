@@ -1,10 +1,11 @@
 """Accept, abort, or fail one shard attempt without illegal status transitions."""
 
 import logging
+from dataclasses import replace
 from pathlib import Path
 from uuid import uuid4
 
-from arxiv_int.pipeline.control.artifacts import ArtifactManifest
+from arxiv_int.pipeline.control.artifacts import ArtifactManifest, attempt_directory
 from arxiv_int.pipeline.control.model import ShardRecord, ShardWork
 from arxiv_int.pipeline.control.states import (
     IllegalTransitionError,
@@ -48,6 +49,7 @@ def new_shard(
     *,
     cache_hit: bool,
     now: float,
+    runs_dir: Path | None = None,
 ) -> ShardRecord:
     """Insert a pending shard attempt, assigning the next attempt number."""
     record = ShardRecord(
@@ -64,7 +66,20 @@ def new_shard(
         now,
         now,
     )
-    return ledger.add_shard(record)
+    while True:
+        assigned = ledger.add_shard(record)
+        if runs_dir is None:
+            return assigned
+        directory = attempt_directory(
+            runs_dir, work.run_id, work.stage, work.shard_id, assigned.attempt
+        )
+        try:
+            directory.mkdir(parents=True, exist_ok=False)
+        except FileExistsError:
+            ledger.transition_shard(assigned.shard_run_id, "failed", now)
+            record = replace(record, shard_run_id=uuid4().hex)
+        else:
+            return assigned
 
 
 def blocked_outcome(

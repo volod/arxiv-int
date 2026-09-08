@@ -47,6 +47,7 @@ def run_forecast_command(args: object, *, inspector: Inspector | None = None) ->
             config,
             production_registry(),
             inspector=inspector,
+            force=bool(getattr(args, "force", False)),
         )
         return _emit(document, config.runs_dir)
     config = _load_config(args)
@@ -56,6 +57,7 @@ def run_forecast_command(args: object, *, inspector: Inspector | None = None) ->
         from_stage=getattr(args, "from_stage", None),
         to_stage=getattr(args, "to_stage", None),
         inspector=inspector,
+        force=bool(getattr(args, "force", False)),
     )
     return _emit(document, config.runs_dir)
 
@@ -66,10 +68,17 @@ def forecast_bound_run(
     registry: StageRegistry,
     *,
     inspector: Inspector | None = None,
+    force: bool = False,
 ) -> ForecastDocument:
     """Forecast using a created run's frozen inputs; retain the JSON under that run."""
     inputs, _plan = collect_inputs(
-        context, registry, config, forecast_id=context.run_id, production=True, inspector=inspector
+        context,
+        registry,
+        config,
+        forecast_id=context.run_id,
+        production=True,
+        inspector=inspector,
+        force=force,
     )
     document = build_forecast(inputs)
     save_forecast(context.runs_dir, document)
@@ -83,6 +92,7 @@ def forecast_standalone(
     from_stage: str | None = None,
     to_stage: str | None = None,
     inspector: Inspector | None = None,
+    force: bool = False,
 ) -> ForecastDocument:
     """Forecast without allocating a production generation."""
     forecast_id = allocate_forecast_id()
@@ -93,6 +103,7 @@ def forecast_standalone(
         config,
         forecast_id=forecast_id,
         production=False,
+        force=force,
         inspector=inspector,
     )
     document = build_forecast(inputs)
@@ -106,9 +117,10 @@ def forecast_or_refuse(
     registry: StageRegistry,
     *,
     inspector: Inspector | None = None,
+    force: bool = False,
 ) -> ForecastDocument:
     """Write a fresh forecast and refuse blocked work before heavy stages."""
-    document = forecast_bound_run(context, config, registry, inspector=inspector)
+    document = forecast_bound_run(context, config, registry, inspector=inspector, force=force)
     if document.decision == "blocked":
         raise ForecastRefusedError(_blocked_message(document))
     return document
@@ -121,9 +133,10 @@ def bind_forecast(
     config: RuntimeConfig,
     *,
     inspector: Inspector | None = None,
+    force: bool = False,
 ) -> tuple[ForecastDocument, Callable[[str], None]]:
     """Require a fresh covering forecast and return a stage-boundary space guard."""
-    inputs, _plan = collect_inputs(context, registry, config, inspector=inspector)
+    inputs, _plan = collect_inputs(context, registry, config, inspector=inspector, force=force)
     document = require_fresh_forecast(context, plan, inputs)
     if document.decision == "blocked":
         raise ForecastRefusedError(_blocked_message(document))

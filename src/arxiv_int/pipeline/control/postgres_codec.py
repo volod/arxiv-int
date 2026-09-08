@@ -22,13 +22,18 @@ def insert_resource_lease(connection: Connection, record: ResourceLeaseRecord) -
 
 def assigned_shard(connection: Connection, record: ShardRecord) -> ShardRecord:
     """Lock the reuse key and assign the next attempt number in this transaction."""
-    digest = hashlib.sha256(record.reuse_key.encode("ascii")).digest()
-    lock_key = int.from_bytes(digest[:8], "big") % (2**63)
-    connection.execute(text("SELECT pg_advisory_xact_lock(:key)"), {"key": lock_key})
+    lock_reuse_key(connection, record.reuse_key)
     highest = connection.execute(
         select(func.max(SHARD_RUNS.c.attempt)).where(SHARD_RUNS.c.reuse_key == record.reuse_key)
     ).scalar()
     return replace(record, attempt=int(highest or 0) + 1)
+
+
+def lock_reuse_key(connection: Connection, key: str) -> None:
+    """Lock even an absent lease row, using the shared attempt/lease key."""
+    digest = hashlib.sha256(key.encode("ascii")).digest()
+    lock_key = int.from_bytes(digest[:8], "big") % (2**63)
+    connection.execute(text("SELECT pg_advisory_xact_lock(:key)"), {"key": lock_key})
 
 
 def as_datetime(now: float) -> datetime:

@@ -22,7 +22,7 @@ from arxiv_int.pipeline.control.settle import (
     fail_shard,
     new_shard,
 )
-from arxiv_int.pipeline.control.store import ControlLedger, LeaseHeldError
+from arxiv_int.pipeline.control.store import ControlLedger, LeaseExpiredError, LeaseHeldError
 
 Worker = Callable[[Path], Mapping[str, bytes]]
 
@@ -49,7 +49,7 @@ def produce_shard(
         transformations=work.transformations,
         generation_id=work.generation_id,
     )
-    shard = new_shard(ledger, work, key, stage_run_id, cache_hit=False, now=now)
+    shard = new_shard(ledger, work, key, stage_run_id, cache_hit=False, now=now, runs_dir=runs_dir)
     if not decision.allowed:
         fail_shard(ledger, shard, "quality", ";".join(decision.blocking), now, max_attempts)
         return blocked_outcome(ledger, shard, key, ";".join(decision.blocking))
@@ -73,6 +73,7 @@ def produce_shard(
             injector=injector,
         )
         validate_attempt(directory, reuse_key=key, attempt=shard.attempt)
+        ledger.heartbeat_lease(lease.lease_id, clock(), lease_ttl)
         return accept_shard(
             ledger,
             shard,
@@ -86,6 +87,10 @@ def produce_shard(
             clock(),
             force,
         )
+    except LeaseExpiredError as error:
+        return abort_shard(
+            ledger, shard, lease.lease_id, "lease-expired", str(error), clock(), max_attempts
+        )
     except ArtifactPublishError as error:
         return abort_shard(
             ledger, shard, lease.lease_id, "validation", str(error), now, max_attempts
@@ -93,6 +98,17 @@ def produce_shard(
     except InjectedCrash:
         abort_shard(
             ledger, shard, lease.lease_id, "interrupted", "injected crash", clock(), max_attempts
+        )
+        raise
+    except (KeyboardInterrupt, SystemExit):
+        abort_shard(
+            ledger,
+            shard,
+            lease.lease_id,
+            "interrupted",
+            "worker interrupted",
+            clock(),
+            max_attempts,
         )
         raise
     except Exception as error:

@@ -87,6 +87,7 @@ class StageSession:
             maxsize=queue_maxsize,
             extra_secrets=extra_secrets,
         )
+        self._completed = False
         self._started = False
         self._lock = threading.RLock()
         self._pump: HeartbeatPump | None = None
@@ -193,6 +194,7 @@ class StageSession:
             state: WorkerState = "failed" if failed else "completed"
             snapshot = self._emit_locked(event="stage-complete", force=True, worker_state=state)
         assert snapshot is not None
+        self._completed = True
         payload = build_stage_manifest(snapshot, outcome=outcome, next_action=next_action)
         return write_stage_manifest(self._run_dir, payload)
 
@@ -227,7 +229,7 @@ class StageSession:
         traceback: TracebackType | None,
     ) -> None:
         failed = exc_type is not None
-        if self._started:
+        if self._started and not self._completed:
             next_action = "inspect logs and resume" if failed else "continue downstream stages"
             self.complete(
                 outcome="failed" if failed else "produced",

@@ -14,14 +14,14 @@ from arxiv_int.pipeline.control.model import (
     LeaseRecord,
     ManifestRecord,
 )
-from arxiv_int.pipeline.control.postgres_codec import as_datetime, lease_from_row
+from arxiv_int.pipeline.control.postgres_codec import as_datetime, lease_from_row, lock_reuse_key
 from arxiv_int.pipeline.control.states import (
     FailureClass,
     ManifestStatus,
     as_lease_status,
     require_transition,
 )
-from arxiv_int.pipeline.control.store import LeaseHeldError
+from arxiv_int.pipeline.control.store import LeaseExpiredError, LeaseHeldError
 from arxiv_int.pipeline.control.tables import (
     ARTIFACT_LINEAGE,
     ARTIFACT_MANIFESTS,
@@ -49,6 +49,7 @@ class PostgresEventMixin:
         stamp = as_datetime(now)
         expires = as_datetime(now + ttl_seconds)
         with self._begin() as connection:
+            lock_reuse_key(connection, reuse_key)
             rows = (
                 connection.execute(
                     select(REUSE_LEASES)
@@ -96,10 +97,16 @@ class PostgresEventMixin:
     def heartbeat_lease(self, lease_id: str, now: float, ttl_seconds: float) -> LeaseRecord:
         with self._begin() as connection:
             current = lease_from_row(
-                connection.execute(select(REUSE_LEASES).where(REUSE_LEASES.c.lease_id == lease_id))
+                connection.execute(
+                    select(REUSE_LEASES)
+                    .where(REUSE_LEASES.c.lease_id == lease_id)
+                    .with_for_update()
+                )
                 .mappings()
                 .one()
             )
+            if current.status != "acquired" or current.expires_at <= now:
+                raise LeaseExpiredError("publication lease expired")
             require_transition("lease", current.status, "acquired")
             connection.execute(
                 update(REUSE_LEASES)
@@ -111,7 +118,11 @@ class PostgresEventMixin:
     def release_lease(self, lease_id: str, now: float, status: str = "released") -> LeaseRecord:
         with self._begin() as connection:
             current = lease_from_row(
-                connection.execute(select(REUSE_LEASES).where(REUSE_LEASES.c.lease_id == lease_id))
+                connection.execute(
+                    select(REUSE_LEASES)
+                    .where(REUSE_LEASES.c.lease_id == lease_id)
+                    .with_for_update()
+                )
                 .mappings()
                 .one()
             )

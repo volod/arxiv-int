@@ -10,7 +10,9 @@ See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface
 [record 0042](../records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md),
 [record 0043](../records/0043-pipeline-add-progress-logging-and-resource-telemetry.md),
 [record 0044](../records/0044-pipeline-implement-evidence-based-pipeline-forecast.md), and
-[record 0045](../records/0045-pipeline-implement-investigation-profile-and-output-manifest.md).
+[record 0045](../records/0045-pipeline-implement-investigation-profile-and-output-manifest.md),
+[checkpoint 0046](../records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md), and
+[repair 0047](../records/0047-pipeline-repair-pipeline-publication-and-reuse-integrity.md).
 
 ## Stage, source, and artifact seams
 
@@ -102,7 +104,8 @@ Manifests move `staging` to `accepted` or `rejected`. Illegal transitions raise
 `ShardExecutor.execute` reuses a succeeded or quarantined producer attempt when
 `validate_attempt` accepts the tree; the worker is not invoked. A held reuse lease records a
 `busy` failure without duplicating the worker. Blocking quality results fail the attempt before
-the worker runs. Force retry and failed cache validation allocate a new attempt directory.
+the worker runs. Force retry and failed cache validation reserve a new attempt directory
+exclusively, including when a fresh command has no in-memory attempt history.
 Publication writes sibling `.name.tmp` files, renames payloads, then `os.replace` of
 `manifest.json` last. A missing, mismatched, or extra-file tree is not accepted. Crash injection
 after payload rename leaves an unusable tree; recovery produces a new attempt. Invalidation that
@@ -111,7 +114,19 @@ wins the race against a running shard leaves it `stale` instead of accepting it.
 Layout: `$RUNS_DIR/<run-id>/manifests/<stage>/<shard>/attempt-<n>/`.
 
 Activation requires at least one global quality check and successful validation/transform refs for
-the exact generation. Warnings without blocking findings quarantine the shard.
+the exact producing generation. Stage publication retains checks and references in `quality.json`,
+covered by the attempt manifest. Cache hits validate this evidence without repeating heavy work;
+cross-run reuse retains the producer generation. Missing or malformed stage/quality evidence and
+partial outcomes are cache misses. Partial stages are retried by resume. Warnings without blocking
+findings quarantine the shard. Fixture checks are available only on the fixture profile by default;
+production checks remain explicit not-run until concrete adapters supply them.
+
+Local orchestration, invalidation and finalization share a reentrant filesystem lock under
+`RUNS_DIR`; commands reload the reuse index while holding it. This deliberately serializes the
+fixture control path across processes. Assumed upstream stages must match the frozen run's full
+transitive identity, rather than whichever stage ran most recently. PostgreSQL lease acquisition
+locks the reuse key even before a lease row exists. Expired holders cannot renew or publish;
+worker interruption releases the lease and records a failed attempt.
 
 Postgres `add_shard` assigns the next attempt under a transaction-scoped advisory lock. In-memory
 and SQL ledgers share the same transition rules.
@@ -199,7 +214,10 @@ The orchestrator requires a covering forecast whose config fingerprint, source s
 envelope, plan coverage, and per-stage cache-hit flags match the current run. Live free bytes
 are rechecked, not fingerprinted. Before each stage, `space_guard` re-reads free space and
 blocks the next allocation when a device falls below peak plus reserve; the stage worker is not
-invoked. A stale or missing forecast raises `StaleForecastError` (also exit 3).
+invoked. A stale or missing forecast raises `StaleForecastError` (also exit 3). Forced runs budget every
+worker as uncached. Before an atomic forced stage, use
+`make forecast RUN_ID=... FORCE=1` or `arxiv-int pipeline forecast --run-id RUN_ID --force`.
+A forecast that assumed cache hits cannot authorize forced recomputation.
 
 ## Investigation profiles and knowledge-base publication
 
@@ -221,18 +239,26 @@ preflight, forecast, stage, and finalize handlers as the atomic chain. Atomic `s
 auto-finalize. `arxiv-int run finalize RUN_ID` and `make run-finalize RUN_ID=...` require a
 created run id. Unreadable archive silos raise `PreflightRefusedError` (exit 3) before forecast.
 
-A succeeded profile writes `$RUNS_DIR/<run-id>/knowledge-base.json` and switches
-`$RUNS_DIR/active-generation.json` (operator-visible pointer) plus
-`$RUNS_DIR/active-catalog.json` (fixture stand-in for a catalog/DB pointer). Partial, failed,
-blocked, and interrupted runs write the same knowledge-base and ASCII diagnostic
-`reports/index.html` / `reports/report.json` without replacing the last complete pointer.
-`write_report()` never calls `activate_generation()`. Empty required families are valid complete
-(`succeeded`, exit 0). Logical statuses map to exits: succeeded 0, partial 2, failed 1,
-blocked 3, interrupted 130. A missing `status.json` returns the DAG fallback exit. Publication
-crash points are `after-manifest`, `after-catalog-write`, `after-catalog-replace`,
-`after-generation-write`, and `after-generation-replace`; orphan `.tmp` files are reconciled on
-the next finalize. A default investigation run still refuses unregistered corpus stages after a
-covering forecast (exit 1).
+Finalization rechecks the current reuse index, complete artifact trees, quality evidence and
+required stage selection. A stale, missing or damaged artifact cannot become active just because
+`status.json` still says it succeeded. Empty required families remain valid complete outputs.
+
+A succeeded profile writes `$RUNS_DIR/<run-id>/knowledge-base.json` and retains a matching manifest
+and catalog under `$RUNS_DIR/<run-id>/publications/<fingerprint>/`. One atomic replacement of
+`$RUNS_DIR/active-generation.json` selects both snapshot paths. Readers follow its `manifest` and
+`catalog` fields; the former root-level `active-catalog.json` is no longer an authority. Catalogs
+remain a fixture stand-in for database publication. The disposable SQL ledger is tested separately;
+this does not claim a production database activation adapter.
+
+Partial, failed, blocked and interrupted runs write diagnostics without replacing the last complete
+pointer. `write_report()` cannot activate a generation. Logical exits are succeeded 0, partial 2,
+failed 1, blocked 3 and interrupted 130; activation refusal returns failure. A missing `status.json`
+returns the DAG fallback exit. All five publication crash points are checked: `after-manifest`,
+`after-catalog-write`, `after-catalog-replace`, `after-generation-write` and
+`after-generation-replace`. Before the active-pointer replacement, readers retain the prior matching
+snapshot; afterward they see the new matching snapshot. Finalize retries reuse the same completed
+attempts. Cleanup removes only publication-owned temp files under the control lock, preserving worker
+staging. A default investigation run still refuses unregistered corpus stages.
 
 ## Progress logging and resource telemetry
 
@@ -245,10 +271,11 @@ only `stage`, `event`, `worker_state`, `device`, and `failure_class`.
 Each stage writes under `$RUNS_DIR/<run-id>/logs/`: `console.log`, `events.jsonl`,
 `progress.jsonl`, `latest.json`, and `observability-manifest.json`. Console lines include UTC
 timestamp, run/stage/shard token, processed/remaining, bytes, throughput, ETA, errors, worker
-state, and CPU/RAM/disk/GPU pressure. Worker states are `running`, `slow` (fresh heartbeat, large
-ETA), `stalled` (heartbeat timeout), `completed`, and `failed`. Heartbeats are time-throttled on
-a background pump so long stages keep reporting without a worker callback. `LOG_FORMAT` and
-`PROGRESS_INTERVAL_SEC` come from frozen secret-free run configuration (defaults
+state, and CPU/RAM/disk/GPU pressure. Terminal observability manifests retain the actual stage
+outcome; partial and failed results mark progress failed. Worker states are `running`, `slow`
+(fresh heartbeat, large ETA), `stalled` (heartbeat timeout), `completed`, and `failed`. Heartbeats
+are time-throttled on a background pump so long stages keep reporting without a worker callback.
+`LOG_FORMAT` and `PROGRESS_INTERVAL_SEC` come from frozen secret-free run configuration (defaults
 `console+jsonl` and `30`).
 
 Host samples reuse inference `nvidia-smi` plus `/proc` CPU/RAM and `shutil.disk_usage`. Optional
@@ -281,3 +308,9 @@ plus resume then activate, stale upstream, crash after-manifest, crash after-cat
 orphan reconcile, report cannot activate, aggregate versus atomic logical equivalence, CLI/Make
 finalize, and optional-import isolation. Fixtures do not prove real-archive extraction quality or
 CUDA worker fit.
+
+Checkpoint 0046 validates fixture publication and reuse, with live disposable SQL lease/crash checks
+and a CUDA-host resource probe. Concrete producer fingerprints, validators, database activation and
+provided-archive behavior remain with the
+[corpus/control checkpoint](../plan.md#review-corpus-and-control-integrity). The local lock is
+intentionally coarse; the review does not establish parallel corpus throughput or power-loss recovery.

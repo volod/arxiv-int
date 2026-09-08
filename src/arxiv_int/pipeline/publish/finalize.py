@@ -5,6 +5,7 @@ from dataclasses import replace
 from pathlib import Path
 
 from arxiv_int.pipeline.context import RunContext
+from arxiv_int.pipeline.locking import pipeline_lock
 from arxiv_int.pipeline.persist import RunStatus, load_status, run_dir
 from arxiv_int.pipeline.publish.assemble import assemble_knowledge_base
 from arxiv_int.pipeline.publish.model import EXIT_BY_STATUS, KnowledgeBase, PipelineProfile
@@ -17,6 +18,7 @@ from arxiv_int.pipeline.publish.pointer import (
 )
 from arxiv_int.pipeline.publish.profiles import load_profile
 from arxiv_int.pipeline.publish.report import write_report
+from arxiv_int.pipeline.publish.verify import verified_status
 
 _LOG = logging.getLogger(__name__)
 
@@ -29,20 +31,15 @@ def finalize_run(
     injector: Injector | None = None,
 ) -> int:
     """Write the knowledge-base and report; activate only a succeeded generation."""
-    reconcile_orphans(context.runs_dir)
-    reconcile_orphans(run_dir(context.runs_dir, context.run_id))
-    selected = profile or load_profile(context.profile, context.project_root)
-    status_path = run_dir(context.runs_dir, context.run_id) / "status.json"
-    if not status_path.is_file():
-        return fallback_exit
-    status = load_status(context.runs_dir, context.run_id)
-    document = assemble_knowledge_base(context, status, selected)
-    save_knowledge_base(context.runs_dir, document)
-    write_report(context.runs_dir, document)
-    if document.status == "succeeded":
-        document = _activate(context.runs_dir, document, injector)
-    _emit(document)
-    return EXIT_BY_STATUS[document.status]
+    with pipeline_lock(context.runs_dir):
+        selected = profile or load_profile(context.profile, context.project_root)
+        status_path = run_dir(context.runs_dir, context.run_id) / "status.json"
+        if not status_path.is_file():
+            return fallback_exit
+        status = load_status(context.runs_dir, context.run_id)
+        document, code = finalize_status(context, status, selected, injector=injector)
+        _emit(document)
+        return code
 
 
 def finalize_status(
@@ -53,13 +50,15 @@ def finalize_status(
     injector: Injector | None = None,
 ) -> tuple[KnowledgeBase, int]:
     """Finalize from an in-memory DAG walk; used by fixture tests."""
-    reconcile_orphans(context.runs_dir)
-    document = assemble_knowledge_base(context, status, profile)
-    save_knowledge_base(context.runs_dir, document)
-    write_report(context.runs_dir, document)
-    if document.status == "succeeded":
-        document = _activate(context.runs_dir, document, injector)
-    return document, EXIT_BY_STATUS[document.status]
+    with pipeline_lock(context.runs_dir):
+        reconcile_orphans(context.runs_dir)
+        status = verified_status(context, status, profile)
+        document = assemble_knowledge_base(context, status, profile)
+        save_knowledge_base(context.runs_dir, document)
+        write_report(context.runs_dir, document)
+        if document.status == "succeeded":
+            document = _activate(context.runs_dir, document, injector)
+        return document, EXIT_BY_STATUS[document.status]
 
 
 def _activate(
@@ -70,7 +69,7 @@ def _activate(
     try:
         return activate_generation(runs_dir, document, injector=injector)
     except ActivationRefusedError:
-        return replace(document, active=False)
+        return replace(document, status="failed", active=False)
 
 
 def _emit(document: KnowledgeBase) -> None:

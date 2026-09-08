@@ -12,14 +12,14 @@ from arxiv_int.pipeline.control.memory import InMemoryLedger
 from arxiv_int.pipeline.errors import (
     InterruptedPipelineError,
     PipelineError,
-    StaleUpstreamError,
     UnregisteredStageError,
 )
-from arxiv_int.pipeline.execute import execute_stage, execution_to_entry, try_reuse
+from arxiv_int.pipeline.execute import execute_stage, execution_to_entry
 from arxiv_int.pipeline.graph import StagePlan
+from arxiv_int.pipeline.locking import pipeline_lock
 from arxiv_int.pipeline.observe import open_stage_session
 from arxiv_int.pipeline.persist import RunStatus, StageExecution, load_status, run_dir, save_status
-from arxiv_int.pipeline.quality_bound import FixtureQuality, QualityBoundary
+from arxiv_int.pipeline.quality_bound import FixtureQuality, ProductionQuality, QualityBoundary
 from arxiv_int.pipeline.registry import StageRegistry
 from arxiv_int.pipeline.reuse_index import (
     ReuseEntry,
@@ -27,6 +27,7 @@ from arxiv_int.pipeline.reuse_index import (
     load_reuse_index,
     save_reuse_index,
 )
+from arxiv_int.pipeline.upstream import resolve_upstream
 
 _CLOCK = Callable[[], float]
 _GUARD = Callable[[str], None]
@@ -52,7 +53,7 @@ class Orchestrator:
         self._clock = clock or (lambda: next(ticks))
         self._ledger = InMemoryLedger()
         self._executor = executor or ShardExecutor(self._ledger, runs_dir, clock=self._clock)
-        self._quality = quality or FixtureQuality()
+        self._quality = quality
         self._cancel = cancel or CancelToken()
         self._space_guard = space_guard
         self._index: dict[str, ReuseEntry] = load_reuse_index(runs_dir)
@@ -65,14 +66,19 @@ class Orchestrator:
         *,
         force: bool = False,
     ) -> RunStatus:
-        """Execute ``plan.execute`` in order; stop on failure or cancellation."""
+        """Serialize local commands, then reload the shared cache under the lock."""
+        with pipeline_lock(self._runs_dir):
+            self._index = load_reuse_index(self._runs_dir)
+            self._lineage = list(load_lineage(self._runs_dir))
+            return self._execute_plan(context, plan, force=force)
+
+    def _execute_plan(self, context: RunContext, plan: StagePlan, *, force: bool) -> RunStatus:
         missing = tuple(name for name in plan.execute if self._registry.get(name).runner is None)
         if missing:
             raise UnregisteredStageError(missing)
-        self._require_upstream(plan.assumed_upstream)
         executions: list[StageExecution] = []
         run_lineage: list[tuple[str, str]] = []
-        keys = self._upstream_keys(plan.assumed_upstream)
+        keys = resolve_upstream(context, plan.assumed_upstream, self._registry, self._index)
         halted = False
         halt_reason = ""
         for name in plan.execute:
@@ -93,6 +99,8 @@ class Orchestrator:
             if halt_reason:
                 halted = True
                 break
+        if self._cancel.cancelled:
+            halted, halt_reason = True, "interrupted"
         current = RunStatus(
             context.run_id,
             context.generation_id,
@@ -124,14 +132,29 @@ class Orchestrator:
                 execution = execute_stage(
                     self._registry,
                     self._executor,
-                    self._quality,
+                    self._quality
+                    or (FixtureQuality() if context.profile == "fixture" else ProductionQuality()),
                     context,
                     name,
                     upstream,
                     self._index,
                     force=force,
                 )
-                session.progress(processed=1, remaining=0, bytes_delta=execution.bytes, force=True)
+                failed = bool(_stage_halt(execution))
+                session.progress(
+                    processed=1,
+                    remaining=0,
+                    bytes_delta=execution.bytes,
+                    errors_delta=int(failed),
+                    force=True,
+                )
+                session.complete(
+                    outcome=execution.outcome,
+                    failed=failed,
+                    next_action="inspect logs and resume"
+                    if failed
+                    else "continue downstream stages",
+                )
         except (InterruptedPipelineError, KeyboardInterrupt):
             return None, "interrupted"
         except PipelineError as error:
@@ -139,7 +162,13 @@ class Orchestrator:
         return execution, ""
 
     def invalidate(self, stage: str, *, document_id: str | None = None) -> tuple[str, ...]:
-        """Mark the named stage's reuse keys and their consumer closure stale."""
+        """Serialize invalidation with publication and cache updates."""
+        with pipeline_lock(self._runs_dir):
+            self._index = load_reuse_index(self._runs_dir)
+            self._lineage = list(load_lineage(self._runs_dir))
+            return self._invalidate(stage, document_id=document_id)
+
+    def _invalidate(self, stage: str, *, document_id: str | None) -> tuple[str, ...]:
         roots = [
             entry.reuse_key
             for entry in self._index.values()
@@ -171,26 +200,6 @@ class Orchestrator:
             run_lineage.append(edge)
             if edge not in self._lineage:
                 self._lineage.append(edge)
-
-    def _require_upstream(self, names: tuple[str, ...]) -> None:
-        for name in names:
-            matches = [
-                entry
-                for entry in self._index.values()
-                if entry.stage == name
-                and not entry.stale
-                and entry.status in {"succeeded", "quarantined"}
-            ]
-            if not matches or try_reuse(matches[-1], force=False) is None:
-                raise StaleUpstreamError(f"stale or missing upstream stage {name}")
-
-    def _upstream_keys(self, names: tuple[str, ...]) -> dict[str, str]:
-        keys: dict[str, str] = {}
-        for name in names:
-            for entry in self._index.values():
-                if entry.stage == name and not entry.stale:
-                    keys[name] = entry.reuse_key
-        return keys
 
 
 def _stage_halt(execution: StageExecution) -> str:

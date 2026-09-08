@@ -1,11 +1,14 @@
 """Producer-boundary Pandera and dbt checks without a second scheduler."""
 
 from collections.abc import Mapping
+from dataclasses import asdict
 from typing import Protocol
 
+from arxiv_int.contracts.generate.normalize import normalize_json
 from arxiv_int.data_quality.model import STATUS_NOT_RUN, STATUS_PASS
+from arxiv_int.interfaces.pipeline import StageResult
 from arxiv_int.interfaces.stores import TransformationRunRef, ValidationResultRef
-from arxiv_int.pipeline.control.quality import GLOBAL_SCOPE, QualityCheck
+from arxiv_int.pipeline.control.quality import GLOBAL_SCOPE, QualityCheck, activation_decision
 from arxiv_int.pipeline.errors import QualityBoundaryError
 from arxiv_int.pipeline.registry import StageSpec
 
@@ -14,6 +17,9 @@ _PASSING_GLOBAL = QualityCheck("global.fixture", STATUS_PASS, GLOBAL_SCOPE, "err
 
 class QualityBoundary(Protocol):
     """Run declared validators and dbt selections at a producer boundary."""
+
+    def checks(self) -> tuple[QualityCheck, ...]:
+        """Return required whole-snapshot checks, including explicit not-run evidence."""
 
     def validate(
         self, dataset: str, files: Mapping[str, bytes], generation_id: str
@@ -43,6 +49,10 @@ class FixtureQuality:
         self.activatable = transform_status == "ok" if activatable is None else activatable
         self.validated: list[str] = []
         self.transformed: list[tuple[str, ...]] = []
+
+    def checks(self) -> tuple[QualityCheck, ...]:
+        """Fixture-only global validation evidence."""
+        return passing_checks()
 
     def validate(
         self, dataset: str, files: Mapping[str, bytes], generation_id: str
@@ -86,17 +96,37 @@ def apply_boundary(
     *,
     generation_id: str,
     run_id: str,
-) -> None:
-    """Refuse a producer when a declared check failed or did not run."""
-    for dataset in spec.validators:
-        ref = quality.validate(dataset, files, generation_id)
-        if ref.status in {STATUS_NOT_RUN, "fail"} or not ref.publishable:
-            raise QualityBoundaryError(f"{dataset}:{ref.status}")
-    if not spec.dbt_select:
-        return
-    transform = quality.transform(spec.dbt_select, generation_id, run_id)
-    if transform.status != "ok" or not transform.activatable:
-        raise QualityBoundaryError(f"dbt:{','.join(spec.dbt_select)}:{transform.status}")
+    result: StageResult,
+) -> bytes:
+    """Validate exact-generation evidence and retain it beside the stage payload."""
+    validations = tuple(
+        quality.validate(dataset, files, generation_id) for dataset in spec.validators
+    )
+    for dataset, ref in zip(spec.validators, validations, strict=True):
+        if ref.contract_id != dataset:
+            raise QualityBoundaryError(f"validation contract mismatch: {dataset}")
+    transformations: tuple[TransformationRunRef, ...] = (
+        (quality.transform(spec.dbt_select, generation_id, run_id),) if spec.dbt_select else ()
+    )
+    validations += result.validations
+    transformations += result.transformations
+    checks = quality.checks()
+    decision = activation_decision(
+        checks,
+        validations=validations,
+        transformations=transformations,
+        generation_id=generation_id,
+    )
+    if not decision.allowed:
+        raise QualityBoundaryError(";".join(decision.blocking))
+    return normalize_json(
+        {
+            "generation_id": generation_id,
+            "checks": [asdict(item) for item in checks],
+            "validations": [asdict(item) for item in validations],
+            "transformations": [asdict(item) for item in transformations],
+        }
+    ).encode("ascii")
 
 
 def production_quality() -> QualityBoundary:
@@ -106,6 +136,10 @@ def production_quality() -> QualityBoundary:
 
 class ProductionQuality:
     """Lazy adapter over ``data_quality`` and ``transformations`` runners."""
+
+    def checks(self) -> tuple[QualityCheck, ...]:
+        """Concrete global validators remain unimplemented; refuse publication."""
+        return (QualityCheck("global.unexecuted", STATUS_NOT_RUN, GLOBAL_SCOPE, "error"),)
 
     def validate(
         self, dataset: str, files: Mapping[str, bytes], generation_id: str

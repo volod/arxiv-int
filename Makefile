@@ -292,6 +292,7 @@ forecast: ## Read-only time/storage forecast (RUN_ID= from make run-create)
 	@source "$(COMMON_SH)" && arxiv_int_load_env && \
 		arxiv_int_require_created_run_id "$(RUN_ID)" && \
 		"$(VENV)/bin/arxiv-int" pipeline forecast --run-id "$(RUN_ID)" \
+		$(if $(filter 1,$(FORCE)),--force,) \
 		$(if $(FROM),--from "$(FROM)",) \
 		$(if $(TO),--to "$(TO)",)
 

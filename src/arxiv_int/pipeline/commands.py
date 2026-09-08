@@ -103,7 +103,7 @@ def run_dag(
         from arxiv_int.pipeline.forecast.commands import bind_forecast
 
         config = load_runtime_config(project_root=context.project_root)
-        _document, guard = bind_forecast(context, selected, plan, config)
+        _document, guard = bind_forecast(context, selected, plan, config, force=force)
     orchestrator = Orchestrator(
         selected,
         context.runs_dir,

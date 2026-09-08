@@ -29,6 +29,7 @@ def collect_inputs(
     *,
     forecast_id: str | None = None,
     production: bool = True,
+    force: bool = False,
     inspector: Inspector | None = None,
     host_probe: HostProbe | None = None,
     envelope_root: Path | None = None,
@@ -48,7 +49,7 @@ def collect_inputs(
         (run_dir(context.runs_dir, context.run_id), context.runs_dir),
         file_limit=envelope.sample_file_limit,
     )
-    cache = cache_plan(context, registry, plan.execute)
+    cache = cache_plan(context, registry, plan.execute, force=force)
     comparable = load_comparable_runs(
         context.runs_dir, profile=context.profile, current_id=context.run_id
     )

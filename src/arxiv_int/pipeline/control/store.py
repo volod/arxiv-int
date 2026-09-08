@@ -15,6 +15,10 @@ from arxiv_int.pipeline.control.model import (
 from arxiv_int.pipeline.control.states import FailureClass, ManifestStatus, ShardStatus
 
 
+class LeaseExpiredError(RuntimeError):
+    """A worker lost its publication lease and must retry."""
+
+
 class LeaseHeldError(RuntimeError):
     """Another worker holds an unexpired lease for the same reuse key."""
 

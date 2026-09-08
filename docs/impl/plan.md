@@ -25,43 +25,6 @@ and name ready/pending human decisions and the dependent work that must wait at 
 
 ### Pipeline control -- `pipeline-control`
 
-#### review-pipeline-publication-and-reuse-boundaries
-
-Review fixture orchestration before concrete corpus workers depend on its publication protocol.
-
-- Serves: `pipeline-control` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
-- Agent status: CLEAR
-- Task kind: checkpoint
-- Dependencies: [Stage and artifact interface contracts](records/0040-pipeline-refactor-stage-and-artifact-interface-contracts.md);
-[Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md);
-[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md);
-[Progress logging and resource telemetry](records/0043-pipeline-add-progress-logging-and-resource-telemetry.md);
-[Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md);
-[Investigation profile and output manifest](records/0045-pipeline-implement-investigation-profile-and-output-manifest.md);
-[Inference and evaluation checkpoint](records/0038-eval-found-review-inference-and-evaluation-boundaries.md).
-- User-visible outcome:
-Concrete adapters inherit a checked run/lease/quality/publication boundary.
-- Scope boundary:
-Fixture DAG and disposable store integration only; source delta/prune and archive proofs stay in
-the later corpus/control checkpoint, avoiding a dependency on workers this checkpoint gates.
-Review integrated behavior, not just test totals; no speculative rewrite or model promotion.
-- Data and artifact paths: Accepted producer records, current fixtures and retained proof evidence;
-`$DATA_DIR/architecture-review/<run-id>/`.
-- Execution path:
-Trace aggregate versus atomic execution, frozen parameters, exact-generation quality, file/database
-publication order, concurrent reuse, forced attempts, expired leases, cancellation and reserve loss.
-Inject failure around the active-pointer switch; reconcile logs, ledger and visible artifacts.
-Map each producer invariant to evidence; add missing behavior regressions at stable seams.
-- Acceptance gates:
-Equivalent commands produce equivalent logical manifests; missing/global checks, stale forecasts,
-partial or failed stages never activate. Cache hits skip heavy work; interrupted publication
-preserves one resumable attempt and the prior complete generation.
-Record refactor/no-refactor and proceed/proceed-with-nonblocking-notes/blocked verdicts. Plan a
-focused prerequisite repair for any blocker and keep this checkpoint open until it passes.
-Run `make ci`; coverage is diagnostic. Route each nonblocking note to one explicit owner.
-- Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: none; this is the bounded checkpoint.
-
 #### add-stage-artifact-inspection
 
 Report what a normal pipeline stage produced without recomputing it.
@@ -194,7 +157,9 @@ Review the integrated milestone before lexical loading, classification and NLP c
 [Investigation profile and output manifest](records/0045-pipeline-implement-investigation-profile-and-output-manifest.md);
 [Progress logging and resource telemetry](records/0043-pipeline-add-progress-logging-and-resource-telemetry.md);
 [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
-`review-pipeline-publication-and-reuse-boundaries`; `implement-incremental-reconciliation-and-stale-pruning`.
+[Publication/reuse checkpoint](records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md);
+`implement-incremental-reconciliation-and-stale-pruning`.
+- Audit inputs: [AUD-review-pipeline-publication-and-reuse-boundaries-2](records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md#audit-handoff).
 - User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
 or blocked
 for the named consumers; no-refactoring-needed is a valid conclusion.
@@ -237,7 +202,7 @@ metadata.
 [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
 [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md);
 [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md).
-`review-pipeline-publication-and-reuse-boundaries`.
+[Publication/reuse checkpoint](records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md).
 - User-visible outcome: The operator can inventory one or more multi-terabyte silos without loading
 them into RAM and can see per-silo coverage, bytes, duplicates, and unsupported/encrypted inputs.
 - Scope boundary: Read files and archive-member metadata only; no text extraction and no

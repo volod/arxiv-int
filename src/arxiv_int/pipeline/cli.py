@@ -66,6 +66,7 @@ def _add_forecast_parser(
         "forecast",
         help="read-only time, storage, and free-space forecast before heavy work",
     )
+    parser.add_argument("--force", action="store_true", help="budget all work for a forced attempt")
     parser.add_argument("--archive-dir", type=Path, default=None, help=_DEFAULT_HELP)
     parser.add_argument("--results-dir", type=Path, default=None, help=_DEFAULT_HELP)
     parser.add_argument(

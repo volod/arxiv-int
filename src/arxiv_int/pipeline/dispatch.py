@@ -185,7 +185,7 @@ def _run_profile(
     force: bool = False,
 ) -> int:
     preflight_run(context)
-    _refresh_forecast(context)
+    _refresh_forecast(context, force=force)
     code = run_dag(
         context,
         from_stage=from_stage if from_stage is not None else context.from_stage,
@@ -196,8 +196,8 @@ def _run_profile(
     return finalize_run(context, fallback_exit=code)
 
 
-def _refresh_forecast(context: RunContext) -> None:
+def _refresh_forecast(context: RunContext, *, force: bool = False) -> None:
     from arxiv_int.pipeline.forecast.commands import forecast_or_refuse
 
     config = load_runtime_config(project_root=context.project_root)
-    forecast_or_refuse(context, config, production_registry())
+    forecast_or_refuse(context, config, production_registry(), force=force)

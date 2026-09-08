@@ -104,6 +104,13 @@ def publish_attempt(
 
 def validate_attempt(directory: Path, *, reuse_key: str, attempt: int) -> ArtifactManifest:
     """Accept a tree only when the manifest and every checksum still match."""
+    try:
+        return _validate_attempt(directory, reuse_key=reuse_key, attempt=attempt)
+    except (OSError, ValueError, TypeError) as error:
+        raise ArtifactPublishError("invalid attempt manifest or payload") from error
+
+
+def _validate_attempt(directory: Path, *, reuse_key: str, attempt: int) -> ArtifactManifest:
     files = _load_manifest_files(directory, reuse_key, attempt)
     accepted = _checksum_files(directory, files)
     extra = {
@@ -142,7 +149,7 @@ def _checksum_files(directory: Path, files: dict[str, object]) -> dict[str, File
             raise ArtifactPublishError(f"published file is missing: {name}")
         digest, size = _hash_file(path)
         expected_digest = str(spec.get("sha256") or "")
-        expected_size = int(spec.get("bytes") or -1)
+        expected_size = int(spec.get("bytes", -1))
         if digest != expected_digest or size != expected_size:
             raise ArtifactPublishError(f"checksum mismatch for {name}")
         row_count = spec.get("rowCount")

@@ -12,9 +12,10 @@ from arxiv_int.pipeline.control.artifacts import ArtifactPublishError, validate_
 from arxiv_int.pipeline.control.executor import ShardDecision, ShardExecutor
 from arxiv_int.pipeline.control.fingerprints import ReuseIdentity, reuse_key
 from arxiv_int.pipeline.control.model import ShardWork
-from arxiv_int.pipeline.errors import UnregisteredStageError
+from arxiv_int.pipeline.control.quality import activation_decision
+from arxiv_int.pipeline.errors import QualityBoundaryError, UnregisteredStageError
 from arxiv_int.pipeline.persist import StageExecution
-from arxiv_int.pipeline.quality_bound import QualityBoundary, apply_boundary, passing_checks
+from arxiv_int.pipeline.quality_bound import QualityBoundary, apply_boundary
 from arxiv_int.pipeline.registry import StageRegistry, StageSpec
 from arxiv_int.pipeline.reuse_index import ReuseEntry
 
@@ -58,6 +59,12 @@ def try_reuse(entry: ReuseEntry | None, *, force: bool) -> StageExecution | None
     try:
         validate_attempt(directory, reuse_key=entry.reuse_key, attempt=entry.attempt)
     except ArtifactPublishError:
+        return None
+    if load_stage_outcome(directory) not in {"produced", "empty"}:
+        return None
+    from arxiv_int.pipeline.quality_evidence import validate_quality_evidence
+
+    if not validate_quality_evidence(directory, entry.generation_id):
         return None
     return StageExecution(
         entry.stage,
@@ -111,7 +118,8 @@ def execute_stage(
         raise UnregisteredStageError((name,))
     identity = stage_identity(spec, context, upstream_keys)
     key = reuse_key(identity)
-    reused = try_reuse(index.get(key), force=force)
+    eligible = activation_decision(quality.checks(), generation_id=context.generation_id).allowed
+    reused = try_reuse(index.get(key), force=force or not eligible)
     if reused is not None:
         return reused
     work = ShardWork(
@@ -122,17 +130,26 @@ def execute_stage(
         identity.shard_id,
         context.config_fingerprint,
         identity,
-        checks=passing_checks(),
+        checks=quality.checks(),
         row_counts={"stage.json": 1},
     )
 
     def worker(_directory: Path) -> Mapping[str, bytes]:
         result = runner.run(stage_context(context, spec.name))
+        if result.stage != spec.name or any(
+            item.generation_id != context.generation_id for item in result.outputs
+        ):
+            raise QualityBoundaryError("stage output identity mismatch")
         if result.outcome == "failed":
             raise RuntimeError(result.detail)
         files = {"stage.json": encode_result(result)}
-        apply_boundary(
-            spec, files, quality, generation_id=context.generation_id, run_id=context.run_id
+        files["quality.json"] = apply_boundary(
+            spec,
+            files,
+            quality,
+            generation_id=context.generation_id,
+            run_id=context.run_id,
+            result=result,
         )
         return files
 
@@ -153,10 +170,15 @@ def execution_to_entry(
         execution.directory,
         execution.status,
         execution.bytes,
-        context.run_id,
-        context.generation_id,
+        Path(execution.directory).parents[3].name if execution.cache_hit else context.run_id,
+        _producer_generation(Path(execution.directory)),
         False,
     )
+
+
+def _producer_generation(directory: Path) -> str:
+    payload = json.loads((directory / "quality.json").read_text(encoding="ascii"))
+    return str(payload["generation_id"])
 
 
 def load_stage_outcome(directory: Path | None) -> str:
@@ -165,17 +187,17 @@ def load_stage_outcome(directory: Path | None) -> str:
         return "failed"
     path = directory / "stage.json"
     if not path.is_file():
-        return "produced"
+        return "failed"
     try:
         payload: Any = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
-        return "produced"
+        return "failed"
     if not isinstance(payload, dict):
-        return "produced"
-    outcome = str(payload.get("outcome", "produced"))
+        return "failed"
+    outcome = str(payload.get("outcome", "failed"))
     if outcome in {"produced", "partial", "empty", "failed", "not-selected"}:
         return outcome
-    return "produced"
+    return "failed"
 
 
 def _from_decision(stage: str, key: str, decision: ShardDecision) -> StageExecution:

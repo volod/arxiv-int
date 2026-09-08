@@ -18,7 +18,7 @@ from arxiv_int.pipeline.control.states import (
     as_lease_status,
     require_transition,
 )
-from arxiv_int.pipeline.control.store import LeaseHeldError
+from arxiv_int.pipeline.control.store import LeaseExpiredError, LeaseHeldError
 
 
 class InMemoryEventMixin:
@@ -53,6 +53,8 @@ class InMemoryEventMixin:
 
     def heartbeat_lease(self, lease_id: str, now: float, ttl_seconds: float) -> LeaseRecord:
         current = self._leases[lease_id]
+        if current.status != "acquired" or current.expires_at <= now:
+            raise LeaseExpiredError("publication lease expired")
         require_transition("lease", current.status, "acquired")
         updated = replace(current, heartbeat_at=now, expires_at=now + ttl_seconds)
         self._leases[lease_id] = updated

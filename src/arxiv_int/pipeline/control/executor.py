@@ -15,6 +15,7 @@ from arxiv_int.pipeline.control.lineage import keys_matching_owned_change, stale
 from arxiv_int.pipeline.control.memory import InMemoryLedger
 from arxiv_int.pipeline.control.model import ShardWork
 from arxiv_int.pipeline.control.produce import Worker, produce_shard
+from arxiv_int.pipeline.control.quality import activation_decision
 from arxiv_int.pipeline.control.settle import new_shard
 from arxiv_int.pipeline.control.states import DEFAULT_MAX_TRANSIENT_ATTEMPTS
 from arxiv_int.pipeline.control.store import ControlLedger
@@ -70,7 +71,13 @@ class ShardExecutor:
         stage = self._ledger.ensure_stage(work.run_id, work.stage, work.stage_version, now)
         self._ledger.transition_run(work.run_id, "running", now)
         self._ledger.transition_stage(stage.stage_run_id, "running", now)
-        if not force:
+        eligible = activation_decision(
+            work.checks,
+            validations=work.validations,
+            transformations=work.transformations,
+            generation_id=work.generation_id,
+        ).allowed
+        if not force and eligible:
             reused = self._try_reuse(work, key)
             if reused is not None:
                 return reused

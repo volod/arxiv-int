@@ -57,3 +57,5 @@ below).
 | [0043 Progress logging and resource telemetry](0043-pipeline-add-progress-logging-and-resource-telemetry.md) | Serialized logs, throttled progress, bounded metrics, `ctl.stage_progress`, Grafana pipeline dashboards | Accepted |
 | [0044 Evidence-based pipeline forecast](0044-pipeline-implement-evidence-based-pipeline-forecast.md) | Read-only pre-run time/storage forecast, device-deduped free-space refusal, and stage-boundary rechecks | Accepted |
 | [0045 Investigation profile and output manifest](0045-pipeline-implement-investigation-profile-and-output-manifest.md) | Profile declarations, knowledge-base publication, active generation pointer, and run finalize | Accepted |
+| [0046 Pipeline publication and reuse review](0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md) | Integrated fixture and disposable store checkpoint | Accepted; proceed with nonblocking note |
+| [0047 Pipeline publication and reuse repair](0047-pipeline-repair-pipeline-publication-and-reuse-integrity.md) | Focused integrity prerequisite for 0046 | Accepted |

@@ -37,7 +37,9 @@ def remaining_plan(plan: StagePlan, status: RunStatus | None) -> StagePlan:
     if status is None:
         return plan
     succeeded = tuple(
-        item.stage for item in status.executions if item.status in {"succeeded", "quarantined"}
+        item.stage
+        for item in status.executions
+        if item.status in {"succeeded", "quarantined"} and item.outcome in {"produced", "empty"}
     )
     done = set(succeeded)
     execute = tuple(name for name in plan.execute if name not in done)
