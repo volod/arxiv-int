@@ -3,10 +3,11 @@
 from collections.abc import Callable
 from pathlib import Path
 
-from arxiv_int.inference.resources import HostSnapshot, snapshot_host
+from arxiv_int.inference.scheduler.resources import HostSnapshot, snapshot_host
 from arxiv_int.interfaces.sources import SiloRoot
-from arxiv_int.pipeline.actions import plan_for
-from arxiv_int.pipeline.context import RunContext
+from arxiv_int.pipeline.dag.actions import plan_for
+from arxiv_int.pipeline.dag.graph import StagePlan
+from arxiv_int.pipeline.dag.registry import ResourceEstimate, StageRegistry
 from arxiv_int.pipeline.forecast.capacity import envelope_fingerprint, load_envelope
 from arxiv_int.pipeline.forecast.devices import Inspector, collect_devices
 from arxiv_int.pipeline.forecast.evidence import cache_plan, load_comparable_runs
@@ -14,9 +15,8 @@ from arxiv_int.pipeline.forecast.inputs import ForecastInputs
 from arxiv_int.pipeline.forecast.model import HostAssumptions
 from arxiv_int.pipeline.forecast.persist import allocate_forecast_id
 from arxiv_int.pipeline.forecast.sample import resolve_inventory
-from arxiv_int.pipeline.graph import StagePlan
-from arxiv_int.pipeline.persist import run_dir
-from arxiv_int.pipeline.registry import ResourceEstimate, StageRegistry
+from arxiv_int.pipeline.run.context import RunContext
+from arxiv_int.pipeline.run.persist import run_dir
 from arxiv_int.runtime.config_model import RuntimeConfig
 
 HostProbe = Callable[[], HostSnapshot]

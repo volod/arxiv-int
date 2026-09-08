@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from arxiv_int.cli import build_parser, main
-from arxiv_int.inference.schema import generate_schemas
+from arxiv_int.inference.policy.schema import generate_schemas
 
 
 def test_parser_accepts_inference_commands() -> None:

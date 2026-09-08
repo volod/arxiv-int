@@ -14,12 +14,12 @@ from arxiv_int.contracts.sqlalchemy.normalize import (
     UnsupportedContractMappingError,
     normalize_contract,
 )
-from arxiv_int.quality.project_root import discover_project_root
+from arxiv_int.resources.paths import contracts_root
 from tests.contracts.sqlalchemy._builders import odcs_document, property_field
 
 
 def _contracts_root() -> Path:
-    return discover_project_root(Path(__file__)) / "contracts"
+    return contracts_root()
 
 
 def test_product_metadata_is_schema_qualified_with_named_constraints() -> None:

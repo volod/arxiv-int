@@ -3,12 +3,12 @@
 from collections.abc import Sequence
 from pathlib import Path
 
-from arxiv_int.pipeline.persist import load_json
 from arxiv_int.pipeline.prune.compact import compact_lineage, retain_many
 from arxiv_int.pipeline.prune.model import PRUNE_SCHEMA, PruneEvent
 from arxiv_int.pipeline.prune.plan import PRUNE_DIR, fingerprint_for
 from arxiv_int.pipeline.prune.protect import blocked_directories, protections
-from arxiv_int.pipeline.reuse_index import (
+from arxiv_int.pipeline.run.persist import load_json
+from arxiv_int.pipeline.run.reuse_index import (
     ReuseEntry,
     load_lineage,
     load_reuse_index,
@@ -96,7 +96,7 @@ def _save_after_delete(
 
 
 def _write_event(runs_dir: Path, plan_id: str, fingerprint: str, removed: int) -> PruneEvent:
-    from arxiv_int.pipeline.persist import write_json
+    from arxiv_int.pipeline.run.persist import write_json
 
     event = PruneEvent(PRUNE_SCHEMA, plan_id, fingerprint, "applied", removed, (), "")
     write_json(

@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0050` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0051` after the rows
 below).
 
 | Record | Scope | Result |
@@ -61,3 +61,4 @@ below).
 | [0047 Pipeline publication and reuse repair](0047-pipeline-repair-pipeline-publication-and-reuse-integrity.md) | Focused integrity prerequisite for 0046 | Accepted |
 | [0048 Stage artifact inspection](0048-pipeline-add-stage-artifact-inspection.md) | Read-only run/dataset artifact summaries | Accepted |
 | [0049 Incremental reconciliation and stale pruning](0049-pipeline-implement-incremental-reconciliation-and-stale-pruning.md) | Source-manifest deltas, active-view retraction, isolated rebuild, two-phase prune | Accepted |
+| [0050 Package layout and Make modularity](0050-govern-refactor-package-layout-and-make.md) | Split Makefile, package configs/contracts/ontology/dbt, nest large subpackages, mirror tests | Accepted |

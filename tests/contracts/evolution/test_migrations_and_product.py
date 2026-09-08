@@ -4,11 +4,12 @@ from pathlib import Path
 
 import pytest
 
-from arxiv_int.contracts.datacontract_lint import datacontract_command
 from arxiv_int.contracts.evolution import check_evolution_policy, migration_policy_findings
 from arxiv_int.contracts.evolution.avro_compat import generated_avro_self_compatibility
 from arxiv_int.contracts.evolution.datacontract_break import breaking_findings
+from arxiv_int.contracts.lint.datacontract import datacontract_command
 from arxiv_int.quality.project_root import discover_project_root
+from arxiv_int.resources.paths import contracts_root
 
 
 def _root() -> Path:
@@ -17,7 +18,7 @@ def _root() -> Path:
 
 def test_product_evolution_policy_passes() -> None:
     report = check_evolution_policy(
-        _root() / "contracts",
+        contracts_root(),
         project_root=_root(),
         include_live_sql=False,
     )
@@ -26,17 +27,17 @@ def test_product_evolution_policy_passes() -> None:
 
 
 def test_product_migration_policy_passes() -> None:
-    assert migration_policy_findings(_root(), _root() / "contracts") == []
+    assert migration_policy_findings(_root(), contracts_root()) == []
 
 
 def test_generated_avro_self_compatibility() -> None:
-    path = _root() / "contracts" / "generated" / "avro" / "documents.avsc"
+    path = contracts_root() / "generated" / "avro" / "documents.avsc"
     assert generated_avro_self_compatibility(path) == []
 
 
 @pytest.mark.skipif(datacontract_command() is None, reason="Data Contract CLI unavailable")
 def test_datacontract_breaking_identical_files(tmp_path: Path) -> None:
-    source = _root() / "contracts" / "datasets" / "documents.odcs.yaml"
+    source = contracts_root() / "datasets" / "documents.odcs.yaml"
     left = tmp_path / "left.yaml"
     right = tmp_path / "right.yaml"
     left.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")

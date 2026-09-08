@@ -6,7 +6,7 @@ import pytest
 
 from arxiv_int.cli import build_parser, main
 from arxiv_int.contracts.migrations.runner import DATABASE_URL_VARIABLE
-from arxiv_int.data_quality.model import STATUS_FAIL, STATUS_PASS
+from arxiv_int.data_quality.engine.model import STATUS_FAIL, STATUS_PASS
 from arxiv_int.quality.project_root import discover_project_root
 from arxiv_int.stores.projections.adapters.graph import write_open_exports
 from arxiv_int.stores.projections.ids import (

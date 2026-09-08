@@ -11,7 +11,7 @@ from arxiv_int.inspect.model import (
     LineageSummary,
     QualityRuleSummary,
 )
-from arxiv_int.pipeline.persist import load_json
+from arxiv_int.pipeline.run.persist import load_json
 
 QUALITY_KEYS = frozenset({"generation_id", "checks", "validations", "transformations"})
 STAGE_KEYS = frozenset({"detail", "outcome", "outputs", "stage"})
@@ -21,8 +21,8 @@ MANIFEST_KEYS = frozenset({"attempt", "files", "reuseKey"})
 def contract_versions(project_root: Path) -> dict[str, str]:
     """Load current ODCS versions; missing contracts yield an empty map."""
     try:
+        from arxiv_int.contracts.catalog.registry import FileRegistry
         from arxiv_int.contracts.lint import contracts_root_for
-        from arxiv_int.contracts.registry import FileRegistry
 
         registry = FileRegistry(contracts_root_for(project_root))
     except (OSError, ValueError, TypeError):

@@ -7,8 +7,8 @@ from pathlib import Path
 from uuid import uuid4
 
 from arxiv_int.interfaces.sources import SiloRoot
-from arxiv_int.pipeline.context import RunContext
 from arxiv_int.pipeline.reconcile.model import SiloScan, SourceManifest, SourceOccurrence
+from arxiv_int.pipeline.run.context import RunContext
 
 _LOG = logging.getLogger(__name__)
 _EMPTY_SHARD = "default"

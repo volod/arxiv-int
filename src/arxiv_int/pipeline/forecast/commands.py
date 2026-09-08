@@ -5,7 +5,9 @@ from collections.abc import Callable
 from pathlib import Path
 
 from arxiv_int.contracts.generate.normalize import normalize_json, sha256_text
-from arxiv_int.pipeline.context import RunContext, config_fingerprint, secret_free_values
+from arxiv_int.pipeline.dag.graph import StagePlan
+from arxiv_int.pipeline.dag.registry import StageRegistry
+from arxiv_int.pipeline.dag.stages import production_registry
 from arxiv_int.pipeline.forecast.collect import collect_inputs, silos_from_config
 from arxiv_int.pipeline.forecast.devices import Inspector
 from arxiv_int.pipeline.forecast.engine import build_forecast
@@ -18,9 +20,7 @@ from arxiv_int.pipeline.forecast.persist import (
 )
 from arxiv_int.pipeline.forecast.recheck import make_space_guard
 from arxiv_int.pipeline.forecast.report import console_lines
-from arxiv_int.pipeline.graph import StagePlan
-from arxiv_int.pipeline.registry import StageRegistry
-from arxiv_int.pipeline.stages import production_registry
+from arxiv_int.pipeline.run.context import RunContext, config_fingerprint, secret_free_values
 from arxiv_int.runtime import load_runtime_config
 from arxiv_int.runtime.config_model import RuntimeConfig
 

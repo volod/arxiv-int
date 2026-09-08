@@ -2,17 +2,21 @@
 
 from pathlib import Path
 
-from arxiv_int.pipeline.actions import fixture_plan, rebuild_context, update_context
 from arxiv_int.pipeline.control.quality import QualityCheck, activation_decision
-from arxiv_int.pipeline.fixtures import FIXTURE_OPTIONAL, FIXTURE_PROFILE_STAGES, fixture_registry
-from arxiv_int.pipeline.orchestrate import Orchestrator
-from arxiv_int.pipeline.persist import save_context
+from arxiv_int.pipeline.dag.actions import fixture_plan, rebuild_context, update_context
+from arxiv_int.pipeline.dag.orchestrate import Orchestrator
 from arxiv_int.pipeline.publish.pointer import ActivationRefusedError
 from arxiv_int.pipeline.reconcile.activate import executions_ready, require_quality_switch
 from arxiv_int.pipeline.reconcile.commands import prepare_update, record_rebuild
 from arxiv_int.pipeline.reconcile.lineage import lineage_matches
 from arxiv_int.pipeline.reconcile.persist import load_manifest
-from tests.pipeline.orchestration.conftest import make_context
+from arxiv_int.pipeline.run.fixtures import (
+    FIXTURE_OPTIONAL,
+    FIXTURE_PROFILE_STAGES,
+    fixture_registry,
+)
+from arxiv_int.pipeline.run.persist import save_context
+from tests.pipeline.conftest import make_context
 
 
 def _plan(registry: object) -> object:

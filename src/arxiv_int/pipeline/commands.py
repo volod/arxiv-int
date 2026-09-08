@@ -5,7 +5,7 @@ from collections.abc import Callable, Mapping
 from pathlib import Path
 
 from arxiv_int.interfaces.sources import SiloRoot
-from arxiv_int.pipeline.actions import (
+from arxiv_int.pipeline.dag.actions import (
     PrunePlan,
     apply_prune_plan,
     build_prune_plan,
@@ -16,20 +16,20 @@ from arxiv_int.pipeline.actions import (
     status_lines,
     update_context,
 )
-from arxiv_int.pipeline.cancel import CancelToken
-from arxiv_int.pipeline.context import (
+from arxiv_int.pipeline.dag.cancel import CancelToken
+from arxiv_int.pipeline.dag.orchestrate import Orchestrator
+from arxiv_int.pipeline.dag.registry import StageRegistry
+from arxiv_int.pipeline.dag.stages import production_registry
+from arxiv_int.pipeline.quality.bound import QualityBoundary
+from arxiv_int.pipeline.run.context import (
     RunContext,
     allocate_run_id,
     config_fingerprint,
     secret_free_values,
     snapshot_silos,
 )
-from arxiv_int.pipeline.errors import ConfigDriftError, PipelineError, StaleUpstreamError
-from arxiv_int.pipeline.orchestrate import Orchestrator
-from arxiv_int.pipeline.persist import load_context, load_status, run_dir
-from arxiv_int.pipeline.quality_bound import QualityBoundary
-from arxiv_int.pipeline.registry import StageRegistry
-from arxiv_int.pipeline.stages import production_registry
+from arxiv_int.pipeline.run.errors import ConfigDriftError, PipelineError, StaleUpstreamError
+from arxiv_int.pipeline.run.persist import load_context, load_status, run_dir
 from arxiv_int.runtime import load_runtime_config
 from arxiv_int.runtime.config_model import RuntimeConfig
 from arxiv_int.runtime.setup.settings import load_setup_settings

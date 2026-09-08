@@ -7,8 +7,8 @@ from typing import Any
 
 from arxiv_int.contracts.generate.normalize import normalize_json, sha256_text
 from arxiv_int.pipeline.forecast.inputs import Envelope
+from arxiv_int.resources.paths import configs_output_root, configs_root
 
-CAPACITY_DIR = Path("configs") / "capacity"
 ENVELOPE_NAME = "envelope.json"
 SCHEMA_NAME = "forecast.schema.json"
 ENVELOPE_SCHEMA = "arxiv-int.capacity.envelope.v1"
@@ -112,10 +112,8 @@ def envelope_fingerprint(envelope: Envelope) -> str:
 
 
 def load_envelope(project_root: Path | None = None) -> Envelope:
-    """Load ``configs/capacity/envelope.json`` when present; otherwise use defaults."""
-    if project_root is None:
-        return DEFAULT_ENVELOPE
-    path = project_root / CAPACITY_DIR / ENVELOPE_NAME
+    """Load packaged ``configs/capacity/envelope.json`` when present; otherwise use defaults."""
+    path = configs_root(project_root) / "capacity" / ENVELOPE_NAME
     if not path.is_file():
         return DEFAULT_ENVELOPE
     loaded = json.loads(path.read_text(encoding="utf-8"))
@@ -126,7 +124,7 @@ def load_envelope(project_root: Path | None = None) -> Envelope:
 
 def write_envelope(project_root: Path, envelope: Envelope = DEFAULT_ENVELOPE) -> Path:
     """Write the committed envelope overlay."""
-    directory = project_root / CAPACITY_DIR
+    directory = configs_output_root(project_root) / "capacity"
     directory.mkdir(parents=True, exist_ok=True)
     path = directory / ENVELOPE_NAME
     path.write_text(normalize_json(envelope_payload(envelope)), encoding="utf-8")

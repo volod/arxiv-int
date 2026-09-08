@@ -1,6 +1,6 @@
 """Forecast refusal and freshness errors."""
 
-from arxiv_int.pipeline.errors import PipelineError
+from arxiv_int.pipeline.run.errors import PipelineError
 
 EXIT_RESOURCE = 3
 

@@ -162,7 +162,7 @@ The configured tooling volume was read-only; the operator's environment file was
 `git diff --check` pass. `make -k ci DATA_DIR=.data` runs the remaining checks after failures and
 reports **168 tests passed**. At audit time full CI was failing on pre-existing source
 formatting/import ordering in `src/arxiv_int/runtime/__init__.py` and Radon complexity D (23) in
-`tests/compose/test_profiles.py::test_rendered_topology_has_pins_health_stop_and_mount_isolation`,
+`tests/runtime/test_profiles.py::test_rendered_topology_has_pins_health_stop_and_mount_isolation`,
 and the complexity target stopped at Radon, so its subsequent cognitive-complexity check was
 not established by that run. The
 [quality baseline repair](../records/0003-foundation-restore-quality-gate-baseline.md) has since

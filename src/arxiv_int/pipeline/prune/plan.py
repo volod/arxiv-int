@@ -4,10 +4,10 @@ from pathlib import Path
 from uuid import uuid4
 
 from arxiv_int.contracts.generate.normalize import normalize_json, sha256_text
-from arxiv_int.pipeline.persist import write_json
 from arxiv_int.pipeline.prune.model import PRUNE_SCHEMA, PrunePlan
 from arxiv_int.pipeline.prune.protect import blocked_directories, protections
-from arxiv_int.pipeline.reuse_index import ReuseEntry, load_reuse_index, load_superseded
+from arxiv_int.pipeline.run.persist import write_json
+from arxiv_int.pipeline.run.reuse_index import ReuseEntry, load_reuse_index, load_superseded
 
 PRUNE_DIR = "prune-plans"
 

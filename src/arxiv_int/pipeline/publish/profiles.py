@@ -6,11 +6,10 @@ from pathlib import Path
 from typing import Any
 
 from arxiv_int.contracts.generate.normalize import normalize_json
+from arxiv_int.pipeline.dag.stages import OPTIONAL_STAGES
 from arxiv_int.pipeline.publish.model import PROFILE_SCHEMA, OutputFamily, PipelineProfile
-from arxiv_int.pipeline.stages import OPTIONAL_STAGES
+from arxiv_int.resources.paths import configs_output_root, configs_root
 from arxiv_int.runtime.setup.requirements import PROFILE_STAGES
-
-PIPELINE_DIR = Path("configs") / "pipeline"
 
 
 def _family(family_id: str, stage: str, required: bool, path: str = "") -> OutputFamily:
@@ -114,11 +113,10 @@ def profile_from_payload(payload: Mapping[str, Any]) -> PipelineProfile:
 
 
 def load_profile(name: str, project_root: Path | None = None) -> PipelineProfile:
-    """Load a named profile from configs, then defaults, then the fixture profile."""
-    if project_root is not None:
-        path = project_root / PIPELINE_DIR / f"{name}.json"
-        if path.is_file():
-            return profile_from_payload(_read_object(path))
+    """Load a named profile from packaged configs, then defaults, then the fixture profile."""
+    path = configs_root(project_root) / "pipeline" / f"{name}.json"
+    if path.is_file():
+        return profile_from_payload(_read_object(path))
     if name in DEFAULT_PROFILES:
         return DEFAULT_PROFILES[name]
     if name == FIXTURE_PROFILE.name:
@@ -129,7 +127,7 @@ def load_profile(name: str, project_root: Path | None = None) -> PipelineProfile
 
 def write_profile(project_root: Path, profile: PipelineProfile) -> Path:
     """Write one committed profile overlay."""
-    directory = project_root / PIPELINE_DIR
+    directory = configs_output_root(project_root) / "pipeline"
     directory.mkdir(parents=True, exist_ok=True)
     path = directory / f"{profile.name}.json"
     path.write_text(normalize_json(profile_payload(profile)), encoding="utf-8")

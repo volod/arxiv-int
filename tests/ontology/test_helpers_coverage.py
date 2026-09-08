@@ -46,12 +46,10 @@ def test_ontology_root_for_and_graph_dependency_guard(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     require_graph_dependencies()
-    monkeypatch.setattr(
-        "arxiv_int.ontology.paths.find_project_root",
-        lambda explicit=None: tmp_path,
-    )
-    assert ontology_root_for(None) == (tmp_path / "ontology").resolve()
-    assert ontology_root_for(tmp_path) == (tmp_path / "ontology").resolve()
+    overlay = tmp_path / "ontology"
+    overlay.mkdir()
+    assert ontology_root_for(None) == ontology_root()
+    assert ontology_root_for(tmp_path) == overlay.resolve()
 
     def _missing(name: str) -> None:
         raise ImportError(name)

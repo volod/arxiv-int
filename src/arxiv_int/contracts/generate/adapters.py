@@ -2,8 +2,8 @@
 
 from typing import Any
 
+from arxiv_int.contracts.catalog.odcs_ext import project_extension
 from arxiv_int.contracts.generate.normalize import normalize_json, normalize_text
-from arxiv_int.contracts.odcs_ext import project_extension
 
 
 def _logical_to_arrow(logical: str) -> str:

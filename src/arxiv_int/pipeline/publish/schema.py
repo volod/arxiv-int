@@ -9,10 +9,10 @@ from arxiv_int.contracts.generate.normalize import normalize_json
 from arxiv_int.pipeline.publish.model import PROFILE_SCHEMA, SCHEMA_ID
 from arxiv_int.pipeline.publish.profiles import (
     DEFAULT_PROFILES,
-    PIPELINE_DIR,
     check_profile_alignment,
     profile_payload,
 )
+from arxiv_int.resources.paths import configs_output_root, configs_root
 
 _SCHEMA_META = "https://json-schema.org/draft/2020-12/schema"
 PROFILE_SCHEMA_NAME = "profile.schema.json"
@@ -82,7 +82,7 @@ def dump_schema(schema: Mapping[str, Any]) -> str:
 
 def write_pipeline_assets(project_root: Path) -> None:
     """Write committed profile JSON and knowledge-base schema files."""
-    directory = project_root / PIPELINE_DIR
+    directory = configs_output_root(project_root) / "pipeline"
     directory.mkdir(parents=True, exist_ok=True)
     (directory / PROFILE_SCHEMA_NAME).write_text(dump_schema(PROFILE_JSON_SCHEMA), encoding="utf-8")
     (directory / KNOWLEDGE_BASE_SCHEMA_NAME).write_text(
@@ -96,7 +96,7 @@ def write_pipeline_assets(project_root: Path) -> None:
 def check_schema_drift(project_root: Path) -> tuple[str, ...]:
     """Return drift findings for committed profiles and schemas."""
     findings = list(check_profile_alignment())
-    directory = project_root / PIPELINE_DIR
+    directory = configs_root(project_root) / "pipeline"
     expected = {
         PROFILE_SCHEMA_NAME: dump_schema(PROFILE_JSON_SCHEMA),
         KNOWLEDGE_BASE_SCHEMA_NAME: dump_schema(KNOWLEDGE_BASE_SCHEMA),

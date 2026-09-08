@@ -7,8 +7,6 @@ from pathlib import Path
 from typing import Any
 
 from arxiv_int.contracts.generate.normalize import normalize_json
-from arxiv_int.pipeline.locking import pipeline_lock
-from arxiv_int.pipeline.persist import load_json, run_dir, write_json
 from arxiv_int.pipeline.publish.assemble import fingerprint_document
 from arxiv_int.pipeline.publish.codec import document_from_payload, document_payload
 from arxiv_int.pipeline.publish.model import (
@@ -17,6 +15,8 @@ from arxiv_int.pipeline.publish.model import (
     KNOWLEDGE_BASE_NAME,
     KnowledgeBase,
 )
+from arxiv_int.pipeline.run.locking import pipeline_lock
+from arxiv_int.pipeline.run.persist import load_json, run_dir, write_json
 
 Injector = Callable[[str], None]
 

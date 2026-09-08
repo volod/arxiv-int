@@ -20,6 +20,12 @@ def test_assemble_working_project_injects_generated_sources(tmp_path: Path) -> N
     assert "super-secret" not in profiles
 
 
-def test_assemble_working_project_fails_when_authored_project_is_missing(tmp_path: Path) -> None:
+def test_assemble_working_project_fails_when_authored_project_is_missing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(
+        "arxiv_int.transformations.project.authored_project_dir",
+        lambda project_root: tmp_path / "missing-dbt",
+    )
     with pytest.raises(ProjectAssemblyError, match="dbt project is missing"):
         assemble_working_project(tmp_path, tmp_path / "run")

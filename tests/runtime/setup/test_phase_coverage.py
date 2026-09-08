@@ -26,8 +26,8 @@ from arxiv_int.runtime.setup.support import (
     run_services_phase,
 )
 from arxiv_int.runtime.setup.wait import _health_result, run_wait_phase
-from tests.compose.test_profiles import _runtime_config
 from tests.runtime.setup.conftest import FixtureProbe, checkout, completed, operator_env
+from tests.runtime.test_profiles import _runtime_config
 
 
 def test_parse_ollama_list_skips_blank_lines() -> None:

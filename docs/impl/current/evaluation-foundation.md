@@ -42,7 +42,7 @@ raise `MissingEvidenceError` and cannot produce adopt/retain. Pandera/dbt
 Exported metrics carry `data_class=transformed` and are not labelled raw-archive results.
 Positive fixtures score strictly above their paired negatives.
 
-Threshold defaults live in `configs/evaluation/thresholds.json` and do not auto-adopt.
+Threshold defaults live in `src/arxiv_int/resources/configs/evaluation/thresholds.json` and do not auto-adopt.
 
 ## Evaluate stage
 
@@ -58,7 +58,7 @@ make eval RUN_ID=...
 
 ## Proof dispatcher
 
-`configs/proofs/capabilities.json` maps each capability to usable stages and required
+`src/arxiv_int/resources/configs/proofs/capabilities.json` maps each capability to usable stages and required
 validators. `arxiv-int evaluation proof discover` lists them. Unknown capabilities fail.
 `evaluation-foundation` can publish a fixture proof; other capabilities refuse until their
 usable stages are validated.

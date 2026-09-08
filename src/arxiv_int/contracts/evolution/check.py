@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from arxiv_int.contracts.catalog.registry import FileRegistry
 from arxiv_int.contracts.evolution.avro_compat import generated_avro_self_compatibility
 from arxiv_int.contracts.evolution.baseline import (
     baseline_path,
@@ -20,7 +21,6 @@ from arxiv_int.contracts.evolution.migrations import (
 from arxiv_int.contracts.evolution.policy import classify_contract_evolution
 from arxiv_int.contracts.generate.pipeline import BASELINE_DDL_RELATIVE
 from arxiv_int.contracts.generate.sql_validate import apply_baseline_on_disposable_postgres
-from arxiv_int.contracts.registry import FileRegistry
 
 _LOG = logging.getLogger(__name__)
 

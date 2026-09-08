@@ -3,10 +3,9 @@
 from pathlib import Path
 
 from arxiv_int.quality.project_root import discover_project_root
+from arxiv_int.resources.paths import ontology_root
 
-
-def ontology_root() -> Path:
-    return discover_project_root(Path(__file__)) / "ontology"
+__all__ = ["ontology_root", "project_root"]
 
 
 def project_root() -> Path:

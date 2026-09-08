@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from arxiv_int.contracts.catalog.registry import FileRegistry
 from arxiv_int.contracts.migrations.paths import (
     head_state_path,
     revision_manifest_path,
@@ -20,7 +21,6 @@ from arxiv_int.contracts.migrations.state import (
     load_state,
     write_state,
 )
-from arxiv_int.contracts.registry import FileRegistry
 from arxiv_int.contracts.sqlalchemy.model import ContractSchemaModel, load_schema_model
 
 _SLUG = re.compile(r"[^a-z0-9]+")

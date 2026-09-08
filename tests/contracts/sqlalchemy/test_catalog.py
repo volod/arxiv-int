@@ -1,18 +1,16 @@
 """Live catalog comparison over owned objects only."""
 
-from pathlib import Path
-
 from arxiv_int.contracts.sqlalchemy.catalog import (
     CatalogColumn,
     catalog_findings,
     expected_catalog,
 )
 from arxiv_int.contracts.sqlalchemy.model import load_schema_model_from_root
-from arxiv_int.quality.project_root import discover_project_root
+from arxiv_int.resources.paths import contracts_root
 
 
 def _expected() -> dict[str, dict[str, CatalogColumn]]:
-    model = load_schema_model_from_root(discover_project_root(Path(__file__)) / "contracts")
+    model = load_schema_model_from_root(contracts_root())
     snapshot = expected_catalog(model.metadata, ["corpus.documents"])
     return {name: dict(columns) for name, columns in snapshot.items()}
 

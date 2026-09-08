@@ -7,7 +7,7 @@ from typing import Any
 
 from arxiv_int.contracts.generate.normalize import sha256_text
 from arxiv_int.contracts.migrations.runner import redact_url
-from arxiv_int.data_quality.model import is_sensitive_column
+from arxiv_int.data_quality.engine.model import is_sensitive_column
 
 _DROP_KEYS = frozenset({"env", "password", "credentials", "credential", "secret", "token"})
 

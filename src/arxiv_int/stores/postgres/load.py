@@ -7,10 +7,11 @@ from typing import Any
 from sqlalchemy import Connection, Table, text
 from sqlalchemy.dialects.postgresql import insert
 
-from arxiv_int.contracts.registry import FileRegistry
+from arxiv_int.contracts.catalog.registry import FileRegistry
 from arxiv_int.contracts.sqlalchemy.model import ContractSchemaModel
-from arxiv_int.data_quality.model import KIND_TYPE
-from arxiv_int.data_quality.pandera_schema import polars_dtype
+from arxiv_int.data_quality.engine.model import KIND_TYPE
+from arxiv_int.data_quality.rules.pandera_schema import polars_dtype
+from arxiv_int.resources.paths import contracts_root
 from arxiv_int.stores.postgres.constants import STAGING_SCHEMA
 from arxiv_int.stores.postgres.hashing import partition_bucket
 
@@ -116,10 +117,10 @@ def validate_rows(
 ) -> None:
     """Run shared contract quality checks on the staged batch."""
     from arxiv_int.data_quality.engine import ValidationRequest, validate_dataset
+    from arxiv_int.data_quality.engine.model import SCOPE_BATCH, STATUS_FAIL
     from arxiv_int.data_quality.generate import compile_catalogs
-    from arxiv_int.data_quality.model import SCOPE_BATCH, STATUS_FAIL
 
-    registry = FileRegistry(project_root / "contracts")
+    registry = FileRegistry(contracts_root(project_root))
     odcs = {item: registry.load_odcs(item) for item in registry.contract_ids()}
     catalogs = {item.contract_id: item for item in compile_catalogs(model, odcs)}
     catalog = catalogs[contract_id]

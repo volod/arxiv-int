@@ -15,6 +15,7 @@ from arxiv_int.contracts.migrations.paths import (
     revision_manifest_path,
     versions_dir,
 )
+from arxiv_int.resources.paths import contracts_root
 from tests.contracts.migrations._project import disposable_project, product_root
 
 
@@ -26,7 +27,7 @@ def _prepared(tmp_path: Path) -> Path:
 
 def test_product_tree_has_one_head_and_no_pending_revision() -> None:
     root = product_root()
-    report = check_migrations(root, root / "contracts")
+    report = check_migrations(root, contracts_root())
     assert report.ok, report.findings
     assert report.pending_operations == ()
     assert report.head == "0004"

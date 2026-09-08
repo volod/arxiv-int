@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from arxiv_int.inspect.model import DEVELOPMENT_ALIASES, KIND_DATASET, KIND_RUN, LATEST_TOKEN
-from arxiv_int.pipeline.persist import CONTEXT_NAME, STATUS_NAME, StageExecution, load_status
+from arxiv_int.pipeline.run.persist import CONTEXT_NAME, STATUS_NAME, StageExecution, load_status
 
 
 class InspectError(RuntimeError):

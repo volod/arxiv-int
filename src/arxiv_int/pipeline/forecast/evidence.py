@@ -3,14 +3,14 @@
 import json
 from pathlib import Path
 
-from arxiv_int.pipeline.context import RunContext
 from arxiv_int.pipeline.control.fingerprints import reuse_key
-from arxiv_int.pipeline.execute import stage_identity, try_reuse
+from arxiv_int.pipeline.dag.execute import stage_identity, try_reuse
+from arxiv_int.pipeline.dag.registry import StageRegistry
 from arxiv_int.pipeline.forecast.inputs import CacheHitPlan, ComparableRun
-from arxiv_int.pipeline.persist import load_json
 from arxiv_int.pipeline.reconcile.scan import bind_shard, source_shard_ids
-from arxiv_int.pipeline.registry import StageRegistry
-from arxiv_int.pipeline.reuse_index import ReuseEntry, load_reuse_index
+from arxiv_int.pipeline.run.context import RunContext
+from arxiv_int.pipeline.run.persist import load_json
+from arxiv_int.pipeline.run.reuse_index import ReuseEntry, load_reuse_index
 
 _MANIFEST = "observability-manifest.json"
 

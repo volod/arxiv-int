@@ -2,7 +2,7 @@
 
 from collections.abc import Sequence
 
-from arxiv_int.data_quality.model import (
+from arxiv_int.data_quality.engine.model import (
     BACKEND_DISK,
     KIND_SEMANTIC,
     SCOPE_SNAPSHOT,
@@ -18,7 +18,7 @@ from arxiv_int.data_quality.model import (
     ToolFingerprint,
     ValidationLimits,
 )
-from arxiv_int.data_quality.results import build_result, input_fingerprint
+from arxiv_int.data_quality.engine.results import build_result, input_fingerprint
 
 TOOL_PROJECTION = "projection"
 CATALOG_VERSION = "1.0.0"

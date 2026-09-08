@@ -22,6 +22,7 @@ from arxiv_int.contracts.evolution.migrations import (
 from arxiv_int.contracts.evolution.policy import merge_change_reports
 from arxiv_int.contracts.sqlalchemy.catalog import CatalogColumn, catalog_findings
 from arxiv_int.quality.project_root import discover_project_root
+from arxiv_int.resources.paths import contracts_root
 
 
 def _root() -> Path:
@@ -107,7 +108,7 @@ def test_freeze_baseline_rejects_non_object(tmp_path: Path) -> None:
 
 
 def test_load_product_baseline() -> None:
-    path = _root() / "contracts" / "evolution" / "documents.json"
+    path = contracts_root() / "evolution" / "documents.json"
     loaded = load_baseline(path)
     assert loaded["contractId"] == "documents"
     assert "fields" in loaded
@@ -127,9 +128,9 @@ def test_freeze_contract_baseline_writes_history() -> None:
     from arxiv_int.contracts.evolution import freeze_contract_baseline
 
     # Re-freezing an identical snapshot must stay byte-stable on the product baseline.
-    path = freeze_contract_baseline(_root() / "contracts", "documents")
+    path = freeze_contract_baseline(contracts_root(), "documents")
     first = path.read_bytes()
-    freeze_contract_baseline(_root() / "contracts", "documents")
+    freeze_contract_baseline(contracts_root(), "documents")
     assert path.read_bytes() == first
 
 
@@ -174,10 +175,10 @@ def test_breaking_findings_non_zero(monkeypatch: pytest.MonkeyPatch, tmp_path: P
 def test_freeze_all_baselines_is_stable() -> None:
     from arxiv_int.contracts.evolution import freeze_all_baselines
 
-    paths = freeze_all_baselines(_root() / "contracts")
+    paths = freeze_all_baselines(contracts_root())
     assert len(paths) >= 14
     before = {path: path.read_bytes() for path in paths}
-    freeze_all_baselines(_root() / "contracts")
+    freeze_all_baselines(contracts_root())
     assert {path: path.read_bytes() for path in paths} == before
 
 
@@ -201,7 +202,7 @@ def test_check_evolution_uses_live_sql_hook(monkeypatch: pytest.MonkeyPatch) -> 
         _fake_apply,
     )
     report = check_evolution_policy(
-        _root() / "contracts",
+        contracts_root(),
         project_root=_root(),
         include_migrations=True,
         include_live_sql=True,
@@ -221,6 +222,6 @@ def test_version_policy_rejects_backward_move() -> None:
 def test_product_migration_report_is_clean() -> None:
     from arxiv_int.contracts.evolution.migrations import migration_report
 
-    report = migration_report(_root(), _root() / "contracts")
+    report = migration_report(_root(), contracts_root())
     assert report.ok, report.findings
     assert report.live_evidence == "not-run"

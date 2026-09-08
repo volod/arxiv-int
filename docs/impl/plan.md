@@ -604,7 +604,7 @@ preserves asserted time/place uncertainty; new terms can be reviewed without cha
 and typed geotemporal contracts/validators. Reuse Location and domain terms; no autonomous axiom
 acceptance, remote geocoder, GIS platform or extra database extension. Published vocabulary stays
 separate from candidates; unknown terms stay proposed/unmapped until human review.
-- Data and artifact paths: `ontology/`, `contracts/`, `src/arxiv_int/ontology/`, mirrored tests,
+- Data and artifact paths: `src/arxiv_int/resources/ontology/`, `src/arxiv_int/resources/contracts/`, `src/arxiv_int/ontology/`, mirrored tests,
 additive Alembic revisions where required, `$RUNS_DIR/<run-id>/{ontology,review/ontology}/`.
 - Execution path: Seal term/mapping/shape/policy fingerprints; retain prior snapshots and explicit
 replacement/deprecation mappings; bind ontology identity into validation and projection reuse keys.

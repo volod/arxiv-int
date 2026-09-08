@@ -4,9 +4,9 @@ import argparse
 import logging
 from threading import Event
 
-from arxiv_int.inference.factory import client_from_config
-from arxiv_int.inference.schema import check_schema_drift, generate_schemas
-from arxiv_int.inference.transport import TransportError
+from arxiv_int.inference.client.factory import client_from_config
+from arxiv_int.inference.client.transport import TransportError
+from arxiv_int.inference.policy.schema import check_schema_drift, generate_schemas
 from arxiv_int.runtime import ConfigurationError, load_runtime_config
 from arxiv_int.runtime.project_root import ProjectRootError, find_project_root
 
@@ -19,13 +19,13 @@ def run_inference_command(args: argparse.Namespace, cancel: Event | None = None)
         if args.inference_command == "schemas":
             return _run_schemas(args)
         if args.inference_command == "resources":
-            from arxiv_int.inference.scheduler_commands import run_scheduler_command
+            from arxiv_int.inference.scheduler.commands import run_scheduler_command
 
             return run_scheduler_command(args, None, cancel)
         root = find_project_root(args.project_root)
         config = load_runtime_config(project_root=root)
         if args.inference_command in {"fit", "schedule"}:
-            from arxiv_int.inference.scheduler_commands import run_scheduler_command
+            from arxiv_int.inference.scheduler.commands import run_scheduler_command
 
             return run_scheduler_command(args, config, cancel)
         client = client_from_config(config, timeout=args.timeout)

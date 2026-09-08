@@ -2,13 +2,13 @@
 
 from pathlib import Path
 
+from arxiv_int.pipeline.dag.stages import OPTIONAL_STAGES, profile_stage_names
 from arxiv_int.pipeline.publish.profiles import (
     DEFAULT_PROFILES,
     check_profile_alignment,
     load_profile,
 )
 from arxiv_int.pipeline.publish.schema import check_schema_drift
-from arxiv_int.pipeline.stages import OPTIONAL_STAGES, profile_stage_names
 from arxiv_int.runtime.setup.requirements import PROFILE_STAGES
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]

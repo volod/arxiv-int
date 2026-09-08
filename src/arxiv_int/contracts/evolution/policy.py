@@ -2,6 +2,7 @@
 
 from typing import Any
 
+from arxiv_int.contracts.catalog.odcs_ext import project_extension
 from arxiv_int.contracts.evolution.core import (
     CHANGE_ADDITIVE,
     CHANGE_BREAKING,
@@ -13,7 +14,6 @@ from arxiv_int.contracts.evolution.core import (
     ChangeReport,
     classify_change,
 )
-from arxiv_int.contracts.odcs_ext import project_extension
 
 
 def projection_snapshot(odcs_document: dict[str, Any]) -> dict[str, Any]:

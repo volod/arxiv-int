@@ -179,7 +179,7 @@ hardcoded `--profile investigation` or `--run-id local` on `pipeline` / `run-cre
 `RUN_ID` for atomic commands must be the created run id.
 
 The investigation profile still names unregistered corpus stages. `make pipeline` therefore fails
-explicitly until those runners ship. Fixture DAGs in `tests/pipeline/orchestration/` cover range,
+explicitly until those runners ship. Fixture DAGs in `tests/pipeline/dag/` cover range,
 skip, invalid dependency, aggregate versus atomic equivalence, failure halt, resume, force,
 invalidate, update, rebuild, prune dry-run, quality not-run/fail, and signal cancel. Declared
 Pandera validators and dbt selections run at producer boundaries through `QualityBoundary`; failed
@@ -252,7 +252,7 @@ command. `make forecast RUN_ID=...` requires a created run id and writes
 Inventory prefers a delta manifest, then an inventory manifest, then bounded directory metadata
 sampling (no file contents). Cache hits come from the reuse index. Comparable telemetry, when
 present, comes from prior `logs/observability-manifest.json` and `progress.jsonl`. Coefficients
-and the 2.5-4.0 amplification envelope live in `configs/capacity/envelope.json` (schema
+and the 2.5-4.0 amplification envelope live in `src/arxiv_int/resources/configs/capacity/envelope.json` (schema
 `arxiv-int.capacity.envelope.v1`). The decision schema is `arxiv-int.forecast.v1`.
 
 Filesystem roots are inspected and grouped by device id so a shared disk is budgeted once. Cost
@@ -282,7 +282,7 @@ A forecast that assumed cache hits cannot authorize forced recomputation.
 ## Investigation profiles and knowledge-base publication
 
 `src/arxiv_int/pipeline/publish/` seals one generation from the requested profile. Committed
-overlays live in `configs/pipeline/investigation.json` and `lexical.json` (schema
+overlays live in `src/arxiv_int/resources/configs/pipeline/investigation.json` and `lexical.json` (schema
 `arxiv-int.pipeline.profile.v1`). The knowledge-base document is `arxiv-int.knowledge-base.v1`.
 Setup's `PROFILE_STAGES` / `OPTIONAL_STAGES` remain the requirement seam; Python defaults and
 committed JSON must not drift (`check_profile_alignment()` / `check_schema_drift()`). The
@@ -355,7 +355,7 @@ conditional GPU/UI groups. `tests/pipeline/control/` covers illegal transitions,
 cache hits, corrupt-cache rerun, concurrent leases, quality skip, owned-fingerprint stale closure,
 invalidation during produce, force retry, and in-memory isolation from SQLAlchemy. Live ledger
 behavior is in `tests/integration/postgres/test_run_ledger.py`. Fixture DAG tests live in
-`tests/pipeline/orchestration/`. Observability tests in `tests/observability/` cover intact
+`tests/pipeline/dag/`. Observability tests in `tests/observability/` cover intact
 concurrent log lines, queue overload/shutdown, redaction, stalled versus slow ETA, bounded
 metric labels, and revision `0003` alignment. Forecast tests in `tests/pipeline/forecast/` cover
 zero-history ranges, replay, device dedup, cache hits, inaccessible/shortfall refusal, stale

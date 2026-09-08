@@ -8,7 +8,7 @@ from datetime import UTC, datetime
 from sqlalchemy import Connection, func, insert, select, text
 from sqlalchemy.engine import RowMapping
 
-from arxiv_int.inference.lease_records import ResourceLeaseRecord
+from arxiv_int.inference.scheduler.lease_records import ResourceLeaseRecord
 from arxiv_int.pipeline.control.fingerprints import ReuseIdentity
 from arxiv_int.pipeline.control.model import LeaseRecord, RunRecord, ShardRecord, StageRecord
 from arxiv_int.pipeline.control.states import as_lease_status, as_shard_status

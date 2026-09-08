@@ -5,17 +5,17 @@ from pathlib import Path
 
 import pytest
 
-from arxiv_int.pipeline.actions import remaining_plan, update_context
 from arxiv_int.pipeline.control.artifacts import InjectedCrash
-from arxiv_int.pipeline.errors import StaleUpstreamError
-from arxiv_int.pipeline.fixtures import fixture_registry
-from arxiv_int.pipeline.orchestrate import Orchestrator
-from arxiv_int.pipeline.persist import load_json, save_context
+from arxiv_int.pipeline.dag.actions import remaining_plan, update_context
+from arxiv_int.pipeline.dag.orchestrate import Orchestrator
 from arxiv_int.pipeline.publish.finalize import finalize_status
 from arxiv_int.pipeline.publish.pointer import load_active_generation
 from arxiv_int.pipeline.publish.profiles import FIXTURE_PROFILE
-from arxiv_int.pipeline.quality_bound import FixtureQuality
-from tests.pipeline.orchestration.conftest import make_context
+from arxiv_int.pipeline.quality.bound import FixtureQuality
+from arxiv_int.pipeline.run.errors import StaleUpstreamError
+from arxiv_int.pipeline.run.fixtures import fixture_registry
+from arxiv_int.pipeline.run.persist import load_json, save_context
+from tests.pipeline.conftest import make_context
 from tests.pipeline.publish.test_publish import _plan
 
 
@@ -137,7 +137,7 @@ def test_crash_keeps_a_coherent_pointer_and_resumes_without_work(
 
 
 def test_cancellation_in_last_worker_cannot_activate(tmp_path: Path) -> None:
-    from arxiv_int.pipeline.cancel import CancelToken
+    from arxiv_int.pipeline.dag.cancel import CancelToken
 
     token = CancelToken()
     registry, _ = fixture_registry(gamma_hook=lambda _: token.cancel())

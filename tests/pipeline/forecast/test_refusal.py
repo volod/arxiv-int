@@ -5,12 +5,12 @@ from pathlib import Path
 
 import pytest
 
+from arxiv_int.pipeline.dag.graph import StagePlan
 from arxiv_int.pipeline.forecast.engine import build_forecast
 from arxiv_int.pipeline.forecast.errors import StaleForecastError
 from arxiv_int.pipeline.forecast.persist import require_fresh_forecast, save_forecast
-from arxiv_int.pipeline.graph import StagePlan
+from tests.pipeline.conftest import make_context
 from tests.pipeline.forecast.conftest import make_devices, make_inputs
-from tests.pipeline.orchestration.conftest import make_context
 
 
 def test_inaccessible_paths_block() -> None:

@@ -8,6 +8,7 @@ migration checks.
 from pathlib import Path
 
 from arxiv_int.contracts.migrations.check import MigrationCheckReport, check_migrations
+from arxiv_int.resources.paths import contracts_root as packaged_contracts_root
 
 
 def migration_report(project_root: Path, contracts_root: Path) -> MigrationCheckReport:
@@ -17,5 +18,5 @@ def migration_report(project_root: Path, contracts_root: Path) -> MigrationCheck
 
 def migration_policy_findings(project_root: Path, contracts_root: Path | None = None) -> list[str]:
     """Aggregate revision graph, checksum, and pending-revision findings."""
-    root = contracts_root or (project_root / "contracts")
+    root = contracts_root or packaged_contracts_root(project_root)
     return list(check_migrations(project_root, root).findings)

@@ -1,15 +1,14 @@
-"""Resolve the repository ontology root."""
+"""Resolve packaged ontology assets, with optional checkout overlays."""
 
 import importlib
 from pathlib import Path
 
-from arxiv_int.runtime.project_root import find_project_root
+from arxiv_int.resources.paths import ontology_root
 
 
 def ontology_root_for(project_root: Path | None = None) -> Path:
-    """Return ``<project>/ontology`` for the declared project root."""
-    root = find_project_root(project_root) if project_root is not None else find_project_root()
-    return (root / "ontology").resolve()
+    """Return packaged ``ontology/`` or an overlay under ``project_root``."""
+    return ontology_root(project_root)
 
 
 def require_graph_dependencies() -> None:

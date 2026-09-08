@@ -4,15 +4,19 @@ from pathlib import Path
 
 import pytest
 
-from arxiv_int.pipeline.actions import fixture_plan, rebuild_context
-from arxiv_int.pipeline.fixtures import FIXTURE_OPTIONAL, FIXTURE_PROFILE_STAGES, fixture_registry
-from arxiv_int.pipeline.orchestrate import Orchestrator
-from arxiv_int.pipeline.persist import save_context, write_json
+from arxiv_int.pipeline.dag.actions import fixture_plan, rebuild_context
+from arxiv_int.pipeline.dag.orchestrate import Orchestrator
 from arxiv_int.pipeline.prune.apply import PruneRefusedError, apply_prune_plan
 from arxiv_int.pipeline.prune.plan import build_prune_plan
 from arxiv_int.pipeline.prune.protect import protections
-from arxiv_int.pipeline.reuse_index import load_reuse_index, load_superseded
-from tests.pipeline.orchestration.conftest import make_context
+from arxiv_int.pipeline.run.fixtures import (
+    FIXTURE_OPTIONAL,
+    FIXTURE_PROFILE_STAGES,
+    fixture_registry,
+)
+from arxiv_int.pipeline.run.persist import save_context, write_json
+from arxiv_int.pipeline.run.reuse_index import load_reuse_index, load_superseded
+from tests.pipeline.conftest import make_context
 
 
 def _plan(registry: object) -> object:

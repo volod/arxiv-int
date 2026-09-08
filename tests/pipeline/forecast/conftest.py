@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+from arxiv_int.pipeline.dag.registry import ResourceEstimate
 from arxiv_int.pipeline.forecast.capacity import DEFAULT_ENVELOPE, envelope_fingerprint
 from arxiv_int.pipeline.forecast.inputs import (
     CacheHitPlan,
@@ -11,7 +12,6 @@ from arxiv_int.pipeline.forecast.inputs import (
     InventoryEvidence,
 )
 from arxiv_int.pipeline.forecast.model import HostAssumptions
-from arxiv_int.pipeline.registry import ResourceEstimate
 from arxiv_int.runtime.filesystem import FilesystemEvidence
 
 TEST_ENVELOPE = Envelope(

@@ -268,53 +268,36 @@ layout the capabilities below build toward is:
 arxiv-int/
   AGENTS.md
   Makefile
+  make/                         # grouped Make fragments with ##@ help sections
   docker/compose.yaml
   .env.example
   pyproject.toml
   uv.lock
-  contracts/
-    registry.yaml
-    canonical/
-    datasets/
-    mappings/
-    evolution/
-    generated/
-  transformations/
-    dbt_project.yml
-    models/                     # staging/, intermediate/, marts/; SQL and descriptive YAML
-    tests/
-    macros/
   docker/
     postgres/Dockerfile
     postgres/initdb/
     grafana/
-  configs/
-    anomalies/ capacity/ classification/ evaluation/ models/ nlp/
-    pipeline/ policy/ proofs/ retrieval/ topics/
-  ontology/
   src/arxiv_int/
     cli.py
     metadata.py
+    resources/                  # packaged assets shipped in the wheel
+      configs/                  # operator profiles and policies
+      contracts/                # ODCS registry, datasets, generated schemas
+      ontology/                 # Turtle and SHACL assets
+      dbt/                      # dbt Core project (Python stays transformations/)
     runtime/
-      config.py
-      config_model.py
-      dotenv.py
-      filesystem.py
-      path_model.py
-      paths.py
     interfaces/
     adapters/
-    contracts/
-      sqlalchemy/               # ODCS-to-MetaData adapter
+    contracts/                  # catalog, lint, generate, evolution, migrations, sqlalchemy
     migrations/                 # Alembic environment and immutable Python revisions
       versions/
-    data_quality/               # Contract-derived Pandera checks and result adapters
+    data_quality/               # engine, rules, generate
     transformations/            # Typed Polars operations and dbt invocation
     readiness/
-    pipeline/
+    pipeline/                   # dag, run, quality, plus control/forecast/publish/prune/reconcile
     stores/
-    inference/
-    observability/
+    inference/                  # client, providers, scheduler, policy
+    observability/              # logging, metrics, sinks
     extraction/
     classification/
     archive/
@@ -327,9 +310,9 @@ arxiv-int/
     query/
     reporting/
     security/
-    evaluation/
+    evaluation/                 # bundles, export, fixtures, families, proof, evaluate, scoring
     quality/
-  tests/
+  tests/                        # mirrors src/arxiv_int subpackages
   docs/
     design/spec.md
     impl/plan.md
@@ -338,7 +321,10 @@ arxiv-int/
   scripts/shared/common.sh
 ```
 
-`configs/` holds versioned operator profiles and policies; `ontology/` holds Turtle and SHACL assets.
+Packaged `src/arxiv_int/resources/configs/` holds versioned operator profiles and policies;
+`src/arxiv_int/resources/ontology/` holds Turtle and SHACL assets. Checkout overlays of the same
+directory names win when present so tests can copy disposable trees.
+
 Production code lives in the functional package that owns its behavior. No package is organized by
 implementation history, and directories arrive with the capability that needs them rather than in
 advance.
@@ -621,7 +607,7 @@ The Postgres derivative image must:
 
 ### Source of truth
 
-ODCS `3.1.0` YAML under `contracts/` is the authoritative description of datasets, fields,
+ODCS `3.1.0` YAML under `src/arxiv_int/resources/contracts/` is the authoritative description of datasets, fields,
 relationships, quality expectations, ownership, versions, and physical bindings. Avro is a generated
 serialization schema and compatibility aid, not a competing source of truth.
 
@@ -730,7 +716,7 @@ local pipeline scheduler and one canonical PostgreSQL service.
 | Concern | Selected tool and ownership | Boundary |
 | --- | --- | --- |
 | Canonical schema and transactional access | SQLAlchemy Core + Alembic; psycopg for binary COPY | Python schema operations, bound queries/upserts, and migrations; no business transformation SQL strings in Python or shell |
-| Relational transformations | Python dbt Core 1.x + `dbt-postgres` | Versioned SQL models and YAML descriptions/tests under `transformations/`; canonical inputs are dbt sources |
+| Relational transformations | Python dbt Core 1.x + `dbt-postgres` | Versioned SQL models and YAML descriptions/tests under `src/arxiv_int/resources/dbt/`; canonical inputs are dbt sources |
 | Local tabular transformations | Polars expressions; PyArrow batches/Parquet IO | Typed functions in `src/arxiv_int/transformations/`; bounded partitions and measured memory; retain DuckDB where an existing library such as Splink needs it |
 | Dataset quality | Pandera with its Polars backend + dbt data tests | Contract-derived batch validation and whole-relation checks; reuse existing domain/SHACL validators for semantic rules |
 
@@ -932,7 +918,7 @@ and domain views; they do not add a separate capability.
 
 ### Ontology design
 
-Pinned Turtle/SHACL assets under `ontology/` are the formal vocabulary. AGE, catalogs, and reports
+Pinned Turtle/SHACL assets under `src/arxiv_int/resources/ontology/` are the formal vocabulary. AGE, catalogs, and reports
 project that vocabulary; they do not invent parallel class systems. Ontology evolution stays
 additive under the existing contract/ontology evolution policy: a new meaning is a new term or
 shape, and rewriting an active IRI in place is breaking.

@@ -101,7 +101,7 @@ progress and failure propagation; individual commands retain their own prerequis
 | `cli.py` and Make | Parse commands and delegate to typed application services |
 | `runtime/`, `readiness/` | Resolve roots, profiles, tools, storage classes, and service availability |
 | `pipeline/` | Registry, DAG, leases, journals, forecast, generations, update/rebuild/prune |
-| `contracts/`, `interfaces/` | Canonical schema, identity/provenance, validators, and backend seams |
+| `src/arxiv_int/contracts/`, `interfaces/` | Canonical schema, identity/provenance, validators, and backend seams |
 | `extraction/`, `nlp/`, `identity/` | Source records, mentions, proposed assertions, reversible identity mappings |
 | `classification/` | Hierarchy and per-physical-file classification exports |
 | `stores/`, `retrieval/`, `graph/` | Canonical access and rebuildable query projections |

@@ -3,8 +3,8 @@
 from collections.abc import Mapping
 from dataclasses import dataclass
 
+from arxiv_int.pipeline.dag.registry import ResourceEstimate
 from arxiv_int.pipeline.forecast.model import HostAssumptions
-from arxiv_int.pipeline.registry import ResourceEstimate
 
 
 @dataclass(frozen=True, slots=True)

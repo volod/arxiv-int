@@ -3,7 +3,7 @@
 import pathlib
 import subprocess
 
-from arxiv_int.contracts.datacontract_lint import datacontract_command
+from arxiv_int.contracts.lint.datacontract import datacontract_command
 
 
 def breaking_findings(baseline_odcs: pathlib.Path, current_odcs: pathlib.Path) -> list[str]:

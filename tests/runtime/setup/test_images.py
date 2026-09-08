@@ -7,8 +7,8 @@ from arxiv_int.runtime.setup.images import (
     run_images_phase,
     run_postgres_image_phase,
 )
-from tests.compose.test_profiles import _runtime_config
 from tests.runtime.setup.conftest import PROJECT_ROOT, checkout, completed
+from tests.runtime.test_profiles import _runtime_config
 
 
 def test_compose_service_images_skip_local_postgres() -> None:

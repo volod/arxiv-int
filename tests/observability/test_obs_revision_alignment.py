@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from arxiv_int.observability.tables import PROGRESS_METADATA, PROGRESS_TABLES
+from arxiv_int.observability.sinks.tables import PROGRESS_METADATA, PROGRESS_TABLES
 from arxiv_int.quality.project_root import discover_project_root
 from arxiv_int.stores.postgres.catalog_boundary import progress_definition
 from arxiv_int.stores.postgres.constants import PROGRESS_TABLES as STORE_PROGRESS_TABLES

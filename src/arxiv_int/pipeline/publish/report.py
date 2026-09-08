@@ -2,8 +2,8 @@
 
 from pathlib import Path
 
-from arxiv_int.pipeline.persist import run_dir, write_json
 from arxiv_int.pipeline.publish.model import REPORT_HTML, REPORT_JSON, KnowledgeBase
+from arxiv_int.pipeline.run.persist import run_dir, write_json
 
 
 def write_report(runs_dir: Path, document: KnowledgeBase) -> Path:

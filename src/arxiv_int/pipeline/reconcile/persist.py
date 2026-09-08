@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Any
 
 from arxiv_int.contracts.generate.normalize import normalize_json, sha256_text
-from arxiv_int.pipeline.persist import StageExecution, load_json, run_dir, write_json
 from arxiv_int.pipeline.reconcile.model import (
     DELTA_SCHEMA,
     INVALIDATION_SCHEMA,
@@ -21,6 +20,7 @@ from arxiv_int.pipeline.reconcile.model import (
     SourceOccurrence,
     Tombstone,
 )
+from arxiv_int.pipeline.run.persist import StageExecution, load_json, run_dir, write_json
 
 DELTA_DIR = "delta"
 INVALIDATION_DIR = "invalidation"

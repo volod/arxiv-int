@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 
 from arxiv_int.interfaces.tokens import require_token
-from arxiv_int.pipeline.reuse_index import ReuseEntry
+from arxiv_int.pipeline.run.reuse_index import ReuseEntry
 
 PRUNE_SCHEMA = "arxiv-int.prune-event.v1"
 PROTECTION_KINDS = frozenset(

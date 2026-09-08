@@ -5,13 +5,10 @@ from pathlib import Path
 
 import pytest
 
-from arxiv_int.pipeline.actions import fixture_plan, remaining_plan
-from arxiv_int.pipeline.cancel import CancelToken
 from arxiv_int.pipeline.control.artifacts import InjectedCrash
-from arxiv_int.pipeline.errors import PreflightRefusedError, StaleUpstreamError
-from arxiv_int.pipeline.fixtures import FIXTURE_OPTIONAL, FIXTURE_PROFILE_STAGES, fixture_registry
-from arxiv_int.pipeline.orchestrate import Orchestrator
-from arxiv_int.pipeline.persist import load_status, save_context
+from arxiv_int.pipeline.dag.actions import fixture_plan, remaining_plan
+from arxiv_int.pipeline.dag.cancel import CancelToken
+from arxiv_int.pipeline.dag.orchestrate import Orchestrator
 from arxiv_int.pipeline.publish.finalize import finalize_status, write_report
 from arxiv_int.pipeline.publish.model import EXIT_BY_STATUS
 from arxiv_int.pipeline.publish.pointer import (
@@ -22,7 +19,14 @@ from arxiv_int.pipeline.publish.pointer import (
 )
 from arxiv_int.pipeline.publish.preflight import preflight_run
 from arxiv_int.pipeline.publish.profiles import FIXTURE_PROFILE
-from tests.pipeline.orchestration.conftest import make_context
+from arxiv_int.pipeline.run.errors import PreflightRefusedError, StaleUpstreamError
+from arxiv_int.pipeline.run.fixtures import (
+    FIXTURE_OPTIONAL,
+    FIXTURE_PROFILE_STAGES,
+    fixture_registry,
+)
+from arxiv_int.pipeline.run.persist import load_status, save_context
+from tests.pipeline.conftest import make_context
 
 
 def _plan(registry, **kwargs):

@@ -3,7 +3,7 @@
 import pathlib
 from typing import Any, Protocol
 
-from arxiv_int.contracts.registry import FileRegistry
+from arxiv_int.contracts.catalog.registry import FileRegistry
 
 
 class ContractGenerator(Protocol):

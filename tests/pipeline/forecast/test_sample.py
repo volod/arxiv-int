@@ -5,7 +5,7 @@ from pathlib import Path
 from arxiv_int.interfaces.sources import SiloRoot
 from arxiv_int.pipeline.forecast.sample import resolve_inventory, sample_silos
 from arxiv_int.pipeline.forecast.schema import check_schema_drift
-from arxiv_int.pipeline.persist import write_json
+from arxiv_int.pipeline.run.persist import write_json
 
 
 def test_metadata_sampling_does_not_read_file_contents(tmp_path: Path) -> None:

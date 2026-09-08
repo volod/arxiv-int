@@ -3,12 +3,13 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from arxiv_int.contracts.canonical import load_canonical_model
+from arxiv_int.contracts.catalog.canonical import load_canonical_model
 from arxiv_int.ontology.evolution import check_ontology_evolution
 from arxiv_int.ontology.generate import check_generation_drift, generate_ontology_bindings
 from arxiv_int.ontology.load import load_ontology_catalog, load_ontology_graphs
 from arxiv_int.ontology.paths import ontology_root_for, require_graph_dependencies
 from arxiv_int.ontology.reason import disjointness_inconsistent
+from arxiv_int.resources.paths import contracts_root
 from arxiv_int.runtime.project_root import find_project_root
 
 
@@ -27,7 +28,7 @@ class OntologyCheckReport:
 
 def _binding_findings(ontology_root: Path, project_root: Path) -> list[str]:
     catalog = load_ontology_catalog(ontology_root)
-    canonical = load_canonical_model(project_root / "contracts" / "canonical")
+    canonical = load_canonical_model(contracts_root(project_root) / "canonical")
     findings: list[str] = []
     known_bindings = {field.binding for field in canonical.fields}
     for predicate in catalog.active_predicates():

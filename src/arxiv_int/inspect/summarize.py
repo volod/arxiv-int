@@ -19,8 +19,8 @@ from arxiv_int.inspect.model import (
     StageSummary,
 )
 from arxiv_int.inspect.quality import contract_versions, published_lineage, published_quality
-from arxiv_int.observability.redact import extra_secrets_from_env, redact_text
-from arxiv_int.pipeline.persist import RunStatus, load_context, load_status
+from arxiv_int.observability.logging.redact import extra_secrets_from_env, redact_text
+from arxiv_int.pipeline.run.persist import RunStatus, load_context, load_status
 
 
 def inspect_run(

@@ -8,7 +8,7 @@ metadata raises instead of being silently dropped.
 from dataclasses import dataclass
 from typing import Any
 
-from arxiv_int.contracts.odcs_ext import project_extension
+from arxiv_int.contracts.catalog.odcs_ext import project_extension
 
 DEFAULT_SCHEMA = "public"
 PARTITION_KEY_ORIGIN = "partition-key"

@@ -5,27 +5,27 @@ from pathlib import Path
 
 import pytest
 
-from arxiv_int.evaluation.bundle_errors import BundleExistsError
-from arxiv_int.evaluation.bundle_manifest import canonical_json
 from arxiv_int.evaluation.bundles import publish_run_bundle
-from arxiv_int.evaluation.eval_errors import (
+from arxiv_int.evaluation.bundles.errors import BundleExistsError
+from arxiv_int.evaluation.bundles.manifest import canonical_json
+from arxiv_int.evaluation.evaluate.errors import (
     MissingEvidenceError,
     ProofExistsError,
     ProofRedactionError,
 )
-from arxiv_int.evaluation.eval_paths import (
+from arxiv_int.evaluation.evaluate.paths import (
     evaluation_artifact_dir,
     fixture_root,
     published_evaluation_dir,
     published_proof_dir,
 )
-from arxiv_int.evaluation.evaluate_run import EvaluateRequest, run_evaluate
-from arxiv_int.evaluation.exporter import ExportMapping, ExportRequest, export_proof_bundle
+from arxiv_int.evaluation.evaluate.run import EvaluateRequest, run_evaluate
+from arxiv_int.evaluation.export.exporter import ExportMapping, ExportRequest, export_proof_bundle
 from arxiv_int.evaluation.families import all_items
-from arxiv_int.evaluation.fixture_guard import item_ledger
-from arxiv_int.evaluation.geo_eval import score_geotemporal, score_ontology
-from arxiv_int.evaluation.proof_ops import check_capability_proof, publish_capability_proof
-from tests.evaluation.bundle_support import spec
+from arxiv_int.evaluation.fixtures.guard import item_ledger
+from arxiv_int.evaluation.proof.ops import check_capability_proof, publish_capability_proof
+from arxiv_int.evaluation.scoring.geo import score_geotemporal, score_ontology
+from tests.evaluation.bundles.bundle_support import spec
 
 
 def test_evaluate_same_run_cannot_replace_the_bundle(

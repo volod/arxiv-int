@@ -4,10 +4,10 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from arxiv_int.pipeline.persist import load_json
 from arxiv_int.pipeline.prune.model import Protection
 from arxiv_int.pipeline.publish.model import ACTIVE_GENERATION
-from arxiv_int.pipeline.reuse_index import ReuseEntry
+from arxiv_int.pipeline.run.persist import load_json
+from arxiv_int.pipeline.run.reuse_index import ReuseEntry
 
 PIN_DIR = "pins"
 REVIEW_DIR = "review"

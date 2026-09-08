@@ -123,10 +123,10 @@ upgrades to head.
 
 ## Relational transformations
 
-A local dbt Core project lives under `transformations/`. Optional extra `transform` pins
+A local dbt Core project lives under `src/arxiv_int/resources/dbt/`. Optional extra `transform` pins
 `dbt-core==1.12.3` and `dbt-postgres==1.10.2`. The typed runner in
 `src/arxiv_int/transformations/` copies that project under `$DATA_DIR/dbt/<run-id>/project/`,
-injects generated `contracts/generated/dbt/sources.yml`, and invokes parse, compile, build, or
+injects generated `src/arxiv_int/resources/contracts/generated/dbt/sources.yml`, and invokes parse, compile, build, or
 test. Profiles use `env_var` placeholders only. Credentials come from
 `ARXIV_INT_TRANSFORM_DATABASE_URL` or, when that is unset, `ARXIV_INT_MIGRATION_DATABASE_URL`.
 Build and test without a URL are `not-run` (exit 2), never a pass.
@@ -163,7 +163,7 @@ The initial revision creates `ctl.projections`, `ctl.projection_active`, `ctl.pr
 `ctl.projection_cleanup`. Those rows are lifecycle metadata, not canonical documents or facts. The
 pipeline role may create objects in `search`; dbt still cannot write projection metadata.
 
-dbt models under `transformations/models/projections/` use tag `projections` (outside the default
+dbt models under `src/arxiv_int/resources/dbt/models/projections/` use tag `projections` (outside the default
 `tag:fixture tag:quality` select). They materialize isolated
 `derived.<model>__g_<generation>` relations with `source`/`ref` and uniqueness/relationship tests.
 Version tokens reuse the dbt generation sanitizer so input table names match.

@@ -7,7 +7,7 @@ from typing import Any
 from arxiv_int.contracts.generate.normalize import normalize_json, sha256_text
 from arxiv_int.interfaces.sources import SiloRoot
 from arxiv_int.pipeline.forecast.inputs import InventoryEvidence
-from arxiv_int.pipeline.persist import load_json
+from arxiv_int.pipeline.run.persist import load_json
 
 INVENTORY_SCHEMA = "arxiv-int.inventory.v1"
 MANIFEST_NAMES = ("manifest.json", "inventory.json")

@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from arxiv_int.contracts.migrations.runner import DATABASE_URL_VARIABLE
-from arxiv_int.data_quality.model import STATUS_NOT_APPLICABLE
+from arxiv_int.data_quality.engine.model import STATUS_NOT_APPLICABLE
 from arxiv_int.quality.project_root import discover_project_root
 from arxiv_int.stores.projections.adapters.lexical import TOKENIZER_PROFILE, engine_name
 from arxiv_int.stores.projections.adapters.vector import engine_name as vector_engine
@@ -45,7 +45,7 @@ def test_helper_identities_and_exit_codes() -> None:
     assert sample_starts(["c", "a", "b"], limit=2)[0] == "a"
     skipped = not_applicable(RULE_PARITY, "AGE disabled")
     assert skipped.status == STATUS_NOT_APPLICABLE
-    from arxiv_int.data_quality.model import STATUS_PASS
+    from arxiv_int.data_quality.engine.model import STATUS_PASS
     from arxiv_int.stores.projections.quality import (
         RULE_CHECKSUM,
         RULE_ENGINE,

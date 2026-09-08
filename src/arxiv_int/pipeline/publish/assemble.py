@@ -4,9 +4,7 @@ from dataclasses import replace
 from pathlib import Path
 
 from arxiv_int.contracts.generate.normalize import normalize_json, sha256_text
-from arxiv_int.pipeline.context import RunContext
 from arxiv_int.pipeline.control.artifacts import sha256_text_bytes
-from arxiv_int.pipeline.persist import RunStatus, StageExecution
 from arxiv_int.pipeline.publish.codec import document_payload
 from arxiv_int.pipeline.publish.model import (
     REPORT_HTML,
@@ -17,6 +15,8 @@ from arxiv_int.pipeline.publish.model import (
     OutputFamily,
     PipelineProfile,
 )
+from arxiv_int.pipeline.run.context import RunContext
+from arxiv_int.pipeline.run.persist import RunStatus, StageExecution
 
 
 def assemble_knowledge_base(

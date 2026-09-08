@@ -4,7 +4,7 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
-from arxiv_int.pipeline.persist import load_json, write_json
+from arxiv_int.pipeline.run.persist import load_json, write_json
 
 PRUNED_DIR = "pruned"
 

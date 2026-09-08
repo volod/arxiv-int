@@ -76,7 +76,7 @@ proof runs use the configured `ARCHIVE_DIR` silos. See
 grammar and the same precedence, defaults and reference order in dependency-free bash, because the
 bootstrap runs before the virtual environment exists. It parses the file instead of executing it,
 so a value is never run as shell, and it exports the resolved absolute `*_DIR` values the Python
-entry points then re-resolve identically. Paired fixtures in `tests/config/test_parity.py` hold the
+entry points then re-resolve identically. Paired fixtures in `tests/runtime/test_parity.py` hold the
 two implementations to one result for defaults, overrides, nested references, quotes and spaces,
 explicit empty values, invalid input and foreign working directories. Only exported shell variables
 count as process overrides, matching Python's environment; whitespace is trimmed before unquoting.
@@ -312,13 +312,13 @@ combined profiles use `SERVICE_PROFILES="core ui observability"`.
 
 ## Tests and verification
 
-Tests under `tests/config/` cover layer precedence, paired shell/Python resolution and refusal,
+Tests under `tests/runtime/` cover layer precedence, paired shell/Python resolution and refusal,
 project-root selection, service-port defaults and validation, shell precedence, checkout and
 current-directory independence, paths containing spaces, named silos, derived overrides, variable references,
 redaction, missing values, root and symlink hazards, all root-overlap boundaries, derived-root
 aliasing, readable source permissions, writable source directories, free space, distinct
 device evidence, results layout creation, and storage-class refusal versus warning fixtures. Tests
-under `tests/compose/` render every profile and the supported combined topology through Docker
+under `tests/runtime/` render every profile and the supported combined topology through Docker
 Compose without starting services. They cover image pins, loopback ports, healthchecks, stop policy,
 generated WAL and tablespace mounts, writable state isolation, read-only provisioning, `pipeline`
 alias expansion, required-service healthchecks and `up --wait`, password refusal, cleanup, quiet

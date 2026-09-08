@@ -3,7 +3,7 @@
 import pathlib
 from typing import Any
 
-from arxiv_int.contracts._yaml import load_mapping
+from arxiv_int.contracts.catalog._yaml import load_mapping
 from arxiv_int.ontology.catalog import OntologyCatalog, OntologyClass, OntologyPredicate
 from arxiv_int.ontology.paths import ontology_root_for, require_graph_dependencies
 

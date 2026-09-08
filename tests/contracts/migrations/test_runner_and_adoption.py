@@ -22,11 +22,12 @@ from arxiv_int.contracts.migrations.runner import (
     upgrade,
 )
 from arxiv_int.contracts.sqlalchemy.model import load_schema_model_from_root
+from arxiv_int.resources.paths import contracts_root
 from tests.contracts.migrations._project import product_root
 
 
 def _contracts() -> Path:
-    return product_root() / "contracts"
+    return contracts_root()
 
 
 def test_credentials_never_reach_a_report() -> None:

@@ -1,5 +1,8 @@
 # Developer Tooling
 
+See [record 0050](../records/0050-govern-refactor-package-layout-and-make.md) for the split Makefile,
+packaged resources, nested packages, and mirrored tests tree.
+
 ## Environment
 
 `pyproject.toml` declares Python 3.12+ package metadata and a `dev` extra. `uv.lock` fixes the full
@@ -14,7 +17,9 @@ Its functions use the `arxiv_int_` namespace; direct uv investigations begin wit
 
 ## Quality gates
 
-The Makefile exposes individual checks and two composed workflows:
+The root `Makefile` includes grouped fragments under `make/` (`bootstrap`, `services`,
+`contracts`, `transform`, `inference`, `eval`, `pipeline`, `quality`) with `##@` help sections.
+`make help` lists those targets. The composed workflows are:
 
 - `make ci` runs formatting, linting, typing, Radon and cognitive complexity, shell parsing and
   ShellCheck, documentation links, spec-plan integrity, contract generation drift, evolution policy
@@ -42,7 +47,8 @@ Tests under `tests/quality/` exercise failure cases for the documentation checks
 asserting the repository passes. `make quality-report` reports source and shell files over the
 250-line soft limit; generated Alembic revisions under `src/arxiv_int/migrations/versions/` are
 frozen review evidence and are excluded from Ruff formatting so a formatter upgrade cannot rewrite an
-applied revision. Those revision files and `migrations/env.py` are also omitted from branch coverage
+applied revision. Generated Pydantic adapters under
+`src/arxiv_int/resources/contracts/generated/pydantic/` are excluded for the same reason. Those revision files and `migrations/env.py` are also omitted from branch coverage
 because they execute only against a live database; the declared schema suite covers them.
 Configuration tests exercise missing-template copying, append-only declaration
 sync, idempotency, and preservation of operator values.
@@ -61,3 +67,8 @@ commented placeholders annotated with the storage class each one needs. Only `DA
 storage evidence, and empty layout are documented in [Portable runtime](portable-runtime.md).
 `scripts/shared/common.sh` preserves pre-existing process values while loading `.env`, then exports
 `DATA_DIR` and the tool caches derived from it.
+
+Product ODCS, ontology, operator configs, and the dbt project ship as
+`src/arxiv_int/resources/{contracts,ontology,configs,dbt}` so a wheel install does not depend on
+checkout-root trees. `arxiv_int.resources.paths` prefers a same-named overlay under a caller
+`project_root` when that directory exists.

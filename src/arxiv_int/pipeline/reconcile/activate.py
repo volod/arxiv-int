@@ -4,9 +4,9 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from arxiv_int.pipeline.control.quality import ActivationDecision, activation_decision
-from arxiv_int.pipeline.persist import StageExecution
 from arxiv_int.pipeline.publish.model import KnowledgeBase
 from arxiv_int.pipeline.publish.pointer import ActivationRefusedError, activate_generation
+from arxiv_int.pipeline.run.persist import StageExecution
 
 
 def executions_ready(executions: Sequence[StageExecution]) -> bool:

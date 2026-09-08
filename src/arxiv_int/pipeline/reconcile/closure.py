@@ -4,7 +4,7 @@ from collections.abc import Mapping, Sequence
 
 from arxiv_int.pipeline.control.lineage import LineageEdge, stale_closure
 from arxiv_int.pipeline.reconcile.model import SourceDelta
-from arxiv_int.pipeline.reuse_index import ReuseEntry
+from arxiv_int.pipeline.run.reuse_index import ReuseEntry
 
 
 def affected_hashes(delta: SourceDelta) -> frozenset[str]:

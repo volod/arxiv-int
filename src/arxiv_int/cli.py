@@ -110,7 +110,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     generate.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
     check = contract_commands.add_parser(
-        "check", help="fail when contracts/generated drifts from regeneration"
+        "check", help="fail when packaged contracts/generated drifts from regeneration"
     )
     check.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
     evolution = contract_commands.add_parser(
@@ -239,7 +239,7 @@ def build_parser() -> argparse.ArgumentParser:
     from arxiv_int.inference.cli import add_inference_parser
 
     add_inference_parser(subcommands)
-    from arxiv_int.evaluation.export_cli import add_evaluation_parser
+    from arxiv_int.evaluation.cli import add_evaluation_parser
 
     add_evaluation_parser(subcommands)
     from arxiv_int.inspect.cli import add_inspect_parser
@@ -522,7 +522,7 @@ def _parse_related(values: list[str]) -> dict[str, Path]:
 
 def _run_data_quality(args: argparse.Namespace) -> int:
     from arxiv_int.data_quality.commands import run_check
-    from arxiv_int.data_quality.model import ValidationLimits
+    from arxiv_int.data_quality.engine.model import ValidationLimits
     from arxiv_int.runtime.project_root import ProjectRootError
 
     try:
@@ -581,7 +581,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
         return run_inference_command(args)
     if args.command == "evaluation":
-        from arxiv_int.evaluation.export_commands import run_evaluation_command
+        from arxiv_int.evaluation.export.commands import run_evaluation_command
 
         return run_evaluation_command(args)
     if args.command == "inspect":
@@ -589,7 +589,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
         return run_inspect_command(args)
     if args.command in {"pipeline", "stage", "run", "artifacts"}:
-        from arxiv_int.pipeline.dispatch import run_pipeline_command
+        from arxiv_int.pipeline.dag.dispatch import run_pipeline_command
 
         return run_pipeline_command(args)
     return _run_info()
