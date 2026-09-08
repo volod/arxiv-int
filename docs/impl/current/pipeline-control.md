@@ -1,10 +1,11 @@
 # Pipeline Control
 
 Typed stage, source, and artifact references, a generic run ledger, serialized progress
-logging with bounded resource telemetry, a fixture-first DAG CLI, a read-only pre-run
-forecast, profile-declared knowledge-base publication, read-only stage artifact inspection,
-incremental source reconciliation, two-phase stale prune, and read-only citation/source
-location lookup are available. Concrete corpus
+logging with bounded resource telemetry, a fixture-first DAG CLI, a registered preflight
+readability worker, a read-only pre-run forecast, profile-declared knowledge-base publication,
+read-only stage artifact inspection, incremental source reconciliation, two-phase stale prune,
+read-only citation/source location lookup, and a provided-archive pipeline-control proof are
+available. Concrete corpus
 stages remain
 [planned](../plan.md#pipeline-control----pipeline-control).
 
@@ -17,8 +18,9 @@ See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface
 [checkpoint 0046](../records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md),
 [repair 0047](../records/0047-pipeline-repair-pipeline-publication-and-reuse-integrity.md),
 [record 0048](../records/0048-pipeline-add-stage-artifact-inspection.md),
-[record 0049](../records/0049-pipeline-implement-incremental-reconciliation-and-stale-pruning.md), and
-[record 0051](../records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
+[record 0049](../records/0049-pipeline-implement-incremental-reconciliation-and-stale-pruning.md),
+[record 0051](../records/0051-pipeline-implement-evidence-and-source-location-lookup.md), and
+[record 0053](../records/0053-pipeline-prove-pipeline-control-on-provided-archive.md).
 
 ## Stage, source, and artifact seams
 
@@ -188,8 +190,8 @@ invalidate, update, rebuild, prune dry-run, quality not-run/fail, and signal can
 Pandera validators and dbt selections run at producer boundaries through `QualityBoundary`; failed
 or not-run checks halt downstream work. The directory-to-report gate waits on concrete stages.
 
-`stage STAGE=preflight` as a registered worker remains unimplemented. Aggregate commands still
-run an archive-readability preflight handler before forecast.
+`stage STAGE=preflight` is a registered readability worker. It does not load models or write
+archive bytes. Aggregate commands still run the same archive-readability handler before forecast.
 
 ## Incremental reconciliation and stale pruning
 
@@ -222,6 +224,22 @@ Prune is two-phase. Dry-run ids land under `$RUNS_DIR/prune-plans/` with a copy 
 pins, `review/`, `rollback/`, decision or move ledgers, backups, and the sole recovery copy.
 Superseded attempt directories become eligible once a live generation exists. Apply retains
 checksums under `$RUNS_DIR/pruned/` and compact lineage; it never deletes archive sources.
+
+## Provided-archive control proof
+
+`make proof CAPABILITY=pipeline-control RUN_ID=...` copies a bounded file set from `ARCHIVE_DIR`
+into `$RESULTS_DIR/proof-work/pipeline-control/<proof-id>/` and publishes
+`$RESULTS_DIR/proofs/pipeline-control/<proof-id>/`. The copy is at most eight files, 4 MiB each,
+and 16 MiB total. Add/change/rename/remove, fingerprint bump, rebuild, and prune-apply run only
+on that copy. The supplied archive is not written. Then-usable stages are registered `preflight`
+plus the fixture DAG; inventory and later corpus stages are not part of this proof.
+
+The bundle is Git `no-export` (`git_bound: []`) with separate raw-proof and transformed-export
+fingerprints. Required gates are zero workers on a no-op rerun, exact affected/unaffected shards
+for each delta, tombstones and active rows, targeted code invalidation, simulated free-space
+refusal before allocation, rebuild checksum parity, sole-recovery prune refusal, and an
+unmodified source snapshot. Host proof `0053-host-2` is recorded in
+[record 0053](../records/0053-pipeline-prove-pipeline-control-on-provided-archive.md).
 
 ## Stage artifact inspection
 
@@ -405,11 +423,14 @@ updates, additions, path-only renames, change/remove retraction, partial-scan wi
 shared merge/split evidence, rebuild checksum parity, quality-gated activation, dbt source/ref
 lineage, and revision `0001` reconcile alignment. Prune tests in `tests/pipeline/prune/` cover
 sole-recovery refusal, protected kinds, and superseded-attempt deletion that leaves live cache
-entries. Fixtures do not prove real-archive extraction quality or
+entries. Pipeline-control proof tests in `tests/evaluation/proof/test_pipeline_control.py` cover
+the named gates, dispatcher/CLI publish and check, unreadable archives, copy budgets, and
+path-free no-export bundles. Fixtures do not prove real-archive extraction quality or
 CUDA worker fit.
 
 Checkpoint 0046 validates fixture publication and reuse, with live disposable SQL lease/crash checks
-and a CUDA-host resource probe. Concrete producer fingerprints, validators, database activation and
-provided-archive behavior remain with the
+and a CUDA-host resource probe. Record 0053 publishes the provided-archive control proof for
+then-usable stages. Concrete producer fingerprints, validators, database activation and remaining
+corpus stages stay with the
 [corpus/control checkpoint](../plan.md#review-corpus-and-control-integrity). The local lock is
 intentionally coarse; the review does not establish parallel corpus throughput or power-loss recovery.

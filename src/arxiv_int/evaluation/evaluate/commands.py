@@ -116,6 +116,7 @@ def _proof(args: argparse.Namespace, root: object) -> int:
             results_dir=args.results_dir,
             runs_dir=args.runs_dir,
             fixture_dir=args.fixture_root,
+            archive_dir=getattr(args, "archive_dir", None),
         )
         _LOG.info(
             "published proof fingerprint=%s summary=%s", published.fingerprint, published.summary

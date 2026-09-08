@@ -167,8 +167,8 @@ defaults. Make does not pass `--run-id local` or a hardcoded `--profile investig
 `pipeline` / `run-create`.
 
 The default investigation profile still names unimplemented corpus stages. `make pipeline`
-therefore fails explicitly until those runners ship. `stage STAGE=preflight` as a registered
-worker remains unimplemented; aggregate commands still run an archive-readability preflight
+therefore fails explicitly until those runners ship. `stage STAGE=preflight` is a registered
+readability worker; aggregate commands still run an archive-readability preflight
 handler before forecast. `run finalize` writes `$RUNS_DIR/<run-id>/knowledge-base.json` and
 activates only a succeeded requested profile. Partial or failed runs cannot replace the last
 complete generation.
@@ -197,13 +197,13 @@ make invalidate STAGE=evaluate RUN_ID="$RUN_ID"
 make prune
 ```
 
-`evaluate` is the shipped production runner. Other investigation stages fail as unregistered until
-their capabilities land. `make prune` is a dry-run; `APPLY=1 PLAN_ID=...` is a separate
-confirmation and refuses to delete the sole recovery copy.
+`evaluate` and `preflight` are shipped production runners. Other investigation stages fail as
+unregistered until their capabilities land. `make prune` is a dry-run; `APPLY=1 PLAN_ID=...` is a
+separate confirmation and refuses to delete the sole recovery copy.
 
 The target diagnostic order below is one valid linear expansion of the baseline registry, not a
-second executable DAG definition. `run-finalize` is available; `STAGE=preflight` as a registered
-worker is not:
+second executable DAG definition. `run-finalize` is available; `STAGE=preflight` is registered,
+and `STAGE=inventory` is not:
 
 ```bash
 make stage STAGE=preflight RUN_ID="$RUN_ID"

@@ -95,6 +95,7 @@ def test_proof_discovery_and_unknown_capability(tmp_path: Path) -> None:
     targets = discover_proof_targets(real_root)
     names = [item.capability_id for item in targets]
     assert "evaluation-foundation" in names
+    assert "pipeline-control" in names
     assert "corpus-foundation" in names
     registry = load_capability_registry(real_root)
     with pytest.raises(ProofUnknownCapabilityError, match="unknown proof capability"):

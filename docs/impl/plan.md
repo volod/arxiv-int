@@ -25,39 +25,6 @@ and name ready/pending human decisions and the dependent work that must wait at 
 
 ### Pipeline control -- `pipeline-control`
 
-#### prove-pipeline-control-on-provided-archive
-
-Exercise idempotency, incremental reconciliation, invalidation, forecasting, rebuild, and prune
-planning with the supplied archive and publish the pipeline-control proof bundle.
-
-- Serves: `pipeline-control` --
-[Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
-- Agent status: RUN NEEDED
-- Dependencies: [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md);
-`prove-corpus-foundation-on-provided-archive`; [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md);
-[Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
-- User-visible outcome: The supplied archive demonstrates that unchanged inputs skip heavy work,
-deltas update only affected artifacts, stale data retracts safely, insufficient space blocks early,
-and a clean generation can be rebuilt.
-- Scope boundary: Do not modify `ARCHIVE_DIR`; perform add/change/rename/remove and prune-apply
-drills only on a bounded disposable proof copy; do not prune the sole proof or recovery generation.
-- Data and artifact paths: `$ARCHIVE_DIR` used without modification, disposable
-`$RESULTS_DIR/proof-work/pipeline-control/<proof-id>/`, and
-`$RESULTS_DIR/proofs/pipeline-control/<proof-id>/`.
-- Execution path: Forecast and run the corpus closure; rerun unchanged; create controlled source
-deltas and a stage-fingerprint bump; inspect minimal closures and active retractions; simulate low
-space; rebuild into a fresh generation; compare checksums; dry-run pruning and apply it only to an
-extra disposable stale generation.
-- Acceptance gates: Proof records zero heavy invocations on the no-op rerun, exact affected/unaffected
-shards for each delta, correct tombstones and active rows, targeted code invalidation, non-zero
-resource refusal before allocation, clean-rebuild parity, protected-data prune refusal, and no write
-to the supplied archive.
-Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
-obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
-unchanged. Retain separate raw-proof and transformed-export fingerprints.
-- Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
-
 #### review-corpus-and-control-integrity
 
 Review the integrated milestone before lexical loading, classification and NLP consumers.
@@ -293,7 +260,7 @@ Build and query the lexical projection for the supplied archive and publish its 
 [Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `calibrate-russian-tokenization-and-bm25`;
-`prove-pipeline-control-on-provided-archive`.
+[Pipeline-control provided-archive proof](records/0053-pipeline-prove-pipeline-control-on-provided-archive.md).
 `review-retrieval-and-classification-boundaries`.
 - User-visible outcome: Supplied documents are searchable through the selected Russian lexical
 profile, with filters, snippets, identifiers, and citations that resolve to source evidence.
@@ -437,7 +404,7 @@ Classify the supplied archive and validate its complete hierarchical mapping and
 [Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `implement-hierarchical-file-classification`;
-`prove-pipeline-control-on-provided-archive`;
+[Pipeline-control provided-archive proof](records/0053-pipeline-prove-pipeline-control-on-provided-archive.md);
 [Representative corpus approval](records/0023-corpus-approve-representative-corpus-and-gold.md).
 [Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
 `review-retrieval-and-classification-boundaries`.
@@ -532,7 +499,7 @@ their proof bundle.
 [Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `evaluate-general-and-domain-ner`;
-`prove-pipeline-control-on-provided-archive`.
+[Pipeline-control provided-archive proof](records/0053-pipeline-prove-pipeline-control-on-provided-archive.md).
 - User-visible outcome: The supplied Russian and mixed-language documents expose inspectable terms,
 language/noise results, mentions, source offsets, model identities, and measured failure classes.
 - Scope boundary: Prove configured NLP profiles on available archive languages/types; do not treat

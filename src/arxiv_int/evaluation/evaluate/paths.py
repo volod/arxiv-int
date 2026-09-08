@@ -9,6 +9,7 @@ from arxiv_int.runtime.config_schema import DEFAULTS
 
 EVALUATION_METHOD = "evaluation"
 PROOF_METHOD = "proofs"
+PROOF_WORK_METHOD = "proof-work"
 FIXTURE_RELATIVE = Path("tests") / "fixtures" / "evaluation"
 
 
@@ -33,6 +34,11 @@ def published_evaluation_dir(runs_dir: Path, run_id: str) -> Path:
 def published_proof_dir(results_dir: Path, capability: str, proof_id: str) -> Path:
     """Return ``$RESULTS_DIR/proofs/<capability>/<proof-id>/``."""
     return results_dir / PROOF_METHOD / capability / proof_id
+
+
+def proof_work_dir(results_dir: Path, capability: str, proof_id: str) -> Path:
+    """Return ``$RESULTS_DIR/proof-work/<capability>/<proof-id>/``."""
+    return results_dir / PROOF_WORK_METHOD / capability / proof_id
 
 
 def fixture_root(project_root: Path) -> Path:

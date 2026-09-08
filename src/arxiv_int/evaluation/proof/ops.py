@@ -34,7 +34,7 @@ from arxiv_int.evaluation.proof.model import (
 )
 from arxiv_int.resources.paths import configs_output_root
 
-IMPLEMENTED_PROOFS = frozenset({"evaluation-foundation"})
+IMPLEMENTED_PROOFS = frozenset({"evaluation-foundation", "pipeline-control"})
 
 
 @dataclass(frozen=True, slots=True)
@@ -80,9 +80,19 @@ def publish_capability_proof(
     results_dir: Path,
     runs_dir: Path,
     fixture_dir: Path | None = None,
+    archive_dir: Path | None = None,
 ) -> ProofPublishResult:
     """Dispatch one capability proof or refuse unvalidated/unknown targets."""
     target = require_capability(load_capability_registry(project_root), capability)
+    if capability == "pipeline-control":
+        from arxiv_int.evaluation.proof.control_publish import publish_pipeline_control_proof
+
+        return publish_pipeline_control_proof(
+            project_root=project_root,
+            proof_id=run_id,
+            results_dir=results_dir,
+            archive_dir=archive_dir,
+        )
     if capability not in IMPLEMENTED_PROOFS:
         raise ProofIntegrityError(
             f"usable stages for {capability} are unvalidated; no proof publisher is registered"
@@ -159,7 +169,12 @@ def check_capability_proof(directory: Path, project_root: Path, fixture_fingerpr
         raise ProofError("proof manifest is not an object")
     capability = str(payload.get("capability_id") or "")
     target = require_capability(load_capability_registry(project_root), capability)
-    expected = current_fingerprints(project_root, fixture_fingerprint)
+    if capability == "pipeline-control":
+        from arxiv_int.evaluation.proof.control_registry import control_proof_fingerprints
+
+        expected = control_proof_fingerprints(project_root)
+    else:
+        expected = current_fingerprints(project_root, fixture_fingerprint)
     validate_proof_manifest(payload, target, expected)
     refuse_proof_tree_leaks(directory)
     return digest_bytes(path.read_bytes())

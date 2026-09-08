@@ -70,5 +70,10 @@ def production_specs() -> tuple[StageSpec, ...]:
 def production_registry() -> StageRegistry:
     """Bind shipped runners onto production specs; others remain unregistered."""
     from arxiv_int.evaluation.evaluate.stage import EvaluateStage
+    from arxiv_int.pipeline.publish.preflight import PreflightStage
 
-    return StageRegistry(production_specs()).with_runner("evaluate", EvaluateStage())
+    return (
+        StageRegistry(production_specs())
+        .with_runner("preflight", PreflightStage())
+        .with_runner("evaluate", EvaluateStage())
+    )

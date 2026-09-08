@@ -1,7 +1,9 @@
 # Evaluation Foundation
 
 Frozen evaluation fixtures, paired metrics, the `evaluate` stage, and a shared proof dispatcher
-are available now. Human gold review and provided-archive proofs remain later tasks.
+are available now. Human gold review and remaining provided-archive proofs stay later tasks.
+`pipeline-control` can publish a provided-archive proof; `evaluation-foundation` can publish a
+fixture proof.
 
 See [record 0033](../records/0033-eval-found-refactor-evaluation-bundle-validation.md),
 [record 0035](../records/0035-eval-found-implement-committed-proof-identity-obfuscation.md),
@@ -60,8 +62,8 @@ make eval RUN_ID=...
 
 `src/arxiv_int/resources/configs/proofs/capabilities.json` maps each capability to usable stages and required
 validators. `arxiv-int evaluation proof discover` lists them. Unknown capabilities fail.
-`evaluation-foundation` can publish a fixture proof; other capabilities refuse until their
-usable stages are validated.
+`evaluation-foundation` can publish a fixture proof and `pipeline-control` can publish a
+provided-archive proof; other capabilities refuse until their usable stages are validated.
 
 A typed `proof-manifest.json` records fingerprints, stage statuses, validators, and artifact
 checksums. Publication claims the destination with exclusive `mkdir` and refuses to replace an
@@ -73,13 +75,17 @@ nonregular entries in the Git-bound proof tree.
 arxiv-int evaluation proof discover
 arxiv-int evaluation proof publish --capability evaluation-foundation --run-id ID \
     --results-dir DIR --runs-dir DIR
+arxiv-int evaluation proof publish --capability pipeline-control --run-id ID \
+    --results-dir DIR --runs-dir DIR
 arxiv-int evaluation proof check --proof-dir DIR
 make proof CAPABILITY=evaluation-foundation RUN_ID=...
+make proof CAPABILITY=pipeline-control RUN_ID=...
 make evaluation-fixtures-check
 ```
 
-Proofs for this capability write `$RESULTS_DIR/proofs/evaluation-foundation/<proof-id>/`.
-Tool diagnostics stay under `$DATA_DIR/evaluation/<run-id>/`.
+Proofs for evaluation-foundation write `$RESULTS_DIR/proofs/evaluation-foundation/<proof-id>/`.
+Pipeline-control proofs write `$RESULTS_DIR/proofs/pipeline-control/<proof-id>/`.
+Tool diagnostics stay under `$DATA_DIR/<capability>/<run-id>/`.
 
 ## Run bundles
 

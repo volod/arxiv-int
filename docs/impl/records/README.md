@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0053` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0054` after the rows
 below).
 
 | Record | Scope | Result |
@@ -64,3 +64,4 @@ below).
 | [0050 Package layout and Make modularity](0050-govern-refactor-package-layout-and-make.md) | Split Makefile, package configs/contracts/ontology/dbt, nest large subpackages, mirror tests | Accepted |
 | [0051 Evidence and source location lookup](0051-pipeline-implement-evidence-and-source-location-lookup.md) | Read-only `archive locate`, citation resolver, ODCS path-event schema, Alembic `0005` | Accepted |
 | [0052 Prerelease migration consolidation](0052-store-refactor-prerelease-migration-consolidation.md) | Collapse overlay revisions into one initial store revision before any release | Accepted |
+| [0053 Pipeline-control provided-archive proof](0053-pipeline-prove-pipeline-control-on-provided-archive.md) | Forecast, cache-hit, resume, delta, invalidation, rebuild, and prune proof on a bounded archive copy | accepted |

@@ -29,6 +29,7 @@ def add_evaluate_commands(
     publish.add_argument("--results-dir", type=Path, required=True)
     publish.add_argument("--runs-dir", type=Path, required=True)
     publish.add_argument("--fixture-root", type=Path, default=None)
+    publish.add_argument("--archive-dir", type=Path, default=None)
     publish.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
     check = proof_commands.add_parser("check", help="verify a published proof directory")
     check.add_argument("--proof-dir", type=Path, required=True)
