@@ -69,10 +69,13 @@ agent to report the human task, ready/pending state, packet/inspection path, dec
 consumer. `make plan-status` resolves dependency readiness; it does not itself judge packet quality
 or print these completion handoffs. Human judgment is not replaced by the structural checker.
 
-The specification now defines Git-only deterministic identity obfuscation and pinned dynamic
-ontology/geotemporal/domain semantics. The Git-bound exporter is implemented in
-[record 0035](../records/0035-eval-found-implement-committed-proof-identity-obfuscation.md);
-ontology/geotemporal contracts remain planned. Accepted records 0029-0033 and their runtime
+The specification defines pinned dynamic ontology/geotemporal/domain semantics and now forbids
+committing any archive-derived artifact: proof, gold and dataset files stay under the configured
+roots and are reviewed in place. The superseded Git-bound exporter of
+[record 0035](../records/0035-eval-found-implement-committed-proof-identity-obfuscation.md) is still
+present; its removal is owned by
+[retire-committed-proof-export](../plan.md#retire-committed-proof-export).
+Ontology/geotemporal contracts remain planned. Accepted records 0029-0033 and their runtime
 behavior are preserved.
 
 Documentation category directories use singular names: `design/`, `guide/`, and `impl/`. Page names

@@ -32,13 +32,13 @@ Add `Human review handoff` to every agent task that produces or assembles human-
 use the [handoff contract](#human-review-handoffs) below. The field is a forward handoff, not a
 dependency on the approval it enables.
 
-Proof/dataset tasks declare local originals separately from any Git-bound export file list.
-Committed source-derived fixtures, labels, answers, figures and metadata must use the shared
-[identity obfuscation policy](../design/spec.md#identity-obfuscation-for-committed-proof-artifacts).
-Name its implementation prerequisite, deterministic/format/reference/leak gates and export
-fingerprints; local-only proof and human packets retain original identities. No-export is valid.
-Ontology/geotemporal/domain fixtures must preserve pinned semantics and expected relationships after
-obfuscation; altered text anchors and checksums must be rebuilt, not copied from the raw bundle.
+Proof/dataset tasks name the configured roots their artifacts occupy and the bundle fingerprint a
+reviewer checks. They commit no source-derived fixture, label, answer, figure or metadata; see
+[published proof and evaluation data](../design/spec.md#published-proof-and-evaluation-data).
+Name the implementation prerequisite, the presence/checksum/contract checks a reviewer runs in place,
+and the resulting fingerprint. Committed fixtures are synthetic and must preserve the pinned
+ontology, geotemporal and domain relationships they exercise on their own terms, never by copying
+archive content.
 
 ## Task lanes
 
@@ -70,8 +70,8 @@ candidate thresholds or inclusion rules, residual gaps and costs, and the decisi
 Prepare everything the agent can produce before requesting judgment. If another prerequisite or
 decision is missing, report it explicitly; a useful draft is not a ready approval packet.
 Changed inputs make an earlier decision stale for the changed scope. Record the new review rather
-than silently carrying approval forward. Local packets use original identities; only Git-bound
-copies apply the export policy.
+than silently carrying approval forward. Human review packets stay under the configured run and
+review roots with the operator's own data; nothing from them is committed.
 
 At completion, the agent's final response must include this concrete handoff for each marked task:
 

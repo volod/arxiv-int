@@ -21,9 +21,8 @@ domain-artifact, catalog, anomaly, reporting, geotemporal, domain-negative.
 
 Split leakage refuses shared item ids, gold refs, or gold content. Missing provenance refuses
 the ledger. Bootstrap seed `13` replays the same fingerprint. These are synthetic fixtures with
-no real identities; Git-bound source-derived copies still use the
-[identity exporter](#git-bound-identity-export). Local gold originals and human-review packets
-are not rewritten.
+no real identities. Gold originals and human-review packets stay under the operator's configured
+roots and are never committed.
 
 Ontology fixtures cover add, deprecate-with-successor, draft refusal, and disjoint contradiction.
 Geotemporal fixtures keep source-valid time distinct from recorded time, retain unknown CRS,
@@ -198,6 +197,8 @@ Synthetic export evidence lives under `$DATA_DIR/proof-export/<run-id>/`. Synthe
 fixture-proof evidence lives under `$DATA_DIR/evaluation/<run-id>/`. Those trees are not
 provided-archive proofs.
 
-Local proof and human-review packets retain original identities. Fixture builders must use this
-exporter for any Git-bound source-derived copy. See the
-[export policy](../../design/spec.md#identity-obfuscation-for-committed-proof-artifacts).
+Proof and human-review packets stay under the configured roots. The exporter is still present but
+is no longer a sanctioned path: the specification now forbids committing any archive-derived
+artifact, and removal is owned by
+[retire-committed-proof-export](../plan.md#retire-committed-proof-export). See
+[published proof and evaluation data](../../design/spec.md#published-proof-and-evaluation-data).

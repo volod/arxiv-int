@@ -511,9 +511,9 @@ defaults to `.data` inside the checkout. Corpus-scale output never goes there, a
 a `RESULTS_DIR` or `PGDATA_DIR` that resolves inside the checkout unless the operator states that
 intent for a small local trial.
 
-Proof tasks retain source manifests and hashes in repository documentation. Any committed
-source-derived examples must use the
-[identity-obfuscated export](#identity-obfuscation-for-committed-proof-artifacts).
+Proof tasks retain source manifests and hashes in repository documentation. No source-derived
+example is committed; see
+[published proof and evaluation data](#published-proof-and-evaluation-data).
 A bounded disposable copy under the configured data root may be used for addition,
 modification, and removal drills.
 
@@ -1441,7 +1441,7 @@ there are no development-only path aliases, stage wrappers, or output trees. The
 
 Deterministic CI remains fixture-based and never reads the configured archive. A real-data run is an
 implementation feedback signal, not acceptance evidence: it does not replace the capability's
-evaluation or proof bundle, and no unobfuscated corpus content or machine-specific path enters Git.
+evaluation or proof bundle, and no corpus content or machine-specific path enters Git.
 Missing private access or reviewed labels keeps the proof/human task open, rather than blocking deterministic
 implementation and fixture checks. A fixture pass never claims real-corpus acceptance.
 
@@ -1857,49 +1857,39 @@ Before store or model promotion, freeze a representative corpus manifest and rev
 Gold creation and threshold setting use separate tuning and final partitions. LLM-drafted items do
 not become scoring truth without review. During development the operator points `ARCHIVE_DIR` at one
 authorized representative slice and uses the ordinary pipeline or stage commands. Machine-specific
-paths and unobfuscated source text stay out of the repository; Git-bound copies follow
-[identity obfuscation](#identity-obfuscation-for-committed-proof-artifacts).
+paths, source text and gold sets stay out of the repository; they are published and reviewed under
+the configured roots, per
+[published proof and evaluation data](#published-proof-and-evaluation-data).
 
-### Identity obfuscation for committed proof artifacts
+### Published proof and evaluation data
 
-This policy applies only to proof-derived artifacts tracked by Git or explicitly prepared for a
-Git commit: fixtures, excerpts, labels, queries, expected answers, reports, graphs, screenshots and
-metadata. Ordinary archive reads, local canonical data, `$RESULTS_DIR/proofs/` and local human-review
-packets retain original identities. Export from those originals into a separate repository-bound
-copy; never rewrite originals, local evidence or Git history. No commit is implied by export.
-Existing secret/path/logging rules remain independent of this identity-obfuscation policy.
+No archive, corpus, gold set, proof bundle, or other archive-derived artifact is committed to this
+repository or prepared for a commit. There is no sanctioned export path that turns source-derived
+content into repository files, obfuscated or otherwise. Such data lives only under the
+operator-configured roots: `ARCHIVE_DIR` and any `ARCHIVE_SILO_<ID>_DIR` for read-only sources, and
+`RESULTS_DIR`, `RUNS_DIR` and `PGDATA_DIR` for produced artifacts.
 
-Replace real person, company and product identities, including names/aliases, identifiers and model
-or part labels, addresses, email/phone contacts and account numbers. Use deterministic one-way
-SHA-256 with a versioned public namespace and documented normalization. No secret key, strong
-cryptography, rotation service or resistance-to-reversal work is required for this legally clean
-proof data. Hash stable entity ids for entity labels; hash typed normalized field values for shared
-contacts/identifiers. A run id, machine path or random salt must not affect the result. Keep distinct
-same-name entities distinct, aliases linked to their entity, and repeated contacts comparable.
+The operator publishes an archive and its result artifacts separately from this repository and, when
+sharing them, points the corresponding variables at the published location. The repository never
+carries a copy, a sample, an excerpt, or a location of specific data. Producing and publishing a
+dataset for analysis is the operator's separate activity, not a project deliverable.
 
-Use ASCII substitutes appropriate to each field: `person_<digest>`, `company_<digest>` and
-`product_<digest>` labels; `contact_<digest>@example.invalid` email addresses; synthetic street/city
-components and numeric house/postal fields; digit-based phone/account substitutes preserving their
-schema-required shape. Retain required prefixes, lengths and check digits where validators require
-them, computing replacement check digits rather than copying a real account. Detect collisions in
-bounded numeric formats and refuse ambiguous output; never merge unrelated identities silently.
+A reviewer checks an implementation in place. With those roots configured, the ordinary read-only
+commands report whether the expected artifacts exist, whether their checksums, contracts and
+validator results hold, and how they trace back to source occurrences, without copying anything into
+a repository. Presence and integrity of database-backed results are checked the same way against the
+configured store. A proof bundle records its own fingerprint so a reviewer can confirm the bundle
+they hold is the one a record names.
 
-Rewrite every occurrence and reference in the selected copy, including filenames, URLs, captions,
-embedded metadata and expected answers. Recompute text offsets/anchors, artifact checksums and
-bundle fingerprints after transformation. Preserve schema types, joins, quantities/units, temporal
-ordering and domain distinctions; geographic/time fixtures must retain the declared relationships.
-Do not independently hash coordinates or dates and then reuse the old spatial/temporal expected
-answers. Render images/PDFs from the transformed data or refuse unsupported exports. Raw mappings
-and source identity dictionaries stay local and untracked.
+The repository holds code, contracts, ontology assets, configuration, documentation, and fixtures
+authored for tests. A committed fixture must be synthetic: written to exercise a rule, never derived
+from, sampled from, or reconstructed from archive content. Synthetic fixtures still satisfy the
+ordinary secret and path rules.
 
-Record the obfuscation policy/version, export file list, source-bundle fingerprint and independent
-export fingerprint. Mark exported metrics/fixtures as transformed data, not fresh real-archive
-quality evidence. Gate Git-bound export with cross-run/machine determinism, same-name nonmatch,
-alias/reference/span consistency, phone/address/account format, collision, metadata leakage and
-original-byte-preservation tests. An artifact that cannot meet these checks stays local; a raw
-artifact is never silently substituted. Scope selection must include newly prepared Git files, not
-only files already returned by `git ls-files`. Synthetic fixtures with no real identities need no
-identity replacement, but still satisfy ordinary secret/path rules.
+Design documents, plan tasks and records name roots, contracts, stages and fingerprints. They do not
+name specific archives, corpora, collections, entities, or datasets, and they do not embed source
+text. Current-state pages and records may cite proof ids, fingerprints, counts, validation summaries
+and verdicts; machine-specific paths, source content and real identities stay out of Git.
 
 ### Provided-archive proof runs
 
@@ -1939,8 +1929,8 @@ result. Failure, missing evidence, or resource refusal keeps its proof task open
 may record `not-selected` with an explicit selection reason and working fallback; comparative
 promotion or rejection claims additionally require a measured verdict. Repository
 current-state documentation records proof ids, fingerprints, artifact paths, validation summaries,
-and results, but uses only the explicitly obfuscated export for any committed source-derived content
-and never copies machine-specific archive paths into Git.
+and results. It commits no source-derived content and never copies machine-specific archive paths
+into Git; a reviewer reads the bundle itself under the configured roots.
 
 ### Required acceptance gates
 
@@ -1955,7 +1945,7 @@ and never copies machine-specific archive paths into Git.
 | Idempotency       | Re-running an unchanged successful shard writes no duplicate canonical rows or artifacts and reports a cache hit; interrupted stages resume from completed shards.                               |
 | Incremental state | Added/changed/renamed/removed sources and stage-owned implementation changes invalidate only their lineage closure; active views retract stale outputs and retain audit evidence.                 |
 | Forecast          | Time/size ranges cite evidence, all target devices and peak scratch/rebuild needs are counted, and insufficient free space blocks before heavy allocation.                                        |
-| Committed proof identities | Git-bound exports pass deterministic typed identity replacement, reference/span and format checks; local originals remain unchanged. |
+| Published proof data | Proof, gold and dataset artifacts stay under the configured roots; no archive-derived file is committed or staged for commit; a reviewer validates presence, checksums and contracts in place. |
 | Ontology/geotemporal integrity | Pinned ontology evolution, source-valid versus recorded time, place/CRS uncertainty, revision/effectivity and domain non-implication fixtures pass across validators, SQL, graph and reports. |
 | Proof bundles     | Every usable artifact-producing stage group has a current provided-archive proof whose outputs, checksums, validators, cache-hit rerun, and fingerprint are complete.                              |
 | Provenance        | Every sampled search result, mention, fact, topic assignment, graph edge, and report row resolves to source evidence and a complete transformation fingerprint.                                  |
@@ -2037,7 +2027,7 @@ evidence exist. Registry order is the implementation line used by `plan.md`.
 | 3 | `contract-governance` | shipped | ODCS generation/evolution, Alembic revision checks, shared dataset-quality checks and ontology gates pass; live schema upgrade/adoption is recorded under canonical-store | [Contracts](../impl/current/contracts.md) |
 | 4 | `canonical-store` | shipped | Disposable extension compatibility, initial schema/adoption, dbt validation/publication and projection rebuild/cleanup pass the foundation checkpoint; operator recovery remains a separate capability | [Canonical store](../impl/current/canonical-store.md); [Checkpoint](../impl/records/0027-store-review-foundation-and-store-boundaries.md) |
 | 5 | `local-inference` | shipped | Ollama/vLLM conformance, structured outputs, model-fit, host-wide GPU lease, and local-only endpoint gates pass | [Local inference](../impl/current/local-inference.md) |
-| 6 | `evaluation-foundation` | shipped | Frozen fixtures, replayable metrics, split guards, paired verdicts, immutable bundles/proofs, and deterministic typed identity obfuscation for Git-bound exports pass the inference/evaluation checkpoint | [Evaluation foundation](../impl/current/evaluation-foundation.md); [Checkpoint](../impl/records/0038-eval-found-review-inference-and-evaluation-boundaries.md) |
+| 6 | `evaluation-foundation` | shipped | Frozen synthetic fixtures, replayable metrics, split guards, paired verdicts, and immutable locally published bundles/proofs pass the inference/evaluation checkpoint | [Evaluation foundation](../impl/current/evaluation-foundation.md); [Checkpoint](../impl/records/0038-eval-found-review-inference-and-evaluation-boundaries.md) |
 | 7 | `pipeline-control` | planned | Fixture-first DAG, output manifest, resume, generation activation, delta, forecast, and progress gates pass | [Open work](../impl/plan.md#pipeline-control----pipeline-control) |
 | 8 | `corpus-foundation` | planned | Representative inventory, extraction, normalization, dedupe, and chunk gold sets pass | [Open work](../impl/plan.md#corpus-foundation----corpus-foundation) |
 | 9 | `lexical-retrieval` | planned | Held-out Russian relevance, latency, index size, and rebuild gates pass | [Open work](../impl/plan.md#lexical-retrieval----lexical-retrieval) |
