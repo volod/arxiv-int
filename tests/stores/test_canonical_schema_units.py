@@ -114,6 +114,24 @@ def test_store_findings_report_missing_progress_tables() -> None:
     assert any("stage progress tables" in item for item in findings)
 
 
+def test_store_findings_report_missing_reconcile_tables() -> None:
+    catalog = LiveStoreCatalog(
+        schemas=(*CANONICAL_SCHEMAS, "staging", "derived"),
+        partitioned=tuple(
+            PartitionSpec(f"{schema}.{table}", f"HASH ({pk})", HASH_MODULUS)
+            for schema, table, pk in PARTITIONED_TABLES
+        ),
+        checks=("ck_facts_object_xor_literal", "ck_facts_provenance", "ck_facts_status"),
+        roles=STORE_ROLES,
+        staging_tables=("documents",),
+        revision=HEAD_REVISION,
+        extensions=("vector",),
+        control_tables=tuple(name for name in CONTROL_TABLES if name != "source_tombstone"),
+    )
+    findings = store_findings(catalog)
+    assert any("reconcile tables" in item for item in findings)
+
+
 def test_quality_frame_keeps_omitted_strings_typed() -> None:
     from types import SimpleNamespace
 

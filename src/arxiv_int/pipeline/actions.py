@@ -1,35 +1,15 @@
 """Invalidate, rebuild, incremental update, status, and stale-prune planning."""
 
-from dataclasses import dataclass, replace
+from dataclasses import replace
 from pathlib import Path
-from uuid import uuid4
 
-from arxiv_int.contracts.generate.normalize import normalize_json, sha256_text
 from arxiv_int.pipeline.context import RunContext, allocate_run_id, snapshot_silos
 from arxiv_int.pipeline.graph import StagePlan, select_plan
-from arxiv_int.pipeline.persist import (
-    PRUNE_DIR,
-    RunStatus,
-    load_json,
-    load_status,
-    save_context,
-    write_json,
-)
+from arxiv_int.pipeline.persist import RunStatus, load_status, save_context
+from arxiv_int.pipeline.prune import PrunePlan, apply_prune_plan, build_prune_plan
 from arxiv_int.pipeline.registry import StageRegistry
-from arxiv_int.pipeline.reuse_index import ReuseEntry, load_reuse_index
 from arxiv_int.pipeline.stages import OPTIONAL_STAGES, profile_stage_names
 from arxiv_int.runtime.setup.requirements import PROFILE_STAGES
-
-
-@dataclass(frozen=True, slots=True)
-class PrunePlan:
-    """Dry-run list of stale derived attempts; apply requires this fingerprint."""
-
-    plan_id: str
-    fingerprint: str
-    entries: tuple[ReuseEntry, ...]
-    bytes: int
-    blocked: tuple[str, ...]
 
 
 def remaining_plan(plan: StagePlan, status: RunStatus | None) -> StagePlan:
@@ -118,71 +98,12 @@ def status_lines(status: RunStatus) -> tuple[str, ...]:
         lines.append(f"halt_reason={status.halt_reason}")
     for item in status.executions:
         lines.append(
-            f"stage={item.stage} status={item.status} cache_hit={str(item.cache_hit).lower()} "
-            f"attempt={item.attempt}"
+            f"stage={item.stage} shard={item.shard_id} status={item.status} "
+            f"cache_hit={str(item.cache_hit).lower()} attempt={item.attempt}"
         )
     if status.not_selected:
         lines.append("not_selected=" + ",".join(status.not_selected))
     return tuple(lines)
-
-
-def _prune_sets(
-    runs_dir: Path,
-) -> tuple[tuple[ReuseEntry, ...], tuple[ReuseEntry, ...], tuple[str, ...]]:
-    index = load_reuse_index(runs_dir)
-    stale = tuple(entry for entry in index.values() if entry.stale)
-    live_dirs = {entry.directory for entry in index.values() if not entry.stale}
-    blocked = tuple(entry.directory for entry in stale if entry.directory not in live_dirs)
-    eligible = tuple(entry for entry in stale if entry.directory not in set(blocked))
-    return stale, eligible, blocked
-
-
-def _prune_fingerprint(entries: tuple[ReuseEntry, ...]) -> str:
-    payload = {
-        "bytes": sum(entry.bytes for entry in entries),
-        "directories": sorted(entry.directory for entry in entries),
-    }
-    return sha256_text(normalize_json(payload))
-
-
-def build_prune_plan(runs_dir: Path) -> PrunePlan:
-    """List stale derived attempts; apply deletes only non-blocked entries."""
-    stale, eligible, blocked = _prune_sets(runs_dir)
-    plan_id = f"prune-{uuid4().hex}"
-    fingerprint = _prune_fingerprint(eligible)
-    plan = PrunePlan(plan_id, fingerprint, stale, sum(entry.bytes for entry in stale), blocked)
-    write_json(
-        runs_dir / PRUNE_DIR / f"{plan_id}.json",
-        {
-            "blocked": list(blocked),
-            "bytes": plan.bytes,
-            "directories": [entry.directory for entry in eligible],
-            "fingerprint": fingerprint,
-            "plan_id": plan_id,
-        },
-    )
-    return plan
-
-
-def apply_prune_plan(runs_dir: Path, plan_id: str) -> int:
-    """Delete directories listed in a previously written dry-run plan."""
-    path = runs_dir / PRUNE_DIR / f"{plan_id}.json"
-    payload = load_json(path)
-    _stale, eligible, blocked = _prune_sets(runs_dir)
-    if _prune_fingerprint(eligible) != str(payload.get("fingerprint")):
-        raise ValueError("prune plan is stale; rerun the dry-run")
-    removed = 0
-    for directory in payload["directories"]:
-        target = Path(str(directory)).resolve()
-        if target.as_posix() in blocked:
-            raise ValueError(f"refusing to delete sole recovery copy: {target}")
-        root = runs_dir.resolve()
-        if root not in target.parents:
-            raise ValueError(f"refusing to delete path outside RUNS_DIR: {target}")
-        if target.is_dir():
-            _remove_tree(target)
-            removed += 1
-    return removed
 
 
 def load_run_status(runs_dir: Path, run_id: str) -> RunStatus:
@@ -196,10 +117,16 @@ def persist_new_context(context: RunContext) -> RunContext:
     return context
 
 
-def _remove_tree(directory: Path) -> None:
-    for child in directory.iterdir():
-        if child.is_dir():
-            _remove_tree(child)
-        else:
-            child.unlink()
-    directory.rmdir()
+__all__ = [
+    "PrunePlan",
+    "apply_prune_plan",
+    "build_prune_plan",
+    "fixture_plan",
+    "load_run_status",
+    "persist_new_context",
+    "plan_for",
+    "rebuild_context",
+    "remaining_plan",
+    "status_lines",
+    "update_context",
+]

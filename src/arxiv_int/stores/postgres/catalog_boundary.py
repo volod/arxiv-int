@@ -11,6 +11,7 @@ from arxiv_int.stores.postgres.constants import (
     HEAD_REVISION,
     INITIAL_REVISION,
     LEDGER_REVISION,
+    PROGRESS_REVISION,
     ROLE_DBT,
     ROLE_READER,
     STORE_ROLES,
@@ -19,6 +20,7 @@ from arxiv_int.stores.postgres.constants import (
 INITIAL_REVISION_FILE = "0001_initial_store.py"
 LEDGER_REVISION_FILE = "0002_pipeline_run_ledger.py"
 PROGRESS_REVISION_FILE = "0003_stage_progress.py"
+RECONCILE_REVISION_FILE = "0004_source_tombstone_and_prune.py"
 
 
 def _load_revision(project_root: Path, filename: str, module_name: str) -> ModuleType:
@@ -46,11 +48,16 @@ def progress_definition(project_root: Path) -> ModuleType:
     return _load_revision(project_root, PROGRESS_REVISION_FILE, "arxiv_int_stage_progress")
 
 
+def reconcile_definition(project_root: Path) -> ModuleType:
+    """Load the frozen reconcile revision without executing its upgrade."""
+    return _load_revision(project_root, RECONCILE_REVISION_FILE, "arxiv_int_source_reconcile")
+
+
 def catalog_boundary_findings(
     project_root: Path, connection: Connection, revision: str
 ) -> list[str]:
     """Reject missing, partial or drifted stores at a known owned revision."""
-    known = {INITIAL_REVISION, LEDGER_REVISION, HEAD_REVISION}
+    known = {INITIAL_REVISION, LEDGER_REVISION, PROGRESS_REVISION, HEAD_REVISION}
     if revision not in known:
         expected = ", ".join(sorted(known))
         return [f"unsupported store revision {revision}; expected {expected}"]
@@ -59,16 +66,22 @@ def catalog_boundary_findings(
     assert isinstance(metadata, MetaData)
     findings = compare_metadata(connection, metadata)
     extras: list[MetaData] = []
-    if revision in {LEDGER_REVISION, HEAD_REVISION}:
+    overlay_revisions = {LEDGER_REVISION, PROGRESS_REVISION, HEAD_REVISION}
+    if revision in overlay_revisions:
         ledger_meta = ledger_definition(project_root).schema_metadata()
         assert isinstance(ledger_meta, MetaData)
         findings.extend(compare_metadata(connection, ledger_meta))
         extras.append(ledger_meta)
-    if revision == HEAD_REVISION:
+    if revision in {PROGRESS_REVISION, HEAD_REVISION}:
         progress_meta = progress_definition(project_root).schema_metadata()
         assert isinstance(progress_meta, MetaData)
         findings.extend(compare_metadata(connection, progress_meta))
         extras.append(progress_meta)
+    if revision == HEAD_REVISION:
+        reconcile_meta = reconcile_definition(project_root).schema_metadata()
+        assert isinstance(reconcile_meta, MetaData)
+        findings.extend(compare_metadata(connection, reconcile_meta))
+        extras.append(reconcile_meta)
     findings.extend(_role_findings(connection, metadata, tuple(extras)))
     findings.extend(_function_findings(connection, definition.STORE_SQL))
     return findings

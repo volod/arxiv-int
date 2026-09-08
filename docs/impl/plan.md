@@ -25,45 +25,6 @@ and name ready/pending human decisions and the dependent work that must wait at 
 
 ### Pipeline control -- `pipeline-control`
 
-#### implement-incremental-reconciliation-and-stale-pruning
-
-Reconcile archive and implementation deltas through artifact lineage, retract stale active data,
-and provide safe partial update, full rebuild, and physical-prune paths.
-
-- Serves: `pipeline-control` --
-[Resumability, idempotency, and provenance](../design/spec.md#resumability-idempotency-and-provenance)
-- Agent status: CLEAR
-- Dependencies: [Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md);
-[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md); [0025](records/0025-store-implement-rebuildable-search-and-graph-projections.md);
-`implement-streaming-inventory`.
-- User-visible outcome: Added, changed, renamed, or removed files and later analysis-code changes
-update only affected descendants, while operators can deliberately rebuild everything or reclaim
-obsolete derived storage.
-- Scope boundary: Reconcile derived/canonical active views and prune only unreferenced stale data;
-never delete archive sources, move ledgers, immutable review history, active generations, or the sole
-recovery copy.
-- Data and artifact paths: `ctl.artifact_lineage`, source delta/tombstone and prune-event contracts,
-`src/arxiv_int/pipeline/reconcile/`, `src/arxiv_int/pipeline/prune/`,
-additive `src/arxiv_int/migrations/versions/`, and
-`$RUNS_DIR/<run-id>/{delta,invalidation,rebuild,prune}/`.
-- Execution path: Diff complete comparable source manifests into add/content-change/path-rename/remove;
-unavailable silos, partial scans, or unstable files cannot create removal tombstones; compute the
-minimal downstream closure; retract stale rows/edges from active views after replacements validate;
-retain shared evidence; create isolated rebuild generations and atomic activation; make prune
-two-phase with dry-run ids, reference/pin/backup checks, and compact retained lineage.
-Use Alembic Python revisions for new control fields and typed SQLAlchemy transactions for
-tombstones/activation; place set-based derived-view recomputation in dbt models. Reconcile dbt
-source/ref lineage with artifact edges and test deleted inputs, late corrections and model changes
-against a clean build; successful quality checks precede every pointer switch.
-- Acceptance gates: Deterministic fixtures prove no-op updates invoke no heavy workers; additions
-touch only new shards; path-only renames avoid content analysis; changes/removals retract exactly
-dependent active outputs; stage fingerprint changes invalidate only owned descendants; rebuild
-matches a clean baseline; partial or unreadable scans retract nothing; merge/split/review and
-source-removal updates preserve
-shared evidence; prune refuses active, pinned, reviewed, rollback, decision-ledger, or sole-backup data.
-- Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
-
 #### implement-evidence-and-source-location-lookup
 
 Resolve every content, fact and report citation to physical sources and exact member/page/cell anchors.
@@ -133,7 +94,7 @@ Review the integrated milestone before lexical loading, classification and NLP c
 [Progress logging and resource telemetry](records/0043-pipeline-add-progress-logging-and-resource-telemetry.md);
 [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 [Publication/reuse checkpoint](records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md);
-`implement-incremental-reconciliation-and-stale-pruning`.
+[Incremental reconciliation and stale pruning](records/0049-pipeline-implement-incremental-reconciliation-and-stale-pruning.md).
 - Audit inputs: [AUD-review-pipeline-publication-and-reuse-boundaries-2](records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md#audit-handoff).
 - User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
 or blocked
@@ -1242,7 +1203,8 @@ Publish findings, reversible review events and bounded explanation views for ana
 
 - Serves: `anomaly-analysis` -- [Anomaly detection and triage](../design/spec.md#anomaly-detection-and-triage)
 - Agent status: CLEAR
-- Dependencies: `implement-explainable-anomaly-detectors`; `implement-incremental-reconciliation-and-stale-pruning`.
+- Dependencies: `implement-explainable-anomaly-detectors`;
+[Incremental reconciliation and stale pruning](records/0049-pipeline-implement-incremental-reconciliation-and-stale-pruning.md).
 - Human review handoff:
 [approve-anomaly-triage-policy](#approve-anomaly-triage-policy)
 detector coverage, hard negatives, review replay and proposed budgets.
@@ -1825,7 +1787,8 @@ index, and stale lease behavior before full-corpus authorization.
 - Dependencies: `implement-backup-restore-and-rebuild-runbook`;
 [Progress logging and resource telemetry](records/0043-pipeline-add-progress-logging-and-resource-telemetry.md);
 [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md);
-`implement-incremental-reconciliation-and-stale-pruning`. Organizer failure injection is separate.
+[Incremental reconciliation and stale pruning](records/0049-pipeline-implement-incremental-reconciliation-and-stale-pruning.md).
+Organizer failure injection is separate.
 - Human review handoff:
 [accept-recovery-and-security-posture](#accept-recovery-and-security-posture)
 seal

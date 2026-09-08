@@ -2,8 +2,9 @@
 
 Typed stage, source, and artifact references, a generic run ledger, serialized progress
 logging with bounded resource telemetry, a fixture-first DAG CLI, a read-only pre-run
-forecast, profile-declared knowledge-base publication, and read-only stage artifact inspection
-are available. Concrete corpus stages remain
+forecast, profile-declared knowledge-base publication, read-only stage artifact inspection,
+incremental source reconciliation, and two-phase stale prune are available. Concrete corpus
+stages remain
 [planned](../plan.md#pipeline-control----pipeline-control).
 
 See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface-contracts.md),
@@ -13,8 +14,9 @@ See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface
 [record 0044](../records/0044-pipeline-implement-evidence-based-pipeline-forecast.md), and
 [record 0045](../records/0045-pipeline-implement-investigation-profile-and-output-manifest.md),
 [checkpoint 0046](../records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md),
-[repair 0047](../records/0047-pipeline-repair-pipeline-publication-and-reuse-integrity.md), and
-[record 0048](../records/0048-pipeline-add-stage-artifact-inspection.md).
+[repair 0047](../records/0047-pipeline-repair-pipeline-publication-and-reuse-integrity.md),
+[record 0048](../records/0048-pipeline-add-stage-artifact-inspection.md), and
+[record 0049](../records/0049-pipeline-implement-incremental-reconciliation-and-stale-pruning.md).
 
 ## Stage, source, and artifact seams
 
@@ -135,10 +137,12 @@ and SQL ledgers share the same transition rules.
 
 Alembic revision `0002` is frozen DDL for `ctl.run`, `stage_run`, `shard_run`, `reuse_lease`,
 `checkpoint`, `shard_error`, `artifact_manifest`, `artifact_lineage`, and `resource_lease`.
-Revision `0003` adds `ctl.stage_progress`. Head is `0003`. `ctl.resource_lease` exists for later
-SQL writers; inference still appends JSONL. `0003` downgrade drops progress snapshots only;
-`0002` downgrade drops ledger tables only; `0001` teardown remains refused. Complete overlays
-including progress tables stamp `0003`; ledger-only overlays stamp `0002`; complete 0001-era
+Revision `0003` adds `ctl.stage_progress`. Revision `0004` adds `ctl.source_tombstone`,
+`ctl.prune_event`, and `ctl.artifact_pin`. Head is `0004`. `ctl.resource_lease` exists for later
+SQL writers; inference still appends JSONL. `0004` downgrade drops reconcile tables only;
+`0003` downgrade drops progress snapshots only; `0002` downgrade drops ledger tables only;
+`0001` teardown remains refused. Complete overlays including reconcile tables stamp `0004`;
+progress-and-ledger overlays stamp `0003`; ledger-only overlays stamp `0002`; complete 0001-era
 overlays stamp `0001` so setup can upgrade to head.
 
 ## DAG registry and operator commands
@@ -183,6 +187,38 @@ or not-run checks halt downstream work. The directory-to-report gate waits on co
 
 `stage STAGE=preflight` as a registered worker remains unimplemented. Aggregate commands still
 run an archive-readability preflight handler before forecast.
+
+## Incremental reconciliation and stale pruning
+
+`src/arxiv_int/pipeline/reconcile/` diffs complete comparable source manifests and retracts stale
+active views. `src/arxiv_int/pipeline/prune/` plans and applies physical deletion of unreferenced
+derived attempts. Inventory remains
+[planned](../plan.md#implement-streaming-inventory); the reconciler consumes the same
+`arxiv-int.source-manifest.v1` contract that inventory will later emit.
+
+A scan hashes readable files per silo without writing archive bytes. Incomplete, unreadable, or
+unstable silos cannot emit removal tombstones. Diff kinds are add, content-change, path-rename,
+and remove. Path-only renames reuse the content-hash shard and do not invoke workers. Root-stage
+reuse identity is the content-hash shard once `document_id` is bound; the forecast cache plan
+walks those shards so a no-op rerun is a cache hit. Orchestration writes
+`$RUNS_DIR/<run-id>/delta/{manifest,delta,tombstones}.json`. Invalidation writes
+`$RUNS_DIR/<run-id>/invalidation/plan.json`. Rebuild writes
+`$RUNS_DIR/<run-id>/rebuild/report.json` with payload checksums that strip generation tokens.
+`pipeline update` diffs the saved previous manifest against the current scan before the DAG.
+`pipeline rebuild` force-runs an isolated generation and records baseline match.
+
+Last-occurrence tombstones retract derived rows whose content hash is gone. Shared remaining
+paths, merge/split/review overlays, and content that still exists elsewhere stay. dbt
+`stg_source_tombstones` and `int_active_documents` recompute the set-based active view from
+`ctl.source_tombstone`. Typed SQLAlchemy writers live in
+`arxiv_int.pipeline.reconcile.postgres` and `tables`; the package initializer does not import
+SQLAlchemy. Required quality checks still precede every active-pointer switch.
+
+Prune is two-phase. Dry-run ids land under `$RUNS_DIR/prune-plans/` with a copy under the latest
+`$RUNS_DIR/<run-id>/prune/`. Apply rechecks the fingerprint and refuses active generations,
+pins, `review/`, `rollback/`, decision or move ledgers, backups, and the sole recovery copy.
+Superseded attempt directories become eligible once a live generation exists. Apply retains
+checksums under `$RUNS_DIR/pruned/` and compact lineage; it never deletes archive sources.
 
 ## Stage artifact inspection
 
@@ -333,7 +369,12 @@ orphan reconcile, report cannot activate, aggregate versus atomic logical equiva
 finalize, and optional-import isolation. Inspection tests in `tests/inspect/` cover empty,
 partial, quarantined, schema-drifted, and failed summaries, checksum stability, secret/path
 redaction, latest and lake lookup, bounded anchors, evaluate-stage artifacts, CLI/Make wrappers,
-and optional-import isolation. Fixtures do not prove real-archive extraction quality or
+and optional-import isolation. Reconciliation tests in `tests/pipeline/reconcile/` cover no-op
+updates, additions, path-only renames, change/remove retraction, partial-scan withholding,
+shared merge/split evidence, rebuild checksum parity, quality-gated activation, dbt source/ref
+lineage, and revision `0004` alignment. Prune tests in `tests/pipeline/prune/` cover
+sole-recovery refusal, protected kinds, and superseded-attempt deletion that leaves live cache
+entries. Fixtures do not prove real-archive extraction quality or
 CUDA worker fit.
 
 Checkpoint 0046 validates fixture publication and reuse, with live disposable SQL lease/crash checks

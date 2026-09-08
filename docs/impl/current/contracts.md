@@ -85,8 +85,8 @@ schema state the history produces. `src/arxiv_int/contracts/migrations/` impleme
 - `arxiv-int db upgrade --sql` writes offline review SQL under `$DATA_DIR/migrations/<run-id>/`.
 - `arxiv-int db adopt` / `make db-adopt` live-adopts when that URL is set: relocates leftover
   `public` tables into owned schemas when destinations are missing, refuses partial or drifted
-  catalogs, and stamps `0003` when the overlay includes ledger and progress tables, `0002` when
-  it includes ledger tables only, or `0001` for a complete
+  catalogs, and stamps `0004` when the overlay includes reconcile tables, `0003` when it includes
+  ledger and progress tables, `0002` when it includes ledger tables only, or `0001` for a complete
   0001-era catalog without them. Without a URL
   it reports why stamping stays refused.
 
@@ -106,7 +106,7 @@ retained only as per-run evidence under `DATA_DIR`, not as a second committed sc
 The [boundary repair](../records/0028-store-refactor-foundation-store-acceptance-boundaries.md)
 records the amendment. Historical task snapshots describe their original implementation; their
 superseded revision numbers are not upgrade requirements for this unreleased baseline. Head is
-`0003` for the ctl run-ledger and stage-progress overlays documented in
+`0004` for the ctl reconcile overlay on the run-ledger and stage-progress overlays documented in
 [Canonical store](canonical-store.md).
 
 Live initial schema, HASH partitions, roles, staging COPY, and disposable apply evidence are

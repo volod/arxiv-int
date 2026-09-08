@@ -22,3 +22,21 @@ models:
         description: Canonical table name retained for lineage.
         tests:
           - not_null
+  - name: stg_source_tombstones
+    description: >
+      Staging view over ctl.source_tombstone. last_occurrence retracts shared
+      content only when no other active occurrence remains.
+    config:
+      meta:
+        grain: tombstone_id
+    columns:
+      - name: tombstone_id
+        tests:
+          - not_null
+          - unique
+      - name: content_hash
+        tests:
+          - not_null
+      - name: last_occurrence
+        tests:
+          - not_null

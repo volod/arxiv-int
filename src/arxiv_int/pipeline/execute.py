@@ -39,7 +39,11 @@ def stage_identity(
 ) -> ReuseIdentity:
     """Bind one stage shard to frozen configuration and upstream reuse keys."""
     shard_id = context.parameters.get("document_id", "default")
-    inputs = (context.source_snapshot,) if not spec.depends_on else upstream_keys or ("none",)
+    inputs: tuple[str, ...]
+    if not spec.depends_on:
+        inputs = (shard_id,) if shard_id != "default" else (context.source_snapshot,)
+    else:
+        inputs = upstream_keys or ("none",)
     return ReuseIdentity(
         spec.name,
         spec.version,
@@ -68,6 +72,7 @@ def try_reuse(entry: ReuseEntry | None, *, force: bool) -> StageExecution | None
         return None
     return StageExecution(
         entry.stage,
+        entry.shard_id,
         entry.status,
         True,
         True,
@@ -153,7 +158,9 @@ def execute_stage(
         )
         return files
 
-    return _from_decision(spec.name, key, executor.execute(work, worker, force=force))
+    return _from_decision(
+        spec.name, identity.shard_id, key, executor.execute(work, worker, force=force)
+    )
 
 
 def execution_to_entry(
@@ -200,7 +207,7 @@ def load_stage_outcome(directory: Path | None) -> str:
     return "failed"
 
 
-def _from_decision(stage: str, key: str, decision: ShardDecision) -> StageExecution:
+def _from_decision(stage: str, shard_id: str, key: str, decision: ShardDecision) -> StageExecution:
     directory = decision.directory
     path = None if directory is None else str(directory)
     outcome = load_stage_outcome(directory)
@@ -208,6 +215,7 @@ def _from_decision(stage: str, key: str, decision: ShardDecision) -> StageExecut
         outcome = "failed"
     return StageExecution(
         stage,
+        shard_id,
         decision.status,
         decision.cache_hit,
         decision.cache_hit,

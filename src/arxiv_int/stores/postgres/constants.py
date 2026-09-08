@@ -71,9 +71,10 @@ FACT_STATUSES: tuple[str, ...] = (
 
 EMBEDDING_PROFILES_TABLE = "search.embedding_profiles"
 ALEMBIC_VERSION_TABLE = "alembic_version"
-HEAD_REVISION = "0003"
+HEAD_REVISION = "0004"
 LEDGER_REVISION = "0002"
 INITIAL_REVISION = "0001"
+PROGRESS_REVISION = "0003"
 PROJECTION_METADATA_TABLES: tuple[str, ...] = (
     "projections",
     "projection_active",
@@ -92,4 +93,14 @@ LEDGER_TABLES: tuple[str, ...] = (
     "resource_lease",
 )
 PROGRESS_TABLES: tuple[str, ...] = ("stage_progress",)
-CONTROL_TABLES: tuple[str, ...] = (*PROJECTION_METADATA_TABLES, *LEDGER_TABLES, *PROGRESS_TABLES)
+RECONCILE_TABLES: tuple[str, ...] = (
+    "source_tombstone",
+    "prune_event",
+    "artifact_pin",
+)
+CONTROL_TABLES: tuple[str, ...] = (
+    *PROJECTION_METADATA_TABLES,
+    *LEDGER_TABLES,
+    *PROGRESS_TABLES,
+    *RECONCILE_TABLES,
+)

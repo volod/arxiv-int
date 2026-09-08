@@ -17,6 +17,12 @@
       "file": "0003_stage_progress.py",
       "message": "pipeline stage progress overlay",
       "sha256": "9f9e5537d9a58fbcf3f78a89d358b5a7c63d0f548c143f10dd8e9b5850506dea"
+    },
+    "0004": {
+      "downRevision": "0003",
+      "file": "0004_source_tombstone_and_prune.py",
+      "message": "pipeline source tombstone, prune-event, and artifact-pin overlay",
+      "sha256": "2e9997722371608fd7c7a7ae375a103540c9b6e82f7e5e94097978c114286b4f"
     }
   }
 }

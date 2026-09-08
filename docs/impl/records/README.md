@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0049` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0050` after the rows
 below).
 
 | Record | Scope | Result |
@@ -60,3 +60,4 @@ below).
 | [0046 Pipeline publication and reuse review](0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md) | Integrated fixture and disposable store checkpoint | Accepted; proceed with nonblocking note |
 | [0047 Pipeline publication and reuse repair](0047-pipeline-repair-pipeline-publication-and-reuse-integrity.md) | Focused integrity prerequisite for 0046 | Accepted |
 | [0048 Stage artifact inspection](0048-pipeline-add-stage-artifact-inspection.md) | Read-only run/dataset artifact summaries | Accepted |
+| [0049 Incremental reconciliation and stale pruning](0049-pipeline-implement-incremental-reconciliation-and-stale-pruning.md) | Source-manifest deltas, active-view retraction, isolated rebuild, two-phase prune | Accepted |

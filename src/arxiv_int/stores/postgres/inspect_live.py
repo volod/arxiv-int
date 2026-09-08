@@ -16,6 +16,7 @@ from arxiv_int.stores.postgres.constants import (
     PARTITIONED_TABLES,
     PROGRESS_TABLES,
     PROJECTION_METADATA_TABLES,
+    RECONCILE_TABLES,
     STAGING_SCHEMA,
     STORE_ROLES,
 )
@@ -154,6 +155,7 @@ def _overlay_table_findings(
     require_projections: bool,
     require_ledger: bool,
     require_progress: bool,
+    require_reconcile: bool,
 ) -> list[str]:
     findings: list[str] = []
     if require_projections:
@@ -174,6 +176,12 @@ def _overlay_table_findings(
             findings.append(
                 "live catalog is missing stage progress tables: " + ", ".join(missing_progress)
             )
+    if require_reconcile:
+        missing_reconcile = sorted(set(RECONCILE_TABLES) - set(catalog.control_tables))
+        if missing_reconcile:
+            findings.append(
+                "live catalog is missing reconcile tables: " + ", ".join(missing_reconcile)
+            )
     return findings
 
 
@@ -184,6 +192,7 @@ def store_findings(
     require_projections: bool = True,
     require_ledger: bool | None = None,
     require_progress: bool | None = None,
+    require_reconcile: bool | None = None,
 ) -> list[str]:
     """Return overlay defects after a successful head upgrade."""
     findings: list[str] = []
@@ -206,6 +215,7 @@ def store_findings(
             require_projections=require_projections,
             require_ledger=require_head if require_ledger is None else require_ledger,
             require_progress=require_head if require_progress is None else require_progress,
+            require_reconcile=require_head if require_reconcile is None else require_reconcile,
         )
     )
     if require_head and catalog.revision != HEAD_REVISION:

@@ -1,13 +1,11 @@
 """Walk a stage plan in-process, halt on failure, and persist run status."""
 
 from collections.abc import Callable
-from dataclasses import replace
 from pathlib import Path
 
 from arxiv_int.pipeline.cancel import CancelToken
 from arxiv_int.pipeline.context import RunContext
 from arxiv_int.pipeline.control.executor import ShardExecutor
-from arxiv_int.pipeline.control.lineage import LineageEdge, stale_closure
 from arxiv_int.pipeline.control.memory import InMemoryLedger
 from arxiv_int.pipeline.errors import (
     InterruptedPipelineError,
@@ -16,17 +14,23 @@ from arxiv_int.pipeline.errors import (
 )
 from arxiv_int.pipeline.execute import execute_stage, execution_to_entry
 from arxiv_int.pipeline.graph import StagePlan
+from arxiv_int.pipeline.invalidate import apply_invalidation
 from arxiv_int.pipeline.locking import pipeline_lock
 from arxiv_int.pipeline.observe import open_stage_session
-from arxiv_int.pipeline.persist import RunStatus, StageExecution, load_status, run_dir, save_status
+from arxiv_int.pipeline.persist import RunStatus, StageExecution, save_status
 from arxiv_int.pipeline.quality_bound import FixtureQuality, ProductionQuality, QualityBoundary
+from arxiv_int.pipeline.reconcile.persist import write_manifest
+from arxiv_int.pipeline.reconcile.scan import bind_shard, scan_silos, source_shard_ids
 from arxiv_int.pipeline.registry import StageRegistry
 from arxiv_int.pipeline.reuse_index import (
     ReuseEntry,
     load_lineage,
     load_reuse_index,
+    load_superseded,
     save_reuse_index,
+    supersede_previous,
 )
+from arxiv_int.pipeline.status import append_lineage, merge_status, stage_halt, walk_shards
 from arxiv_int.pipeline.upstream import resolve_upstream
 
 _CLOCK = Callable[[], float]
@@ -58,6 +62,7 @@ class Orchestrator:
         self._space_guard = space_guard
         self._index: dict[str, ReuseEntry] = load_reuse_index(runs_dir)
         self._lineage: list[tuple[str, str]] = list(load_lineage(runs_dir))
+        self._superseded: list[ReuseEntry] = list(load_superseded(runs_dir))
 
     def execute_plan(
         self,
@@ -70,6 +75,7 @@ class Orchestrator:
         with pipeline_lock(self._runs_dir):
             self._index = load_reuse_index(self._runs_dir)
             self._lineage = list(load_lineage(self._runs_dir))
+            self._superseded = list(load_superseded(self._runs_dir))
             return self._execute_plan(context, plan, force=force)
 
     def _execute_plan(self, context: RunContext, plan: StagePlan, *, force: bool) -> RunStatus:
@@ -78,27 +84,20 @@ class Orchestrator:
             raise UnregisteredStageError(missing)
         executions: list[StageExecution] = []
         run_lineage: list[tuple[str, str]] = []
-        keys = resolve_upstream(context, plan.assumed_upstream, self._registry, self._index)
-        halted = False
-        halt_reason = ""
-        for name in plan.execute:
-            execution, halt_reason = self._execute_one(context, name, keys, force)
-            if execution is None or halt_reason:
-                halted = True
-                break
-            executions.append(execution)
-            keys[name] = execution.reuse_key
-            spec = self._registry.get(name)
-            self._record_lineage(spec.depends_on, keys, execution.reuse_key, run_lineage)
-            entry = execution_to_entry(
-                context, execution, context.parameters.get("document_id", "default")
+        shards = source_shard_ids(context)
+        shard_keys = {
+            shard_id: resolve_upstream(
+                bind_shard(context, shard_id), plan.assumed_upstream, self._registry, self._index
             )
-            if entry is not None:
-                self._index[entry.reuse_key] = entry
-            halt_reason = _stage_halt(execution)
-            if halt_reason:
-                halted = True
-                break
+            for shard_id in shards
+        }
+        halted, halt_reason = walk_shards(
+            plan.execute,
+            shards,
+            lambda name, shard_id: self._commit_shard(
+                context, name, shard_id, shard_keys, force, executions, run_lineage
+            ),
+        )
         if self._cancel.cancelled:
             halted, halt_reason = True, "interrupted"
         current = RunStatus(
@@ -110,9 +109,42 @@ class Orchestrator:
             tuple(run_lineage),
             plan.not_selected,
         )
-        save_status(self._runs_dir, _merge_status(self._runs_dir, context.run_id, current))
-        save_reuse_index(self._runs_dir, self._index, tuple(self._lineage))
+        save_status(self._runs_dir, merge_status(self._runs_dir, context.run_id, current))
+        write_manifest(self._runs_dir, context.run_id, scan_silos(context.silos))
+        save_reuse_index(self._runs_dir, self._index, tuple(self._lineage), tuple(self._superseded))
         return current
+
+    def _commit_shard(
+        self,
+        context: RunContext,
+        name: str,
+        shard_id: str,
+        shard_keys: dict[str, dict[str, str]],
+        force: bool,
+        executions: list[StageExecution],
+        run_lineage: list[tuple[str, str]],
+    ) -> tuple[bool, str]:
+        bound = bind_shard(context, shard_id)
+        execution, halt_reason = self._execute_one(bound, name, shard_keys[shard_id], force)
+        if execution is None or halt_reason:
+            return True, halt_reason
+        executions.append(execution)
+        shard_keys[shard_id][name] = execution.reuse_key
+        spec = self._registry.get(name)
+        append_lineage(
+            spec.depends_on,
+            shard_keys[shard_id],
+            execution.reuse_key,
+            run_lineage,
+            self._lineage,
+        )
+        entry = execution_to_entry(bound, execution, shard_id)
+        if entry is not None:
+            previous = self._index.get(entry.reuse_key)
+            self._superseded = list(supersede_previous(previous, entry, self._superseded))
+            self._index[entry.reuse_key] = entry
+        halt_reason = stage_halt(execution)
+        return bool(halt_reason), halt_reason
 
     def _execute_one(
         self,
@@ -140,7 +172,7 @@ class Orchestrator:
                     self._index,
                     force=force,
                 )
-                failed = bool(_stage_halt(execution))
+                failed = bool(stage_halt(execution))
                 session.progress(
                     processed=1,
                     remaining=0,
@@ -166,70 +198,33 @@ class Orchestrator:
         with pipeline_lock(self._runs_dir):
             self._index = load_reuse_index(self._runs_dir)
             self._lineage = list(load_lineage(self._runs_dir))
+            self._superseded = list(load_superseded(self._runs_dir))
             return self._invalidate(stage, document_id=document_id)
 
-    def _invalidate(self, stage: str, *, document_id: str | None) -> tuple[str, ...]:
-        roots = [
-            entry.reuse_key
-            for entry in self._index.values()
-            if entry.stage == stage
-            and not entry.stale
-            and (document_id is None or entry.shard_id == document_id)
-        ]
-        edges = tuple(LineageEdge(producer, consumer) for producer, consumer in self._lineage)
-        marked = stale_closure(roots, edges)
-        self._index = {
-            key: replace(entry, stale=True, status="stale") if key in marked else entry
-            for key, entry in self._index.items()
-        }
-        self._ledger.mark_stale(marked, self._clock())
-        save_reuse_index(self._runs_dir, self._index, tuple(self._lineage))
-        return tuple(sorted(marked))
+    def invalidate_shards(self, shard_ids: frozenset[str]) -> tuple[str, ...]:
+        """Mark shards with the given content-hash ids and their descendants stale."""
+        with pipeline_lock(self._runs_dir):
+            self._index = load_reuse_index(self._runs_dir)
+            self._lineage = list(load_lineage(self._runs_dir))
+            self._superseded = list(load_superseded(self._runs_dir))
+            return self._invalidate("", document_id=None, shard_ids=shard_ids)
 
-    def _record_lineage(
+    def _invalidate(
         self,
-        depends_on: tuple[str, ...],
-        keys: dict[str, str],
-        consumer: str,
-        run_lineage: list[tuple[str, str]],
-    ) -> None:
-        for producer in depends_on:
-            if producer not in keys:
-                continue
-            edge = (keys[producer], consumer)
-            run_lineage.append(edge)
-            if edge not in self._lineage:
-                self._lineage.append(edge)
-
-
-def _stage_halt(execution: StageExecution) -> str:
-    if execution.status not in {"succeeded", "quarantined"}:
-        return execution.detail
-    if execution.outcome == "partial":
-        return execution.detail or "partial stage output"
-    return ""
-
-
-def _merge_status(runs_dir: Path, run_id: str, current: RunStatus) -> RunStatus:
-    """Keep prior stage rows when an atomic or resume walk covers a subset."""
-    path = run_dir(runs_dir, run_id) / "status.json"
-    if not path.is_file():
-        return current
-    prior = load_status(runs_dir, run_id)
-    by_stage = {item.stage: item for item in prior.executions}
-    order = [item.stage for item in prior.executions]
-    for item in current.executions:
-        by_stage[item.stage] = item
-        if item.stage not in order:
-            order.append(item.stage)
-    lineage = tuple(dict.fromkeys((*prior.lineage, *current.lineage)))
-    skipped = tuple(dict.fromkeys((*prior.not_selected, *current.not_selected)))
-    return RunStatus(
-        current.run_id,
-        current.generation_id,
-        current.halted,
-        current.halt_reason,
-        tuple(by_stage[name] for name in order),
-        lineage,
-        skipped,
-    )
+        stage: str,
+        *,
+        document_id: str | None,
+        shard_ids: frozenset[str] | None = None,
+    ) -> tuple[str, ...]:
+        self._index, marked = apply_invalidation(
+            self._index,
+            self._lineage,
+            self._superseded,
+            self._ledger.mark_stale,
+            self._runs_dir,
+            self._clock,
+            stage,
+            document_id,
+            shard_ids,
+        )
+        return marked

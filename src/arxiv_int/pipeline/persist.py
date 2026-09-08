@@ -21,6 +21,7 @@ class StageExecution:
     """One planned or completed stage in a run."""
 
     stage: str
+    shard_id: str
     status: str
     cache_hit: bool
     skipped: bool
@@ -146,6 +147,7 @@ def _status_payload(status: RunStatus) -> dict[str, Any]:
         "executions": [
             {
                 "stage": item.stage,
+                "shard_id": item.shard_id,
                 "status": item.status,
                 "cache_hit": item.cache_hit,
                 "skipped": item.skipped,
@@ -168,6 +170,7 @@ def _execution_from_payload(item: Mapping[str, Any]) -> StageExecution:
     directory = item.get("directory")
     return StageExecution(
         str(item["stage"]),
+        str(item.get("shard_id") or "default"),
         str(item["status"]),
         bool(item["cache_hit"]),
         bool(item["skipped"]),

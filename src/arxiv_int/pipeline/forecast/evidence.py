@@ -8,8 +8,9 @@ from arxiv_int.pipeline.control.fingerprints import reuse_key
 from arxiv_int.pipeline.execute import stage_identity, try_reuse
 from arxiv_int.pipeline.forecast.inputs import CacheHitPlan, ComparableRun
 from arxiv_int.pipeline.persist import load_json
+from arxiv_int.pipeline.reconcile.scan import bind_shard, source_shard_ids
 from arxiv_int.pipeline.registry import StageRegistry
-from arxiv_int.pipeline.reuse_index import load_reuse_index
+from arxiv_int.pipeline.reuse_index import ReuseEntry, load_reuse_index
 
 _MANIFEST = "observability-manifest.json"
 
@@ -23,19 +24,39 @@ def cache_plan(
 ) -> CacheHitPlan:
     """Mark stages whose reuse keys still validate as cache hits."""
     index = load_reuse_index(context.runs_dir)
-    keys: dict[str, str] = {}
-    hits: list[tuple[str, bool, int]] = []
-    for name in plan:
-        spec = registry.get(name)
-        upstream = tuple(keys[item] for item in spec.depends_on if item in keys)
-        identity = stage_identity(spec, context, upstream)
-        key = reuse_key(identity)
+    shards = source_shard_ids(context)
+    shard_keys: dict[str, dict[str, str]] = {shard_id: {} for shard_id in shards}
+    hits = tuple(
+        _stage_cache(name, context, registry, index, shards, shard_keys, force) for name in plan
+    )
+    return CacheHitPlan(hits)
+
+
+def _stage_cache(
+    name: str,
+    context: RunContext,
+    registry: StageRegistry,
+    index: dict[str, ReuseEntry],
+    shards: tuple[str, ...],
+    shard_keys: dict[str, dict[str, str]],
+    force: bool,
+) -> tuple[str, bool, int]:
+    spec = registry.get(name)
+    cached_all = True
+    size = 0
+    for shard_id in shards:
+        bound = bind_shard(context, shard_id)
+        upstream = tuple(
+            shard_keys[shard_id][item] for item in spec.depends_on if item in shard_keys[shard_id]
+        )
+        key = reuse_key(stage_identity(spec, bound, upstream))
         reused = try_reuse(index.get(key), force=force)
-        cached = reused is not None
-        size = reused.bytes if reused is not None else 0
-        hits.append((name, cached, size))
-        keys[name] = key
-    return CacheHitPlan(tuple(hits))
+        if reused is None:
+            cached_all = False
+        else:
+            size += reused.bytes
+        shard_keys[shard_id][name] = key
+    return name, cached_all, size
 
 
 def load_comparable_runs(

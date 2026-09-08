@@ -20,7 +20,12 @@ from arxiv_int.contracts.migrations.runner import (
 from arxiv_int.contracts.sqlalchemy.catalog import compare_live_catalog
 from arxiv_int.contracts.sqlalchemy.model import ContractSchemaModel, load_schema_model_from_root
 from arxiv_int.stores.postgres.catalog_boundary import catalog_boundary_findings
-from arxiv_int.stores.postgres.constants import HEAD_REVISION, INITIAL_REVISION, LEDGER_REVISION
+from arxiv_int.stores.postgres.constants import (
+    HEAD_REVISION,
+    INITIAL_REVISION,
+    LEDGER_REVISION,
+    PROGRESS_REVISION,
+)
 from arxiv_int.stores.postgres.evidence import catalog_as_dict, write_evidence
 from arxiv_int.stores.postgres.inspect_live import LiveStoreCatalog, inspect_store, store_findings
 
@@ -78,15 +83,40 @@ def relocate_public_tables(connection: Connection, model: ContractSchemaModel) -
 
 
 def _overlay_for_stamp(catalog: LiveStoreCatalog) -> tuple[list[str], str | None]:
-    head = store_findings(catalog, require_head=False, require_ledger=True, require_progress=True)
+    head = store_findings(
+        catalog,
+        require_head=False,
+        require_ledger=True,
+        require_progress=True,
+        require_reconcile=True,
+    )
     if not head:
         return [], HEAD_REVISION
+    progress = store_findings(
+        catalog,
+        require_head=False,
+        require_ledger=True,
+        require_progress=True,
+        require_reconcile=False,
+    )
+    if not progress:
+        return [], PROGRESS_REVISION
     ledger = store_findings(
-        catalog, require_head=False, require_ledger=True, require_progress=False
+        catalog,
+        require_head=False,
+        require_ledger=True,
+        require_progress=False,
+        require_reconcile=False,
     )
     if not ledger:
         return [], LEDGER_REVISION
-    base = store_findings(catalog, require_head=False, require_ledger=False, require_progress=False)
+    base = store_findings(
+        catalog,
+        require_head=False,
+        require_ledger=False,
+        require_progress=False,
+        require_reconcile=False,
+    )
     if not base:
         return [], INITIAL_REVISION
     return head, None

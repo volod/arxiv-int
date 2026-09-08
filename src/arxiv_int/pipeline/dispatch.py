@@ -76,12 +76,19 @@ def _pipeline(args: argparse.Namespace, token: CancelToken) -> int:
     previous_run = _previous_context(args)
     if action == "update":
         context = persist_new_context(update_context(previous_run))
+        from arxiv_int.pipeline.reconcile.commands import prepare_update
+
+        prepare_update(previous_run, context, Orchestrator(production_registry(), context.runs_dir))
         return _run_profile(context, token, from_stage=args.from_stage, to_stage=args.to_stage)
     if action == "rebuild":
         context = persist_new_context(rebuild_context(previous_run))
-        return _run_profile(
+        code = _run_profile(
             context, token, from_stage=args.from_stage, to_stage=args.to_stage, force=True
         )
+        from arxiv_int.pipeline.reconcile.commands import record_rebuild
+
+        record_rebuild(previous_run, context)
+        return code
     orchestrator = Orchestrator(production_registry(), previous_run.runs_dir)
     marked = orchestrator.invalidate(str(args.stage), document_id=args.document_id)
     _LOG.info("invalidated %s reuse key(s)", len(marked))

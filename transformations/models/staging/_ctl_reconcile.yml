@@ -1,0 +1,12 @@
+version: 2
+sources:
+  - name: ctl_reconcile
+    description: Control-plane tombstone and prune events from Alembic revision 0004.
+    schema: ctl
+    tables:
+      - name: source_tombstone
+        description: Comparable source removals; never archive deletes.
+      - name: prune_event
+        description: Two-phase prune dry-run and apply events.
+      - name: artifact_pin
+        description: Pins that block physical prune of protected attempts.
