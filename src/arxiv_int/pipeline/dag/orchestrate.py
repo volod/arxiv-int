@@ -5,7 +5,7 @@ from pathlib import Path
 
 from arxiv_int.pipeline.control.executor import ShardExecutor
 from arxiv_int.pipeline.control.memory import InMemoryLedger
-from arxiv_int.pipeline.dag.cancel import CancelToken
+from arxiv_int.pipeline.dag.cancel import CancelToken, cancellation_scope
 from arxiv_int.pipeline.dag.execute import execute_stage, execution_to_entry
 from arxiv_int.pipeline.dag.graph import StagePlan
 from arxiv_int.pipeline.dag.invalidate import apply_invalidation
@@ -110,7 +110,8 @@ class Orchestrator:
             plan.not_selected,
         )
         save_status(self._runs_dir, merge_status(self._runs_dir, context.run_id, current))
-        write_manifest(self._runs_dir, context.run_id, scan_silos(context.silos))
+        if context.profile == "fixture":
+            write_manifest(self._runs_dir, context.run_id, scan_silos(context.silos))
         save_reuse_index(self._runs_dir, self._index, tuple(self._lineage), tuple(self._superseded))
         return current
 
@@ -159,13 +160,12 @@ class Orchestrator:
                 self._space_guard(name)
             spec = self._registry.get(name)
             upstream = tuple(keys[item] for item in spec.depends_on if item in keys)
-            with open_stage_session(context, name) as session:
+            with open_stage_session(context, name) as session, cancellation_scope(self._cancel):
                 session.heartbeat()
                 execution = execute_stage(
                     self._registry,
                     self._executor,
-                    self._quality
-                    or (FixtureQuality() if context.profile == "fixture" else ProductionQuality()),
+                    self._quality or self._stage_quality(context, name),
                     context,
                     name,
                     upstream,
@@ -192,6 +192,15 @@ class Orchestrator:
         except PipelineError as error:
             return None, str(error)
         return execution, ""
+
+    def _stage_quality(self, context: RunContext, name: str) -> QualityBoundary:
+        if context.profile == "fixture":
+            return FixtureQuality()
+        if name in {"preflight", "inventory"}:
+            from arxiv_int.pipeline.inventory.boundary import SourceSetQuality
+
+            return SourceSetQuality(context, name)
+        return ProductionQuality()
 
     def invalidate(self, stage: str, *, document_id: str | None = None) -> tuple[str, ...]:
         """Serialize invalidation with publication and cache updates."""

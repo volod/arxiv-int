@@ -99,8 +99,14 @@ def apply_boundary(
     result: StageResult,
 ) -> bytes:
     """Validate exact-generation evidence and retain it beside the stage payload."""
+    supplied = {ref.contract_id: ref for ref in result.validations}
+    if len(supplied) != len(result.validations):
+        raise QualityBoundaryError("duplicate producer validation evidence")
     validations = tuple(
-        quality.validate(dataset, files, generation_id) for dataset in spec.validators
+        supplied[dataset]
+        if dataset in supplied
+        else quality.validate(dataset, files, generation_id)
+        for dataset in spec.validators
     )
     for dataset, ref in zip(spec.validators, validations, strict=True):
         if ref.contract_id != dataset:
@@ -108,7 +114,9 @@ def apply_boundary(
     transformations: tuple[TransformationRunRef, ...] = (
         (quality.transform(spec.dbt_select, generation_id, run_id),) if spec.dbt_select else ()
     )
-    validations += result.validations
+    validations += tuple(
+        ref for ref in result.validations if ref.contract_id not in spec.validators
+    )
     transformations += result.transformations
     checks = quality.checks()
     decision = activation_decision(

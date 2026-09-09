@@ -88,6 +88,7 @@ def test_update_refreshes_both_snapshots_and_rebuild_preserves_them(frozen_run: 
 def test_legacy_context_retains_full_content_checks(frozen_run: RunContext) -> None:
     path = save_context(frozen_run)
     payload = load_json(path)
+    payload["source_snapshot"] = snapshot_silos(frozen_run.silos)
     del payload["source_drift_policy"]
     del payload["source_metadata_snapshot"]
     write_json(path, payload)
@@ -122,6 +123,7 @@ def test_invalid_policy_evidence_refuses_load(
 def test_missing_policy_cannot_silently_downgrade_metadata_context(frozen_run: RunContext) -> None:
     path = save_context(frozen_run)
     payload = load_json(path)
+    payload["source_snapshot"] = snapshot_silos(frozen_run.silos)
     del payload["source_drift_policy"]
     write_json(path, payload)
     with pytest.raises(ValueError):

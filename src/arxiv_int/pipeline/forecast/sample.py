@@ -127,20 +127,14 @@ def _first_manifest(
 
 
 def _iter_files(root: Path) -> Iterable[Path]:
+    from arxiv_int.pipeline.inventory.walk import walk
+
     if root.is_file() and not root.is_symlink():
         yield root
         return
-    try:
-        entries = sorted(root.iterdir(), key=lambda item: item.name)
-    except OSError:
-        return
-    for entry in entries:
-        if entry.is_symlink():
-            continue
-        if entry.is_dir():
-            yield from _iter_files(entry)
-        elif entry.is_file():
-            yield entry
+    for entry in walk(root):
+        if entry.status == "file":
+            yield root / entry.relative_path
 
 
 def _inventory_fingerprint(

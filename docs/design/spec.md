@@ -1452,13 +1452,17 @@ divided into stable shards derived from content hashes or partition buckets. `ct
 `ctl.stage_run`, `ctl.shard_run`, and the artifact lineage graph record states such as `pending`,
 `running`, `succeeded`, `failed`, `quarantined`, `superseded`, `stale`, and `pruned`.
 
-Run creation and update hash source contents in bounded chunks. The frozen run context declares
-its source drift policy: later commands may compare stable filesystem metadata instead of rereading
-all source bytes. Such a check assumes reliable metadata and stable sources during execution;
-it must detect ordinary content/path changes, refuse stale contexts, and retain the separate content
-identity. Unchanged archives, same-size edits with restored mtime, bounded hashing memory, and
-preserved symlink/unreadable-entry treatment are evaluated by run-context regressions. This does
-not change configuration drift, inventory policy, or source-manifest contracts.
+New inventory runs capture a bounded metadata source-set snapshot at creation and update;
+strong content identities are computed by inventory in its single streaming read. The versioned
+`inventory-stat-v1` drift policy includes explicit link and unreadable-entry classifications,
+root-relative paths, silo ids and stable stat fields. Its order-independent counted metadata
+fingerprint is a change detector, never a document identity. Later commands refuse changed sources
+without rereading file bytes. Existing `stat-v1` and full-content contexts retain their prior policy.
+All metadata checks assume reliable filesystem metadata and stable sources during execution.
+Inventory verifies file stability across its reads and records incomplete directory scopes.
+Evaluation covers changed links, same-size restored-mtime edits, unreadable entries, restart,
+unchanged sources and memory bounded independently of file size and count. Configuration drift
+remains unchanged.
 
 A shard identity includes:
 

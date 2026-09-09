@@ -197,17 +197,18 @@ make invalidate STAGE=evaluate RUN_ID="$RUN_ID"
 make prune
 ```
 
-`evaluate` and `preflight` are shipped production runners. Other investigation stages fail as
+`evaluate`, `preflight` and `inventory` are shipped production runners.
+Other investigation stages fail as
 unregistered until their capabilities land. `make prune` is a dry-run; `APPLY=1 PLAN_ID=...` is a
 separate confirmation and refuses to delete the sole recovery copy.
 
 The target diagnostic order below is one valid linear expansion of the baseline registry, not a
-second executable DAG definition. `run-finalize` is available; `STAGE=preflight` is registered,
-and `STAGE=inventory` is not:
+second executable DAG definition. `run-finalize`, `STAGE=preflight` and `STAGE=inventory` are
+available; extraction and later corpus stages remain planned. A forecast precedes atomic stages:
 
 ```bash
-make stage STAGE=preflight RUN_ID="$RUN_ID"
 make forecast RUN_ID="$RUN_ID"
+make stage STAGE=preflight RUN_ID="$RUN_ID"
 make stage STAGE=inventory RUN_ID="$RUN_ID"
 make stage STAGE=extract RUN_ID="$RUN_ID"
 make stage STAGE=normalize RUN_ID="$RUN_ID"

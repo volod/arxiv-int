@@ -213,31 +213,25 @@ context and refuse configuration drift or a changed archive snapshot. `pipeline 
 frozen profile into a new generation that sees the current snapshot; `pipeline rebuild` allocates a
 new generation and skips cache reuse.
 
-Creation and update compute the same ordered path/content SHA-256 identity as before using the
-shared 1 MiB chunk reader. New contexts persist `source_drift_policy: stat-v1` and a separate
-`source_metadata_snapshot`. Later commands scan sorted silo-relative paths and stat metadata
-without opening source contents: device, inode, size, nanosecond mtime/ctime, mode, uid and gid.
-Atime is excluded so reading a source does not invalidate a run. Additions, removals, renames,
-permission changes, replacements and ordinary content edits refuse with `StaleUpstreamError`,
-including same-size edits with restored mtime. Touching or replacing identical content can also
-refuse; `pipeline update` refreshes both snapshots while keeping unchanged content identity.
-Configuration drift rules are unchanged.
+New production runs persist `source_drift_policy: inventory-stat-v1`. Creation and update stream
+metadata without opening source contents or retaining the path set. The counted, order-independent
+source-set fingerprint includes silo id, root-relative path, classification and stable stat fields;
+it is a change detector, not content identity. Inventory computes strong content hashes and checks
+stability across source reads. File/directory links, unreadable entries and traversal limits are
+explicit; changed links therefore invalidate frozen contexts. Atime is excluded. Same-size edits
+with restored mtime still change ctime and refuse stale runs. Reliable local filesystem metadata
+and stable sources remain assumptions; this is not an atomic filesystem snapshot.
 
-Metadata passes bracket content hashing and refuse an observed change during creation/update.
-This is a local filesystem drift guard, not an atomic filesystem snapshot or a cryptographic
-recheck of source bytes on each command: it assumes reliable stat fields and stable sources during
-execution. Changes invisible to all selected metadata fields cannot be detected. Existing contexts
-without either new field use `full-content-v1` and retain full chunked content checks until an
-explicit update creates a new context. Unknown policies or missing metadata evidence refuse load;
-rebuild preserves the frozen policy and snapshots.
+Existing `stat-v1` and `full-content-v1` contexts retain their earlier ordered content/metadata
+policies and symlink treatment. Unknown policies or missing metadata evidence refuse load. Rebuild
+preserves the frozen policy, and configuration drift checks are unchanged. See
+[record 0059](../records/0059-pipeline-bound-archive-snapshot-hashing.md) for the legacy behavior and
+[record 0060](../records/0060-corpus-implement-streaming-inventory.md) for the new source-set policy.
 
-Existing traversal treatment remains: file/directory symlinks are skipped, empty directories do
-not contribute, missing silos retain their marker, and file-open errors propagate during content
-hashing. Directory enumeration retains pathlib's existing error behavior. Hash buffers are bounded
-independently of file size; sorted traversal memory still grows with path count. This change adds
-no inventory or source-manifest contract. See
-[record 0059](../records/0059-pipeline-bound-archive-snapshot-hashing.md)
-for regression and synthetic host memory evidence; it does not establish full-archive throughput.
+Production source-set scheduling invokes inventory once; its stable bucket partitions live inside
+the stage. Fixture DAGs retain their content-shard behavior. Preflight and inventory execute real
+source-declaration/containment checks, and inventory supplies completed contract and global-key
+validation evidence. Unimplemented production boundaries continue to refuse publication.
 
 | Command | Role |
 | --- | --- |
@@ -275,9 +269,10 @@ archive bytes. Aggregate commands still run the same archive-readability handler
 
 `src/arxiv_int/pipeline/reconcile/` diffs complete comparable source manifests and retracts stale
 active views. `src/arxiv_int/pipeline/prune/` plans and applies physical deletion of unreferenced
-derived attempts. Inventory remains
-[planned](../plan.md#implement-streaming-inventory); the reconciler consumes the same
-`arxiv-int.source-manifest.v1` contract that inventory will later emit.
+derived attempts. The [inventory adapter](corpus-foundation.md) loads verified source occurrences
+into the existing `arxiv-int.source-manifest.v1` interface when no older delta manifest exists.
+Links and unreadable inputs are explicit and prevent comparable removal decisions. This adapter
+and the existing delta operations still materialize source occurrences in memory.
 
 A scan hashes readable files per silo in bounded chunks without writing archive bytes, so peak
 memory does not scale with file size. Incomplete, unreadable, or
@@ -543,5 +538,6 @@ A removal that is not the last occurrence is outside that scenario's reach and s
 fixture-covered. Concrete producer fingerprints,
 validators, database activation and remaining corpus stages stay with the
 [corpus/control checkpoint](../plan.md#review-corpus-and-control-integrity). Source link policy
-stays with [streaming inventory](../plan.md#implement-streaming-inventory). The local lock is
+is implemented by [streaming inventory](../records/0060-corpus-implement-streaming-inventory.md).
+The local lock is
 intentionally coarse; the review does not establish parallel corpus throughput or power-loss recovery.

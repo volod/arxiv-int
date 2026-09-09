@@ -26,46 +26,6 @@ and name ready/pending human decisions and the dependent work that must wait at 
 
 ### Corpus foundation -- `corpus-foundation`
 
-#### implement-streaming-inventory
-
-Build a content-addressed, restartable archive inventory with format, encoding, hash, and quarantine
-metadata.
-
-- Serves: `corpus-foundation` -- [Pipeline](../design/spec.md#pipeline)
-- Agent status: RUN NEEDED
-- Dependencies: [Control integration checkpoint](records/0054-pipeline-review-control-integration-boundaries.md);
-[Source reconciliation and prune safety](records/0055-pipeline-repair-source-reconciliation-and-prune-safety.md);
-Runtime roots documented in [Portable runtime](current/portable-runtime.md);
-[Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
-[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md);
-[Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md).
-[Publication/reuse checkpoint](records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md).
-- Audit inputs: [AUD-review-control-integration-boundaries-2](records/0054-pipeline-review-control-integration-boundaries.md#audit-handoff).
-- User-visible outcome: The operator can inventory one or more multi-terabyte silos without loading
-them into RAM and can see per-silo coverage, bytes, duplicates, and unsupported/encrypted inputs.
-- Scope boundary: Read files and archive-member metadata only; no text extraction and no
-modification of source files.
-- Data and artifact paths: Declared source roots from `$ARCHIVE_DIR`, used without modification;
-`$RESULTS_DIR/normalized/inventory/`; `$RUNS_DIR/<run-id>/`; `src/arxiv_int/pipeline/inventory/`.
-- Execution path: Resolve the declared silo ids and roots; stream directory entries, carry silo id
-with root-relative path metadata, detect MIME/encoding, compute strong hashes for content identity
-(quick hashes only select candidates), verify file
-stability across reads, record completed source-set scope and container/member identities, enforce
-archive-bomb limits, shard by stable id, and write atomic Parquet manifests; register
-the stage in the existing registry and expose `arxiv-int stage inventory` plus
-`make stage STAGE=inventory` in the same change,
-then run that command on a bounded authorized archive when available and inspect its artifacts.
-Use PyArrow batch writers and contract-derived Pandera checks before sealing partitions;
-record completed global occurrence-key checks and reject batches with invalid provenance.
-- Acceptance gates: Network-free fixtures cover large/sparse files, links, permission errors,
-renamed duplicates, nested archives, encrypted files, interruption, and resume; two silos sharing one
-root-relative path stay distinct while identical bytes resolve to one content identity; memory is
-bounded independently of file count; fixture stage run and artifact summary are recorded without
-private content or machine-specific
-paths; provided-archive acceptance is tracked by its separate proof task.
-- Documentation target: `docs/impl/current/corpus-foundation.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
-
 #### integrate-tiered-text-extraction
 
 Compose Tika, Docling, and OCR/layout fallbacks behind one evidence-preserving extractor interface.
@@ -73,7 +33,7 @@ Compose Tika, Docling, and OCR/layout fallbacks behind one evidence-preserving e
 - Serves: `corpus-foundation` --
 [Russian-language and document analysis](../design/spec.md#russian-language-and-document-analysis)
 - Agent status: RUN NEEDED
-- Dependencies: `implement-streaming-inventory`;
+- Dependencies: [Streaming inventory](records/0060-corpus-implement-streaming-inventory.md);
 [Deterministic schema generation](records/0011-contract-gov-implement-deterministic-schema-generation.md).
 - User-visible outcome: Supported documents become normalized source spans with page/table/offset
 evidence; failures are quarantined with actionable reasons.

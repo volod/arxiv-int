@@ -1,6 +1,7 @@
 """Production stage dependency declarations reused from setup profile stages."""
 
 from collections.abc import Mapping
+from dataclasses import replace
 
 from arxiv_int.features.catalog import STAGE_FEATURES
 from arxiv_int.pipeline.dag.registry import ResourceEstimate, StageRegistry, StageSpec
@@ -65,16 +66,35 @@ def production_specs() -> tuple[StageSpec, ...]:
                 code_paths=("evaluation",) if name == "evaluate" else (),
             )
         )
-    return tuple(specs)
+    return tuple(
+        replace(
+            spec,
+            contracts=("source-occurrences",),
+            validators=("source-occurrences",),
+            code_paths=("pipeline/inventory", "data_quality/rules", "data_quality/engine"),
+            dependency_packages=(
+                "pyarrow",
+                "polars",
+                "pandera",
+                "sqlalchemy",
+                "charset-normalizer",
+            ),
+        )
+        if spec.name == "inventory"
+        else spec
+        for spec in specs
+    )
 
 
 def production_registry() -> StageRegistry:
     """Bind shipped runners onto production specs; others remain unregistered."""
     from arxiv_int.evaluation.evaluate.stage import EvaluateStage
+    from arxiv_int.pipeline.inventory.stage import InventoryStage
     from arxiv_int.pipeline.publish.preflight import PreflightStage
 
     return (
         StageRegistry(production_specs())
         .with_runner("preflight", PreflightStage())
+        .with_runner("inventory", InventoryStage())
         .with_runner("evaluate", EvaluateStage())
     )

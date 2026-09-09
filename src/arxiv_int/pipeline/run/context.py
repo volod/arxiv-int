@@ -8,6 +8,7 @@ from uuid import uuid4
 from arxiv_int.contracts.generate.normalize import normalize_json, sha256_text
 from arxiv_int.interfaces.sources import SiloRoot
 from arxiv_int.interfaces.tokens import freeze_str_mapping, require_token
+from arxiv_int.pipeline.inventory.snapshot import INVENTORY_METADATA_POLICY
 from arxiv_int.pipeline.run.snapshot import CONTENT_POLICY, METADATA_POLICY
 from arxiv_int.pipeline.run.snapshot import snapshot_silos as snapshot_silos
 
@@ -40,9 +41,13 @@ class RunContext:
         require_token(self.profile, "profile")
         require_token(self.config_fingerprint, "config_fingerprint")
         require_token(self.source_snapshot, "source_snapshot")
-        if self.source_drift_policy not in {CONTENT_POLICY, METADATA_POLICY}:
+        if self.source_drift_policy not in {
+            CONTENT_POLICY,
+            METADATA_POLICY,
+            INVENTORY_METADATA_POLICY,
+        }:
             raise ValueError("unsupported source drift policy")
-        if self.source_drift_policy == METADATA_POLICY:
+        if self.source_drift_policy in {METADATA_POLICY, INVENTORY_METADATA_POLICY}:
             if self.source_metadata_snapshot is None:
                 raise ValueError("stat-v1 requires a source metadata snapshot")
             require_token(self.source_metadata_snapshot, "source_metadata_snapshot")

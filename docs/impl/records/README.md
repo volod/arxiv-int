@@ -71,3 +71,4 @@ below).
 | [0057 Retire the committed proof export](0057-eval-found-retire-committed-proof-export.md) | Delete the Git-bound exporter, its packaged identity policy, and the bundle fields that only described an export | Accepted |
 | [0058 Owned stage fingerprints](0058-pipeline-bind-real-owned-stage-fingerprints.md) | Bind stage reuse to declared contract, rule, dbt, code, dependency, tool, model and prompt assets | Accepted |
 | [0059 Bounded archive snapshot hashing](0059-pipeline-bound-archive-snapshot-hashing.md) | Chunked content snapshots and explicit metadata drift checks | Accepted |
+| [0060 Streaming inventory](0060-corpus-implement-streaming-inventory.md) | Restartable content-addressed archive inventory | Accepted |

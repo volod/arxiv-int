@@ -119,7 +119,7 @@ semantics and allocation evidence. Unresolved task-local notes: `none identified
 The coverage gap named in
 [checkpoint 0054](0054-pipeline-review-control-integration-boundaries.md#audit-handoff)
 is addressed by this task. Existing source-link inventory policy remains owned by
-[streaming inventory](../plan.md#implement-streaming-inventory). The metadata guard's documented
+[streaming inventory](0060-corpus-implement-streaming-inventory.md). The metadata guard's documented
 filesystem/race limits remain an input to
 [the corpus/control checkpoint](../plan.md#review-corpus-and-control-integrity).
 

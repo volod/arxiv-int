@@ -31,7 +31,9 @@ def load_manifest(runs_dir: Path, run_id: str) -> SourceManifest | None:
     """Load a previously written source manifest, if present."""
     path = run_dir(runs_dir, run_id) / DELTA_DIR / "manifest.json"
     if not path.is_file():
-        return None
+        from arxiv_int.pipeline.inventory.reconcile import load_inventory_sources
+
+        return load_inventory_sources(runs_dir, run_id)
     payload = load_json(path)
     silos = []
     for item in payload.get("silos", ()):

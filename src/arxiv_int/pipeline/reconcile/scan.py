@@ -2,11 +2,13 @@
 
 import logging
 from dataclasses import replace
-from pathlib import Path
+from typing import TYPE_CHECKING
 from uuid import uuid4
 
+if TYPE_CHECKING:
+    from arxiv_int.pipeline.inventory.walk import Entry
+
 from arxiv_int.interfaces.sources import SiloRoot
-from arxiv_int.pipeline.control.artifacts import hash_file
 from arxiv_int.pipeline.reconcile.model import SiloScan, SourceManifest, SourceOccurrence
 from arxiv_int.pipeline.run.context import RunContext
 
@@ -43,6 +45,9 @@ def source_shard_ids(
     context: RunContext, manifest: SourceManifest | None = None
 ) -> tuple[str, ...]:
     """Prefer an explicit document id, else one shard per content hash."""
+    if context.profile != "fixture":
+        # Inventory is one source-set scan; its fixed buckets are internal partitions.
+        return ("default",)
     document_id = context.parameters.get("document_id")
     if document_id:
         return (document_id,)
@@ -59,39 +64,33 @@ def bind_shard(context: RunContext, shard_id: str) -> RunContext:
 
 
 def _scan_one(silo: SiloRoot) -> SiloScan:
-    root = silo.root
-    if not root.exists() or not root.is_dir():
-        return SiloScan(silo.silo_id, False, False, (), "silo missing or unreadable")
-    try:
-        files = tuple(_iter_files(root))
-    except OSError:
-        return SiloScan(silo.silo_id, False, False, (), "directory listing failed")
+    from arxiv_int.pipeline.inventory.walk import walk
+
     occurrences: list[SourceOccurrence] = []
-    complete = True
-    for path in files:
-        item = _read_occurrence(silo.silo_id, root, path)
-        occurrences.append(item)
-        if not item.readable or not item.stable:
-            complete = False
-    return SiloScan(silo.silo_id, complete, True, tuple(occurrences), "" if complete else "partial")
-
-
-def _read_occurrence(silo_id: str, root: Path, path: Path) -> SourceOccurrence:
-    relative = path.relative_to(root).as_posix()
-    try:
-        first = path.stat()
-        digest, _size = hash_file(path)
-        second = path.stat()
-    except OSError:
-        return SourceOccurrence(silo_id, relative, "unreadable", False, False)
-    stable = first.st_size == second.st_size and first.st_mtime_ns == second.st_mtime_ns
-    return SourceOccurrence(silo_id, relative, digest, stable, True)
-
-
-def _iter_files(root: Path) -> tuple[Path, ...]:
-    found: list[Path] = []
-    for path in sorted(root.rglob("*"), key=lambda item: item.as_posix()):
-        if path.is_symlink() or not path.is_file():
+    readable = silo.root.is_dir()
+    for entry in walk(silo.root):
+        if entry.relative_path == ".":
+            readable = False
             continue
-        found.append(path)
-    return tuple(found)
+        occurrences.append(_read_entry(silo, entry))
+    complete = readable and all(item.readable and item.stable for item in occurrences)
+    return SiloScan(
+        silo.silo_id, complete, readable, tuple(occurrences), "" if complete else "partial"
+    )
+
+
+def _read_entry(silo: SiloRoot, entry: "Entry") -> SourceOccurrence:
+    from arxiv_int.pipeline.inventory.model import InventoryPolicy
+    from arxiv_int.pipeline.inventory.read import observe
+
+    unreadable = SourceOccurrence(silo.silo_id, entry.relative_path, "unreadable", False, False)
+    if entry.status != "file":
+        return unreadable
+    try:
+        digest = "unreadable"
+        for item in observe(silo.root, silo.silo_id, entry, InventoryPolicy()):
+            if not item.members:
+                digest = item.content_hash or "unreadable"
+        return SourceOccurrence(silo.silo_id, entry.relative_path, digest, True, True)
+    except OSError:
+        return unreadable

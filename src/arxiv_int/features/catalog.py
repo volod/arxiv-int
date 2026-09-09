@@ -103,6 +103,12 @@ FEATURE_GROUPS: tuple[FeatureGroup, ...] = (
         summary="partitioned Parquet and Avro datasets with out-of-core analysis",
         owner="corpus-foundation",
         requirements=(
+            Requirement(
+                "charset-normalizer",
+                "charset_normalizer",
+                "MIT",
+                "bounded source encoding detection",
+            ),
             Requirement("duckdb", "duckdb", "MIT", "query normalized datasets out of core"),
             Requirement(
                 "polars",

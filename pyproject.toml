@@ -54,6 +54,7 @@ inference = [
   "httpx>=0.28,<1",
 ]
 lake = [
+  "charset-normalizer==3.5.1",
   "duckdb>=1.1,<2",
   "polars>=1.20,<2",
   "pyarrow>=18,<23",

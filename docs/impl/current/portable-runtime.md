@@ -12,7 +12,8 @@ Retries reuse verified fingerprints and still probe services, wait, and readines
 setup against the same targets is refused. Typed stage and artifact interfaces, a generic run
 ledger, serialized progress logs, a fixture DAG CLI, knowledge-base publication, and read-only
 artifact inspection exist under
-[Pipeline control](pipeline-control.md). Concrete corpus stages remain
+[Pipeline control](pipeline-control.md). [Streaming inventory](corpus-foundation.md) is available;
+later corpus stages remain
 [planned](../plan.md#corpus-foundation----corpus-foundation). A default investigation run still
 refuses unimplemented stages. Infrastructure-ready never means an archive-to-report run is
 available. See the

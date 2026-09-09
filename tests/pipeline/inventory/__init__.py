@@ -1,0 +1,1 @@
+"""Deterministic inventory acceptance fixtures."""

@@ -20,6 +20,7 @@ from arxiv_int.pipeline.dag.cancel import CancelToken
 from arxiv_int.pipeline.dag.orchestrate import Orchestrator
 from arxiv_int.pipeline.dag.registry import StageRegistry
 from arxiv_int.pipeline.dag.stages import production_registry
+from arxiv_int.pipeline.inventory.snapshot import INVENTORY_METADATA_POLICY, inventory_snapshot
 from arxiv_int.pipeline.quality.bound import QualityBoundary
 from arxiv_int.pipeline.run.context import (
     RunContext,
@@ -56,14 +57,19 @@ def create_run_context(
     silos = tuple(SiloRoot(silo.silo_id, silo.root) for silo in config.archive_silos)
     secret_free = secret_free_values(dict(config.values))
     run_id = allocate_run_id()
-    source_snapshot, source_metadata_snapshot = capture_snapshot(silos)
+    if chosen == "fixture":
+        source_snapshot, source_metadata_snapshot = capture_snapshot(silos)
+        policy = METADATA_POLICY
+    else:
+        source_snapshot = source_metadata_snapshot = inventory_snapshot(silos)
+        policy = INVENTORY_METADATA_POLICY
     context = RunContext(
         run_id=run_id,
         generation_id=run_id,
         profile=chosen,
         config_fingerprint=config_fingerprint(chosen, secret_free),
         source_snapshot=source_snapshot,
-        source_drift_policy=METADATA_POLICY,
+        source_drift_policy=policy,
         source_metadata_snapshot=source_metadata_snapshot,
         silos=silos,
         results_dir=config.results_dir,
@@ -145,7 +151,9 @@ def require_frozen_context(
         raise ConfigDriftError(
             f"run {run_id} configuration drifted; create a new run or invalidate"
         )
-    if context.source_drift_policy == METADATA_POLICY:
+    if context.source_drift_policy == INVENTORY_METADATA_POLICY:
+        stale = inventory_snapshot(context.silos) != context.source_metadata_snapshot
+    elif context.source_drift_policy == METADATA_POLICY:
         stale = metadata_snapshot(context.silos) != context.source_metadata_snapshot
     else:
         stale = snapshot_silos(context.silos) != context.source_snapshot

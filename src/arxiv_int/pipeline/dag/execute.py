@@ -25,6 +25,17 @@ def stage_context(context: RunContext, stage: str) -> StageContext:
     """Build the typed stage context from a frozen run."""
     options = dict(context.parameters)
     options["project_root"] = str(context.project_root)
+    options["source_drift_policy"] = context.source_drift_policy
+    options["source_metadata_snapshot"] = context.source_metadata_snapshot or ""
+    options["tmp_dir"] = context.secret_free.get("TMP_DIR", str(context.results_dir / "tmp"))
+    options["protected_roots"] = json.dumps(
+        [
+            value
+            for key, value in context.secret_free.items()
+            if key in {"PGDATA_DIR", "PG_WAL_DIR"} or key.startswith("PG_TABLESPACE_")
+            if value
+        ]
+    )
     return StageContext(
         stage,
         context.run_id,
@@ -63,7 +74,10 @@ def try_reuse(entry: ReuseEntry | None, *, force: bool) -> StageExecution | None
     directory = Path(entry.directory)
     try:
         validate_attempt(directory, reuse_key=entry.reuse_key, attempt=entry.attempt)
-    except ArtifactPublishError:
+        from arxiv_int.pipeline.inventory.reuse import validate_inventory_output
+
+        validate_inventory_output(directory)
+    except (ArtifactPublishError, OSError, ValueError, KeyError, TypeError):
         return None
     if load_stage_outcome(directory) not in {"produced", "empty"}:
         return None
@@ -141,7 +155,11 @@ def execute_stage(
     )
 
     def worker(_directory: Path) -> Mapping[str, bytes]:
-        result = runner.run(stage_context(context, spec.name))
+        from dataclasses import replace
+
+        scoped = stage_context(context, spec.name)
+        scoped = replace(scoped, options={**scoped.options, "producer_identity": key})
+        result = runner.run(scoped)
         if result.stage != spec.name or any(
             item.generation_id != context.generation_id for item in result.outputs
         ):
