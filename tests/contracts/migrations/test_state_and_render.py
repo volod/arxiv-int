@@ -1,7 +1,5 @@
 """Frozen state diffs and deterministic revision rendering."""
 
-from pathlib import Path
-
 import pytest
 
 from arxiv_int.contracts.migrations.operations import (
@@ -20,11 +18,11 @@ from arxiv_int.contracts.migrations.state import (
     empty_state,
 )
 from arxiv_int.contracts.sqlalchemy.model import load_schema_model_from_root
-from arxiv_int.quality.project_root import discover_project_root
+from arxiv_int.resources.paths import contracts_root
 
 
 def _product_state() -> dict[str, object]:
-    root = discover_project_root(Path(__file__)) / "contracts"
+    root = contracts_root()
     return contract_state(load_schema_model_from_root(root))
 
 

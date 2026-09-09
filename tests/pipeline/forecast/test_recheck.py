@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from arxiv_int.pipeline.actions import fixture_plan
-from arxiv_int.pipeline.fixtures import FIXTURE_OPTIONAL, FIXTURE_PROFILE_STAGES, fixture_registry
+from arxiv_int.pipeline.dag.actions import fixture_plan
+from arxiv_int.pipeline.dag.orchestrate import Orchestrator
 from arxiv_int.pipeline.forecast.errors import ForecastRefusedError
 from arxiv_int.pipeline.forecast.model import (
     ByteRange,
@@ -14,9 +14,13 @@ from arxiv_int.pipeline.forecast.model import (
     HostAssumptions,
 )
 from arxiv_int.pipeline.forecast.recheck import make_space_guard, recheck_free_space
-from arxiv_int.pipeline.orchestrate import Orchestrator
+from arxiv_int.pipeline.run.fixtures import (
+    FIXTURE_OPTIONAL,
+    FIXTURE_PROFILE_STAGES,
+    fixture_registry,
+)
 from arxiv_int.runtime.filesystem import FilesystemEvidence
-from tests.pipeline.orchestration.conftest import make_context
+from tests.pipeline.conftest import make_context
 
 
 def _plan(registry):

@@ -11,7 +11,7 @@ from arxiv_int.inspect.model import (
     QualityRuleSummary,
     StageSummary,
 )
-from arxiv_int.observability.redact import extra_secrets_from_env, redact_text
+from arxiv_int.observability.logging.redact import extra_secrets_from_env, redact_text
 
 _BLOCKED = frozenset({"prompt", "text", "document", "body", "password", "secret", "token"})
 

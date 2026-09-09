@@ -5,7 +5,7 @@ from pathlib import Path
 
 from sqlalchemy import MetaData
 
-from arxiv_int.contracts.registry import FileRegistry
+from arxiv_int.contracts.catalog.registry import FileRegistry
 from arxiv_int.contracts.sqlalchemy.metadata import build_metadata, owned_schemas
 from arxiv_int.contracts.sqlalchemy.normalize import NormalizedTable, normalize_contract
 

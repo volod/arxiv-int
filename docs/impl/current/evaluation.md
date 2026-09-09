@@ -1,8 +1,9 @@
 # Evaluation
 
 This page records evaluation-dataset and provided-archive proof state as it becomes available.
-Frozen synthetic fixtures, paired metrics, the `evaluate` stage, and a proof dispatcher exist;
-provided-archive proofs and scale pilots remain planned.
+Frozen synthetic fixtures, paired metrics, the `evaluate` stage, and a proof dispatcher exist.
+The pipeline-control provided-archive proof is published; remaining provided-archive proofs and
+scale pilots stay planned.
 
 ## Authorized representative archive
 
@@ -29,3 +30,5 @@ The slice designation is recorded in
 [0023 Representative corpus approval](../records/0023-corpus-approve-representative-corpus-and-gold.md).
 The path model no longer uses a second proof root; see
 [0029 Retire separate proof-archive root](../records/0029-runtime-retire-separate-proof-archive-root.md).
+The pipeline-control proof is recorded in
+[0053 Pipeline-control provided-archive proof](../records/0053-pipeline-prove-pipeline-control-on-provided-archive.md).

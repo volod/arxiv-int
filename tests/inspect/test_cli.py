@@ -5,15 +5,19 @@ from pathlib import Path
 import pytest
 
 from arxiv_int.cli import build_parser, main
-from arxiv_int.evaluation.stage import EvaluateStage
+from arxiv_int.evaluation.evaluate.stage import EvaluateStage
 from arxiv_int.inspect.model import KIND_RUN
 from arxiv_int.inspect.summarize import inspect_run
-from arxiv_int.pipeline.actions import fixture_plan
-from arxiv_int.pipeline.fixtures import FIXTURE_OPTIONAL, FIXTURE_PROFILE_STAGES, fixture_registry
-from arxiv_int.pipeline.orchestrate import Orchestrator
-from arxiv_int.pipeline.registry import ResourceEstimate, StageRegistry, StageSpec
+from arxiv_int.pipeline.dag.actions import fixture_plan
+from arxiv_int.pipeline.dag.orchestrate import Orchestrator
+from arxiv_int.pipeline.dag.registry import ResourceEstimate, StageRegistry, StageSpec
+from arxiv_int.pipeline.run.fixtures import (
+    FIXTURE_OPTIONAL,
+    FIXTURE_PROFILE_STAGES,
+    fixture_registry,
+)
 from arxiv_int.runtime.project_root import find_project_root
-from tests.pipeline.orchestration.conftest import make_context
+from tests.pipeline.conftest import make_context
 
 
 def test_cli_help_lists_inspect_and_run_artifacts() -> None:
@@ -116,7 +120,7 @@ def test_inspect_evaluate_stage_artifacts(tmp_path: Path, monkeypatch) -> None:
     from dataclasses import replace
 
     context = replace(make_context(tmp_path), project_root=find_project_root())
-    from arxiv_int.pipeline.persist import save_context
+    from arxiv_int.pipeline.run.persist import save_context
 
     save_context(context)
     estimate = ResourceEstimate()

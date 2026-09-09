@@ -1,10 +1,13 @@
 # Pipeline Control
 
 Typed stage, source, and artifact references, a generic run ledger, serialized progress
-logging with bounded resource telemetry, a fixture-first DAG CLI, a read-only pre-run
-forecast, profile-declared knowledge-base publication, and read-only stage artifact inspection
-are available. Concrete corpus stages remain
-[planned](../plan.md#pipeline-control----pipeline-control).
+logging with bounded resource telemetry, a fixture-first DAG CLI, a registered preflight
+readability worker, a read-only pre-run forecast, profile-declared knowledge-base publication,
+read-only stage artifact inspection, incremental source reconciliation, two-phase stale prune,
+read-only citation/source location lookup, and a provided-archive pipeline-control proof are
+available. Concrete corpus
+stages remain
+[planned](../plan.md#corpus-foundation----corpus-foundation).
 
 See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface-contracts.md),
 [record 0041](../records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md),
@@ -13,8 +16,16 @@ See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface
 [record 0044](../records/0044-pipeline-implement-evidence-based-pipeline-forecast.md), and
 [record 0045](../records/0045-pipeline-implement-investigation-profile-and-output-manifest.md),
 [checkpoint 0046](../records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md),
-[repair 0047](../records/0047-pipeline-repair-pipeline-publication-and-reuse-integrity.md), and
-[record 0048](../records/0048-pipeline-add-stage-artifact-inspection.md).
+[repair 0047](../records/0047-pipeline-repair-pipeline-publication-and-reuse-integrity.md),
+[record 0048](../records/0048-pipeline-add-stage-artifact-inspection.md),
+[record 0049](../records/0049-pipeline-implement-incremental-reconciliation-and-stale-pruning.md),
+[record 0051](../records/0051-pipeline-implement-evidence-and-source-location-lookup.md),
+[record 0053](../records/0053-pipeline-prove-pipeline-control-on-provided-archive.md),
+[checkpoint 0054](../records/0054-pipeline-review-control-integration-boundaries.md),
+[repair 0055](../records/0055-pipeline-repair-source-reconciliation-and-prune-safety.md), and
+[record 0056](../records/0056-pipeline-reprove-pipeline-control-after-reconciliation-repair.md), and
+[record 0058](../records/0058-pipeline-bind-real-owned-stage-fingerprints.md), and
+[record 0059](../records/0059-pipeline-bound-archive-snapshot-hashing.md).
 
 ## Stage, source, and artifact seams
 
@@ -96,6 +107,53 @@ schema, tool, model, prompt, configuration, validation catalog, and dbt model, i
 `reuse_key()` is SHA-256 over that identity. A changed owned fingerprint selects matching shards,
 then `stale_closure()` walks consumer edges.
 
+Stage identities now read actual assets through `pipeline.control.owned.owned_sources()` and
+`owned_fingerprints()` before every reuse lookup. `StageSpec` declares the consumed `contracts`
+(registry keys; `validators` also imply contracts), additional `code_paths` relative to the
+installed `arxiv_int` package, `dependency_packages` (uv package names), and dbt asset paths relative
+to the authored dbt project. Existing overlay-or-packaged resource resolution applies. Missing
+contracts, generated schemas, catalogs, declared paths or locked dependencies fail before reuse;
+there is no placeholder fallback. Moving an unchanged asset tree leaves its identity unchanged.
+
+| Owned field | Source |
+| --- | --- |
+| `code_fingerprint` | Bytes of shared control/DAG/run/quality/interfaces modules, the runner source file and declared `code_paths`; stage declaration modules are excluded from the shared set because their selected values are hashed separately |
+| `dependency_fingerprint` | Installed distribution name/version and selected requirement metadata, Python version, uv lock format and selected package records with transitive dependencies; PyYAML is shared, validators add Pandera/Polars, real dbt models add dbt Core/Postgres |
+| `contract_fingerprint` | Selected `FileRegistry` entries plus their referenced ODCS and mapping file bytes |
+| `schema_fingerprint` | Selected generated JSON Schema, Parquet, Avro, PostgreSQL (including extension DDL) and Pydantic schemas |
+| `tool_fingerprint` | Frozen `StageSpec.tools` mapping of tool names to pinned versions or content digests |
+| `model_fingerprint` | Frozen `StageSpec.models` mapping of model names to immutable revisions or content digests |
+| `prompt_fingerprint` | Frozen `StageSpec.prompts` mapping of prompt names to content digests or immutable versions |
+| `configuration_fingerprint` | Existing frozen run configuration digest, unchanged |
+| `validation_catalog_fingerprint` | Selected validators' `generated/quality/<contract>.rules.json` bytes and shared Pandera rule-engine code |
+| `dbt_model_fingerprint` | Declared `dbt_models` files plus shared `dbt_project.yml` and macros when models are declared |
+| `dbt_input_fingerprint` | Existing `dbt_select`, declared `dbt_inputs`, selected contracts' generated dbt YAML and their consumed table definitions in the combined `generated/dbt/sources.yml` |
+| `dbt_rule_fingerprint` | Declared `dbt_rules` files, including model test YAML and singular tests, plus the selected generated source/test definitions |
+
+File identities use sorted relative names and raw-byte SHA-256 through the existing bounded reader.
+Each field is SHA-256 over canonical JSON containing stage name, field name and its source values.
+An empty declaration means the stage uses no asset of that kind; its digest remains specific to that
+stage and field. Fixture stages declare their actual runner, feature and outcome as tool values;
+unused model/prompt sets are empty. `with_runner()` preserves all declarations. Old placeholder
+identities intentionally miss once; accepted artifacts remain intact.
+
+Stage owners declare the complete asset dependency set, including helper modules, upstream dbt
+models and source/test YAML used by the selected transformation. This binder does not interpret
+Jinja or implement another dbt selector engine. Declare shared files only where they are consumed;
+shared project/macro edits affect every declared dbt producer. The existing fixture quality adapter
+uses synthetic dbt selections without real models. Real producer tasks must bind actual model,
+input and rule paths when replacing it. Tool/model/prompt declarations must contain public immutable
+identities, never credentials. Hashing these declarations imports no backend or model.
+
+The lock comes from the requested project; disposable resource overlays without a project/lock use
+the editable distribution checkout. A wheel deployment supplies its workspace `uv.lock`; a missing
+lock in a project fails closed. Selected package records include all locked platform/extra variants
+conservatively. Unrelated package pins and documentation edits leave stage identities unchanged.
+Additional runtime dependencies belong in `dependency_packages`; changing an owned dependency,
+contract, rule, dbt asset or declared tool/model/prompt changes the producer key and propagates through
+upstream keys to consumers. `keys_matching_owned_change()` and `stale_closure()` retain their existing
+field-selection and consumer-edge behavior. An unchanged rerun validates artifacts with zero workers.
+
 Statuses for run, stage, and shard are `pending`, `running`, `succeeded`, `failed`, `quarantined`,
 `superseded`, `stale`, and `pruned`. Leases move `acquired` to `released`, `expired`, or `failed`.
 Manifests move `staging` to `accepted` or `rejected`. Illegal transitions raise
@@ -133,13 +191,14 @@ worker interruption releases the lease and records a failed attempt.
 Postgres `add_shard` assigns the next attempt under a transaction-scoped advisory lock. In-memory
 and SQL ledgers share the same transition rules.
 
-Alembic revision `0002` is frozen DDL for `ctl.run`, `stage_run`, `shard_run`, `reuse_lease`,
-`checkpoint`, `shard_error`, `artifact_manifest`, `artifact_lineage`, and `resource_lease`.
-Revision `0003` adds `ctl.stage_progress`. Head is `0003`. `ctl.resource_lease` exists for later
-SQL writers; inference still appends JSONL. `0003` downgrade drops progress snapshots only;
-`0002` downgrade drops ledger tables only; `0001` teardown remains refused. Complete overlays
-including progress tables stamp `0003`; ledger-only overlays stamp `0002`; complete 0001-era
-overlays stamp `0001` so setup can upgrade to head.
+Alembic revision `0001` is frozen DDL for contract tables, HASH partitions including
+`corpus.document_path_event`, staging clones, projection metadata, `ctl.run`, `stage_run`,
+`shard_run`, `reuse_lease`, `checkpoint`, `shard_error`, `artifact_manifest`, `artifact_lineage`,
+`resource_lease`, `ctl.stage_progress`, `ctl.source_tombstone`, `ctl.prune_event`, and
+`ctl.artifact_pin`. Head is `0001`.
+`ctl.resource_lease` exists for later
+SQL writers; inference still appends JSONL. `0001` teardown remains refused. Complete current
+overlays stamp `0001`. Partial catalogs are refused.
 
 ## DAG registry and operator commands
 
@@ -154,6 +213,26 @@ context and refuse configuration drift or a changed archive snapshot. `pipeline 
 frozen profile into a new generation that sees the current snapshot; `pipeline rebuild` allocates a
 new generation and skips cache reuse.
 
+New production runs persist `source_drift_policy: inventory-stat-v1`. Creation and update stream
+metadata without opening source contents or retaining the path set. The counted, order-independent
+source-set fingerprint includes silo id, root-relative path, classification and stable stat fields;
+it is a change detector, not content identity. Inventory computes strong content hashes and checks
+stability across source reads. File/directory links, unreadable entries and traversal limits are
+explicit; changed links therefore invalidate frozen contexts. Atime is excluded. Same-size edits
+with restored mtime still change ctime and refuse stale runs. Reliable local filesystem metadata
+and stable sources remain assumptions; this is not an atomic filesystem snapshot.
+
+Existing `stat-v1` and `full-content-v1` contexts retain their earlier ordered content/metadata
+policies and symlink treatment. Unknown policies or missing metadata evidence refuse load. Rebuild
+preserves the frozen policy, and configuration drift checks are unchanged. See
+[record 0059](../records/0059-pipeline-bound-archive-snapshot-hashing.md) for the legacy behavior and
+[record 0060](../records/0060-corpus-implement-streaming-inventory.md) for the new source-set policy.
+
+Production source-set scheduling invokes inventory once; its stable bucket partitions live inside
+the stage. Fixture DAGs retain their content-shard behavior. Preflight and inventory execute real
+source-declaration/containment checks, and inventory supplies completed contract and global-key
+validation evidence. Unimplemented production boundaries continue to refuse publication.
+
 | Command | Role |
 | --- | --- |
 | `arxiv-int run create` / `make run-create` | Unique run id; freeze `.env` profile and roots |
@@ -165,6 +244,8 @@ new generation and skips cache reuse.
 | `arxiv-int pipeline invalidate STAGE --run-id RUN_ID` / `make invalidate` | Logical stale closure; no deletes |
 | `arxiv-int run status RUN_ID` / `make run-status RUN_ID=...` | Per-stage ledger status plus latest progress snapshot |
 | `arxiv-int inspect RUN_ID\|DATASET\|latest` / `make inspect RUN_ID=...` | Read-only row/byte, partition, quality, and failure summary |
+| `arxiv-int archive locate DOCUMENT_ID` / `make archive-locate DOCUMENT_ID=...` | Read-only citation to original and current source locations |
+| `arxiv-int archive import-ledger PATH` | Idempotent import of a portable path-event ledger |
 | `arxiv-int run artifacts RUN_ID` | Alias of inspect for one frozen run |
 | `arxiv-int run resume RUN_ID` / `make resume RUN_ID=...` | Continue after halt or SIGINT |
 | `arxiv-int run finalize RUN_ID` / `make run-finalize RUN_ID=...` | Seal `knowledge-base.json`; activate only a complete profile |
@@ -175,14 +256,85 @@ hardcoded `--profile investigation` or `--run-id local` on `pipeline` / `run-cre
 `RUN_ID` for atomic commands must be the created run id.
 
 The investigation profile still names unregistered corpus stages. `make pipeline` therefore fails
-explicitly until those runners ship. Fixture DAGs in `tests/pipeline/orchestration/` cover range,
+explicitly until those runners ship. Fixture DAGs in `tests/pipeline/dag/` cover range,
 skip, invalid dependency, aggregate versus atomic equivalence, failure halt, resume, force,
 invalidate, update, rebuild, prune dry-run, quality not-run/fail, and signal cancel. Declared
 Pandera validators and dbt selections run at producer boundaries through `QualityBoundary`; failed
 or not-run checks halt downstream work. The directory-to-report gate waits on concrete stages.
 
-`stage STAGE=preflight` as a registered worker remains unimplemented. Aggregate commands still
-run an archive-readability preflight handler before forecast.
+`stage STAGE=preflight` is a registered readability worker. It does not load models or write
+archive bytes. Aggregate commands still run the same archive-readability handler before forecast.
+
+## Incremental reconciliation and stale pruning
+
+`src/arxiv_int/pipeline/reconcile/` diffs complete comparable source manifests and retracts stale
+active views. `src/arxiv_int/pipeline/prune/` plans and applies physical deletion of unreferenced
+derived attempts. The [inventory adapter](corpus-foundation.md) loads verified source occurrences
+into the existing `arxiv-int.source-manifest.v1` interface when no older delta manifest exists.
+Links and unreadable inputs are explicit and prevent comparable removal decisions. This adapter
+and the existing delta operations still materialize source occurrences in memory.
+
+A scan hashes readable files per silo in bounded chunks without writing archive bytes, so peak
+memory does not scale with file size. Incomplete, unreadable, or
+unstable silos cannot emit removal tombstones, and they retract no active row either: the active
+view drops a row only when every path supporting it lies in a silo both scans completed.
+Diff kinds are add, content-change, path-rename,
+and remove. A rename pairs a removal with an addition inside one silo only; a file that moves
+between silos is an honest remove plus add, because occurrences and path events are silo-scoped.
+Rename and change events carry `previous_silo_id`, and a removal carries `content_remains` when the
+same bytes still exist elsewhere.
+Path-only renames reuse the content-hash shard and do not invoke workers. Root-stage
+reuse identity is the content-hash shard once `document_id` is bound; the forecast cache plan
+walks those shards so a no-op rerun is a cache hit. Orchestration writes
+`$RUNS_DIR/<run-id>/delta/{manifest,delta,tombstones}.json`. Invalidation writes
+`$RUNS_DIR/<run-id>/invalidation/plan.json`. Rebuild writes
+`$RUNS_DIR/<run-id>/rebuild/report.json` with payload checksums that strip generation tokens.
+`pipeline update` diffs the saved previous manifest against the current scan before the DAG.
+`pipeline rebuild` force-runs an isolated generation and records baseline match.
+
+Last-occurrence tombstones retract derived rows whose content hash is gone. Shared remaining
+paths, merge/split/review overlays, and content that still exists elsewhere stay; a removal that
+is not the last occurrence leaves its content-hash shard live rather than stale, so a still-active
+document's attempt never becomes prune-eligible. dbt
+`stg_source_tombstones` and `int_active_documents` recompute the set-based active view from
+`ctl.source_tombstone`. Typed SQLAlchemy writers live in
+`arxiv_int.pipeline.reconcile.postgres` and `tables`; the package initializer does not import
+SQLAlchemy. Required quality checks still precede every active-pointer switch.
+
+Prune is two-phase. Dry-run ids land under `$RUNS_DIR/prune-plans/` with a copy under the latest
+`$RUNS_DIR/<run-id>/prune/`. Apply rechecks the fingerprint and refuses active generations,
+pins, `review/`, `rollback/`, decision or move ledgers, backups, and the sole recovery copy.
+Superseded attempt directories become eligible once a live generation exists. Apply checks every
+listed directory for protection, root containment and symlinks before removing anything, so a
+refusal leaves each tree whole and deletion never follows a link out of `RUNS_DIR`. Apply retains
+checksums under `$RUNS_DIR/pruned/` and compact lineage; it never deletes archive sources. The
+prune event records measured `bytes_removed` alongside `directories_removed`.
+
+## Provided-archive control proof
+
+`make proof CAPABILITY=pipeline-control RUN_ID=...` copies a bounded file set from `ARCHIVE_DIR`
+into `$RESULTS_DIR/proof-work/pipeline-control/<proof-id>/` and publishes
+`$RESULTS_DIR/proofs/pipeline-control/<proof-id>/`. The copy is at most eight files, 4 MiB each,
+and 16 MiB total. Add/change/rename/remove, fingerprint bump, rebuild, and prune-apply run only
+on that copy. The supplied archive is not written. Then-usable stages are registered `preflight`
+plus the fixture DAG; inventory and later corpus stages are not part of this proof.
+
+The bundle stays under `RESULTS_DIR` and is reviewed there. It holds `proof-manifest.json`,
+`summary.txt`, `gates.json`, `scenario.json`, `forecast-summary.json` and a `fingerprint.json`
+recording the raw fingerprint of its own manifest, so a reviewer can confirm the bundle a record
+names. Required gates are zero workers on a no-op rerun, exact affected/unaffected shards
+for each delta, tombstones and active rows, targeted code invalidation, simulated free-space
+refusal before allocation, rebuild checksum parity, sole-recovery prune refusal, and an
+unmodified source snapshot. The current bundle is host proof `0056-host`, published after the
+reconciliation and prune repair and recorded in
+[record 0056](../records/0056-pipeline-reprove-pipeline-control-after-reconciliation-repair.md);
+it supersedes `0053-host-2` in
+[record 0053](../records/0053-pipeline-prove-pipeline-control-on-provided-archive.md), which stays
+the account of the code it proved. Both runs report the same scenario counts on the same archive.
+Both were published in the superseded bundle shape, whose `export.json` and identity-policy
+`policy.json` were retired by
+[record 0057](../records/0057-eval-found-retire-committed-proof-export.md); their scenario counts
+now live in `scenario.json` and the `no_export` gate is gone with the export path.
 
 ## Stage artifact inspection
 
@@ -204,6 +356,29 @@ transformations or published `run_results.json`, never from a live transform. Em
 quarantined, failed, and schema-drifted trees still produce a stable summary. Inspection
 rechecks checksums in place and leaves bytes unchanged.
 
+## Evidence and source location lookup
+
+`src/arxiv_int/query/evidence/` resolves content, fact, and report citations to physical sources
+without a placement executor, live model/graph services, or archive writes. It reads a sealed
+evidence catalog (`arxiv-int.evidence-catalog.v1`) of document rows, source occurrences, optional
+citations, and path events. Document and occurrence objects are rows of the registered `documents`
+and `source-occurrences` contracts. Path-event rows and portable ledger files
+(`arxiv-int.path-event-ledger.v1`) are rows of `document-path-events`, the ODCS source of truth for
+`corpus.document_path_event`. Alembic revision `0001` publishes that table. Portable codecs parse
+those rows through the shared ODCS normalizer; they do not keep a parallel field list. Occurrences
+join documents by `content_hash`; path events keep `document_id`. Unknown keys and missing required
+contract fields are refused on import.
+
+`arxiv-int archive locate DOCUMENT_ID` and `make archive-locate DOCUMENT_ID=...` are read-only.
+`--kind fact|report` resolves those citation ids. `--json` writes schema
+`arxiv-int.evidence-resolution.v1` to stdout. Explicit `--catalog` and `--ledger` skip operator
+`ARCHIVE_DIR` / `PGDATA_DIR`. `--silo SILO_ID=ROOT` is the only filesystem access: it checks
+silo-root containment and current hashes. Locations stay silo-relative POSIX paths. Duplicate
+silos remain distinct occurrences. Nested members hash the container file, not a virtual member
+path. Original occurrence rows are never rewritten; rename and copy events overlay current paths.
+Missing, changed, and escaped-link files are explicit statuses. `arxiv-int archive import-ledger`
+merges events by `event_id` and refuses conflicting payloads without rewriting a matching store.
+
 ## Pre-run forecast and resource refusal
 
 `src/arxiv_int/pipeline/forecast/` predicts requested work, duration ranges, output and peak
@@ -216,7 +391,8 @@ command. `make forecast RUN_ID=...` requires a created run id and writes
 Inventory prefers a delta manifest, then an inventory manifest, then bounded directory metadata
 sampling (no file contents). Cache hits come from the reuse index. Comparable telemetry, when
 present, comes from prior `logs/observability-manifest.json` and `progress.jsonl`. Coefficients
-and the 2.5-4.0 amplification envelope live in `configs/capacity/envelope.json` (schema
+and the 2.5-4.0 amplification envelope live in
+`src/arxiv_int/resources/configs/capacity/envelope.json` (schema
 `arxiv-int.capacity.envelope.v1`). The decision schema is `arxiv-int.forecast.v1`.
 
 Filesystem roots are inspected and grouped by device id so a shared disk is budgeted once. Cost
@@ -246,7 +422,7 @@ A forecast that assumed cache hits cannot authorize forced recomputation.
 ## Investigation profiles and knowledge-base publication
 
 `src/arxiv_int/pipeline/publish/` seals one generation from the requested profile. Committed
-overlays live in `configs/pipeline/investigation.json` and `lexical.json` (schema
+overlays live in `src/arxiv_int/resources/configs/pipeline/investigation.json` and `lexical.json` (schema
 `arxiv-int.pipeline.profile.v1`). The knowledge-base document is `arxiv-int.knowledge-base.v1`.
 Setup's `PROFILE_STAGES` / `OPTIONAL_STAGES` remain the requirement seam; Python defaults and
 committed JSON must not drift (`check_profile_alignment()` / `check_schema_drift()`). The
@@ -319,9 +495,10 @@ conditional GPU/UI groups. `tests/pipeline/control/` covers illegal transitions,
 cache hits, corrupt-cache rerun, concurrent leases, quality skip, owned-fingerprint stale closure,
 invalidation during produce, force retry, and in-memory isolation from SQLAlchemy. Live ledger
 behavior is in `tests/integration/postgres/test_run_ledger.py`. Fixture DAG tests live in
-`tests/pipeline/orchestration/`. Observability tests in `tests/observability/` cover intact
+`tests/pipeline/dag/`. Observability tests in `tests/observability/` cover intact
 concurrent log lines, queue overload/shutdown, redaction, stalled versus slow ETA, bounded
-metric labels, and revision `0003` alignment. Forecast tests in `tests/pipeline/forecast/` cover
+metric labels, and revision `0001` ledger/progress alignment. Forecast tests in
+`tests/pipeline/forecast/` cover
 zero-history ranges, replay, device dedup, cache hits, inaccessible/shortfall refusal, stale
 config, missing/uncovered forecasts, simulated free-space loss without partial manifests,
 inventory/delta versus sample, schema drift, CLI standalone versus `--run-id`, Make dry-run, and
@@ -333,11 +510,34 @@ orphan reconcile, report cannot activate, aggregate versus atomic logical equiva
 finalize, and optional-import isolation. Inspection tests in `tests/inspect/` cover empty,
 partial, quarantined, schema-drifted, and failed summaries, checksum stability, secret/path
 redaction, latest and lake lookup, bounded anchors, evaluate-stage artifacts, CLI/Make wrappers,
-and optional-import isolation. Fixtures do not prove real-archive extraction quality or
+and optional-import isolation. Evidence lookup tests in `tests/query/evidence/` cover duplicate
+silos, sheet/cell and nested-member anchors, path-only renames, missing/changed files, escaping
+links, ambiguous citations, copy extras, repeated ledger import, contract-column refusal, CLI/Make
+wrappers, and
+optional-import isolation. Reconciliation tests in `tests/pipeline/reconcile/` cover no-op
+updates, additions, path-only renames, change/remove retraction, partial-scan withholding,
+an incomplete scan that retracts no active row, a non-last-occurrence removal that keeps its shard
+live, a move between silos that is not one rename, same-silo rename preference, chunked hashing of
+large files,
+shared merge/split evidence, rebuild checksum parity, quality-gated activation, dbt source/ref
+lineage, and revision `0001` reconcile alignment. Prune tests in `tests/pipeline/prune/` cover
+sole-recovery refusal, protected kinds, refusal of a symlinked escape from the runs root, measured
+removed bytes, and superseded-attempt deletion that leaves live cache
+entries. Pipeline-control proof tests in `tests/evaluation/proof/test_pipeline_control.py` cover
+the named gates, dispatcher/CLI publish and check, unreadable archives, copy budgets, and
+path-free no-export bundles. Fixtures do not prove real-archive extraction quality or
 CUDA worker fit.
 
 Checkpoint 0046 validates fixture publication and reuse, with live disposable SQL lease/crash checks
-and a CUDA-host resource probe. Concrete producer fingerprints, validators, database activation and
-provided-archive behavior remain with the
-[corpus/control checkpoint](../plan.md#review-corpus-and-control-integrity). The local lock is
+and a CUDA-host resource probe. Record 0053 publishes the provided-archive control proof for
+then-usable stages. Checkpoint 0054 reviews the producers accepted after 0046 -- inspection,
+reconciliation, prune, package layout, evidence lookup and the frozen store revision -- and repair
+0055 fixes the reconciliation and prune defects it found; record 0056 republishes the
+provided-archive bundle on the repaired code, so `0056-host` is the current real-archive evidence.
+A removal that is not the last occurrence is outside that scenario's reach and stays
+fixture-covered. Concrete producer fingerprints,
+validators, database activation and remaining corpus stages stay with the
+[corpus/control checkpoint](../plan.md#review-corpus-and-control-integrity). Source link policy
+is implemented by [streaming inventory](../records/0060-corpus-implement-streaming-inventory.md).
+The local lock is
 intentionally coarse; the review does not establish parallel corpus throughput or power-loss recovery.

@@ -4,11 +4,11 @@ import json
 import pathlib
 from typing import Any
 
+from arxiv_int.contracts.catalog.registry import FileRegistry
 from arxiv_int.contracts.evolution.core import freeze_baseline, schema_snapshot
 from arxiv_int.contracts.evolution.policy import projection_snapshot
 from arxiv_int.contracts.generate.normalize import sha256_text
 from arxiv_int.contracts.generate.pipeline import GENERATOR_VERSION
-from arxiv_int.contracts.registry import FileRegistry
 
 EVOLUTION_DIRNAME = "evolution"
 

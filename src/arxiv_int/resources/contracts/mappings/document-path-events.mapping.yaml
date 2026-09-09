@@ -1,0 +1,41 @@
+metadata:
+  domain: arxiv-int
+  sourceContract: document-path-events
+  canonicalEntity: document_path_event
+fieldMappings:
+  - sourceField: event_id
+    binding: document_path_event.eventId
+    semanticTerm: urn:arxiv-int:term:path-event-id
+  - sourceField: document_id
+    binding: document_path_event.documentId
+    semanticTerm: urn:arxiv-int:term:document-id
+  - sourceField: occurrence_id
+    binding: document_path_event.occurrenceId
+    semanticTerm: urn:arxiv-int:term:occurrence-id
+  - sourceField: silo_id
+    binding: document_path_event.siloId
+    semanticTerm: urn:arxiv-int:term:silo-id
+  - sourceField: kind
+    binding: document_path_event.kind
+    semanticTerm: urn:arxiv-int:term:kind
+  - sourceField: relative_path
+    binding: document_path_event.relativePath
+    semanticTerm: urn:arxiv-int:term:relative-path
+  - sourceField: previous_relative_path
+    binding: document_path_event.previousRelativePath
+    semanticTerm: urn:arxiv-int:term:previous-relative-path
+  - sourceField: content_hash
+    binding: document_path_event.contentHash
+    semanticTerm: urn:arxiv-int:term:content-hash
+  - sourceField: ledger_id
+    binding: document_path_event.ledgerId
+    semanticTerm: urn:arxiv-int:term:ledger-id
+  - sourceField: event_time
+    binding: document_path_event.eventTime
+    semanticTerm: urn:arxiv-int:term:event-time
+  - sourceField: generation_id
+    binding: document_path_event.generationId
+    semanticTerm: urn:arxiv-int:term:generation-id
+  - sourceField: contract_version
+    binding: document_path_event.contractVersion
+    semanticTerm: urn:arxiv-int:term:contract-version

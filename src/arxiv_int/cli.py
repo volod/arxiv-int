@@ -110,7 +110,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     generate.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
     check = contract_commands.add_parser(
-        "check", help="fail when contracts/generated drifts from regeneration"
+        "check", help="fail when packaged contracts/generated drifts from regeneration"
     )
     check.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
     evolution = contract_commands.add_parser(
@@ -239,12 +239,15 @@ def build_parser() -> argparse.ArgumentParser:
     from arxiv_int.inference.cli import add_inference_parser
 
     add_inference_parser(subcommands)
-    from arxiv_int.evaluation.export_cli import add_evaluation_parser
+    from arxiv_int.evaluation.cli import add_evaluation_parser
 
     add_evaluation_parser(subcommands)
     from arxiv_int.inspect.cli import add_inspect_parser
 
     add_inspect_parser(subcommands)
+    from arxiv_int.query.evidence.cli import add_archive_parser
+
+    add_archive_parser(subcommands)
     from arxiv_int.pipeline.cli import add_pipeline_parsers
 
     add_pipeline_parsers(subcommands)
@@ -522,7 +525,7 @@ def _parse_related(values: list[str]) -> dict[str, Path]:
 
 def _run_data_quality(args: argparse.Namespace) -> int:
     from arxiv_int.data_quality.commands import run_check
-    from arxiv_int.data_quality.model import ValidationLimits
+    from arxiv_int.data_quality.engine.model import ValidationLimits
     from arxiv_int.runtime.project_root import ProjectRootError
 
     try:
@@ -572,6 +575,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_setup_command(args)
     if args.command == "data-quality":
         return _run_data_quality(args)
+    return _run_package_command(args)
+
+
+def _run_package_command(args: argparse.Namespace) -> int:
+    """Dispatch commands whose handlers live in optional packages."""
     if args.command == "transform":
         from arxiv_int.transformations.commands import run_transform_command
 
@@ -581,15 +589,19 @@ def main(argv: Sequence[str] | None = None) -> int:
 
         return run_inference_command(args)
     if args.command == "evaluation":
-        from arxiv_int.evaluation.export_commands import run_evaluation_command
+        from arxiv_int.evaluation.evaluate.commands import run_evaluate_cli
 
-        return run_evaluation_command(args)
+        return run_evaluate_cli(args)
     if args.command == "inspect":
         from arxiv_int.inspect.commands import run_inspect_command
 
         return run_inspect_command(args)
+    if args.command == "archive":
+        from arxiv_int.query.evidence.commands import run_archive_command
+
+        return run_archive_command(args)
     if args.command in {"pipeline", "stage", "run", "artifacts"}:
-        from arxiv_int.pipeline.dispatch import run_pipeline_command
+        from arxiv_int.pipeline.dag.dispatch import run_pipeline_command
 
         return run_pipeline_command(args)
     return _run_info()

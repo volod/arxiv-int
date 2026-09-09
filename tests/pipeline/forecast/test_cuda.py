@@ -2,7 +2,7 @@
 
 import pytest
 
-from arxiv_int.inference.resources import snapshot_host
+from arxiv_int.inference.scheduler.resources import snapshot_host
 from arxiv_int.pipeline.forecast.engine import build_forecast
 from tests.pipeline.forecast.conftest import make_inputs
 

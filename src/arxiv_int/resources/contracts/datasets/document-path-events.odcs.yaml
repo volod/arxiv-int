@@ -1,0 +1,144 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:contract:document-path-events:1.0.0
+name: document-path-events
+status: active
+domain: arxiv-int
+description:
+  purpose: Portable path events that record initial, renamed, copied, and imported locations for canonical documents.
+team:
+  name: arxiv-int
+  members:
+    - username: contracts@arxiv-int.local
+      role: Owner
+servers:
+  - server: normalized-lake
+    type: local
+    description: Partitioned normalized lake under RESULTS_DIR
+    path: normalized/document-path-events
+    format: parquet
+customProperties:
+  - property: x-arxiv-int
+    value:
+      schema: corpus
+      table: document_path_event
+      partitionKey: bucket
+schema:
+  - name: document_path_event
+    physicalName: document_path_event
+    logicalType: object
+    properties:
+      - name: event_id
+        logicalType: string
+        primaryKey: true
+        primaryKeyPosition: 1
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: document_path_event.eventId
+                semanticTerm: "urn:arxiv-int:term:path-event-id"
+      - name: document_id
+        logicalType: string
+        required: true
+        relationships:
+          - type: foreignKey
+            to: documents.document_id
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: document_path_event.documentId
+                semanticTerm: "urn:arxiv-int:term:document-id"
+      - name: occurrence_id
+        logicalType: string
+        relationships:
+          - type: foreignKey
+            to: source_occurrences.occurrence_id
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: document_path_event.occurrenceId
+                semanticTerm: "urn:arxiv-int:term:occurrence-id"
+      - name: silo_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: document_path_event.siloId
+                semanticTerm: "urn:arxiv-int:term:silo-id"
+      - name: kind
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: document_path_event.kind
+                semanticTerm: "urn:arxiv-int:term:kind"
+      - name: relative_path
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: document_path_event.relativePath
+                semanticTerm: "urn:arxiv-int:term:relative-path"
+      - name: previous_relative_path
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: document_path_event.previousRelativePath
+                semanticTerm: "urn:arxiv-int:term:previous-relative-path"
+      - name: content_hash
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: document_path_event.contentHash
+                semanticTerm: "urn:arxiv-int:term:content-hash"
+      - name: ledger_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: document_path_event.ledgerId
+                semanticTerm: "urn:arxiv-int:term:ledger-id"
+      - name: event_time
+        logicalType: timestamp
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: document_path_event.eventTime
+                semanticTerm: "urn:arxiv-int:term:event-time"
+      - name: generation_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: document_path_event.generationId
+                semanticTerm: "urn:arxiv-int:term:generation-id"
+      - name: contract_version
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: document_path_event.contractVersion
+                semanticTerm: "urn:arxiv-int:term:contract-version"

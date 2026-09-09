@@ -1,0 +1,42 @@
+version: 2
+models:
+  - name: stg_documents
+    description: >
+      Fixture staging view over canonical corpus.documents. Grain is document_id.
+      Domain tasks own business staging models.
+    config:
+      meta:
+        grain: document_id
+        inclusion_policy: all-canonical-documents
+    columns:
+      - name: document_id
+        description: Stable document identity copied from the canonical source.
+        tests:
+          - not_null
+          - unique
+      - name: source_schema
+        description: Canonical PostgreSQL schema name retained for lineage.
+        tests:
+          - not_null
+      - name: source_table
+        description: Canonical table name retained for lineage.
+        tests:
+          - not_null
+  - name: stg_source_tombstones
+    description: >
+      Staging view over ctl.source_tombstone. last_occurrence retracts shared
+      content only when no other active occurrence remains.
+    config:
+      meta:
+        grain: tombstone_id
+    columns:
+      - name: tombstone_id
+        tests:
+          - not_null
+          - unique
+      - name: content_hash
+        tests:
+          - not_null
+      - name: last_occurrence
+        tests:
+          - not_null

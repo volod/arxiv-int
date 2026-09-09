@@ -5,13 +5,14 @@ from urllib.parse import urljoin
 from arxiv_int.readiness.http_transport import local_base
 from arxiv_int.readiness.probes import Probe
 from arxiv_int.readiness.report import PreflightReport
+from arxiv_int.resources.paths import contracts_root
 from arxiv_int.runtime.config_model import RuntimeConfig
 from arxiv_int.runtime.inference_config import inference_base_url, selected_backend
 
 
 def check_contracts(report: PreflightReport, config: RuntimeConfig) -> None:
     """Report whether the currently shipped contract registry has readable state."""
-    registry = config.project_root / "contracts" / "registry.yaml"
+    registry = contracts_root(config.project_root) / "registry.yaml"
     if not registry.exists():
         report.add("contracts", "ready", "no product contract registry is shipped yet")
         return

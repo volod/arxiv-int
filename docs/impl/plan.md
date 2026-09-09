@@ -16,192 +16,15 @@ Each producer owns its domain models/checks and uses the shared implementations 
 queries, COPY, extension DDL, and Cypher retain the narrow exceptions defined in the specification.
 Proof tasks retain tool/rule/model fingerprints and required quality outcomes; a skipped validator
 cannot establish a pass. These requirements also apply to later additive contract/migration work.
-Git-bound proof copies follow [identity obfuscation](../design/spec.md#identity-obfuscation-for-committed-proof-artifacts);
-local proof data and human-review packets keep original identities. Each proof task declares its
-export file list or records that no Git-bound source artifact is produced.
+Proof data and human-review packets stay under the configured roots and are never committed; see
+[published proof and evaluation data](../design/spec.md#published-proof-and-evaluation-data).
+Each proof task names the roots its artifacts occupy and the bundle fingerprint a reviewer checks
+in place.
 `Human review handoff` marks an agent producer of human-evaluation evidence; it is not approval or
 a prerequisite on the producer. Follow the [handoff workflow](../guide/planning-workflow.md#human-review-handoffs)
 and name ready/pending human decisions and the dependent work that must wait at task completion.
 
-### Pipeline control -- `pipeline-control`
-
-#### implement-incremental-reconciliation-and-stale-pruning
-
-Reconcile archive and implementation deltas through artifact lineage, retract stale active data,
-and provide safe partial update, full rebuild, and physical-prune paths.
-
-- Serves: `pipeline-control` --
-[Resumability, idempotency, and provenance](../design/spec.md#resumability-idempotency-and-provenance)
-- Agent status: CLEAR
-- Dependencies: [Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md);
-[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md); [0025](records/0025-store-implement-rebuildable-search-and-graph-projections.md);
-`implement-streaming-inventory`.
-- User-visible outcome: Added, changed, renamed, or removed files and later analysis-code changes
-update only affected descendants, while operators can deliberately rebuild everything or reclaim
-obsolete derived storage.
-- Scope boundary: Reconcile derived/canonical active views and prune only unreferenced stale data;
-never delete archive sources, move ledgers, immutable review history, active generations, or the sole
-recovery copy.
-- Data and artifact paths: `ctl.artifact_lineage`, source delta/tombstone and prune-event contracts,
-`src/arxiv_int/pipeline/reconcile/`, `src/arxiv_int/pipeline/prune/`,
-additive `src/arxiv_int/migrations/versions/`, and
-`$RUNS_DIR/<run-id>/{delta,invalidation,rebuild,prune}/`.
-- Execution path: Diff complete comparable source manifests into add/content-change/path-rename/remove;
-unavailable silos, partial scans, or unstable files cannot create removal tombstones; compute the
-minimal downstream closure; retract stale rows/edges from active views after replacements validate;
-retain shared evidence; create isolated rebuild generations and atomic activation; make prune
-two-phase with dry-run ids, reference/pin/backup checks, and compact retained lineage.
-Use Alembic Python revisions for new control fields and typed SQLAlchemy transactions for
-tombstones/activation; place set-based derived-view recomputation in dbt models. Reconcile dbt
-source/ref lineage with artifact edges and test deleted inputs, late corrections and model changes
-against a clean build; successful quality checks precede every pointer switch.
-- Acceptance gates: Deterministic fixtures prove no-op updates invoke no heavy workers; additions
-touch only new shards; path-only renames avoid content analysis; changes/removals retract exactly
-dependent active outputs; stage fingerprint changes invalidate only owned descendants; rebuild
-matches a clean baseline; partial or unreadable scans retract nothing; merge/split/review and
-source-removal updates preserve
-shared evidence; prune refuses active, pinned, reviewed, rollback, decision-ledger, or sole-backup data.
-- Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
-
-#### implement-evidence-and-source-location-lookup
-
-Resolve every content, fact and report citation to physical sources and exact member/page/cell anchors.
-
-- Serves: `pipeline-control` -- [Source and evidence identity](../design/spec.md#source-and-evidence-identity)
-- Agent status: CLEAR
-- Dependencies: `implement-streaming-inventory`; [Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md);
-`implement-normalization-dedupe-and-chunking`.
-- User-visible outcome: Search and report users can find original and current source locations,
-including duplicate files, container members and renamed sources before any organizer is installed.
-- Scope boundary: Read-only resolution and explicit path-event import; no placement executor,
-reclassification, arbitrary filesystem opening, or requirement for live model/graph services.
-- Data and artifact paths: `src/arxiv_int/query/evidence/`, source/path-event contracts,
-`corpus.document_path_event`, portable source manifests, CLI and network-free resolver fixtures.
-- Execution path: Expose `archive locate DOCUMENT_ID` and a typed citation resolver using canonical
-rows or sealed manifests; map content to all source occurrences and original/normalized anchors;
-validate root containment and current hashes; import portable organizer ledgers idempotently.
-- Acceptance gates: Fixtures cover duplicate silos, sheet/cell and nested-member anchors, path-only
-renames, missing/changed files, ambiguous locations, escaping links and repeated ledger import;
-resolution never rewrites original provenance, changes bytes or requires placement services.
-- Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
-
-#### prove-pipeline-control-on-provided-archive
-
-Exercise idempotency, incremental reconciliation, invalidation, forecasting, rebuild, and prune
-planning with the supplied archive and publish the pipeline-control proof bundle.
-
-- Serves: `pipeline-control` --
-[Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
-- Agent status: RUN NEEDED
-- Dependencies: [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md);
-`prove-corpus-foundation-on-provided-archive`; [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md);
-`implement-evidence-and-source-location-lookup`.
-- User-visible outcome: The supplied archive demonstrates that unchanged inputs skip heavy work,
-deltas update only affected artifacts, stale data retracts safely, insufficient space blocks early,
-and a clean generation can be rebuilt.
-- Scope boundary: Do not modify `ARCHIVE_DIR`; perform add/change/rename/remove and prune-apply
-drills only on a bounded disposable proof copy; do not prune the sole proof or recovery generation.
-- Data and artifact paths: `$ARCHIVE_DIR` used without modification, disposable
-`$RESULTS_DIR/proof-work/pipeline-control/<proof-id>/`, and
-`$RESULTS_DIR/proofs/pipeline-control/<proof-id>/`.
-- Execution path: Forecast and run the corpus closure; rerun unchanged; create controlled source
-deltas and a stage-fingerprint bump; inspect minimal closures and active retractions; simulate low
-space; rebuild into a fresh generation; compare checksums; dry-run pruning and apply it only to an
-extra disposable stale generation.
-- Acceptance gates: Proof records zero heavy invocations on the no-op rerun, exact affected/unaffected
-shards for each delta, correct tombstones and active rows, targeted code invalidation, non-zero
-resource refusal before allocation, clean-rebuild parity, protected-data prune refusal, and no write
-to the supplied archive.
-Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
-obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
-unchanged. Retain separate raw-proof and transformed-export fingerprints.
-- Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
-
-#### review-corpus-and-control-integrity
-
-Review the integrated milestone before lexical loading, classification and NLP consumers.
-
-- Serves: `pipeline-control` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
-- Agent status: CLEAR
-- Task kind: checkpoint
-- Dependencies: `implement-normalization-dedupe-and-chunking`;
-`implement-evidence-and-source-location-lookup`;
-[Investigation profile and output manifest](records/0045-pipeline-implement-investigation-profile-and-output-manifest.md);
-[Progress logging and resource telemetry](records/0043-pipeline-add-progress-logging-and-resource-telemetry.md);
-[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
-[Publication/reuse checkpoint](records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md);
-`implement-incremental-reconciliation-and-stale-pruning`.
-- Audit inputs: [AUD-review-pipeline-publication-and-reuse-boundaries-2](records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md#audit-handoff).
-- User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
-or blocked
-for the named consumers; no-refactoring-needed is a valid conclusion.
-- Scope boundary: Review the named milestone and routed notes only; no speculative rewrite, automatic
-model upgrade, scope expansion or deferred replacement for each producer task's own checks.
-Adding tests for important stabilized integrity, correctness, and business-logic cases in this
-stage is in scope; concluding that existing tests already cover them is valid. Restoring a
-numeric coverage floor is not.
-Use deterministic integration evidence and inspect provided-archive proofs when available;
-this verdict permits fixture implementation, not real-data or CUDA promotion.
-- Data and artifact paths: Accepted producer records under `docs/impl/records/`, current-state pages,
-existing test/proof artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
-- Execution path: Read full task snapshots and source changes; trace source immutability,
-complete-scan semantics, cell/member coordinates, shard/generation
-identity, cache invalidation, atomic publication, forecast/reserve refusal and bounded queues;
-replay representative existing tests/validators; add tests for important integrity, correctness,
-and business-logic cases that the stage's now-stable interfaces still miss; reconcile every
-routed note; record concrete findings with evidence, severity, affected consumers and one
-disposition each.
-- Acceptance gates: Every producer requirement and open note has an evidence-backed disposition;
-verify the
-listed invariants and make ci. Important stabilized cases in this stage have tests or an
-evidence-backed conclusion that existing tests already cover them; a coverage percentage is not
-a gate. Create a focused prerequisite refactor task for any blocking finding
-and keep this checkpoint open until it passes; preserve valid negative results and nonblocking
-follow-ups in the checkpoint record without claiming a wider audit.
-- Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: none; this task is the bounded checkpoint. Route follow-ups to explicit task ids.
-
 ### Corpus foundation -- `corpus-foundation`
-
-#### implement-streaming-inventory
-
-Build a content-addressed, restartable archive inventory with format, encoding, hash, and quarantine
-metadata.
-
-- Serves: `corpus-foundation` -- [Pipeline](../design/spec.md#pipeline)
-- Agent status: RUN NEEDED
-- Dependencies: Runtime roots documented in [Portable runtime](current/portable-runtime.md);
-[Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
-[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md);
-[Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md).
-[Publication/reuse checkpoint](records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md).
-- User-visible outcome: The operator can inventory one or more multi-terabyte silos without loading
-them into RAM and can see per-silo coverage, bytes, duplicates, and unsupported/encrypted inputs.
-- Scope boundary: Read files and archive-member metadata only; no text extraction and no
-modification of source files.
-- Data and artifact paths: Declared source roots from `$ARCHIVE_DIR`, used without modification;
-`$RESULTS_DIR/normalized/inventory/`; `$RUNS_DIR/<run-id>/`; `src/arxiv_int/pipeline/inventory/`.
-- Execution path: Resolve the declared silo ids and roots; stream directory entries, carry silo id
-with root-relative path metadata, detect MIME/encoding, compute strong hashes for content identity
-(quick hashes only select candidates), verify file
-stability across reads, record completed source-set scope and container/member identities, enforce
-archive-bomb limits, shard by stable id, and write atomic Parquet manifests; register
-the stage in the existing registry and expose `arxiv-int stage inventory` plus
-`make stage STAGE=inventory` in the same change,
-then run that command on a bounded authorized archive when available and inspect its artifacts.
-Use PyArrow batch writers and contract-derived Pandera checks before sealing partitions;
-record completed global occurrence-key checks and reject batches with invalid provenance.
-- Acceptance gates: Network-free fixtures cover large/sparse files, links, permission errors,
-renamed duplicates, nested archives, encrypted files, interruption, and resume; two silos sharing one
-root-relative path stay distinct while identical bytes resolve to one content identity; memory is
-bounded independently of file count; fixture stage run and artifact summary are recorded without
-private content or machine-specific
-paths; provided-archive acceptance is tracked by its separate proof task.
-- Documentation target: `docs/impl/current/corpus-foundation.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
 
 #### integrate-tiered-text-extraction
 
@@ -210,7 +33,7 @@ Compose Tika, Docling, and OCR/layout fallbacks behind one evidence-preserving e
 - Serves: `corpus-foundation` --
 [Russian-language and document analysis](../design/spec.md#russian-language-and-document-analysis)
 - Agent status: RUN NEEDED
-- Dependencies: `implement-streaming-inventory`;
+- Dependencies: [Streaming inventory](records/0060-corpus-implement-streaming-inventory.md);
 [Deterministic schema generation](records/0011-contract-gov-implement-deterministic-schema-generation.md).
 - User-visible outcome: Supported documents become normalized source spans with page/table/offset
 evidence; failures are quarantined with actionable reasons.
@@ -262,6 +85,54 @@ whose redacted results are recorded in current-state documentation.
 - Documentation target: `docs/impl/current/corpus-foundation.md`
 - Review checkpoint: `review-corpus-and-control-integrity`.
 
+#### review-corpus-and-control-integrity
+
+Review the integrated milestone before lexical loading, classification and NLP consumers.
+
+- Serves: `corpus-foundation` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
+- Agent status: CLEAR
+- Task kind: checkpoint
+- Dependencies: `implement-normalization-dedupe-and-chunking`;
+[Owned stage fingerprints](records/0058-pipeline-bind-real-owned-stage-fingerprints.md);
+[Bounded archive snapshots](records/0059-pipeline-bound-archive-snapshot-hashing.md);
+[Control integration checkpoint](records/0054-pipeline-review-control-integration-boundaries.md);
+[Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md);
+[Investigation profile and output manifest](records/0045-pipeline-implement-investigation-profile-and-output-manifest.md);
+[Progress logging and resource telemetry](records/0043-pipeline-add-progress-logging-and-resource-telemetry.md);
+[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
+[Publication/reuse checkpoint](records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md);
+[Incremental reconciliation and stale pruning](records/0049-pipeline-implement-incremental-reconciliation-and-stale-pruning.md).
+- Audit inputs: [AUD-review-pipeline-publication-and-reuse-boundaries-2](records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md#audit-handoff);
+[AUD-retire-committed-proof-export-1](records/0057-eval-found-retire-committed-proof-export.md#audit-handoff).
+- User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
+or blocked
+for the named consumers; no-refactoring-needed is a valid conclusion.
+- Scope boundary: Review the named milestone and routed notes only; no speculative rewrite, automatic
+model upgrade, scope expansion or deferred replacement for each producer task's own checks.
+Adding tests for important stabilized integrity, correctness, and business-logic cases in this
+stage is in scope; concluding that existing tests already cover them is valid. Restoring a
+numeric coverage floor is not.
+Use deterministic integration evidence and inspect provided-archive proofs when available;
+this verdict permits fixture implementation, not real-data or CUDA promotion.
+- Data and artifact paths: Accepted producer records under `docs/impl/records/`, current-state pages,
+existing test/proof artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
+- Execution path: Read full task snapshots and source changes; trace source immutability,
+complete-scan semantics, cell/member coordinates, shard/generation
+identity, cache invalidation, atomic publication, forecast/reserve refusal and bounded queues;
+replay representative existing tests/validators; add tests for important integrity, correctness,
+and business-logic cases that the stage's now-stable interfaces still miss; reconcile every
+routed note; record concrete findings with evidence, severity, affected consumers and one
+disposition each.
+- Acceptance gates: Every producer requirement and open note has an evidence-backed disposition;
+verify the
+listed invariants and make ci. Important stabilized cases in this stage have tests or an
+evidence-backed conclusion that existing tests already cover them; a coverage percentage is not
+a gate. Create a focused prerequisite refactor task for any blocking finding
+and keep this checkpoint open until it passes; preserve valid negative results and nonblocking
+follow-ups in the checkpoint record without claiming a wider audit.
+- Documentation target: `docs/impl/current/corpus-foundation.md`
+- Review checkpoint: none; this task is the bounded checkpoint. Route follow-ups to explicit task ids.
+
 #### prove-corpus-foundation-on-provided-archive
 
 Run the completed corpus stages against the operator-provided archive and publish their first
@@ -270,8 +141,9 @@ current proof bundle.
 - Serves: `corpus-foundation` --
 [Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
 - Agent status: RUN NEEDED
-- Dependencies: `implement-normalization-dedupe-and-chunking`;
-[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md); [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md);
+- Dependencies: `review-corpus-and-control-integrity`; `implement-normalization-dedupe-and-chunking`;
+[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md);
+[Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md);
 [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md);
 [Representative corpus approval](records/0023-corpus-approve-representative-corpus-and-gold.md).
 - User-visible outcome: The supplied file silos have inspectable inventory, extraction,
@@ -286,9 +158,9 @@ cache decisions plus resource/timing evidence.
 - Acceptance gates: Every usable corpus stage is `passed` or contract-valid `empty`; every inventory
 item is accounted for; artifacts and source anchors validate; the unchanged rerun executes no heavy
 extraction/normalization work; failures keep the task open.
-Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
-obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
-unchanged. Retain separate raw-proof and transformed-export fingerprints.
+The bundle stays under the configured roots and nothing source-derived is committed or staged for
+commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
+checksums and contract conformance in place.
 - Documentation target: `docs/impl/current/corpus-foundation.md`
 - Review checkpoint: `review-corpus-and-control-integrity`.
 
@@ -355,7 +227,7 @@ Build and query the lexical projection for the supplied archive and publish its 
 [Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `calibrate-russian-tokenization-and-bm25`;
-`prove-pipeline-control-on-provided-archive`.
+[Pipeline-control provided-archive proof](records/0053-pipeline-prove-pipeline-control-on-provided-archive.md).
 `review-retrieval-and-classification-boundaries`.
 - User-visible outcome: Supplied documents are searchable through the selected Russian lexical
 profile, with filters, snippets, identifiers, and citations that resolve to source evidence.
@@ -369,9 +241,9 @@ and record load/index cache decisions.
 - Acceptance gates: Projection and source counts reconcile; required queries return valid evidence
 under declared metrics; index/query manifests validate; unchanged rerun does not rebuild or reload
 unchanged partitions; failures or missing citations keep the task open.
-Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
-obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
-unchanged. Retain separate raw-proof and transformed-export fingerprints.
+The bundle stays under the configured roots and nothing source-derived is committed or staged for
+commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
+checksums and contract conformance in place.
 - Documentation target: `docs/impl/current/lexical-retrieval.md`
 - Review checkpoint: `review-investigation-and-report-integrity`.
 
@@ -404,8 +276,9 @@ local extensions, and version behind every file assignment.
 do not redistribute restricted schedules or label project extensions and exceptional outcomes as
 official UDC notation.
 - Data and artifact paths: `contracts/datasets/classification*.odcs.yaml`,
-`configs/classification/`, `src/arxiv_int/classification/vocabulary/`, classification gold fixtures,
-and `$RUNS_DIR/<run-id>/classification/`.
+`configs/classification/`, `src/arxiv_int/classification/vocabulary/`, synthetic classification
+fixtures, and `$RUNS_DIR/<run-id>/classification/`; reviewed gold labels stay under the operator's
+configured evaluation roots.
 - Execution path: Import and checksum the selected vocabulary; parse simple hierarchy, auxiliaries,
 and compound notation; define stable local extension ids plus `unclassified` and `unreadable`;
 freeze multilingual captions, parent closure, path-safe tokens, and evaluation splits.
@@ -467,7 +340,7 @@ Review searchable/classifiable corpus accounting before archive quality and poli
 - Task kind: checkpoint
 - Dependencies: `review-corpus-and-control-integrity`; `calibrate-russian-tokenization-and-bm25`;
 `establish-versioned-udc-derived-scheme`; `implement-hierarchical-file-classification`;
-`implement-evidence-and-source-location-lookup`.
+[Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
 - User-visible outcome:
 Retrieval and classification proofs consume coherent source, vocabulary and query identities.
 - Scope boundary:
@@ -499,9 +372,9 @@ Classify the supplied archive and validate its complete hierarchical mapping and
 [Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `implement-hierarchical-file-classification`;
-`prove-pipeline-control-on-provided-archive`;
+[Pipeline-control provided-archive proof](records/0053-pipeline-prove-pipeline-control-on-provided-archive.md);
 [Representative corpus approval](records/0023-corpus-approve-representative-corpus-and-gold.md).
-`implement-evidence-and-source-location-lookup`.
+[Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
 `review-retrieval-and-classification-boundaries`.
 - Human review handoff:
 [approve-classification-policy](#approve-classification-policy)
@@ -525,9 +398,9 @@ fingerprints, and physical/virtual source accounting; rerun unchanged and record
 - Acceptance gates: Every physical inventory item has one complete result; virtual members retain container
 links; source references and calibration metrics validate; supplied bytes remain unchanged; the
 identical rerun invokes no heavy classifier; proof artifacts and checksums are complete.
-Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
-obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
-unchanged. Retain separate raw-proof and transformed-export fingerprints.
+The bundle stays under the configured roots and nothing source-derived is committed or staged for
+commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
+checksums and contract conformance in place.
 - Documentation target: `docs/impl/current/archive-classification.md`
 - Review checkpoint: `review-investigation-and-report-integrity`.
 
@@ -594,7 +467,7 @@ their proof bundle.
 [Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `evaluate-general-and-domain-ner`;
-`prove-pipeline-control-on-provided-archive`.
+[Pipeline-control provided-archive proof](records/0053-pipeline-prove-pipeline-control-on-provided-archive.md).
 - User-visible outcome: The supplied Russian and mixed-language documents expose inspectable terms,
 language/noise results, mentions, source offsets, model identities, and measured failure classes.
 - Scope boundary: Prove configured NLP profiles on available archive languages/types; do not treat
@@ -608,9 +481,9 @@ dictionary/model cache hits.
 - Acceptance gates: All usable NLP outputs validate and resolve to source spans; unsupported and
 ambiguous cases are counted; configured metrics are reported by present stratum; unchanged rerun
 performs no heavy NER or morphology work; incomplete evidence keeps the task open.
-Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
-obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
-unchanged. Retain separate raw-proof and transformed-export fingerprints.
+The bundle stays under the configured roots and nothing source-derived is committed or staged for
+commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
+checksums and contract conformance in place.
 - Documentation target: `docs/impl/current/russian-nlp.md`
 - Review checkpoint: `review-knowledge-and-identity-integrity`.
 
@@ -643,7 +516,7 @@ preserves asserted time/place uncertainty; new terms can be reviewed without cha
 and typed geotemporal contracts/validators. Reuse Location and domain terms; no autonomous axiom
 acceptance, remote geocoder, GIS platform or extra database extension. Published vocabulary stays
 separate from candidates; unknown terms stay proposed/unmapped until human review.
-- Data and artifact paths: `ontology/`, `contracts/`, `src/arxiv_int/ontology/`, mirrored tests,
+- Data and artifact paths: `src/arxiv_int/resources/ontology/`, `src/arxiv_int/resources/contracts/`, `src/arxiv_int/ontology/`, mirrored tests,
 additive Alembic revisions where required, `$RUNS_DIR/<run-id>/{ontology,review/ontology}/`.
 - Execution path: Seal term/mapping/shape/policy fingerprints; retain prior snapshots and explicit
 replacement/deprecation mappings; bind ontology identity into validation and projection reuse keys.
@@ -778,9 +651,9 @@ and producer/consumer typing on sampled catalog and graph labels.
 - Acceptance gates: Cluster and ontology validators pass at declared policies; graph/fallback counts
 and sampled paths agree with canonical facts; every sampled edge has evidence; unchanged rerun avoids
 heavy linkage and graph rebuild; failed projection never replaces the prior active version.
-Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
-obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
-unchanged. Retain separate raw-proof and transformed-export fingerprints.
+The bundle stays under the configured roots and nothing source-derived is committed or staged for
+commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
+checksums and contract conformance in place.
 - Documentation target: `docs/impl/current/identity-ontology-graph.md`
 - Review checkpoint: `review-knowledge-and-identity-integrity`.
 
@@ -1014,9 +887,9 @@ cache decisions.
 - Acceptance gates: Every emitted fact passes shape and evidence validation or remains a typed
 failure; conflicts and review states are preserved; present-type metrics and coverage are reported;
 unchanged rerun does not invoke heavy extraction; proof checksums and fingerprints validate.
-Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
-obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
-unchanged. Retain separate raw-proof and transformed-export fingerprints.
+The bundle stays under the configured roots and nothing source-derived is committed or staged for
+commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
+checksums and contract conformance in place.
 - Documentation target: `docs/impl/current/knowledge-extraction.md`
 - Review checkpoint: `review-knowledge-and-identity-integrity`.
 
@@ -1190,9 +1063,9 @@ projection/render cache hits.
 - Acceptance gates: Every configured family is honestly `produced`, `partial`, or `empty` with a
 valid reason; no failed output is registered as successful; evidence and policy resolve for every
 element; identical rerun performs no heavy extraction, projection, or rendering.
-Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
-obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
-unchanged. Retain separate raw-proof and transformed-export fingerprints.
+The bundle stays under the configured roots and nothing source-derived is committed or staged for
+commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
+checksums and contract conformance in place.
 - Documentation target: `docs/impl/current/domain-investigation-artifacts.md`
 - Review checkpoint: `review-investigation-and-report-integrity`.
 
@@ -1242,7 +1115,8 @@ Publish findings, reversible review events and bounded explanation views for ana
 
 - Serves: `anomaly-analysis` -- [Anomaly detection and triage](../design/spec.md#anomaly-detection-and-triage)
 - Agent status: CLEAR
-- Dependencies: `implement-explainable-anomaly-detectors`; `implement-incremental-reconciliation-and-stale-pruning`.
+- Dependencies: `implement-explainable-anomaly-detectors`;
+[Incremental reconciliation and stale pruning](records/0049-pipeline-implement-incremental-reconciliation-and-stale-pruning.md).
 - Human review handoff:
 [approve-anomaly-triage-policy](#approve-anomaly-triage-policy)
 detector coverage, hard negatives, review replay and proposed budgets.
@@ -1336,9 +1210,9 @@ and capture cache hits, time and memory; report retain-constraints or not-select
 verdict; hard
 negatives, cohort leakage and review burden are reported; findings/empty outputs validate; no
 heavy work on the identical rerun and no private source content in repository summaries.
-Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
-obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
-unchanged. Retain separate raw-proof and transformed-export fingerprints.
+The bundle stays under the configured roots and nothing source-derived is committed or staged for
+commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
+checksums and contract conformance in place.
 - Documentation target: `docs/impl/current/anomaly-analysis.md`
 - Review checkpoint: `review-investigation-and-report-integrity`.
 
@@ -1410,7 +1284,7 @@ company/product/person catalogs and the analyst entry report through CLI and a s
 `register-and-expose-domain-artifacts`; `build-company-product-and-person-catalogs`;
 `implement-anomaly-review-and-triage-exports`;
 [Investigation profile and output manifest](records/0045-pipeline-implement-investigation-profile-and-output-manifest.md).
-`implement-evidence-and-source-location-lookup`.
+[Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
 `review-domain-artifact-and-triage-boundaries`.
 - Human review handoff:
 [accept-operator-discovery-workflows](#accept-operator-discovery-workflows)
@@ -1521,9 +1395,9 @@ limits, exports, dashboards/views, and unchanged-rerun cache decisions.
 - Acceptance gates: Every executed scenario resolves to bounded, policy-labelled source evidence;
 exports and configured views validate; unavailable optional profiles have working fallbacks;
 unchanged rerun avoids heavy topic/report recomputation; unresolved failures keep proof open.
-Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
-obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
-unchanged. Retain separate raw-proof and transformed-export fingerprints.
+The bundle stays under the configured roots and nothing source-derived is committed or staged for
+commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
+checksums and contract conformance in place.
 - Documentation target: `docs/impl/current/discovery-visualization.md`
 - Review checkpoint: `review-investigation-and-report-integrity`.
 
@@ -1535,7 +1409,8 @@ Review the integrated milestone before provided-archive end-to-end proof and sca
 - Agent status: CLEAR
 - Task kind: checkpoint
 - Dependencies: `build-search-graph-and-report-interfaces`;
-`implement-directory-to-knowledge-base-acceptance`; `implement-anomaly-review-and-triage-exports`.
+`implement-directory-to-knowledge-base-acceptance`; `implement-anomaly-review-and-triage-exports`;
+`provision-local-dashboards-and-age-viewer`.
 - User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
 or blocked
 for the named consumers; no-refactoring-needed is a valid conclusion.
@@ -1684,9 +1559,9 @@ optional disabled
 branches cite selection reasons and fallbacks (measured verdicts for comparative claims); the end-to-end
 report exposes all failures/coverage gaps; unchanged evaluation/report work is reused; private paths
 and corpus content are absent from repository documentation.
-Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
-obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
-unchanged. Retain separate raw-proof and transformed-export fingerprints.
+The bundle stays under the configured roots and nothing source-derived is committed or staged for
+commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
+checksums and contract conformance in place.
 - Documentation target: `docs/impl/current/evaluation.md`
 - Review checkpoint: `review-production-readiness-and-recovery`.
 
@@ -1825,7 +1700,8 @@ index, and stale lease behavior before full-corpus authorization.
 - Dependencies: `implement-backup-restore-and-rebuild-runbook`;
 [Progress logging and resource telemetry](records/0043-pipeline-add-progress-logging-and-resource-telemetry.md);
 [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md);
-`implement-incremental-reconciliation-and-stale-pruning`. Organizer failure injection is separate.
+[Incremental reconciliation and stale pruning](records/0049-pipeline-implement-incremental-reconciliation-and-stale-pruning.md).
+Organizer failure injection is separate.
 - Human review handoff:
 [accept-recovery-and-security-posture](#accept-recovery-and-security-posture)
 seal
@@ -1891,7 +1767,7 @@ Review the integrated milestone before full-corpus authorization.
 - Agent status: CLEAR
 - Task kind: checkpoint
 - Dependencies: `run-representative-scale-pilots`; `test-failure-and-capacity-boundaries`;
-`implement-backup-restore-and-rebuild-runbook`.
+`implement-backup-restore-and-rebuild-runbook`; `implement-published-evidence-freshness-checks`.
 `review-recovery-before-scale-pilots`.
 - Human review handoff:
 [authorize-full-corpus-run](#authorize-full-corpus-run)
@@ -2007,9 +1883,9 @@ record that model inference and index build are reused.
 - Acceptance gates: A usable branch has checksum-valid vectors/indexes, cited queries, measured
 quality/cost verdict, and no heavy work on identical rerun. `not-selected` is valid only with the
 declared measured negative result and verified lexical fallback; other failures keep the task open.
-Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
-obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
-unchanged. Retain separate raw-proof and transformed-export fingerprints.
+The bundle stays under the configured roots and nothing source-derived is committed or staged for
+commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
+checksums and contract conformance in place.
 - Documentation target: `docs/impl/current/semantic-retrieval.md`
 - Review checkpoint: `review-semantic-branch-integrity`.
 
@@ -2062,7 +1938,7 @@ organization in both copy-to-target and in-place move modes.
 - Dependencies: `implement-hierarchical-file-classification`;
 [Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md); `implement-backup-restore-and-rebuild-runbook`
 for move recovery semantics; use disposable roots for acceptance.
-`implement-evidence-and-source-location-lookup`.
+[Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
 
 - Human review handoff:
 [approve-archive-organization-plan](#approve-archive-organization-plan)
@@ -2092,13 +1968,14 @@ route safely placeable special outcomes to `_unclassified` and `_unreadable`; pr
 component/full-path limits, available hashes, links, devices, target overlap, target free space,
 collisions, backup for `move`, and complete path accounting; use independent verified copies on
 either same or different filesystems; exclude hardlinks;
-consume sealed exports without live database/model services; generate the path-event migration;
+consume sealed exports without live database/model services; reuse the reviewed
+`document-path-events` contract and Alembic `0001` `corpus.document_path_event` table;
 record unplaceable entries as blocked; enforce a silo placement lease, stable duplicate-name
 suffixes, filesystem identity checks, and idempotent path-ledger import; seal
 the ledger before journaling renames or verified copies; expose resume and verified rollback;
 reuse the shared read-only
 `archive locate` resolver.
-Generate the path-event change as a reviewed Alembic Python revision; use typed Polars/Arrow
+Do not mint a second path-event schema. Use typed Polars/Arrow
 ledger operations and shared Pandera checks on sealed inputs and output ledgers. The placement
 executor remains independent of live dbt/database services.
 - Acceptance gates: Dry-run is byte-for-byte reproducible; apply requires the exact accepted plan and
@@ -2144,9 +2021,9 @@ edit a placed file and prove rollback refuses to remove it.
 collision handling;
 no provided source changes; no model/database dependency; source hashes, lookup, and recovery
 match the contract; missing backup blocks move application without blocking copy planning.
-Declare the Git-bound export list or no-export result. Committed copies pass the shared identity
-obfuscation, format/reference/anchor and leak checks; local originals and local review packets stay
-unchanged. Retain separate raw-proof and transformed-export fingerprints.
+The bundle stays under the configured roots and nothing source-derived is committed or staged for
+commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
+checksums and contract conformance in place.
 - Documentation target: `docs/impl/current/archive-organization.md`
 - Review checkpoint: `review-archive-organization-integrity`.
 

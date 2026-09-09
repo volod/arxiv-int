@@ -55,7 +55,7 @@ unless `--allow-service-control` (or `allow_service_control=True`) is set. CUDA 
 telemetry snapshots VRAM after load and after unload.
 
 Lease rows use the `ctl.resource_lease` shape and are appended to
-`$SERVICE_STATE_DIR/inference/ctl.resource_lease.jsonl`. Alembic `0002` creates that table; inference
+`$SERVICE_STATE_DIR/inference/ctl.resource_lease.jsonl`. Alembic `0001` creates that table; inference
 does not yet dual-write SQL rows (`insert_resource_lease` is the bound helper when a caller does).
 Telemetry JSONL is `$RUNS_DIR/<run-id>/telemetry/resource-events.jsonl`
 (load time, throughput, VRAM, power, util). Pipeline stages append `pipeline.resource` events to
@@ -63,12 +63,13 @@ the same sink.
 
 ## Schemas and model registry
 
-Committed JSON Schema envelopes live under `configs/models/schemas/`. Python constants in
-`arxiv_int.inference.schema` are the source; `make inference-schemas` writes them and
+Committed JSON Schema envelopes live under `src/arxiv_int/resources/configs/models/schemas/`.
+Python constants in `arxiv_int.inference.policy.schema` are the source; `make inference-schemas`
+writes them and
 `make inference-schemas-check` (part of `make ci`) fails on drift. The current envelopes are
 `cited-span` (a value plus required source quotes) and `refusal`. Callers may pass any schema.
 
-`configs/models/registry.json` lists known project model ids, capabilities, and resource
+`src/arxiv_int/resources/configs/models/registry.json` lists known project model ids, capabilities, and resource
 footprints. Ollama generation defaults to `qwen3.8:27b`; the CUDA-fitting Gemma family tag is
 `gemma3:4b`. vLLM stays on pinned `Qwen/Qwen3.8-27B-FP8`. Live `/api/show` or `/v1/models`
 discovery still works for unlisted tags; unlisted models get a conservative size-token footprint

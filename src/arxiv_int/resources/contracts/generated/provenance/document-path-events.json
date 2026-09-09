@@ -1,0 +1,28 @@
+{
+  "apiVersion": "v3.1.0",
+  "artifacts": {
+    "avro/document-path-events.avsc": "2dae11203c01c6cf4e37ab62c7275b12511c8b30edbd4bb36f079bbdf75084cd",
+    "dbt/document-path-events.yml": "bdf9e1909a9c609425c10bd459575e37f9e732be26218a3878a8a65f2e7146c1",
+    "jsonschema/document-path-events.schema.json": "7a3492d3ae587f2b8dc9df571af9c6d9f2da2901e1459033f676f572d277763b",
+    "parquet/document-path-events.parquet.json": "c8b76f11b0b2ef7ad45ebe8691628d2e0630d2d6714005032e514626a0796935",
+    "postgres/document-path-events.sql": "352a38b8d3f4f8b88cf7c1432f6cf5cb556f02487eba4911de9881f830af2534",
+    "postgres/extensions/document-path-events.sql": "d2a4842b0a1e824b1934b0013f842ebbcbd722f01f7eb858efb7e506a7685136",
+    "pydantic/document-path-events.py": "e2a0dcbae361ecdc7e1eba838aedd50e8e7f48fe07686ba67f4019252c99fb14",
+    "quality/document-path-events.rules.json": "0c233457b3644bc502434be24f6c957badfe2c63cdf17a4df65ba4debf1633cf"
+  },
+  "canonicalEntity": null,
+  "contractId": "document-path-events",
+  "customExtensionKeys": [
+    "partitionKey",
+    "schema",
+    "table"
+  ],
+  "odcsId": "urn:arxiv-int:contract:document-path-events:1.0.0",
+  "odcsVersion": "1.0.0",
+  "postgres": {
+    "partitionKey": "bucket",
+    "schema": "corpus",
+    "table": "document_path_event"
+  },
+  "semanticMetadataHash": "f1c555061b5c0a70599cbec8bf93e5c76fad15c3f0ca9a008f1db15beb9f6ab8"
+}

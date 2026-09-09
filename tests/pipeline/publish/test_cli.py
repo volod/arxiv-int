@@ -5,10 +5,14 @@ import subprocess
 from pathlib import Path
 
 from arxiv_int.cli import build_parser, main
-from arxiv_int.pipeline.actions import fixture_plan
-from arxiv_int.pipeline.fixtures import FIXTURE_OPTIONAL, FIXTURE_PROFILE_STAGES, fixture_registry
-from arxiv_int.pipeline.orchestrate import Orchestrator
-from tests.pipeline.orchestration.conftest import make_context
+from arxiv_int.pipeline.dag.actions import fixture_plan
+from arxiv_int.pipeline.dag.orchestrate import Orchestrator
+from arxiv_int.pipeline.run.fixtures import (
+    FIXTURE_OPTIONAL,
+    FIXTURE_PROFILE_STAGES,
+    fixture_registry,
+)
+from tests.pipeline.conftest import make_context
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 PUBLISH_ROOT = PROJECT_ROOT / "src" / "arxiv_int" / "pipeline" / "publish"

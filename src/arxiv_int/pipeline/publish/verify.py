@@ -2,11 +2,11 @@
 
 from dataclasses import replace
 
-from arxiv_int.pipeline.context import RunContext
-from arxiv_int.pipeline.execute import try_reuse
-from arxiv_int.pipeline.persist import RunStatus
+from arxiv_int.pipeline.dag.execute import try_reuse
 from arxiv_int.pipeline.publish.model import PipelineProfile
-from arxiv_int.pipeline.reuse_index import load_reuse_index
+from arxiv_int.pipeline.run.context import RunContext
+from arxiv_int.pipeline.run.persist import RunStatus
+from arxiv_int.pipeline.run.reuse_index import load_reuse_index
 
 
 def verified_status(context: RunContext, status: RunStatus, profile: PipelineProfile) -> RunStatus:

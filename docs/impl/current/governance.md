@@ -69,10 +69,14 @@ agent to report the human task, ready/pending state, packet/inspection path, dec
 consumer. `make plan-status` resolves dependency readiness; it does not itself judge packet quality
 or print these completion handoffs. Human judgment is not replaced by the structural checker.
 
-The specification now defines Git-only deterministic identity obfuscation and pinned dynamic
-ontology/geotemporal/domain semantics. The Git-bound exporter is implemented in
-[record 0035](../records/0035-eval-found-implement-committed-proof-identity-obfuscation.md);
-ontology/geotemporal contracts remain planned. Accepted records 0029-0033 and their runtime
+The specification defines pinned dynamic ontology/geotemporal/domain semantics and forbids
+committing any archive-derived artifact: proof, gold and dataset files stay under the configured
+roots and are reviewed in place. The export path of
+[record 0035](../records/0035-eval-found-implement-committed-proof-identity-obfuscation.md) has been
+retired with its packaged identity policy; no command, Make target or packaged asset can turn
+source-derived proof data into repository files
+([record 0057](../records/0057-eval-found-retire-committed-proof-export.md)).
+Ontology/geotemporal contracts remain planned. Accepted records 0029-0033 and their runtime
 behavior are preserved.
 
 Documentation category directories use singular names: `design/`, `guide/`, and `impl/`. Page names
@@ -162,7 +166,7 @@ The configured tooling volume was read-only; the operator's environment file was
 `git diff --check` pass. `make -k ci DATA_DIR=.data` runs the remaining checks after failures and
 reports **168 tests passed**. At audit time full CI was failing on pre-existing source
 formatting/import ordering in `src/arxiv_int/runtime/__init__.py` and Radon complexity D (23) in
-`tests/compose/test_profiles.py::test_rendered_topology_has_pins_health_stop_and_mount_isolation`,
+`tests/runtime/test_profiles.py::test_rendered_topology_has_pins_health_stop_and_mount_isolation`,
 and the complexity target stopped at Radon, so its subsequent cognitive-complexity check was
 not established by that run. The
 [quality baseline repair](../records/0003-foundation-restore-quality-gate-baseline.md) has since

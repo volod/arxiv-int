@@ -7,11 +7,12 @@ import pytest
 from arxiv_int.contracts.migrations import commands
 from arxiv_int.contracts.migrations.paths import data_root, migration_artifact_dir
 from arxiv_int.contracts.migrations.runner import offline_sql
+from arxiv_int.resources.paths import contracts_root
 from tests.contracts.migrations._project import product_root
 
 
 def _sql() -> str:
-    return offline_sql(product_root(), product_root() / "contracts")
+    return offline_sql(product_root(), contracts_root())
 
 
 def test_offline_upgrade_sql_is_deterministic_and_schema_qualified() -> None:
@@ -22,13 +23,19 @@ def test_offline_upgrade_sql_is_deterministic_and_schema_qualified() -> None:
     assert "CONSTRAINT pk_documents PRIMARY KEY (document_id)" in first
     assert "REFERENCES corpus.documents (document_id)" in first
     assert "INSERT INTO alembic_version (version_num) VALUES ('0001')" in first
+    assert "INSERT INTO alembic_version (version_num) VALUES ('0002')" not in first
+    assert "CREATE TABLE corpus.document_path_event (" in first
+    assert "CREATE TABLE ctl.run (" in first
+    assert "CREATE TABLE ctl.stage_progress (" in first
+    assert "CREATE TABLE ctl.source_tombstone (" in first
+    assert "ALTER TABLE corpus.document_path_event ADD CONSTRAINT" not in first
     assert "PARTITION BY HASH" in first
     assert "ck_facts_object_xor_literal" in first
     assert "CREATE SCHEMA IF NOT EXISTS derived" in first
 
 
 def test_offline_sql_matches_the_generated_baseline_tables() -> None:
-    baseline = (product_root() / "contracts" / "generated" / "postgres" / "baseline.sql").read_text(
+    baseline = (contracts_root() / "generated" / "postgres" / "baseline.sql").read_text(
         encoding="utf-8"
     )
     emitted = _sql()
@@ -42,7 +49,7 @@ def test_offline_sql_command_writes_under_the_data_root(
 ) -> None:
     monkeypatch.setenv("DATA_DIR", str(tmp_path / "artifacts"))
     assert data_root(product_root()) == tmp_path / "artifacts"
-    assert commands.run_offline_sql(product_root(), product_root() / "contracts", "head") == 0
+    assert commands.run_offline_sql(product_root(), contracts_root(), "head") == 0
     written = sorted((tmp_path / "artifacts" / "migrations").rglob("upgrade.sql"))
     assert len(written) == 1
     assert "CREATE TABLE corpus.documents (" in written[0].read_text(encoding="utf-8")

@@ -54,6 +54,7 @@ inference = [
   "httpx>=0.28,<1",
 ]
 lake = [
+  "charset-normalizer==3.5.1",
   "duckdb>=1.1,<2",
   "polars>=1.20,<2",
   "pyarrow>=18,<23",
@@ -77,20 +78,26 @@ Repository = "https://github.com/volod/arxiv-int"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+namespaces = false
 
 # The Alembic template and review manifests ship with the package; the workflow itself resolves
 # them from the project root, so a checkout stays the reviewable source of revision history.
 [tool.setuptools.package-data]
 "arxiv_int.migrations" = ["script.py.mako", "head_state.json", "revision_manifest.json"]
+"arxiv_int.resources" = ["**/*"]
 
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+extend-exclude = ["src/arxiv_int/resources/contracts/generated/pydantic"]
 
-# Generated Alembic revisions are immutable review evidence with committed checksums;
-# a formatter upgrade must never rewrite an applied revision.
+# Generated Alembic revisions and contract Pydantic adapters are immutable review
+# evidence; a formatter upgrade must never rewrite them.
 [tool.ruff.format]
-exclude = ["src/arxiv_int/migrations/versions/*.py"]
+exclude = [
+  "src/arxiv_int/migrations/versions/*.py",
+  "src/arxiv_int/resources/contracts/generated/pydantic/*.py",
+]
 
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F", "I", "B", "UP", "SIM", "RUF"]
@@ -98,6 +105,7 @@ select = ["E4", "E7", "E9", "F", "I", "B", "UP", "SIM", "RUF"]
 [tool.mypy]
 python_version = "3.12"
 files = ["src/arxiv_int"]
+exclude = ["src/arxiv_int/resources/contracts/generated/"]
 check_untyped_defs = true
 disallow_any_generics = true
 disallow_untyped_defs = true
@@ -121,6 +129,7 @@ source = ["arxiv_int"]
 omit = [
   "src/arxiv_int/migrations/env.py",
   "src/arxiv_int/migrations/versions/*",
+  "src/arxiv_int/resources/contracts/generated/pydantic/*",
 ]
 
 [tool.coverage.report]

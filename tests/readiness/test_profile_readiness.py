@@ -1,11 +1,11 @@
 from pathlib import Path
 
 import pytest
-from test_workstation import FixtureProbe, _evidence, _project
 
 from arxiv_int.readiness import HttpResult
 from arxiv_int.readiness.run import run_readiness
 from arxiv_int.runtime import FilesystemEvidence
+from tests.readiness.test_workstation import FixtureProbe, _evidence, _project
 
 
 class ServiceProbe(FixtureProbe):

@@ -133,6 +133,7 @@ inference = [
     { name = "httpx" },
 ]
 lake = [
+    { name = "charset-normalizer" },
     { name = "duckdb" },
     { name = "polars" },
     { name = "pyarrow" },
@@ -149,6 +150,7 @@ transform = [
 [package.metadata]
 requires-dist = [
     { name = "alembic", marker = "extra == 'store'", specifier = "==1.19.2" },
+    { name = "charset-normalizer", marker = "extra == 'lake'", specifier = "==3.5.1" },
     { name = "complexipy", marker = "extra == 'dev'", specifier = "==6.0.0" },
     { name = "dbt-core", marker = "extra == 'transform'", specifier = "==1.12.3" },
     { name = "dbt-postgres", marker = "extra == 'transform'", specifier = "==1.10.2" },

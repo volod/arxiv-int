@@ -2,10 +2,10 @@
 
 The local database service is a project-owned ParadeDB Community derivative that keeps one
 PostgreSQL major, `pg_search`, pgvector, and a pinned Apache AGE build together. Relational schema
-application is in place: the irreversible initial Alembic revision `0001` owns contract tables, HASH
-partitions, provenance constraints, roles, staging, the empty `derived` schema, and versioned
-projection metadata. Head is `0003`, which adds `ctl.stage_progress` on top of the `0002` ctl
-run-ledger overlay. A local dbt project
+application is in place: the irreversible initial Alembic revision `0001` owns contract tables,
+HASH partitions including `corpus.document_path_event`, provenance constraints, roles, staging,
+the empty `derived` schema, versioned projection metadata, the run ledger, stage progress,
+and reconcile control tables. Head is `0001`. A local dbt project
 builds isolated derived generations
 and projection inputs. Search, vector, and graph projections are rebuildable and are never
 canonical.
@@ -16,10 +16,13 @@ Accepted records:
 [0024 dbt transformation foundation](../records/0024-store-implement-dbt-transformation-foundation.md);
 [0025 Projections](../records/0025-store-implement-rebuildable-search-and-graph-projections.md);
 [0041 Run ledger](../records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md);
-[0043 Progress logging](../records/0043-pipeline-add-progress-logging-and-resource-telemetry.md).
+[0043 Progress logging](../records/0043-pipeline-add-progress-logging-and-resource-telemetry.md);
+[0049 Incremental reconciliation](../records/0049-pipeline-implement-incremental-reconciliation-and-stale-pruning.md);
+[0051 Evidence lookup / path-event schema](../records/0051-pipeline-implement-evidence-and-source-location-lookup.md);
+[0052 Prerelease migration consolidation](../records/0052-store-refactor-prerelease-migration-consolidation.md).
 The [foundation checkpoint](../records/0027-store-review-foundation-and-store-boundaries.md) and
 [boundary repair](../records/0028-store-refactor-foundation-store-acceptance-boundaries.md) record
-the integrated review and prerelease migration consolidation.
+the integrated review and the earlier operator authorization for prerelease consolidation.
 
 ## Image identity
 
@@ -75,16 +78,14 @@ beside it. Missing image or URL is `not-run`, never a pass.
 
 ## Canonical schema
 
-`src/arxiv_int/migrations/versions/0001_initial_store.py` is the only initial revision. Head is
-`0003` (`0003_stage_progress.py`), which revises frozen `0002` (`0002_pipeline_run_ledger.py`).
+`src/arxiv_int/migrations/versions/0001_initial_store.py` is the only revision. Head is `0001`.
 The operator authorized 0001 consolidation before any
-deployed database or public release. Each revision freezes SQLAlchemy definitions and narrow
+deployed database or public release. The revision freezes SQLAlchemy definitions and narrow
 PostgreSQL-specific SQL, without importing current contracts or runtime DDL copies.
 `revision_manifest.json` pins checksums; `head_state.json` tracks the contract state used by
 future revision generation. After deployment, schema changes require new reviewed revisions.
-Initial teardown explicitly refuses destructive 0001 downgrade. 0003 downgrade drops progress
-snapshots only. 0002 downgrade drops ledger tables
-only. Repeat-at-head preserves rows, and failed application rolls back transactionally.
+Initial teardown explicitly refuses destructive 0001 downgrade. Repeat-at-head preserves rows,
+and failed application rolls back transactionally.
 
 No generated catalog JSON snapshots are committed. Contract metadata and the frozen initial
 revision are the comparison authorities. Live inspection checks owned columns, key order and
@@ -114,16 +115,16 @@ runs shared contract batch quality (with explicit Polars dtypes so omitted nulla
 `StagingRejectedError` before COPY so inherited `NOT NULL` on staging cannot mask the gate.
 
 Live adoption relocates `public.<table>` into the owned schema when the destination is missing,
-refuses partial or drifted catalogs, and stamps `0003` when the overlay includes ledger and
-progress tables, `0002` when it includes ledger tables only, or `0001` for a complete 0001-era
-catalog without those overlays; setup then upgrades to head.
+refuses partial or drifted catalogs, and stamps `0001` when the live overlay matches the current
+initial revision, including path-event partitions, the run ledger, progress snapshots, and
+reconcile tables; setup then applies head, which is already `0001`.
 
 ## Relational transformations
 
-A local dbt Core project lives under `transformations/`. Optional extra `transform` pins
+A local dbt Core project lives under `src/arxiv_int/resources/dbt/`. Optional extra `transform` pins
 `dbt-core==1.12.3` and `dbt-postgres==1.10.2`. The typed runner in
 `src/arxiv_int/transformations/` copies that project under `$DATA_DIR/dbt/<run-id>/project/`,
-injects generated `contracts/generated/dbt/sources.yml`, and invokes parse, compile, build, or
+injects generated `src/arxiv_int/resources/contracts/generated/dbt/sources.yml`, and invokes parse, compile, build, or
 test. Profiles use `env_var` placeholders only. Credentials come from
 `ARXIV_INT_TRANSFORM_DATABASE_URL` or, when that is unset, `ARXIV_INT_MIGRATION_DATABASE_URL`.
 Build and test without a URL are `not-run` (exit 2), never a pass.
@@ -144,7 +145,9 @@ are capped at 4. Default select is
 `tag:fixture tag:quality`.
 
 The committed DAG is synthetic: `stg_documents` (view over `source('corpus','documents')`),
-`int_documents_current` (incremental delete+insert with delete reconciliation), and
+`stg_source_tombstones` (view over `source('ctl_reconcile','source_tombstone')`),
+`int_documents_current` (incremental delete+insert with delete reconciliation),
+`int_active_documents` (excludes last-occurrence tombstone hashes), and
 `documents_current` (table). Domain tasks own business models. Python-only preparation uses
 `prepare_document_frame` through the existing `StageRunner` seam documented in
 [Pipeline control](pipeline-control.md); dbt Python models are not used.
@@ -158,7 +161,7 @@ The initial revision creates `ctl.projections`, `ctl.projection_active`, `ctl.pr
 `ctl.projection_cleanup`. Those rows are lifecycle metadata, not canonical documents or facts. The
 pipeline role may create objects in `search`; dbt still cannot write projection metadata.
 
-dbt models under `transformations/models/projections/` use tag `projections` (outside the default
+dbt models under `src/arxiv_int/resources/dbt/models/projections/` use tag `projections` (outside the default
 `tag:fixture tag:quality` select). They materialize isolated
 `derived.<model>__g_<generation>` relations with `source`/`ref` and uniqueness/relationship tests.
 Version tokens reuse the dbt generation sanitizer so input table names match.

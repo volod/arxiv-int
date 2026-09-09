@@ -5,7 +5,7 @@ from collections.abc import Callable, Mapping
 from pathlib import Path
 
 from arxiv_int.interfaces.sources import SiloRoot
-from arxiv_int.pipeline.actions import (
+from arxiv_int.pipeline.dag.actions import (
     PrunePlan,
     apply_prune_plan,
     build_prune_plan,
@@ -16,20 +16,22 @@ from arxiv_int.pipeline.actions import (
     status_lines,
     update_context,
 )
-from arxiv_int.pipeline.cancel import CancelToken
-from arxiv_int.pipeline.context import (
+from arxiv_int.pipeline.dag.cancel import CancelToken
+from arxiv_int.pipeline.dag.orchestrate import Orchestrator
+from arxiv_int.pipeline.dag.registry import StageRegistry
+from arxiv_int.pipeline.dag.stages import production_registry
+from arxiv_int.pipeline.inventory.snapshot import INVENTORY_METADATA_POLICY, inventory_snapshot
+from arxiv_int.pipeline.quality.bound import QualityBoundary
+from arxiv_int.pipeline.run.context import (
     RunContext,
     allocate_run_id,
     config_fingerprint,
     secret_free_values,
     snapshot_silos,
 )
-from arxiv_int.pipeline.errors import ConfigDriftError, PipelineError, StaleUpstreamError
-from arxiv_int.pipeline.orchestrate import Orchestrator
-from arxiv_int.pipeline.persist import load_context, load_status, run_dir
-from arxiv_int.pipeline.quality_bound import QualityBoundary
-from arxiv_int.pipeline.registry import StageRegistry
-from arxiv_int.pipeline.stages import production_registry
+from arxiv_int.pipeline.run.errors import ConfigDriftError, PipelineError, StaleUpstreamError
+from arxiv_int.pipeline.run.persist import load_context, load_status, run_dir
+from arxiv_int.pipeline.run.snapshot import METADATA_POLICY, capture_snapshot, metadata_snapshot
 from arxiv_int.runtime import load_runtime_config
 from arxiv_int.runtime.config_model import RuntimeConfig
 from arxiv_int.runtime.setup.settings import load_setup_settings
@@ -55,12 +57,20 @@ def create_run_context(
     silos = tuple(SiloRoot(silo.silo_id, silo.root) for silo in config.archive_silos)
     secret_free = secret_free_values(dict(config.values))
     run_id = allocate_run_id()
+    if chosen == "fixture":
+        source_snapshot, source_metadata_snapshot = capture_snapshot(silos)
+        policy = METADATA_POLICY
+    else:
+        source_snapshot = source_metadata_snapshot = inventory_snapshot(silos)
+        policy = INVENTORY_METADATA_POLICY
     context = RunContext(
         run_id=run_id,
         generation_id=run_id,
         profile=chosen,
         config_fingerprint=config_fingerprint(chosen, secret_free),
-        source_snapshot=snapshot_silos(silos),
+        source_snapshot=source_snapshot,
+        source_drift_policy=policy,
+        source_metadata_snapshot=source_metadata_snapshot,
         silos=silos,
         results_dir=config.results_dir,
         runs_dir=config.runs_dir,
@@ -141,8 +151,14 @@ def require_frozen_context(
         raise ConfigDriftError(
             f"run {run_id} configuration drifted; create a new run or invalidate"
         )
-    if snapshot_silos(context.silos) != context.source_snapshot:
-        raise StaleUpstreamError("archive snapshot changed; use pipeline update or resume")
+    if context.source_drift_policy == INVENTORY_METADATA_POLICY:
+        stale = inventory_snapshot(context.silos) != context.source_metadata_snapshot
+    elif context.source_drift_policy == METADATA_POLICY:
+        stale = metadata_snapshot(context.silos) != context.source_metadata_snapshot
+    else:
+        stale = snapshot_silos(context.silos) != context.source_snapshot
+    if stale:
+        raise StaleUpstreamError("archive snapshot changed; use pipeline update")
     return context
 
 

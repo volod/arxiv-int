@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0049` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0054` after the rows
 below).
 
 | Record | Scope | Result |
@@ -60,3 +60,15 @@ below).
 | [0046 Pipeline publication and reuse review](0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md) | Integrated fixture and disposable store checkpoint | Accepted; proceed with nonblocking note |
 | [0047 Pipeline publication and reuse repair](0047-pipeline-repair-pipeline-publication-and-reuse-integrity.md) | Focused integrity prerequisite for 0046 | Accepted |
 | [0048 Stage artifact inspection](0048-pipeline-add-stage-artifact-inspection.md) | Read-only run/dataset artifact summaries | Accepted |
+| [0049 Incremental reconciliation and stale pruning](0049-pipeline-implement-incremental-reconciliation-and-stale-pruning.md) | Source-manifest deltas, active-view retraction, isolated rebuild, two-phase prune | Accepted |
+| [0050 Package layout and Make modularity](0050-govern-refactor-package-layout-and-make.md) | Split Makefile, package configs/contracts/ontology/dbt, nest large subpackages, mirror tests | Accepted |
+| [0051 Evidence and source location lookup](0051-pipeline-implement-evidence-and-source-location-lookup.md) | Read-only `archive locate`, citation resolver, ODCS path-event schema, Alembic `0005` | Accepted |
+| [0052 Prerelease migration consolidation](0052-store-refactor-prerelease-migration-consolidation.md) | Collapse overlay revisions into one initial store revision before any release | Accepted |
+| [0053 Pipeline-control provided-archive proof](0053-pipeline-prove-pipeline-control-on-provided-archive.md) | Forecast, cache-hit, resume, delta, invalidation, rebuild, and prune proof on a bounded archive copy | accepted |
+| [0054 Control integration boundary review](0054-pipeline-review-control-integration-boundaries.md) | Reconciliation, prune, inspection, evidence and revision checkpoint before the first corpus stage | Accepted; proceed with nonblocking note |
+| [0055 Source reconciliation and prune safety repair](0055-pipeline-repair-source-reconciliation-and-prune-safety.md) | Focused integrity prerequisite for 0054 | Accepted |
+| [0056 Pipeline-control re-proof after the repair](0056-pipeline-reprove-pipeline-control-after-reconciliation-repair.md) | Current provided-archive control bundle covering the repaired reconcile and prune modules | Accepted |
+| [0057 Retire the committed proof export](0057-eval-found-retire-committed-proof-export.md) | Delete the Git-bound exporter, its packaged identity policy, and the bundle fields that only described an export | Accepted |
+| [0058 Owned stage fingerprints](0058-pipeline-bind-real-owned-stage-fingerprints.md) | Bind stage reuse to declared contract, rule, dbt, code, dependency, tool, model and prompt assets | Accepted |
+| [0059 Bounded archive snapshot hashing](0059-pipeline-bound-archive-snapshot-hashing.md) | Chunked content snapshots and explicit metadata drift checks | Accepted |
+| [0060 Streaming inventory](0060-corpus-implement-streaming-inventory.md) | Restartable content-addressed archive inventory | Accepted |

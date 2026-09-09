@@ -167,8 +167,8 @@ defaults. Make does not pass `--run-id local` or a hardcoded `--profile investig
 `pipeline` / `run-create`.
 
 The default investigation profile still names unimplemented corpus stages. `make pipeline`
-therefore fails explicitly until those runners ship. `stage STAGE=preflight` as a registered
-worker remains unimplemented; aggregate commands still run an archive-readability preflight
+therefore fails explicitly until those runners ship. `stage STAGE=preflight` is a registered
+readability worker; aggregate commands still run an archive-readability preflight
 handler before forecast. `run finalize` writes `$RUNS_DIR/<run-id>/knowledge-base.json` and
 activates only a succeeded requested profile. Partial or failed runs cannot replace the last
 complete generation.
@@ -197,17 +197,18 @@ make invalidate STAGE=evaluate RUN_ID="$RUN_ID"
 make prune
 ```
 
-`evaluate` is the shipped production runner. Other investigation stages fail as unregistered until
-their capabilities land. `make prune` is a dry-run; `APPLY=1 PLAN_ID=...` is a separate
-confirmation and refuses to delete the sole recovery copy.
+`evaluate`, `preflight` and `inventory` are shipped production runners.
+Other investigation stages fail as
+unregistered until their capabilities land. `make prune` is a dry-run; `APPLY=1 PLAN_ID=...` is a
+separate confirmation and refuses to delete the sole recovery copy.
 
 The target diagnostic order below is one valid linear expansion of the baseline registry, not a
-second executable DAG definition. `run-finalize` is available; `STAGE=preflight` as a registered
-worker is not:
+second executable DAG definition. `run-finalize`, `STAGE=preflight` and `STAGE=inventory` are
+available; extraction and later corpus stages remain planned. A forecast precedes atomic stages:
 
 ```bash
-make stage STAGE=preflight RUN_ID="$RUN_ID"
 make forecast RUN_ID="$RUN_ID"
+make stage STAGE=preflight RUN_ID="$RUN_ID"
 make stage STAGE=inventory RUN_ID="$RUN_ID"
 make stage STAGE=extract RUN_ID="$RUN_ID"
 make stage STAGE=normalize RUN_ID="$RUN_ID"
@@ -262,11 +263,13 @@ Use the returned run id and replace query/document placeholders with actual valu
 | `arxiv-int run resume RUN_ID` / `make resume` | available | Resume the recorded generation after an interruption. |
 | `arxiv-int pipeline update` / `make update` | available | Reconcile a changed archive into a new generation. |
 | `arxiv-int run artifacts RUN_ID`, `arxiv-int inspect RUN_ID\|DATASET\|latest` / `make inspect` | available | Summarize published artifacts, quality, lineage, anchors, quarantines and failures without recomputing them. |
+| `arxiv-int archive locate DOCUMENT_ID` / `make archive-locate` | available | Resolve a content, fact, or report citation to original and current source locations from sealed manifests. |
+| `arxiv-int archive import-ledger PATH` | available | Import a portable organizer path-event ledger idempotently. |
 | Open `$RUNS_DIR/<run-id>/reports/index.html` | available (diagnostic) | Read the finalize diagnostic; the specified analyst report remains planned. |
 | `arxiv-int catalog company --run RUN_ID`, `arxiv-int catalog product --run RUN_ID`, `arxiv-int catalog person --run RUN_ID` | planned | Inspect roles, aliases, identities and evidence in the three catalogs. |
 | Follow financial-party, transaction, supply-chain and BOM links | planned | Trace quantities, relations and gaps to source anchors. |
 | `arxiv-int anomalies list --run RUN_ID` | planned | Review detector, baseline, severity and supporting/contradicting evidence. |
-| `arxiv-int search lexical "QUERY"`, `arxiv-int archive locate DOCUMENT_ID` | planned | Find source-anchored hits; verify the result's generation. |
+| `arxiv-int search lexical "QUERY"` | planned | Find source-anchored hits; verify the result's generation. |
 
 Use `.venv/bin/arxiv-int` when the executable is not on the shell's path. After the session, the
 available `make services-down` stops project containers and preserves their data. Host Ollama is

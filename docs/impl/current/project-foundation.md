@@ -67,9 +67,9 @@ code without a catalog entry.
 
 ## Runtime primitives
 
-`arxiv_int.pipeline.steps`, `arxiv_int.observability` (bounded queued logs, redaction,
+`arxiv_int.pipeline.dag.steps`, `arxiv_int.observability` (bounded queued logs, redaction,
 throttled progress, and host resource samples), and
-`arxiv_int.inference.scheduling` provide monotonic step timing with
+`arxiv_int.inference.scheduler.scheduling` provide monotonic step timing with
 partial-result preservation, queue-serialized logging, GPU-budget placement, and guaranteed model
 release. The typed DAG registry and in-process orchestrator are documented in
 [Pipeline control](pipeline-control.md). The local Ollama/vLLM request client is documented in
@@ -136,16 +136,18 @@ guide, current-state pages, tests, Make workflows, and `uv.lock` use the same ac
 `tests/test_cli.py` covers parsing, logged identity, and the feature inventory command. Tests under
 `tests/quality/` exercise the quality package with isolated plan fixtures; they verify summary
 selection and invalid-plan handling without pinning the live repository's task counts.
-`tests/features/` covers catalog lookup, stage mapping, install-status reporting, and the missing
-and undeclared import messages. `tests/interfaces/` proves fake backends satisfy each protocol.
-`tests/dependencies/` keep extras and the feature catalog in agreement and require exact pins for
-output-sensitive tools. Focused tests cover accumulated preflight results, partial-result
-preservation, concurrent log serialization, model placement and cleanup, local inference
-conformance, contract behavior,
-evaluation metrics and verdicts, run bundles, and source-span retrieval. Configuration and path
-coverage is documented in [Portable runtime](portable-runtime.md#tests-and-verification).
+`tests/features/` covers catalog lookup, stage mapping, install-status reporting, extras/catalog
+pin agreement, and the missing and undeclared import messages. `tests/interfaces/` proves fake
+backends satisfy each protocol. `tests/resources/` covers packaged-asset resolution and checkout
+overlays.
+`tests/features/test_extras.py` keeps extras and the feature catalog in agreement and requires
+exact pins for output-sensitive tools. Focused tests cover accumulated preflight results,
+partial-result preservation, concurrent log serialization, model placement and cleanup, local
+inference conformance, contract behavior, evaluation metrics and verdicts, run bundles, and
+source-span retrieval. Configuration and path coverage is documented in
+[Portable runtime](portable-runtime.md#tests-and-verification).
 
-`tests/compose/test_profiles.py` unit-tests profile parsing and mocked Compose runners in `make
+`tests/runtime/test_profiles.py` unit-tests profile parsing and mocked Compose runners in `make
 test`. Tests that call `docker compose config` (including the `rendered_topology` fixture) are
 marked `heavy` and run with `make test-heavy`. Rendering still does not start services.
 

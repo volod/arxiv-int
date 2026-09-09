@@ -4,21 +4,25 @@ import hashlib
 from dataclasses import replace
 from pathlib import Path
 
-from arxiv_int.data_quality.model import STATUS_NOT_RUN, STATUS_PASS, STATUS_WARNING
+from arxiv_int.data_quality.engine.model import STATUS_NOT_RUN, STATUS_PASS, STATUS_WARNING
 from arxiv_int.inspect.lookup import InspectError, resolve_target
 from arxiv_int.inspect.model import CONFORMANCE_DRIFTED, KIND_RUN, LATEST_TOKEN
 from arxiv_int.inspect.render import json_document
 from arxiv_int.inspect.summarize import inspect_run, inspect_target
 from arxiv_int.interfaces.pipeline import StageContext, StageResult
 from arxiv_int.interfaces.stores import DatasetRef
-from arxiv_int.pipeline.actions import fixture_plan
 from arxiv_int.pipeline.control.quality import GLOBAL_SCOPE, QualityCheck
-from arxiv_int.pipeline.fixtures import FIXTURE_OPTIONAL, FIXTURE_PROFILE_STAGES, fixture_registry
-from arxiv_int.pipeline.orchestrate import Orchestrator
-from arxiv_int.pipeline.persist import save_context
-from arxiv_int.pipeline.quality_bound import FixtureQuality
+from arxiv_int.pipeline.dag.actions import fixture_plan
+from arxiv_int.pipeline.dag.orchestrate import Orchestrator
+from arxiv_int.pipeline.quality.bound import FixtureQuality
+from arxiv_int.pipeline.run.fixtures import (
+    FIXTURE_OPTIONAL,
+    FIXTURE_PROFILE_STAGES,
+    fixture_registry,
+)
+from arxiv_int.pipeline.run.persist import save_context
 from arxiv_int.runtime.project_root import find_project_root
-from tests.pipeline.orchestration.conftest import make_context
+from tests.pipeline.conftest import make_context
 
 
 def _plan(registry):

@@ -7,7 +7,7 @@ from typing import Any
 from arxiv_int.contracts.generate.normalize import normalize_json, sha256_text
 from arxiv_int.interfaces.sources import SiloRoot
 from arxiv_int.pipeline.forecast.inputs import InventoryEvidence
-from arxiv_int.pipeline.persist import load_json
+from arxiv_int.pipeline.run.persist import load_json
 
 INVENTORY_SCHEMA = "arxiv-int.inventory.v1"
 MANIFEST_NAMES = ("manifest.json", "inventory.json")
@@ -127,20 +127,14 @@ def _first_manifest(
 
 
 def _iter_files(root: Path) -> Iterable[Path]:
+    from arxiv_int.pipeline.inventory.walk import walk
+
     if root.is_file() and not root.is_symlink():
         yield root
         return
-    try:
-        entries = sorted(root.iterdir(), key=lambda item: item.name)
-    except OSError:
-        return
-    for entry in entries:
-        if entry.is_symlink():
-            continue
-        if entry.is_dir():
-            yield from _iter_files(entry)
-        elif entry.is_file():
-            yield entry
+    for entry in walk(root):
+        if entry.status == "file":
+            yield root / entry.relative_path
 
 
 def _inventory_fingerprint(

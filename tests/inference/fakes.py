@@ -9,7 +9,7 @@ from threading import Thread
 from time import sleep
 from typing import Any
 
-from arxiv_int.inference.schema import CITED_SPAN_SCHEMA
+from arxiv_int.inference.policy.schema import CITED_SPAN_SCHEMA
 
 VALID_SPAN = '{"value":"alpha","evidence":[{"quote":"alpha","start":0,"end":5}]}'
 INVALID_SPAN = '{"value":""}'

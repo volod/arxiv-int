@@ -3,7 +3,7 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
 
-from arxiv_int.data_quality.model import (
+from arxiv_int.data_quality.engine.model import (
     STATUS_FAIL,
     STATUS_NOT_RUN,
     STATUS_PASS,

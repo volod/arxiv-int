@@ -1,22 +1,24 @@
 # Contracts
 
-Product ODCS `3.1.0` contracts under `contracts/` are the reviewable schema source of truth for
-pipeline entities. `arxiv_int.contracts` loads, fingerprints, lints, generates physical schemas, and
-enforces evolution policy from that tree through rooted references, typed loaders, and
-schema-qualified baselines.
+Product ODCS `3.1.0` contracts under `src/arxiv_int/resources/contracts/` are the reviewable schema
+source of truth for pipeline entities. `arxiv_int.contracts` loads, fingerprints, lints, generates
+physical schemas, and enforces evolution policy from that packaged tree through rooted references,
+typed loaders, and schema-qualified baselines. Checkout overlays named `contracts/` win when a
+caller passes a temporary project root.
 
 ## Product registry
 
-`contracts/registry.yaml` binds each dataset id to an ODCS file, a physical-to-canonical mapping,
+`src/arxiv_int/resources/contracts/registry.yaml` binds each dataset id to an ODCS file, a physical-to-canonical mapping,
 a canonical entity, and a reviewed semantic metadata hash. Shipped datasets cover documents, spans,
 chunks, objects, aliases, mentions, facts, topics, ontology terms, embeddings, source occurrences,
+document path events,
 transactions, catalogs, anomaly findings, evaluation items, and domain investigation artifact
 families (relationship map, BOM, supply chain, invoice/payment, registry).
 
 `make contracts` syncs the `contracts` extra and runs `arxiv-int contracts lint`, which:
 
 1. validates every `datasets/*.odcs.yaml` against the vendored official ODCS JSON Schema at
-   `contracts/odcs/odcs-json-schema-v3.1.0.json` (Bitol pin `f5bfbb8`);
+   `src/arxiv_int/resources/contracts/odcs/odcs-json-schema-v3.1.0.json` (Bitol pin `f5bfbb8`);
 2. checks unique ids/versions, rooted references, canonical bindings, relationship targets, and
    required primary-key identities;
 3. runs Data Contract CLI lint with the same official schema via `uv tool run` when available.
@@ -34,11 +36,12 @@ properties remain accepted for fixtures.
 `src/arxiv_int/contracts/generate/` exports Avro, JSON Schema, and Pydantic models through Data
 Contract CLI, then focused adapters for Parquet/Arrow descriptors, partition templates, ParadeDB
 search DDL, pgvector dimensions, AGE projection stubs, and provenance sidecars. PostgreSQL DDL is no
-longer a generic CLI export: `src/arxiv_int/contracts/sqlalchemy/` normalizes ODCS into typed
-`NormalizedTable`/`NormalizedColumn` definitions, builds one schema-qualified SQLAlchemy Core
-`MetaData` with a shared naming convention, and compiles review DDL with the PostgreSQL dialect.
-Per-contract files land at `contracts/generated/postgres/<id>.sql` and the ordered owned-schema
-script at `contracts/generated/postgres/baseline.sql`, beside a `manifest.json` of fingerprints.
+longer a generic CLI export: `src/arxiv_int/contracts/catalog/normalize.py` normalizes ODCS into typed
+`NormalizedTable`/`NormalizedColumn` definitions. `src/arxiv_int/contracts/sqlalchemy/` builds one
+schema-qualified SQLAlchemy Core `MetaData` from that model with a shared naming convention, and
+compiles review DDL with the PostgreSQL dialect.
+Per-contract files land at `src/arxiv_int/resources/contracts/generated/postgres/<id>.sql` and the ordered owned-schema
+script at `src/arxiv_int/resources/contracts/generated/postgres/baseline.sql`, beside a `manifest.json` of fingerprints.
 
 Types, decimal precision/scale, nullability, primary keys, declared relationships, unique
 constraints, and descriptions survive into the metadata; descriptions are emitted as `COMMENT ON`
@@ -64,7 +67,7 @@ metadata is not silently dropped. Some CLI Avro mappings (for example ODCS `numb
 
 ## Evolution and migrations
 
-Reviewed baselines under `contracts/evolution/<contract-id>.json` capture schema-qualified fields,
+Reviewed baselines under `src/arxiv_int/resources/contracts/evolution/<contract-id>.json` capture schema-qualified fields,
 semantic fingerprints, generator/artifact hashes, and search/vector/graph projections. Policy
 classification covers identical, additive, breaking, tokenizer reindex, vector-dimension,
 semantic-retarget, and graph-projection consequences. Version rules fail closed (minor for additive/
@@ -85,9 +88,7 @@ schema state the history produces. `src/arxiv_int/contracts/migrations/` impleme
 - `arxiv-int db upgrade --sql` writes offline review SQL under `$DATA_DIR/migrations/<run-id>/`.
 - `arxiv-int db adopt` / `make db-adopt` live-adopts when that URL is set: relocates leftover
   `public` tables into owned schemas when destinations are missing, refuses partial or drifted
-  catalogs, and stamps `0003` when the overlay includes ledger and progress tables, `0002` when
-  it includes ledger tables only, or `0001` for a complete
-  0001-era catalog without them. Without a URL
+  catalogs, and stamps `0001` when the overlay matches the current initial revision. Without a URL
   it reports why stamping stays refused.
 
 Generated revisions are deterministic and frozen: a historical revision never imports today's
@@ -101,12 +102,14 @@ Autogeneration against a live database uses the same owned-object filter through
 environment.
 
 Before any deployment or public release, the operator authorized consolidation into the single
-`0001_initial_store.py` revision. It freezes the complete initial store; generated catalog JSON is
+`0001_initial_store.py` revision. It freezes the complete current store; generated catalog JSON is
 retained only as per-run evidence under `DATA_DIR`, not as a second committed schema authority.
 The [boundary repair](../records/0028-store-refactor-foundation-store-acceptance-boundaries.md)
-records the amendment. Historical task snapshots describe their original implementation; their
+and [prerelease consolidation](../records/0052-store-refactor-prerelease-migration-consolidation.md)
+record the amendment. Historical task snapshots describe their original implementation; their
 superseded revision numbers are not upgrade requirements for this unreleased baseline. Head is
-`0003` for the ctl run-ledger and stage-progress overlays documented in
+`0001`. Overlay tables that were briefly authored as `0002`-`0005` during development now live in
+that initial revision, as documented in
 [Canonical store](canonical-store.md).
 
 Live initial schema, HASH partitions, roles, staging COPY, and disposable apply evidence are
@@ -139,8 +142,8 @@ records local model build/test and isolated derived generations.
 ## Dataset quality checks
 
 `src/arxiv_int/data_quality/` compiles the same normalized ODCS fields used for SQLAlchemy into a
-stable rule catalog. Generation writes `contracts/generated/quality/<id>.rules.json` and
-`contracts/generated/dbt/{<id>.yml,sources.yml}` beside other physical artifacts; fingerprints
+stable rule catalog. Generation writes `src/arxiv_int/resources/contracts/generated/quality/<id>.rules.json` and
+`src/arxiv_int/resources/contracts/generated/dbt/{<id>.yml,sources.yml}` beside other physical artifacts; fingerprints
 enter provenance sidecars and `manifest.json`. `GENERATOR_VERSION` is `2.1.0`. Generated generic
 dbt tests nest arguments under `arguments` so dbt Core 1.12 can compile them.
 
@@ -163,7 +166,7 @@ or real-archive quality claim. Whole-relation dbt execution uses the runner in
 
 ## Versioned ontology assets
 
-Pinned Turtle and SHACL assets under `ontology/` define the foundation and domain-investigation
+Pinned Turtle and SHACL assets under `src/arxiv_int/resources/ontology/` define the foundation and domain-investigation
 vocabulary independently of AGE. `manifest.yaml` pins ontology id/version
 `urn:arxiv-int:ontology:1.1.0` / `1.1.0`. `core.ttl` plus additive `domain.ttl` carry classes,
 predicates, units, selected disjoint/functional constraints, and English/Russian labels;
@@ -172,14 +175,14 @@ predicates, units, selected disjoint/functional constraints, and English/Russian
 
 `src/arxiv_int/ontology/` loads the catalog, validates fact assertions in application code, applies
 domain investigation rules (`domain_rules.py`), runs pySHACL, and uses owlrl as a second reasoner
-for disjointness probes. Deterministic `ontology/generated/ontology.*.json` bindings plus
+for disjointness probes. Deterministic `src/arxiv_int/resources/ontology/generated/ontology.*.json` bindings plus
 `manifest.json` are regenerated by `make ontology-gen` / `arxiv-int ontology generate`.
 `make ontology-check` / `arxiv-int ontology check` (also in `make ci`) parses RDF, verifies every
 active predicate maps to canonical binding `fact.predicateId`, fails on generation drift, and
-requires the reviewed `ontology/evolution/baseline.json`. Positive/negative fixtures under
+requires the reviewed `src/arxiv_int/resources/ontology/evolution/baseline.json`. Positive/negative fixtures under
 `tests/ontology/` prove SHACL and application validation agree for foundation and domain
 distinctions. The canonical model records `ontologyRef` / `ontologyVersion` in
-`contracts/canonical/model.yaml`.
+`src/arxiv_int/resources/contracts/canonical/model.yaml`.
 
 ## Domain investigation contracts
 
@@ -220,7 +223,11 @@ structural upgrade.
 `tests/contracts/` covers primitive containment and identity, product ODCS schema validation,
 registry integrity, typed loader unknown-metadata retention, canonical `x-arxiv-int` bindings,
 generation adapters, golden fingerprints, Avro round-trip, SQL parse/apply, drift checking,
-evolution fixtures, and Data Contract CLI lint when the CLI is available.
+evolution fixtures, and Data Contract CLI lint when the CLI is available. Nested suites follow
+the production packages: `tests/contracts/catalog/`, `tests/contracts/lint/`,
+`tests/contracts/generate/`, `tests/contracts/sqlalchemy/`, `tests/contracts/migrations/`, and
+`tests/contracts/evolution/`. `tests/resources/` covers packaged-asset resolution and checkout
+overlays.
 `tests/contracts/sqlalchemy/` covers normalization refusals, metadata collisions, type coverage,
 deterministic DDL, and catalog comparison; `tests/contracts/migrations/` covers frozen state diffs,
 deterministic revision rendering, irreversible downgrades, checksum immutability, multiple heads,

@@ -1,0 +1,57 @@
+{
+  "fields": [
+    {
+      "name": "event_id",
+      "type": "string"
+    },
+    {
+      "name": "document_id",
+      "type": "string"
+    },
+    {
+      "name": "occurrence_id",
+      "type": "string"
+    },
+    {
+      "name": "silo_id",
+      "type": "string"
+    },
+    {
+      "name": "kind",
+      "type": "string"
+    },
+    {
+      "name": "relative_path",
+      "type": "string"
+    },
+    {
+      "name": "previous_relative_path",
+      "type": "string"
+    },
+    {
+      "name": "content_hash",
+      "type": "string"
+    },
+    {
+      "name": "ledger_id",
+      "type": "string"
+    },
+    {
+      "name": "event_time",
+      "type": {
+        "logicalType": "timestamp-millis",
+        "type": "long"
+      }
+    },
+    {
+      "name": "generation_id",
+      "type": "string"
+    },
+    {
+      "name": "contract_version",
+      "type": "string"
+    }
+  ],
+  "name": "document_path_event",
+  "type": "record"
+}

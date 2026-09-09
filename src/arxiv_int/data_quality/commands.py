@@ -4,13 +4,17 @@ import json
 import logging
 from pathlib import Path
 
+from arxiv_int.contracts.catalog.registry import FileRegistry
 from arxiv_int.contracts.lint import contracts_root_for
-from arxiv_int.contracts.registry import FileRegistry
 from arxiv_int.contracts.sqlalchemy.model import load_schema_model
 from arxiv_int.data_quality.engine import ValidationRequest, validate_dataset
+from arxiv_int.data_quality.engine.model import (
+    DatasetValidationResult,
+    RuleCatalog,
+    ValidationLimits,
+)
+from arxiv_int.data_quality.engine.paths import published_quality_dir, quality_artifact_dir
 from arxiv_int.data_quality.generate import compile_catalogs
-from arxiv_int.data_quality.model import DatasetValidationResult, RuleCatalog, ValidationLimits
-from arxiv_int.data_quality.paths import published_quality_dir, quality_artifact_dir
 from arxiv_int.data_quality.rules import UnsupportedQualityMappingError
 from arxiv_int.runtime.project_root import find_project_root
 

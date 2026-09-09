@@ -16,7 +16,8 @@ from arxiv_int.contracts.migrations.runner import (
 from arxiv_int.contracts.migrations.state import load_state
 from arxiv_int.contracts.sqlalchemy.catalog import compare_live_catalog
 from arxiv_int.contracts.sqlalchemy.model import load_schema_model_from_root
-from tests.contracts.migrations._project import disposable_project, product_root
+from arxiv_int.resources.paths import contracts_root
+from tests.contracts.migrations._project import disposable_project
 
 
 def test_revision_command_reports_a_generated_candidate(
@@ -69,14 +70,14 @@ def test_alembic_environment_requires_an_explicit_contracts_root(
     monkeypatch.delenv(CONTRACTS_ROOT_VARIABLE, raising=False)
     with pytest.raises(MigrationRunnerUnavailableError, match=CONTRACTS_ROOT_VARIABLE):
         target_metadata()
-    monkeypatch.setenv(CONTRACTS_ROOT_VARIABLE, str(product_root() / "contracts"))
+    monkeypatch.setenv(CONTRACTS_ROOT_VARIABLE, str(contracts_root()))
     assert "corpus.documents" in target_metadata().tables
 
 
 def test_compare_live_catalog_reports_every_owned_table_as_missing() -> None:
     from sqlalchemy import create_engine
 
-    model = load_schema_model_from_root(product_root() / "contracts")
+    model = load_schema_model_from_root(contracts_root())
     with create_engine("sqlite://").connect() as connection:
         findings = compare_live_catalog(connection, model)
     assert len(findings) == len(model.qualified_names())
@@ -84,6 +85,6 @@ def test_compare_live_catalog_reports_every_owned_table_as_missing() -> None:
 
 
 def test_unknown_contract_id_is_rejected() -> None:
-    model = load_schema_model_from_root(product_root() / "contracts")
+    model = load_schema_model_from_root(contracts_root())
     with pytest.raises(KeyError, match="Unknown contract id"):
         model.by_contract("absent")

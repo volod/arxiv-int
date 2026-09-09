@@ -3,8 +3,8 @@
 import pathlib
 import subprocess
 
-from arxiv_int.contracts.datacontract_lint import datacontract_command
 from arxiv_int.contracts.generate.normalize import normalize_json, normalize_text
+from arxiv_int.contracts.lint.datacontract import datacontract_command
 
 _JSON_FORMATS = frozenset({"avro", "jsonschema"})
 

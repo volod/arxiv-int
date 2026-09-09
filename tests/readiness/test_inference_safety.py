@@ -4,11 +4,11 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
-from test_workstation import _project
 
 from arxiv_int.readiness import HttpResult, PreflightReport
 from arxiv_int.readiness.inference import check_inference
 from arxiv_int.runtime import load_runtime_config
+from tests.readiness.test_workstation import _project
 
 
 @pytest.mark.parametrize("payload", [None, [], {}, {"models": [1]}, {"models": [{"name": 12}]}])

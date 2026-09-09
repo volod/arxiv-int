@@ -7,6 +7,7 @@ import tempfile
 from dataclasses import dataclass
 from typing import Any
 
+from arxiv_int.contracts.catalog.registry import FileRegistry
 from arxiv_int.contracts.generate.adapters import (
     graph_extension_sql,
     parquet_descriptor,
@@ -17,7 +18,6 @@ from arxiv_int.contracts.generate.adapters import (
 )
 from arxiv_int.contracts.generate.export import export_with_datacontract
 from arxiv_int.contracts.generate.normalize import normalize_json, sha256_text
-from arxiv_int.contracts.registry import FileRegistry
 from arxiv_int.contracts.sqlalchemy.ddl import baseline_ddl, contract_ddl
 from arxiv_int.contracts.sqlalchemy.model import ContractSchemaModel, load_schema_model
 
@@ -91,8 +91,8 @@ def _contract_artifacts(
         relative = f"graph/{contract_id}.sql"
         fingerprints[relative] = _write(output_root / relative, graph_sql)
 
-    from arxiv_int.data_quality.dbt_yaml import render_contract_dbt_yaml
     from arxiv_int.data_quality.generate import catalog_document
+    from arxiv_int.data_quality.generate.dbt_yaml import render_contract_dbt_yaml
     from arxiv_int.data_quality.rules import compile_rule_catalog
 
     catalog = compile_rule_catalog(model.by_contract(contract_id), model.tables, odcs)
@@ -163,8 +163,8 @@ def generate_all_contracts(
         by_contract[contract_id] = _contract_artifacts(
             registry, contract_id, contracts_root, destination, model
         )
-    from arxiv_int.data_quality.dbt_yaml import render_dbt_yaml
     from arxiv_int.data_quality.generate import DBT_SOURCES_RELATIVE, compile_catalogs
+    from arxiv_int.data_quality.generate.dbt_yaml import render_dbt_yaml
 
     catalogs = compile_catalogs(model, odcs_by_contract)
     shared = {

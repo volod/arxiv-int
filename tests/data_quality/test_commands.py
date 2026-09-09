@@ -35,7 +35,7 @@ def test_package_init_does_not_import_pandera() -> None:
 
     root = P("src/arxiv_int/data_quality")
     init_source = (root / "__init__.py").read_text(encoding="utf-8")
-    generate_source = (root / "generate.py").read_text(encoding="utf-8")
+    generate_source = (root / "generate" / "__init__.py").read_text(encoding="utf-8")
     tree = ast.parse(init_source + "\n" + generate_source)
     imported = [
         alias.name for node in tree.body if isinstance(node, ast.Import) for alias in node.names

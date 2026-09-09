@@ -4,11 +4,12 @@ import os
 from datetime import UTC, datetime
 from pathlib import Path
 
+from arxiv_int.resources.paths import contracts_root, dbt_project_root
 from arxiv_int.runtime.config_schema import DEFAULTS
 
 METHOD = "dbt"
-PROJECT_DIRNAME = "transformations"
-GENERATED_SOURCES = Path("contracts") / "generated" / "dbt" / "sources.yml"
+PROJECT_DIRNAME = "dbt"
+GENERATED_SOURCES = Path("generated") / "dbt" / "sources.yml"
 ACTIVE_POINTER = "active-generation.json"
 PUBLISH_MANIFESTS = "manifests"
 PUBLISH_QUALITY = "quality"
@@ -28,13 +29,13 @@ def dbt_artifact_dir(project_root: Path, run_id: str | None = None) -> Path:
 
 
 def authored_project_dir(project_root: Path) -> Path:
-    """Return the committed dbt project directory."""
-    return project_root / PROJECT_DIRNAME
+    """Return the packaged dbt project, or an overlay under ``project_root``."""
+    return dbt_project_root(project_root)
 
 
 def generated_sources_path(project_root: Path) -> Path:
     """Return the contract-generated combined sources YAML."""
-    return project_root / GENERATED_SOURCES
+    return contracts_root(project_root) / GENERATED_SOURCES
 
 
 def working_project_dir(artifact_dir: Path) -> Path:

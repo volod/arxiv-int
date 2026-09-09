@@ -1,17 +1,16 @@
 # arxiv-int
 
-`arxiv-int` is a local-first knowledge discovery platform for multi-terabyte, mostly
-Russian-language document archives. It is designed to inventory an immutable archive, extract
-contents, topics, entities and relations, and produce searchable knowledge, catalogs, graphs,
-anomaly findings and evidence-bearing reports on one CUDA host.
+`arxiv-int` is a local-first knowledge discovery platform for multi-terabyte document archives.
+It is designed to inventory an archive, extract contents, topics, entities and relations,
+and produce searchable knowledge, catalogs, graphs, anomaly findings and evidence-bearing reports
+on one CUDA host.
 
 Configuration, readiness checks, local service management, typed foundation primitives,
-quality gates, a fixture DAG orchestrator, and serialized progress logs exist today. The
-archive-to-knowledge pipeline is
-**not complete**: most corpus stages remain in the
-[forward plan](docs/impl/plan.md). See
-[current implementation](docs/impl/current.md) for available behavior and the
-[specification](docs/design/spec.md) and [architecture](docs/design/architecture.md) for the target.
+quality gates, a fixture DAG orchestrator, and serialized progress logs exist today.
+The archive-to-knowledge pipeline is **not complete**: most corpus stages remain in the
+[forward plan](docs/impl/plan.md). See [current implementation](docs/impl/current.md)
+for available behavior and the [specification](docs/design/spec.md) and
+[architecture](docs/design/architecture.md) for the target.
 
 ## Quick start
 

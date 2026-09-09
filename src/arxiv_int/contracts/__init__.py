@@ -1,11 +1,14 @@
 """Dependency-light primitives for contract registries and governance."""
 
-from arxiv_int.contracts.canonical import (
+from arxiv_int.contracts.catalog.canonical import (
     CanonicalField,
     CanonicalModel,
     SemanticTerm,
     load_canonical_model,
 )
+from arxiv_int.contracts.catalog.fingerprint import semantic_metadata_hash
+from arxiv_int.contracts.catalog.paths import resolve_rooted_reference
+from arxiv_int.contracts.catalog.registry import ContractEntry, FileRegistry
 from arxiv_int.contracts.evolution import (
     CHANGE_ADDITIVE,
     CHANGE_BREAKING,
@@ -27,7 +30,6 @@ from arxiv_int.contracts.evolution import (
     schema_snapshot,
     version_policy_errors,
 )
-from arxiv_int.contracts.fingerprint import semantic_metadata_hash
 from arxiv_int.contracts.generate import (
     ContractGenerator,
     GenerationResult,
@@ -35,8 +37,6 @@ from arxiv_int.contracts.generate import (
     generate_all_contracts,
     generate_registered,
 )
-from arxiv_int.contracts.paths import resolve_rooted_reference
-from arxiv_int.contracts.registry import ContractEntry, FileRegistry
 
 __all__ = [
     "CHANGE_ADDITIVE",

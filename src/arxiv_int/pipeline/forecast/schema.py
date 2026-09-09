@@ -6,13 +6,9 @@ from pathlib import Path
 from typing import Any
 
 from arxiv_int.contracts.generate.normalize import normalize_json
-from arxiv_int.pipeline.forecast.capacity import (
-    CAPACITY_DIR,
-    ENVELOPE_NAME,
-    SCHEMA_NAME,
-    envelope_payload,
-)
+from arxiv_int.pipeline.forecast.capacity import ENVELOPE_NAME, SCHEMA_NAME, envelope_payload
 from arxiv_int.pipeline.forecast.model import SCHEMA_ID
+from arxiv_int.resources.paths import configs_output_root, configs_root
 
 _SCHEMA_META = "https://json-schema.org/draft/2020-12/schema"
 _TIME = {
@@ -107,7 +103,7 @@ def dump_schema(schema: Mapping[str, Any] = FORECAST_SCHEMA) -> str:
 
 def write_forecast_schema(project_root: Path) -> Path:
     """Write ``configs/capacity/forecast.schema.json``."""
-    directory = project_root / CAPACITY_DIR
+    directory = configs_output_root(project_root) / "capacity"
     directory.mkdir(parents=True, exist_ok=True)
     path = directory / SCHEMA_NAME
     path.write_text(dump_schema(), encoding="utf-8")
@@ -117,7 +113,7 @@ def write_forecast_schema(project_root: Path) -> Path:
 def check_schema_drift(project_root: Path) -> tuple[str, ...]:
     """Return drift findings for the committed forecast schema and envelope."""
     findings: list[str] = []
-    directory = project_root / CAPACITY_DIR
+    directory = configs_root(project_root) / "capacity"
     schema_path = directory / SCHEMA_NAME
     if not schema_path.is_file():
         findings.append(f"missing generated schema {SCHEMA_NAME}")
