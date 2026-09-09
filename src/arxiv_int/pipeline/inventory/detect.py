@@ -6,8 +6,6 @@ from pathlib import PurePosixPath
 from arxiv_int.features import require_module
 
 MAGIC = (
-    (b"PK\x03\x04", "application/zip"),
-    (b"PK\x05\x06", "application/zip"),
     (b"%PDF-", "application/pdf"),
     (b"\x1f\x8b", "application/gzip"),
     (b"7z\xbc\xaf\x27\x1c", "application/x-7z-compressed"),
@@ -16,10 +14,17 @@ MAGIC = (
     (b"\x89PNG\r\n\x1a\n", "image/png"),
     (b"\xff\xd8\xff", "image/jpeg"),
 )
+OOXML_MEDIA_TYPES = {
+    ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+}
 
 
 def detect(sample: bytes, name: str) -> tuple[str, str | None]:
     """Return a magic MIME and a defensible encoding, or explicit unknown."""
+    if sample.startswith((b"PK\x03\x04", b"PK\x05\x06")):
+        return OOXML_MEDIA_TYPES.get(PurePosixPath(name).suffix.lower(), "application/zip"), None
     for magic, mime in MAGIC:
         if sample.startswith(magic):
             return mime, None

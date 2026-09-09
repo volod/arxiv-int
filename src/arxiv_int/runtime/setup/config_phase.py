@@ -2,16 +2,22 @@
 
 from collections.abc import Callable, Mapping
 from pathlib import Path
+from subprocess import CompletedProcess
 
 from arxiv_int.runtime.config import ConfigurationError, load_runtime_config
 from arxiv_int.runtime.config_model import RuntimeConfig
 from arxiv_int.runtime.paths import validate_runtime_paths
 from arxiv_int.runtime.setup.env_file import missing_required_edits, sync_dotenv_file
-from arxiv_int.runtime.setup.host import missing_host_tools
+from arxiv_int.runtime.setup.host import (
+    TESSERACT_INSTALL,
+    missing_extraction_prerequisites,
+    missing_host_tools,
+)
 from arxiv_int.runtime.setup.model import RETRY_COMMAND, PhaseResult, reused_or_ready
 from arxiv_int.runtime.setup.state import fingerprint_for
 
 Which = Callable[[str], str | None]
+CommandRunner = Callable[..., CompletedProcess[str]]
 
 
 def run_config_phase(
@@ -20,6 +26,8 @@ def run_config_phase(
     which: Which,
     environment: Mapping[str, str] | None = None,
     verified: dict[str, str] | None = None,
+    runner: CommandRunner | None = None,
+    require_extraction: bool = False,
 ) -> tuple[PhaseResult, RuntimeConfig | None]:
     """Create or append `.env`, name required edits, and refuse unsafe roots."""
     try:
@@ -33,6 +41,19 @@ def run_config_phase(
             PhaseResult("config", "blocked", f"missing host tool {name}", action=action),
             None,
         )
+    if require_extraction and runner is not None:
+        missing_extraction = missing_extraction_prerequisites(which, runner, project_root)
+        if missing_extraction:
+            listed = ", ".join(missing_extraction)
+            return (
+                PhaseResult(
+                    "config",
+                    "blocked",
+                    f"missing extraction prerequisite(s): {listed}",
+                    action=TESSERACT_INSTALL + ", then " + RETRY_COMMAND,
+                ),
+                None,
+            )
     edits = missing_required_edits(project_root, dict(environment) if environment else None)
     if edits:
         listed = ", ".join(edits)

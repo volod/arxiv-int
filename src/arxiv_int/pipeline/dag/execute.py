@@ -28,6 +28,9 @@ def stage_context(context: RunContext, stage: str) -> StageContext:
     options["source_drift_policy"] = context.source_drift_policy
     options["source_metadata_snapshot"] = context.source_metadata_snapshot or ""
     options["tmp_dir"] = context.secret_free.get("TMP_DIR", str(context.results_dir / "tmp"))
+    options["model_cache_dir"] = context.secret_free.get(
+        "MODEL_CACHE_DIR", str(context.results_dir / "models")
+    )
     options["protected_roots"] = json.dumps(
         [
             value
@@ -77,6 +80,9 @@ def try_reuse(entry: ReuseEntry | None, *, force: bool) -> StageExecution | None
         from arxiv_int.pipeline.inventory.reuse import validate_inventory_output
 
         validate_inventory_output(directory)
+        from arxiv_int.extraction.reuse import validate_extraction_output
+
+        validate_extraction_output(directory)
     except (ArtifactPublishError, OSError, ValueError, KeyError, TypeError):
         return None
     if load_stage_outcome(directory) not in {"produced", "empty"}:
@@ -158,7 +164,14 @@ def execute_stage(
         from dataclasses import replace
 
         scoped = stage_context(context, spec.name)
-        scoped = replace(scoped, options={**scoped.options, "producer_identity": key})
+        scoped = replace(
+            scoped,
+            options={
+                **scoped.options,
+                **_upstream_options(upstream_keys, index),
+                "producer_identity": key,
+            },
+        )
         result = runner.run(scoped)
         if result.stage != spec.name or any(
             item.generation_id != context.generation_id for item in result.outputs
@@ -180,6 +193,28 @@ def execute_stage(
     return _from_decision(
         spec.name, identity.shard_id, key, executor.execute(work, worker, force=force)
     )
+
+
+def _upstream_options(
+    upstream_keys: tuple[str, ...], index: Mapping[str, ReuseEntry]
+) -> dict[str, str]:
+    """Expose validated upstream artifact pointers to dependent stage runners."""
+    options: dict[str, str] = {}
+    for key in upstream_keys:
+        entry = index.get(key)
+        if entry is None:
+            continue
+        payload: Any = json.loads(
+            (Path(entry.directory) / "stage.json").read_text(encoding="utf-8")
+        )
+        for output in payload.get("outputs", []) if isinstance(payload, dict) else ():
+            if not isinstance(output, dict) or output.get("dataset") != "source-occurrences":
+                continue
+            partition = output.get("partition")
+            if isinstance(partition, dict):
+                options["inventory_manifest"] = str(partition.get("manifest", ""))
+                options["inventory_manifest_sha256"] = str(partition.get("sha256", ""))
+    return options
 
 
 def execution_to_entry(

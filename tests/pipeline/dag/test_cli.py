@@ -56,7 +56,8 @@ def test_production_investigation_names_unregistered_required_stages() -> None:
     missing = [name for name in required if registry.get(name).runner is None]
     assert "preflight" not in missing
     assert "inventory" not in missing
-    assert "extract" in missing
+    assert "extract" not in missing
+    assert "normalize" in missing
     assert registry.get("evaluate").runner is not None
     assert registry.get("preflight").runner is not None
 

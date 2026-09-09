@@ -44,6 +44,8 @@ def profile_stage_names(profile: str) -> tuple[str, ...]:
 
 def production_specs() -> tuple[StageSpec, ...]:
     """Return production specs without runners; bind runners at registry build."""
+    from arxiv_int.extraction.tools import extraction_tool_versions
+
     missing = [name for name in PRODUCTION_DEPENDENCIES if name not in STAGE_FEATURES]
     if missing:
         listed = ", ".join(missing)
@@ -66,7 +68,7 @@ def production_specs() -> tuple[StageSpec, ...]:
                 code_paths=("evaluation",) if name == "evaluate" else (),
             )
         )
-    return tuple(
+    inventory_specs = tuple(
         replace(
             spec,
             contracts=("source-occurrences",),
@@ -84,11 +86,31 @@ def production_specs() -> tuple[StageSpec, ...]:
         else spec
         for spec in specs
     )
+    return tuple(
+        replace(
+            spec,
+            contracts=("documents", "spans"),
+            validators=("documents", "spans"),
+            code_paths=("extraction", "data_quality/rules", "data_quality/engine"),
+            dependency_packages=(
+                "iscc-tika",
+                "pyarrow",
+                "polars",
+                "pandera",
+                "sqlalchemy",
+            ),
+            tools=extraction_tool_versions(),
+        )
+        if spec.name == "extract"
+        else spec
+        for spec in inventory_specs
+    )
 
 
 def production_registry() -> StageRegistry:
     """Bind shipped runners onto production specs; others remain unregistered."""
     from arxiv_int.evaluation.evaluate.stage import EvaluateStage
+    from arxiv_int.extraction.stage import ExtractionStage
     from arxiv_int.pipeline.inventory.stage import InventoryStage
     from arxiv_int.pipeline.publish.preflight import PreflightStage
 
@@ -96,5 +118,6 @@ def production_registry() -> StageRegistry:
         StageRegistry(production_specs())
         .with_runner("preflight", PreflightStage())
         .with_runner("inventory", InventoryStage())
+        .with_runner("extract", ExtractionStage())
         .with_runner("evaluate", EvaluateStage())
     )

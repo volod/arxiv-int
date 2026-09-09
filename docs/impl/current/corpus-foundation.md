@@ -1,9 +1,10 @@
 # Corpus Foundation
 
-Streaming inventory is available through `arxiv-int stage inventory` and
-`make stage STAGE=inventory`. Extraction, normalization, deduplication outputs and chunking remain
-[planned](../plan.md#corpus-foundation----corpus-foundation).
-Implementation and acceptance evidence: [record 0060](../records/0060-corpus-implement-streaming-inventory.md).
+Streaming inventory and tiered text extraction are available through the normal stage interface.
+Normalization, deduplication outputs and chunking remain
+[planned](../plan.md#corpus-foundation----corpus-foundation). Implementation and acceptance
+evidence: [record 0060](../records/0060-corpus-implement-streaming-inventory.md) and
+[record 0061](../records/0061-corpus-integrate-tiered-text-extraction.md).
 
 ## Operator workflow
 
@@ -15,6 +16,7 @@ make run-create
 make forecast RUN_ID="$RUN_ID"
 make stage STAGE=preflight RUN_ID="$RUN_ID"
 make stage STAGE=inventory RUN_ID="$RUN_ID"
+make stage STAGE=extract RUN_ID="$RUN_ID"
 make inspect RUN_ID="$RUN_ID" JSON=1
 ```
 
@@ -24,6 +26,33 @@ metadata verification. Source changes require `make update` or a new run. A chan
 policy uses a separate checkpoint. The source archive is never modified, links are never followed,
 and members are never extracted into source paths. Inventory uses CPU and storage, with no CUDA
 worker or inference service.
+
+## Tiered extraction
+
+The `extract` stage consumes a checksum-validated inventory snapshot, including a reused upstream
+snapshot from another run. It extracts each unique content hash once and maps duplicate physical
+occurrences to that document. Plain text uses bounded codecs; the breadth lane runs Apache Tika
+3.3.x through `iscc-tika` in an isolated subprocess; Docling supplies PDF/spreadsheet layout and
+table cells; scanned PDFs opt into Tika's Tesseract OCR strategy; PNG/JPEG images use Tesseract TSV
+word coordinates. Baseline and failed-lane reasons remain in tool metadata.
+
+The stage writes immutable snapshots below `$RESULTS_DIR/normalized/{documents,spans,extraction}/`
+and `$RESULTS_DIR/quarantine/extract/`. Documents retain raw/text hashes, extractor/version metadata
+and quality counters. Spans retain offsets plus available page, sheet, row/column, cell range and
+bounding-box anchors. Manifests report per-media-type text, anchor and table-cell coverage, and
+rehash every referenced artifact before cache reuse. Generated Pandera document/span schemas and
+source-anchor checks run before publication.
+
+Inputs, extracted text, span counts, child execution time and captured output are bounded. Inventory
+decompression limits still apply to members; macros and active Office content remain disabled.
+Corrupt, encrypted, unsupported, empty and oversized inputs are quarantined with actionable reasons.
+Any quarantine produces an honest partial stage outcome and stops downstream execution.
+
+For a new CUDA host, install Tesseract and the `rus`, `eng`, `deu`, and `ukr` language packs before
+`make setup`; see [Workstation setup](../../guide/setup.md). Setup verifies those packs, installs the
+locked extraction extra, and prefetches Docling layout/table assets under
+`$MODEL_CACHE_DIR/docling/`. Extraction currently uses CPU/RAM; CUDA is available to later lanes but
+is not required by this stage.
 
 ## Identities, coverage and storage
 
@@ -81,9 +110,9 @@ materializes source occurrences; this does not establish bounded-memory reconcil
 
 Magic signatures recognize ZIP, TAR, gzip, PDF, OLE, RAR, 7z, PNG and JPEG. Text detection recognizes
 ASCII, UTF-8 and Unicode BOMs, with bounded `charset-normalizer` candidates for Windows-1251 and
-KOI8-R. Encoding detection is heuristic; ambiguous samples remain unknown. There is no language
-classification or text extraction. A PDF encryption marker is a conservative quarantine signal,
-not a complete PDF parser.
+KOI8-R. Encoding detection is heuristic; ambiguous samples remain unknown. Inventory does not
+classify language; extraction records normalized text without claiming language identification. A
+PDF encryption marker is a conservative quarantine signal, not a complete PDF parser.
 
 ZIP stored/deflated members and streaming TAR/TAR.gz members are inspected recursively. Limits per
 physical container are 10,000 members, three nesting levels, 64 MiB per member, 256 MiB expanded

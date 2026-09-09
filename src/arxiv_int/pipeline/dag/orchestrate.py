@@ -200,6 +200,10 @@ class Orchestrator:
             from arxiv_int.pipeline.inventory.boundary import SourceSetQuality
 
             return SourceSetQuality(context, name)
+        if name == "extract":
+            from arxiv_int.extraction.boundary import ExtractionQuality
+
+            return ExtractionQuality(context)
         return ProductionQuality()
 
     def invalidate(self, stage: str, *, document_id: str | None = None) -> tuple[str, ...]:

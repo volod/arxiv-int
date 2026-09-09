@@ -16,6 +16,9 @@ needs the evaluated NVIDIA driver/CUDA host; vLLM also needs NVIDIA container su
 missing host prerequisites but does not install OS packages, modify systemd or change permissions.
 
 ```bash
+sudo apt update
+sudo apt install tesseract-ocr tesseract-ocr-rus tesseract-ocr-eng \
+  tesseract-ocr-deu tesseract-ocr-ukr
 git clone https://github.com/volod/arxiv-int.git
 cd arxiv-int
 uv --version
@@ -24,6 +27,11 @@ docker compose version
 docker info
 nvidia-smi
 ```
+
+The extraction profile requires all four Tesseract language packs. `make setup` verifies them and
+names this exact remediation when one is absent; it never invokes `sudo`. Setup installs the locked
+Docling and `iscc-tika` Python dependencies and, when `SETUP_DOWNLOADS=1`, downloads the Docling
+layout and table models into `$MODEL_CACHE_DIR/docling/` for offline worker execution.
 
 Skip cloning for an existing checkout. Run commands from that checkout. For host Ollama, follow its
 [Linux installation instructions](https://docs.ollama.com/linux) and start/check the service with
@@ -63,7 +71,7 @@ handlers in order. A successful infrastructure audit does not mean the archive p
    source scripts/shared/common.sh
    arxiv_int_load_env
    uv sync --locked --extra dev --extra contracts --extra lake --extra store \
-     --extra inference --extra graph --extra data-quality --extra transform
+     --extra inference --extra graph --extra data-quality --extra transform --extra extraction
    make features
    ```
 
@@ -197,14 +205,14 @@ make invalidate STAGE=evaluate RUN_ID="$RUN_ID"
 make prune
 ```
 
-`evaluate`, `preflight` and `inventory` are shipped production runners.
+`evaluate`, `preflight`, `inventory` and `extract` are shipped production runners.
 Other investigation stages fail as
 unregistered until their capabilities land. `make prune` is a dry-run; `APPLY=1 PLAN_ID=...` is a
 separate confirmation and refuses to delete the sole recovery copy.
 
 The target diagnostic order below is one valid linear expansion of the baseline registry, not a
-second executable DAG definition. `run-finalize`, `STAGE=preflight` and `STAGE=inventory` are
-available; extraction and later corpus stages remain planned. A forecast precedes atomic stages:
+second executable DAG definition. `run-finalize`, `STAGE=preflight`, `STAGE=inventory` and
+`STAGE=extract` are available; later corpus stages remain planned. A forecast precedes atomic stages:
 
 ```bash
 make forecast RUN_ID="$RUN_ID"

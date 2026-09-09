@@ -26,37 +26,6 @@ and name ready/pending human decisions and the dependent work that must wait at 
 
 ### Corpus foundation -- `corpus-foundation`
 
-#### integrate-tiered-text-extraction
-
-Compose Tika, Docling, and OCR/layout fallbacks behind one evidence-preserving extractor interface.
-
-- Serves: `corpus-foundation` --
-[Russian-language and document analysis](../design/spec.md#russian-language-and-document-analysis)
-- Agent status: RUN NEEDED
-- Dependencies: [Streaming inventory](records/0060-corpus-implement-streaming-inventory.md);
-[Deterministic schema generation](records/0011-contract-gov-implement-deterministic-schema-generation.md).
-- User-visible outcome: Supported documents become normalized source spans with page/table/offset
-evidence; failures are quarantined with actionable reasons.
-- Scope boundary: Integrate existing engines and selection policy; do not build a new parser or
-promise every proprietary format.
-- Data and artifact paths: `$RESULTS_DIR/normalized/documents/`, `$RESULTS_DIR/normalized/spans/`,
-`$RESULTS_DIR/quarantine/`, `src/arxiv_int/extraction/`, and representative format fixtures.
-- Execution path: Run Tika as breadth baseline; route layout/table PDFs to Docling and scanned PDFs
-to OCR; preserve tool versions, page/table/bounding-box and spreadsheet sheet/cell anchors,
-container/member paths, raw hashes, and extraction quality; never execute macros or active content;
-bound temp files,
-child processes, timeouts, and decompression; register `extract` with the normal stage interface and
-run it against a bounded authorized archive when available after deterministic checks pass.
-Validate emitted document/span batches with shared Pandera schemas and existing source-anchor
-checks; preserve explicit quarantine and incomplete-coverage results.
-- Acceptance gates: The reviewed extraction fixture reports per-format text, table, and anchor
-coverage; corrupt/encrypted/oversized inputs fail safely; repeated content hashes reuse outputs;
-source files remain unchanged; the normal `make stage STAGE=extract` run produces inspectable
-artifacts on the declared fixture or authorized archive, and its redacted result is recorded in current-state
-documentation.
-- Documentation target: `docs/impl/current/corpus-foundation.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
-
 #### implement-normalization-dedupe-and-chunking
 
 Normalize extracted text, group exact/near duplicates and editions, and emit source-aligned chunks
@@ -64,7 +33,7 @@ without destructive corpus edits.
 
 - Serves: `corpus-foundation` -- [Normalized data lake](../design/spec.md#normalized-data-lake)
 - Agent status: RUN NEEDED
-- Dependencies: `integrate-tiered-text-extraction`.
+- Dependencies: [Tiered text extraction](records/0061-corpus-integrate-tiered-text-extraction.md).
 - User-visible outcome: Each unique document has searchable, table/structure-aware chunks and
 reversible duplicate/edition overlays.
 - Scope boundary: Normalize and propose duplicate groups; do not merge entities or delete

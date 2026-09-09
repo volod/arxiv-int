@@ -1,7 +1,7 @@
 # Environment, identity, readiness, and retryable setup.
 ##@ Bootstrap
 .PHONY: bootstrap venv lock package-check features config readiness \
-	setup setup-config setup-env setup-wait setup-schema
+	setup setup-config setup-env setup-models setup-wait setup-schema
 
 bootstrap: ## Sync .env and .venv, then audit readiness
 	@printf '\n=== Environment and dependencies ===\n'
@@ -43,6 +43,10 @@ setup-config: ## Create or append .env, name required edits, and check host tool
 
 setup-env: ## Sync the locked extra union into .venv (honors SETUP_DOWNLOADS=0)
 	@source "$(COMMON_SH)"; arxiv_int_setup_env $(SYNC_EXTRAS)
+
+setup-models: ## Prefetch or verify configured inference and extraction model caches
+	@$(require_setup)
+	@"$(CLI)" setup --phase models
 
 setup-wait: ## Wait for service transport and model health without requiring a schema
 	@$(require_setup)
