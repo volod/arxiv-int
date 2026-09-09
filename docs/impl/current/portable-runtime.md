@@ -13,7 +13,7 @@ setup against the same targets is refused. Typed stage and artifact interfaces, 
 ledger, serialized progress logs, a fixture DAG CLI, knowledge-base publication, and read-only
 artifact inspection exist under
 [Pipeline control](pipeline-control.md). Concrete corpus stages remain
-[planned](../plan.md#pipeline-control----pipeline-control). A default investigation run still
+[planned](../plan.md#corpus-foundation----corpus-foundation). A default investigation run still
 refuses unimplemented stages. Infrastructure-ready never means an archive-to-report run is
 available. See the
 [operator workflow](../../guide/operator-workflow.md) for the atomic chain and the

@@ -131,8 +131,8 @@ under `src/arxiv_int/pipeline/reconcile/`, `src/arxiv_int/pipeline/prune/`,
 limit, recorded after the fact: this round traced bounded hashing in the reconcile scanner but did
 not sweep every other archive reader, and `snapshot_silos` in `pipeline/run/context.py` carries the
 same whole-file read. It belongs to the earlier run-context producers rather than to the records
-reviewed here, and is owned by
-[bound-archive-snapshot-hashing](../plan.md#bound-archive-snapshot-hashing). Incoming
+reviewed here, and is resolved by
+[bounded archive snapshots](0059-pipeline-bound-archive-snapshot-hashing.md). Incoming
 notes: none were routed to this round; `AUD-review-pipeline-publication-and-reuse-boundaries-2`
 stays with the [corpus/control checkpoint](../plan.md#review-corpus-and-control-integrity) because
 it explicitly waits on concrete corpus producers, which do not exist yet.

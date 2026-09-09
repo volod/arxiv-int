@@ -10,6 +10,7 @@ from typing import Any
 from arxiv_int.contracts.generate.normalize import normalize_json
 from arxiv_int.interfaces.sources import SiloRoot
 from arxiv_int.pipeline.run.context import RunContext
+from arxiv_int.pipeline.run.snapshot import CONTENT_POLICY
 
 CONTEXT_NAME = "run-context.json"
 STATUS_NAME = "status.json"
@@ -79,6 +80,8 @@ def save_context(context: RunContext) -> Path:
             "profile": context.profile,
             "config_fingerprint": context.config_fingerprint,
             "source_snapshot": context.source_snapshot,
+            "source_drift_policy": context.source_drift_policy,
+            "source_metadata_snapshot": context.source_metadata_snapshot,
             "silos": [{"silo_id": silo.silo_id, "root": str(silo.root)} for silo in context.silos],
             "results_dir": str(context.results_dir),
             "runs_dir": str(context.runs_dir),
@@ -104,6 +107,8 @@ def load_context(runs_dir: Path, run_id: str) -> RunContext:
         profile=str(payload["profile"]),
         config_fingerprint=str(payload["config_fingerprint"]),
         source_snapshot=str(payload["source_snapshot"]),
+        source_drift_policy=str(payload.get("source_drift_policy", CONTENT_POLICY)),
+        source_metadata_snapshot=payload.get("source_metadata_snapshot"),
         silos=silos,
         results_dir=Path(str(payload["results_dir"])),
         runs_dir=Path(str(payload["runs_dir"])),

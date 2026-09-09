@@ -1452,6 +1452,14 @@ divided into stable shards derived from content hashes or partition buckets. `ct
 `ctl.stage_run`, `ctl.shard_run`, and the artifact lineage graph record states such as `pending`,
 `running`, `succeeded`, `failed`, `quarantined`, `superseded`, `stale`, and `pruned`.
 
+Run creation and update hash source contents in bounded chunks. The frozen run context declares
+its source drift policy: later commands may compare stable filesystem metadata instead of rereading
+all source bytes. Such a check assumes reliable metadata and stable sources during execution;
+it must detect ordinary content/path changes, refuse stale contexts, and retain the separate content
+identity. Unchanged archives, same-size edits with restored mtime, bounded hashing memory, and
+preserved symlink/unreadable-entry treatment are evaluated by run-context regressions. This does
+not change configuration drift, inventory policy, or source-manifest contracts.
+
 A shard identity includes:
 
 - ordered input artifact hashes and upstream manifest ids;
@@ -2028,7 +2036,7 @@ evidence exist. Registry order is the implementation line used by `plan.md`.
 | 4 | `canonical-store` | shipped | Disposable extension compatibility, initial schema/adoption, dbt validation/publication and projection rebuild/cleanup pass the foundation checkpoint; operator recovery remains a separate capability | [Canonical store](../impl/current/canonical-store.md); [Checkpoint](../impl/records/0027-store-review-foundation-and-store-boundaries.md) |
 | 5 | `local-inference` | shipped | Ollama/vLLM conformance, structured outputs, model-fit, host-wide GPU lease, and local-only endpoint gates pass | [Local inference](../impl/current/local-inference.md) |
 | 6 | `evaluation-foundation` | shipped | Frozen synthetic fixtures, replayable metrics, split guards, paired verdicts, and immutable locally published bundles/proofs pass the inference/evaluation checkpoint | [Evaluation foundation](../impl/current/evaluation-foundation.md); [Checkpoint](../impl/records/0038-eval-found-review-inference-and-evaluation-boundaries.md) |
-| 7 | `pipeline-control` | planned | Fixture-first DAG, output manifest, resume, generation activation, delta, forecast, and progress gates pass | [Open work](../impl/plan.md#pipeline-control----pipeline-control) |
+| 7 | `pipeline-control` | shipped | Fixture-first DAG, output manifest, resume, generation activation, delta, forecast, and progress gates pass | [Pipeline control](../impl/current/pipeline-control.md) |
 | 8 | `corpus-foundation` | planned | Representative inventory, extraction, normalization, dedupe, and chunk gold sets pass | [Open work](../impl/plan.md#corpus-foundation----corpus-foundation) |
 | 9 | `lexical-retrieval` | planned | Held-out Russian relevance, latency, index size, and rebuild gates pass | [Open work](../impl/plan.md#lexical-retrieval----lexical-retrieval) |
 | 10 | `archive-classification` | planned | Hierarchical gold labels, calibrated exceptions, complete source accounting, and reproducibility pass | [Open work](../impl/plan.md#archive-classification----archive-classification) |

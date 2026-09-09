@@ -30,6 +30,7 @@ from arxiv_int.pipeline.run.context import (
 )
 from arxiv_int.pipeline.run.errors import ConfigDriftError, PipelineError, StaleUpstreamError
 from arxiv_int.pipeline.run.persist import load_context, load_status, run_dir
+from arxiv_int.pipeline.run.snapshot import METADATA_POLICY, capture_snapshot, metadata_snapshot
 from arxiv_int.runtime import load_runtime_config
 from arxiv_int.runtime.config_model import RuntimeConfig
 from arxiv_int.runtime.setup.settings import load_setup_settings
@@ -55,12 +56,15 @@ def create_run_context(
     silos = tuple(SiloRoot(silo.silo_id, silo.root) for silo in config.archive_silos)
     secret_free = secret_free_values(dict(config.values))
     run_id = allocate_run_id()
+    source_snapshot, source_metadata_snapshot = capture_snapshot(silos)
     context = RunContext(
         run_id=run_id,
         generation_id=run_id,
         profile=chosen,
         config_fingerprint=config_fingerprint(chosen, secret_free),
-        source_snapshot=snapshot_silos(silos),
+        source_snapshot=source_snapshot,
+        source_drift_policy=METADATA_POLICY,
+        source_metadata_snapshot=source_metadata_snapshot,
         silos=silos,
         results_dir=config.results_dir,
         runs_dir=config.runs_dir,
@@ -141,8 +145,12 @@ def require_frozen_context(
         raise ConfigDriftError(
             f"run {run_id} configuration drifted; create a new run or invalidate"
         )
-    if snapshot_silos(context.silos) != context.source_snapshot:
-        raise StaleUpstreamError("archive snapshot changed; use pipeline update or resume")
+    if context.source_drift_policy == METADATA_POLICY:
+        stale = metadata_snapshot(context.silos) != context.source_metadata_snapshot
+    else:
+        stale = snapshot_silos(context.silos) != context.source_snapshot
+    if stale:
+        raise StaleUpstreamError("archive snapshot changed; use pipeline update")
     return context
 
 

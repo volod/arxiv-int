@@ -24,35 +24,6 @@ in place.
 a prerequisite on the producer. Follow the [handoff workflow](../guide/planning-workflow.md#human-review-handoffs)
 and name ready/pending human decisions and the dependent work that must wait at task completion.
 
-### Pipeline control -- `pipeline-control`
-
-#### bound-archive-snapshot-hashing
-
-Stop rehashing whole archive files into memory when a run is created and on every later command.
-
-- Serves: `pipeline-control` --
-[Resumability, idempotency, and provenance](../design/spec.md#resumability-idempotency-and-provenance)
-- Agent status: CLEAR
-- Dependencies: [Source reconciliation and prune safety](records/0055-pipeline-repair-source-reconciliation-and-prune-safety.md);
-[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md).
-- User-visible outcome: `run create`, `stage`, `status` and `resume` stay usable on a
-multi-terabyte archive instead of reading every file whole and rehashing the entire archive on each
-command.
-- Scope boundary: The run-context source snapshot and its drift check only; no inventory stage, no
-new manifest contract, and no change to what counts as configuration drift.
-- Data and artifact paths: `src/arxiv_int/pipeline/run/context.py`,
-`src/arxiv_int/pipeline/commands.py`, `src/arxiv_int/pipeline/dag/actions.py`; mirrored tests under
-`tests/pipeline/run/`.
-- Execution path: Hash file bytes in bounded chunks through the shared reader already used by
-attempt manifests and the source scan; decide and record whether the per-command drift check needs
-full content or cheaper stable metadata, and keep the chosen rule explicit in the run context so a
-stale snapshot still refuses. Preserve the existing `StaleUpstreamError` behavior.
-- Acceptance gates: Peak memory during a snapshot stays bounded independently of the largest file;
-a changed archive still raises `StaleUpstreamError` and an unchanged archive still loads; symlinked
-and unreadable entries keep their current treatment. Run the pipeline suites and `make ci`.
-- Documentation target: `docs/impl/current/pipeline-control.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
-
 ### Corpus foundation -- `corpus-foundation`
 
 #### implement-streaming-inventory
@@ -162,7 +133,8 @@ Review the integrated milestone before lexical loading, classification and NLP c
 - Agent status: CLEAR
 - Task kind: checkpoint
 - Dependencies: `implement-normalization-dedupe-and-chunking`;
-[Owned stage fingerprints](records/0058-pipeline-bind-real-owned-stage-fingerprints.md); `bound-archive-snapshot-hashing`;
+[Owned stage fingerprints](records/0058-pipeline-bind-real-owned-stage-fingerprints.md);
+[Bounded archive snapshots](records/0059-pipeline-bound-archive-snapshot-hashing.md);
 [Control integration checkpoint](records/0054-pipeline-review-control-integration-boundaries.md);
 [Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md);
 [Investigation profile and output manifest](records/0045-pipeline-implement-investigation-profile-and-output-manifest.md);

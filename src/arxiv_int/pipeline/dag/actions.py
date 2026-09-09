@@ -7,8 +7,9 @@ from arxiv_int.pipeline.dag.graph import StagePlan, select_plan
 from arxiv_int.pipeline.dag.registry import StageRegistry
 from arxiv_int.pipeline.dag.stages import OPTIONAL_STAGES, profile_stage_names
 from arxiv_int.pipeline.prune import PrunePlan, apply_prune_plan, build_prune_plan
-from arxiv_int.pipeline.run.context import RunContext, allocate_run_id, snapshot_silos
+from arxiv_int.pipeline.run.context import RunContext, allocate_run_id
 from arxiv_int.pipeline.run.persist import RunStatus, load_status, save_context
+from arxiv_int.pipeline.run.snapshot import METADATA_POLICY, capture_snapshot
 from arxiv_int.runtime.setup.requirements import PROFILE_STAGES
 
 
@@ -36,11 +37,14 @@ def rebuild_context(previous: RunContext) -> RunContext:
 def update_context(previous: RunContext) -> RunContext:
     """Allocate a new generation whose identities see the current archive snapshot."""
     run_id = allocate_run_id()
+    source_snapshot, source_metadata_snapshot = capture_snapshot(previous.silos)
     return replace(
         previous,
         run_id=run_id,
         generation_id=run_id,
-        source_snapshot=snapshot_silos(previous.silos),
+        source_snapshot=source_snapshot,
+        source_drift_policy=METADATA_POLICY,
+        source_metadata_snapshot=source_metadata_snapshot,
     )
 
 

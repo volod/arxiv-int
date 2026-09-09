@@ -1,6 +1,5 @@
 """Frozen run context: unique id, profile, configuration fingerprint, and silos."""
 
-import hashlib
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
@@ -9,6 +8,8 @@ from uuid import uuid4
 from arxiv_int.contracts.generate.normalize import normalize_json, sha256_text
 from arxiv_int.interfaces.sources import SiloRoot
 from arxiv_int.interfaces.tokens import freeze_str_mapping, require_token
+from arxiv_int.pipeline.run.snapshot import CONTENT_POLICY, METADATA_POLICY
+from arxiv_int.pipeline.run.snapshot import snapshot_silos as snapshot_silos
 
 _SENSITIVE_MARKERS = ("PASSWORD", "SECRET", "TOKEN", "DATABASE_URL", "CREDENTIAL")
 
@@ -30,6 +31,8 @@ class RunContext:
     parameters: Mapping[str, str]
     from_stage: str | None = None
     to_stage: str | None = None
+    source_drift_policy: str = CONTENT_POLICY
+    source_metadata_snapshot: str | None = None
 
     def __post_init__(self) -> None:
         require_token(self.run_id, "run_id")
@@ -37,6 +40,14 @@ class RunContext:
         require_token(self.profile, "profile")
         require_token(self.config_fingerprint, "config_fingerprint")
         require_token(self.source_snapshot, "source_snapshot")
+        if self.source_drift_policy not in {CONTENT_POLICY, METADATA_POLICY}:
+            raise ValueError("unsupported source drift policy")
+        if self.source_drift_policy == METADATA_POLICY:
+            if self.source_metadata_snapshot is None:
+                raise ValueError("stat-v1 requires a source metadata snapshot")
+            require_token(self.source_metadata_snapshot, "source_metadata_snapshot")
+        elif self.source_metadata_snapshot is not None:
+            raise ValueError("full-content-v1 cannot carry a source metadata snapshot")
         object.__setattr__(self, "secret_free", freeze_str_mapping(self.secret_free))
         object.__setattr__(self, "parameters", freeze_str_mapping(self.parameters))
 
@@ -59,19 +70,3 @@ def config_fingerprint(profile: str, secret_free: Mapping[str, str]) -> str:
     """Fingerprint profile and secret-free roots; archive bytes are a separate snapshot."""
     payload = {"profile": profile, "values": dict(sorted(secret_free.items()))}
     return sha256_text(normalize_json(payload))
-
-
-def snapshot_silos(silos: tuple[SiloRoot, ...]) -> str:
-    """Hash silo-relative paths and file contents for incremental update."""
-    parts: list[str] = []
-    for silo in silos:
-        if not silo.root.exists():
-            parts.append(f"{silo.silo_id}:missing")
-            continue
-        for path in sorted(silo.root.rglob("*")):
-            if not path.is_file() or path.is_symlink():
-                continue
-            relative = path.relative_to(silo.root).as_posix()
-            digest = hashlib.sha256(path.read_bytes()).hexdigest()
-            parts.append(f"{silo.silo_id}:{relative}:{digest}")
-    return sha256_text("\n".join(parts) if parts else "empty-archive")

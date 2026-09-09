@@ -7,7 +7,7 @@ read-only stage artifact inspection, incremental source reconciliation, two-phas
 read-only citation/source location lookup, and a provided-archive pipeline-control proof are
 available. Concrete corpus
 stages remain
-[planned](../plan.md#pipeline-control----pipeline-control).
+[planned](../plan.md#corpus-foundation----corpus-foundation).
 
 See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface-contracts.md),
 [record 0041](../records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md),
@@ -24,7 +24,8 @@ See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface
 [checkpoint 0054](../records/0054-pipeline-review-control-integration-boundaries.md),
 [repair 0055](../records/0055-pipeline-repair-source-reconciliation-and-prune-safety.md), and
 [record 0056](../records/0056-pipeline-reprove-pipeline-control-after-reconciliation-repair.md), and
-[record 0058](../records/0058-pipeline-bind-real-owned-stage-fingerprints.md).
+[record 0058](../records/0058-pipeline-bind-real-owned-stage-fingerprints.md), and
+[record 0059](../records/0059-pipeline-bound-archive-snapshot-hashing.md).
 
 ## Stage, source, and artifact seams
 
@@ -211,6 +212,32 @@ A run id is allocated as `run-<hex>` and never inherits Make's developer `RUN_ID
 context and refuse configuration drift or a changed archive snapshot. `pipeline update` clones the
 frozen profile into a new generation that sees the current snapshot; `pipeline rebuild` allocates a
 new generation and skips cache reuse.
+
+Creation and update compute the same ordered path/content SHA-256 identity as before using the
+shared 1 MiB chunk reader. New contexts persist `source_drift_policy: stat-v1` and a separate
+`source_metadata_snapshot`. Later commands scan sorted silo-relative paths and stat metadata
+without opening source contents: device, inode, size, nanosecond mtime/ctime, mode, uid and gid.
+Atime is excluded so reading a source does not invalidate a run. Additions, removals, renames,
+permission changes, replacements and ordinary content edits refuse with `StaleUpstreamError`,
+including same-size edits with restored mtime. Touching or replacing identical content can also
+refuse; `pipeline update` refreshes both snapshots while keeping unchanged content identity.
+Configuration drift rules are unchanged.
+
+Metadata passes bracket content hashing and refuse an observed change during creation/update.
+This is a local filesystem drift guard, not an atomic filesystem snapshot or a cryptographic
+recheck of source bytes on each command: it assumes reliable stat fields and stable sources during
+execution. Changes invisible to all selected metadata fields cannot be detected. Existing contexts
+without either new field use `full-content-v1` and retain full chunked content checks until an
+explicit update creates a new context. Unknown policies or missing metadata evidence refuse load;
+rebuild preserves the frozen policy and snapshots.
+
+Existing traversal treatment remains: file/directory symlinks are skipped, empty directories do
+not contribute, missing silos retain their marker, and file-open errors propagate during content
+hashing. Directory enumeration retains pathlib's existing error behavior. Hash buffers are bounded
+independently of file size; sorted traversal memory still grows with path count. This change adds
+no inventory or source-manifest contract. See
+[record 0059](../records/0059-pipeline-bound-archive-snapshot-hashing.md)
+for regression and synthetic host memory evidence; it does not establish full-archive throughput.
 
 | Command | Role |
 | --- | --- |

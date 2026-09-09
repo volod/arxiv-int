@@ -99,7 +99,9 @@ def _pipeline(args: argparse.Namespace, token: CancelToken) -> int:
 
 def _stage(args: argparse.Namespace, token: CancelToken) -> int:
     config = load_runtime_config(project_root=args.project_root)
-    context = require_frozen_context(config.runs_dir, str(args.run_id))
+    context = require_frozen_context(
+        config.runs_dir, str(args.run_id), project_root=config.project_root
+    )
     if args.document_id:
         parameters = dict(context.parameters)
         parameters["document_id"] = str(args.document_id)
@@ -128,6 +130,7 @@ def _run(args: argparse.Namespace, token: CancelToken) -> int:
     if runs_dir is None:
         runs_dir = load_runtime_config(project_root=args.project_root).runs_dir
     if action == "status":
+        require_frozen_context(Path(runs_dir), run_id, project_root=args.project_root)
         for line in status_lines(load_status(Path(runs_dir), run_id)):
             _LOG.info("%s", line)
         latest = FileProgressStore(Path(runs_dir) / run_id).load_latest()
@@ -139,9 +142,9 @@ def _run(args: argparse.Namespace, token: CancelToken) -> int:
         from arxiv_int.inspect.commands import run_inspect_command
 
         return run_inspect_command(args)
-    context = load_context(Path(runs_dir), run_id)
     if action == "finalize":
-        return finalize_run(context)
+        return finalize_run(load_context(Path(runs_dir), run_id))
+    context = require_frozen_context(Path(runs_dir), run_id, project_root=args.project_root)
     return run_dag(context, force=bool(args.force), cancel=token, resume=True)
 
 
