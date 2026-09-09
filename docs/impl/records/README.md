@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0061` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0063` after the rows
 below).
 
 | Record | Scope | Result |
@@ -72,4 +72,5 @@ below).
 | [0058 Owned stage fingerprints](0058-pipeline-bind-real-owned-stage-fingerprints.md) | Bind stage reuse to declared contract, rule, dbt, code, dependency, tool, model and prompt assets | Accepted |
 | [0059 Bounded archive snapshot hashing](0059-pipeline-bound-archive-snapshot-hashing.md) | Chunked content snapshots and explicit metadata drift checks | Accepted |
 | [0060 Streaming inventory](0060-corpus-implement-streaming-inventory.md) | Restartable content-addressed archive inventory | Accepted |
-| [0061 Tiered text extraction](0061-corpus-integrate-tiered-text-extraction.md) | Evidence-preserving Tika, Docling and OCR extraction | Active |
+| [0061 Tiered text extraction](0061-corpus-integrate-tiered-text-extraction.md) | Evidence-preserving Tika, Docling and OCR extraction | Accepted |
+| [0062 Normalization, dedupe and chunking](0062-corpus-implement-normalization-dedupe-and-chunking.md) | NFC views, reversible duplicate overlays, and structure-aware chunks | Accepted |

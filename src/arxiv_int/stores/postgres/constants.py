@@ -43,6 +43,8 @@ OWNED_TABLES: tuple[tuple[str, str], ...] = (
     ("corpus", "chunks"),
     ("corpus", "document_path_event"),
     ("corpus", "documents"),
+    ("corpus", "duplicate_groups"),
+    ("corpus", "normalized_documents"),
     ("corpus", "source_occurrences"),
     ("corpus", "spans"),
     ("ctl", "domain_artifact_registry"),
@@ -73,7 +75,7 @@ FACT_STATUSES: tuple[str, ...] = (
 
 EMBEDDING_PROFILES_TABLE = "search.embedding_profiles"
 ALEMBIC_VERSION_TABLE = "alembic_version"
-HEAD_REVISION = "0001"
+HEAD_REVISION = "0002"
 INITIAL_REVISION = "0001"
 PROJECTION_METADATA_TABLES: tuple[str, ...] = (
     "projections",

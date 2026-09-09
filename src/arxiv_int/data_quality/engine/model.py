@@ -61,6 +61,7 @@ class QualityRule:
     description: str
     column: str | None = None
     logical_type: str | None = None
+    physical_type: str | None = None
     max_length: int | None = None
     precision: int | None = None
     scale: int | None = None

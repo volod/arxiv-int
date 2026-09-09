@@ -129,7 +129,7 @@ def test_stage_publishes_contracts_anchors_quarantine_and_dedupe(
     manifest = Path(result.outputs[0].partition["manifest"])
     summary = json.loads(manifest.read_text(encoding="ascii"))
 
-    assert result.outcome == "partial"
+    assert result.outcome == "produced"
     assert summary["documents"] == 3
     assert summary["spans"] == 3
     assert summary["quarantined"] == 2

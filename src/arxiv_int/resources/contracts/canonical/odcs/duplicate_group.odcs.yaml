@@ -1,0 +1,86 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:canonical:duplicate-group:1.0.0
+name: duplicate_group
+status: active
+schema:
+  - name: duplicate_group
+    logicalType: object
+    properties:
+      - name: duplicate_membership_id
+        logicalType: string
+        required: true
+        primaryKey: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: duplicate_group.duplicateMembershipId
+                semanticTerm: "urn:arxiv-int:term:duplicate-membership-id"
+      - name: group_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: duplicate_group.groupId
+                semanticTerm: "urn:arxiv-int:term:duplicate-group-id"
+      - name: document_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: duplicate_group.documentId
+                semanticTerm: "urn:arxiv-int:term:document-id"
+      - name: method
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: duplicate_group.method
+                semanticTerm: "urn:arxiv-int:term:duplicate-method"
+      - name: role
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: duplicate_group.role
+                semanticTerm: "urn:arxiv-int:term:duplicate-role"
+      - name: score
+        logicalType: number
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: duplicate_group.score
+                semanticTerm: "urn:arxiv-int:term:score"
+      - name: suppressed
+        logicalType: boolean
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: duplicate_group.suppressed
+                semanticTerm: "urn:arxiv-int:term:suppressed"
+      - name: generation_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: duplicate_group.generationId
+                semanticTerm: "urn:arxiv-int:term:generation-id"
+      - name: contract_version
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: duplicate_group.contractVersion
+                semanticTerm: "urn:arxiv-int:term:contract-version"

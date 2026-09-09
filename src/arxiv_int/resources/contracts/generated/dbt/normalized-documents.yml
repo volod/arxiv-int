@@ -1,0 +1,85 @@
+sources:
+  - description: Canonical corpus relations owned by Alembic.
+    name: corpus
+    schema: corpus
+    tables:
+      - columns:
+          - description: normalized_document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - normalized-documents.normalized_document_id.type
+                - normalized-documents.normalized_document_id.nullability
+                - normalized-documents.normalized_document_id.batch_unique
+                - normalized-documents.normalized_document_id.unique
+            name: normalized_document_id
+            tests:
+              - not_null
+              - unique
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - normalized-documents.document_id.type
+                - normalized-documents.document_id.relationship
+            name: document_id
+            tests:
+              - relationships:
+                  arguments:
+                    field: document_id
+                    to: "source('corpus', 'documents')"
+          - description: normalizer_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - normalized-documents.normalizer_id.type
+            name: normalizer_id
+          - description: language must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - normalized-documents.language.type
+            name: language
+          - description: language_confidence must match logical type number.
+            meta:
+              arxiv_int_rule_ids:
+                - normalized-documents.language_confidence.type
+            name: language_confidence
+          - description: normalized_sha256 must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - normalized-documents.normalized_sha256.type
+            name: normalized_sha256
+          - description: text_chars must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - normalized-documents.text_chars.type
+            name: text_chars
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - normalized-documents.generation_id.type
+                - normalized-documents.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - normalized-documents.contract_version.type
+                - normalized-documents.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - normalized-documents.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: normalized-documents
+        description: Canonical normalized text views, detected language, and reversible offset maps.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:normalized-documents:1.0.0"
+          primary_key:
+            - normalized_document_id
+          rule_catalog_version: 1.0.0
+        name: normalized_documents
+version: 2

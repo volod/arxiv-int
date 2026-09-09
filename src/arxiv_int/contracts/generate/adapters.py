@@ -2,15 +2,17 @@
 
 from typing import Any
 
+from arxiv_int.contracts.catalog.normalize import is_floating
 from arxiv_int.contracts.catalog.odcs_ext import project_extension
 from arxiv_int.contracts.generate.normalize import normalize_json, normalize_text
 
 
-def _logical_to_arrow(logical: str) -> str:
+def _logical_to_arrow(logical: str, physical: str | None = None) -> str:
+    if logical == "number":
+        return "float64" if is_floating(physical) else "decimal128(38, 9)"
     mapping = {
         "string": "string",
         "integer": "int64",
-        "number": "float64",
         "boolean": "bool",
         "timestamp": "timestamp[us, tz=UTC]",
         "date": "date32",
@@ -41,7 +43,10 @@ def parquet_descriptor(odcs: dict[str, Any], contract_id: str) -> str:
         fields.append(
             {
                 "name": str(prop["name"]),
-                "arrowType": _logical_to_arrow(str(prop.get("logicalType", "string"))),
+                "arrowType": _logical_to_arrow(
+                    str(prop.get("logicalType", "string")),
+                    None if prop.get("physicalType") is None else str(prop["physicalType"]),
+                ),
                 "nullable": not bool(prop.get("required", False)),
                 "primaryKey": bool(prop.get("primaryKey", False)),
             }

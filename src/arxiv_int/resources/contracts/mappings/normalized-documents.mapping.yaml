@@ -1,0 +1,32 @@
+metadata:
+  domain: arxiv-int
+  sourceContract: normalized-documents
+  canonicalEntity: normalized_document
+fieldMappings:
+  - sourceField: normalized_document_id
+    binding: normalized_document.normalizedDocumentId
+    semanticTerm: urn:arxiv-int:term:normalized-document-id
+  - sourceField: document_id
+    binding: normalized_document.documentId
+    semanticTerm: urn:arxiv-int:term:document-id
+  - sourceField: normalizer_id
+    binding: normalized_document.normalizerId
+    semanticTerm: urn:arxiv-int:term:normalizer-id
+  - sourceField: language
+    binding: normalized_document.language
+    semanticTerm: urn:arxiv-int:term:language
+  - sourceField: language_confidence
+    binding: normalized_document.languageConfidence
+    semanticTerm: urn:arxiv-int:term:confidence
+  - sourceField: normalized_sha256
+    binding: normalized_document.normalizedSha256
+    semanticTerm: urn:arxiv-int:term:checksum
+  - sourceField: text_chars
+    binding: normalized_document.textChars
+    semanticTerm: urn:arxiv-int:term:text-chars
+  - sourceField: generation_id
+    binding: normalized_document.generationId
+    semanticTerm: urn:arxiv-int:term:generation-id
+  - sourceField: contract_version
+    binding: normalized_document.contractVersion
+    semanticTerm: urn:arxiv-int:term:contract-version

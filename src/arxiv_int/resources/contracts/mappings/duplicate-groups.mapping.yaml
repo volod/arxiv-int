@@ -1,0 +1,32 @@
+metadata:
+  domain: arxiv-int
+  sourceContract: duplicate-groups
+  canonicalEntity: duplicate_group
+fieldMappings:
+  - sourceField: duplicate_membership_id
+    binding: duplicate_group.duplicateMembershipId
+    semanticTerm: urn:arxiv-int:term:duplicate-membership-id
+  - sourceField: group_id
+    binding: duplicate_group.groupId
+    semanticTerm: urn:arxiv-int:term:duplicate-group-id
+  - sourceField: document_id
+    binding: duplicate_group.documentId
+    semanticTerm: urn:arxiv-int:term:document-id
+  - sourceField: method
+    binding: duplicate_group.method
+    semanticTerm: urn:arxiv-int:term:duplicate-method
+  - sourceField: role
+    binding: duplicate_group.role
+    semanticTerm: urn:arxiv-int:term:duplicate-role
+  - sourceField: score
+    binding: duplicate_group.score
+    semanticTerm: urn:arxiv-int:term:score
+  - sourceField: suppressed
+    binding: duplicate_group.suppressed
+    semanticTerm: urn:arxiv-int:term:suppressed
+  - sourceField: generation_id
+    binding: duplicate_group.generationId
+    semanticTerm: urn:arxiv-int:term:generation-id
+  - sourceField: contract_version
+    binding: duplicate_group.contractVersion
+    semanticTerm: urn:arxiv-int:term:contract-version

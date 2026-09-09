@@ -36,6 +36,16 @@ _SUPPORTED_LOGICAL_TYPES = frozenset(
     {"array", "boolean", "date", "integer", "number", "object", "string", "time", "timestamp"}
 )
 _SUPPORTED_RELATIONSHIP_TYPES = frozenset({"foreignKey"})
+FLOATING_PHYSICAL_TYPES = frozenset({"double", "float", "float4", "float8", "real"})
+
+
+def is_floating(physical_type: str | None) -> bool:
+    """Report whether a declared physical type is an inexact floating type.
+
+    A `number` property is decimal unless the contract declares a floating physical
+    type, which keeps monetary precision strict while allowing declared estimates.
+    """
+    return physical_type is not None and physical_type.lower() in FLOATING_PHYSICAL_TYPES
 
 
 class UnsupportedContractMappingError(ValueError):

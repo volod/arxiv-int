@@ -2,14 +2,33 @@
 
 import hashlib
 import json
-import shutil
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any, TextIO, TypedDict
 
 from arxiv_int.extraction.model import InventoryInput
 from arxiv_int.interfaces.extraction import ExtractedDocument
-from arxiv_int.pipeline.control.artifacts import hash_file
+from arxiv_int.pipeline.lake.artifacts import (
+    abort_publication,
+    record_file,
+    snapshot_suffix,
+    validate_snapshot_manifest,
+    write_json_line,
+)
+
+__all__ = [
+    "DocumentQuality",
+    "abort_publication",
+    "document_quality",
+    "extraction_summary",
+    "final_roots",
+    "record_file",
+    "span_id",
+    "validate_manifest",
+    "write_json_line",
+    "write_occurrence",
+    "write_quarantine",
+]
 
 
 class DocumentQuality(TypedDict):
@@ -20,19 +39,6 @@ class DocumentQuality(TypedDict):
     anchored_chars: int
     anchor_coverage: float
     table_cells: int
-
-
-def abort_publication(
-    staging: Path, handles: tuple[TextIO, ...], moved: list[Path], sealed: bool
-) -> None:
-    """Remove unpublished scratch and any roots moved before a failed seal."""
-    for handle in handles:
-        if not handle.closed:
-            handle.close()
-    shutil.rmtree(staging, ignore_errors=True)
-    if not sealed:
-        for path in moved:
-            shutil.rmtree(path, ignore_errors=True)
 
 
 def write_occurrence(handle: TextIO, item: InventoryInput, document_id: str, reused: bool) -> None:
@@ -95,28 +101,12 @@ def extraction_summary(
 
 def validate_manifest(path: Path, digest: str) -> dict[str, Any]:
     """Rehash every extraction artifact before reuse."""
-    if path.is_symlink() or hash_file(path)[0] != digest:
-        raise ValueError("extraction manifest identity mismatch")
-    summary: dict[str, Any] = json.loads(path.read_text(encoding="ascii"))
-    index = path.parent / "files.jsonl"
-    if index.is_symlink() or hash_file(index)[0] != summary["files_sha256"]:
-        raise ValueError("extraction file index mismatch")
-    roots = {name: Path(value) for name, value in summary["roots"].items()}
-    with index.open(encoding="ascii") as handle:
-        for line in handle:
-            record = json.loads(line)
-            relative = Path(record["path"])
-            if relative.is_absolute() or ".." in relative.parts:
-                raise ValueError("invalid extraction artifact path")
-            artifact = roots[record["kind"]] / relative
-            if artifact.is_symlink() or hash_file(artifact)[0] != record["sha256"]:
-                raise ValueError("extraction artifact checksum mismatch")
-    return summary
+    return validate_snapshot_manifest(path, digest, label="extraction")
 
 
 def final_roots(results: Path, generation: str, snapshot: str) -> dict[str, Path]:
     """Return immutable configured product roots for one extraction snapshot."""
-    suffix = Path("contract_version=1.0.0") / f"generation_id={generation}" / f"snapshot={snapshot}"
+    suffix = snapshot_suffix(generation, snapshot)
     return {
         "documents": results / "normalized/documents" / suffix,
         "spans": results / "normalized/spans" / suffix,
@@ -145,16 +135,3 @@ def span_id(document_id: str, index: int, start: int | None, end: int | None, ki
     """Derive a stable span id from content identity and coordinates."""
     value = json.dumps([document_id, index, start, end, kind], ensure_ascii=True)
     return hashlib.sha256(value.encode("ascii")).hexdigest()
-
-
-def write_json_line(handle: TextIO, value: dict[str, object]) -> None:
-    """Write one deterministic ASCII JSON line."""
-    handle.write(json.dumps(value, ensure_ascii=True, sort_keys=True) + "\n")
-
-
-def record_file(handle: TextIO, kind: str, path: Path, root: Path) -> None:
-    """Append one rooted artifact checksum to a streamed file index."""
-    write_json_line(
-        handle,
-        {"kind": kind, "path": str(path.relative_to(root)), "sha256": hash_file(path)[0]},
-    )

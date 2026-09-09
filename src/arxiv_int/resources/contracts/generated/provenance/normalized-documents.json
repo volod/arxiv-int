@@ -1,0 +1,28 @@
+{
+  "apiVersion": "v3.1.0",
+  "artifacts": {
+    "avro/normalized-documents.avsc": "7b7539a32a0ed8260eef3a90854f9d3cae6fe9b19ec6c1a41395c16e16bc71ca",
+    "dbt/normalized-documents.yml": "98323b2f8cd45a62ac7302ca6ea887761ba7837ba913e69ccc3d72b17cd55be0",
+    "jsonschema/normalized-documents.schema.json": "b5e6e14ffde6b20454ba816aab85cae343b3ce248dd61591f17173e7bace7576",
+    "parquet/normalized-documents.parquet.json": "54651ffeb77660deeb1a07e49f5ae099b715890a2753bfd0def5aa67af6d5f10",
+    "postgres/extensions/normalized-documents.sql": "00533c62fa73c995ed6316eb307b6489b030ba563596fa951c8d6f7e95de46f2",
+    "postgres/normalized-documents.sql": "f3b63f8204758e4e0e2bfa4f5bb39e886f7ed61d39e9faf754c2df8fff72345f",
+    "pydantic/normalized-documents.py": "306f9fe83f33803f00fae50a95bbbc6e86b1ca01288d6bd6781f4eac25e02585",
+    "quality/normalized-documents.rules.json": "8a5a3137b298bbadd10fe86d222de41c53bfc4c3172df10012dfad3f373abc48"
+  },
+  "canonicalEntity": null,
+  "contractId": "normalized-documents",
+  "customExtensionKeys": [
+    "partitionKey",
+    "schema",
+    "table"
+  ],
+  "odcsId": "urn:arxiv-int:contract:normalized-documents:1.0.0",
+  "odcsVersion": "1.0.0",
+  "postgres": {
+    "partitionKey": "bucket",
+    "schema": "corpus",
+    "table": "normalized_documents"
+  },
+  "semanticMetadataHash": "d511e35c8f10bde8b949c2ae9bb71043bb6d0ce3d86f4b5979453e96544832c9"
+}

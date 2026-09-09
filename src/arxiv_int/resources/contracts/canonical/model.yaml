@@ -81,6 +81,14 @@ semanticTerms:
     valueType: string
   urn:arxiv-int:term:due-date:
     valueType: timestamp
+  urn:arxiv-int:term:duplicate-group-id:
+    valueType: string
+  urn:arxiv-int:term:duplicate-membership-id:
+    valueType: string
+  urn:arxiv-int:term:duplicate-method:
+    valueType: string
+  urn:arxiv-int:term:duplicate-role:
+    valueType: string
   urn:arxiv-int:term:edge-id:
     valueType: string
   urn:arxiv-int:term:effectivity-end:
@@ -161,7 +169,11 @@ semanticTerms:
     valueType: string
   urn:arxiv-int:term:model-digest:
     valueType: string
+  urn:arxiv-int:term:normalized-document-id:
+    valueType: string
   urn:arxiv-int:term:normalized-text:
+    valueType: string
+  urn:arxiv-int:term:normalizer-id:
     valueType: string
   urn:arxiv-int:term:object-anchor-id:
     valueType: string
@@ -261,6 +273,8 @@ semanticTerms:
     valueType: string
   urn:arxiv-int:term:supply-stage:
     valueType: string
+  urn:arxiv-int:term:suppressed:
+    valueType: boolean
   urn:arxiv-int:term:surface-form:
     valueType: string
   urn:arxiv-int:term:target-id:
@@ -298,6 +312,10 @@ entities:
     contract: odcs/document.odcs.yaml
   span:
     contract: odcs/span.odcs.yaml
+  normalized_document:
+    contract: odcs/normalized_document.odcs.yaml
+  duplicate_group:
+    contract: odcs/duplicate_group.odcs.yaml
   chunk:
     contract: odcs/chunk.odcs.yaml
   object:

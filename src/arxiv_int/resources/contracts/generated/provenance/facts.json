@@ -5,7 +5,7 @@
     "dbt/facts.yml": "024e7ddbdf2f2ac81bfe732a84b394bec4bbd7024ada46d89e062d02c6e209a8",
     "graph/facts.sql": "17fc91b74eba6759aa33fa9e6a7bdc4ed0c0002f5f129e249706aab7aa44f3c7",
     "jsonschema/facts.schema.json": "d2b70d3295b34fef030bd14474d91481372179d0b90af9cbd05a76b43bc2f4e6",
-    "parquet/facts.parquet.json": "d5b26152529cad288acc50086cce9161b6de16e9ea1bf72286067e6fd096781d",
+    "parquet/facts.parquet.json": "7922e6ba2f4c914cfd586fb7cd1453222a0e5396d6896ea92f7bb47dc72dcd68",
     "postgres/extensions/facts.sql": "9e1a9216f1bf839e1195a1863e1b32ac95ec23b4511dadc84484bfb0ed31167f",
     "postgres/facts.sql": "ab870aebc85267f915c66147c516864cbfbba9e0830e7589a7eafdc58c7debee",
     "pydantic/facts.py": "f531e4159649246165494a33be3c60ed62923b997aada6348dbcc0568e7d1304",

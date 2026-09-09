@@ -30,6 +30,7 @@ def _rule_json(rule: Any) -> dict[str, Any]:
         "kind": rule.kind,
         "logicalType": rule.logical_type,
         "maxLength": rule.max_length,
+        "physicalType": rule.physical_type,
         "precision": rule.precision,
         "required": rule.required,
         "scale": rule.scale,

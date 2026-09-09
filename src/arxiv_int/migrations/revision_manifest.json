@@ -5,6 +5,12 @@
       "file": "0001_initial_store.py",
       "message": "initial canonical store schema",
       "sha256": "ea08ba71dae753d1d04d00a8b3e39e3e51fdd4d60c2a1be5c18a939a1b63039c"
+    },
+    "0002": {
+      "downRevision": "0001",
+      "file": "0002_add_normalized_documents_and_duplicate_groups.py",
+      "message": "add normalized documents and duplicate groups",
+      "sha256": "ba28e1ecd0b7dee49ec1e2329cef568784c1c0dec359ec1eb9b3d35881890b2b"
     }
   }
 }

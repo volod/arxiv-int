@@ -17,13 +17,14 @@ from sqlalchemy import (
     Time,
     UniqueConstraint,
 )
-from sqlalchemy.dialects.postgresql import JSONB, TIMESTAMP, VARCHAR
+from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION, JSONB, TIMESTAMP, VARCHAR
 from sqlalchemy.types import TypeEngine
 
 from arxiv_int.contracts.sqlalchemy.normalize import (
     NormalizedColumn,
     NormalizedTable,
     UnsupportedContractMappingError,
+    is_floating,
 )
 
 NAMING_CONVENTION = {
@@ -42,6 +43,8 @@ def _column_type(column: NormalizedColumn, label: str) -> TypeEngine[Any]:
     if logical == "integer":
         return BigInteger()
     if logical == "number":
+        if is_floating(column.physical_type):
+            return DOUBLE_PRECISION()
         if column.precision is not None:
             return Numeric(precision=column.precision, scale=column.scale)
         return Numeric()

@@ -1,7 +1,7 @@
 """Run one registered stage through the shard executor and reuse index."""
 
 import json
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any
 
@@ -19,6 +19,14 @@ from arxiv_int.pipeline.run.context import RunContext
 from arxiv_int.pipeline.run.errors import QualityBoundaryError, UnregisteredStageError
 from arxiv_int.pipeline.run.persist import StageExecution
 from arxiv_int.pipeline.run.reuse_index import ReuseEntry
+
+UPSTREAM_POINTERS: Mapping[str, str] = {
+    "source-occurrences": "inventory",
+    "documents": "extraction",
+    "normalized-documents": "normalization",
+    "duplicate-groups": "dedupe",
+    "chunks": "chunking",
+}
 
 
 def stage_context(context: RunContext, stage: str) -> StageContext:
@@ -77,12 +85,8 @@ def try_reuse(entry: ReuseEntry | None, *, force: bool) -> StageExecution | None
     directory = Path(entry.directory)
     try:
         validate_attempt(directory, reuse_key=entry.reuse_key, attempt=entry.attempt)
-        from arxiv_int.pipeline.inventory.reuse import validate_inventory_output
-
-        validate_inventory_output(directory)
-        from arxiv_int.extraction.reuse import validate_extraction_output
-
-        validate_extraction_output(directory)
+        for validate in _output_validators():
+            validate(directory)
     except (ArtifactPublishError, OSError, ValueError, KeyError, TypeError):
         return None
     if load_stage_outcome(directory) not in {"produced", "empty"}:
@@ -104,6 +108,23 @@ def try_reuse(entry: ReuseEntry | None, *, force: bool) -> StageExecution | None
         False,
         entry.bytes,
         load_stage_outcome(directory),
+    )
+
+
+def _output_validators() -> tuple[Callable[[Path], None], ...]:
+    """Return every producer-owned validator that guards one cached attempt."""
+    from arxiv_int.extraction.reuse import validate_extraction_output
+    from arxiv_int.pipeline.chunk.reuse import validate_chunk_output
+    from arxiv_int.pipeline.dedupe.reuse import validate_dedupe_output
+    from arxiv_int.pipeline.inventory.reuse import validate_inventory_output
+    from arxiv_int.pipeline.normalize.reuse import validate_normalization_output
+
+    return (
+        validate_inventory_output,
+        validate_extraction_output,
+        validate_normalization_output,
+        validate_dedupe_output,
+        validate_chunk_output,
     )
 
 
@@ -208,12 +229,14 @@ def _upstream_options(
             (Path(entry.directory) / "stage.json").read_text(encoding="utf-8")
         )
         for output in payload.get("outputs", []) if isinstance(payload, dict) else ():
-            if not isinstance(output, dict) or output.get("dataset") != "source-occurrences":
+            if not isinstance(output, dict):
                 continue
+            pointer = UPSTREAM_POINTERS.get(str(output.get("dataset")))
             partition = output.get("partition")
-            if isinstance(partition, dict):
-                options["inventory_manifest"] = str(partition.get("manifest", ""))
-                options["inventory_manifest_sha256"] = str(partition.get("sha256", ""))
+            if pointer is None or not isinstance(partition, dict):
+                continue
+            options[f"{pointer}_manifest"] = str(partition.get("manifest", ""))
+            options[f"{pointer}_manifest_sha256"] = str(partition.get("sha256", ""))
     return options
 
 

@@ -1,7 +1,7 @@
 """Production stage dependency declarations reused from setup profile stages."""
 
 from collections.abc import Mapping
-from dataclasses import replace
+from dataclasses import dataclass, replace
 
 from arxiv_int.features.catalog import STAGE_FEATURES
 from arxiv_int.pipeline.dag.registry import ResourceEstimate, StageRegistry, StageSpec
@@ -12,7 +12,7 @@ PRODUCTION_DEPENDENCIES: Mapping[str, tuple[str, ...]] = {
     "inventory": ("preflight",),
     "extract": ("inventory",),
     "normalize": ("extract",),
-    "dedupe": ("inventory", "normalize"),
+    "dedupe": ("normalize",),
     "chunk": ("normalize", "dedupe"),
     "classify": ("inventory", "normalize"),
     "load-lexical": ("chunk",),
@@ -31,6 +31,55 @@ PRODUCTION_DEPENDENCIES: Mapping[str, tuple[str, ...]] = {
 
 OPTIONAL_STAGES: frozenset[str] = frozenset({"embed", "load-vector", "graph"})
 GPU_STAGES: frozenset[str] = frozenset({"embed", "facts"})
+
+_QUALITY_PATHS: tuple[str, ...] = ("data_quality/rules", "data_quality/engine")
+_LAKE_PACKAGES: tuple[str, ...] = ("pyarrow", "polars", "pandera", "sqlalchemy")
+_LAKE_PATHS: tuple[str, ...] = ("pipeline/lake", *_QUALITY_PATHS)
+
+
+@dataclass(frozen=True, slots=True)
+class StageOverride:
+    """Producer-owned declarations layered onto one generated stage spec."""
+
+    contracts: tuple[str, ...] = ()
+    validators: tuple[str, ...] = ()
+    code_paths: tuple[str, ...] = ()
+    dependency_packages: tuple[str, ...] = ()
+
+
+STAGE_OVERRIDES: Mapping[str, StageOverride] = {
+    "inventory": StageOverride(
+        contracts=("source-occurrences",),
+        validators=("source-occurrences",),
+        code_paths=("pipeline/inventory", *_QUALITY_PATHS),
+        dependency_packages=(*_LAKE_PACKAGES, "charset-normalizer"),
+    ),
+    "extract": StageOverride(
+        contracts=("documents", "spans"),
+        validators=("documents", "spans"),
+        code_paths=("extraction", *_LAKE_PATHS),
+        dependency_packages=("iscc-tika", *_LAKE_PACKAGES),
+    ),
+    "normalize": StageOverride(
+        contracts=("normalized-documents",),
+        validators=("normalized-documents",),
+        code_paths=("pipeline/normalize", *_LAKE_PATHS),
+        dependency_packages=_LAKE_PACKAGES,
+    ),
+    "dedupe": StageOverride(
+        contracts=("duplicate-groups",),
+        validators=("duplicate-groups",),
+        code_paths=("pipeline/dedupe", *_LAKE_PATHS),
+        dependency_packages=_LAKE_PACKAGES,
+    ),
+    "chunk": StageOverride(
+        contracts=("chunks",),
+        validators=("chunks",),
+        code_paths=("pipeline/chunk", *_LAKE_PATHS),
+        dependency_packages=_LAKE_PACKAGES,
+    ),
+    "evaluate": StageOverride(code_paths=("evaluation",)),
+}
 
 
 def profile_stage_names(profile: str) -> tuple[str, ...]:
@@ -52,66 +101,41 @@ def production_specs() -> tuple[StageSpec, ...]:
         raise RuntimeError(f"production stages missing STAGE_FEATURES entries: {listed}")
     specs: list[StageSpec] = []
     for name, depends_on in PRODUCTION_DEPENDENCIES.items():
-        gpu = name in GPU_STAGES
-        specs.append(
-            StageSpec(
-                name=name,
-                version="1",
-                depends_on=depends_on,
-                required_inputs=depends_on,
-                conditional_inputs=(),
-                resource_estimate=ResourceEstimate(gpu_required=gpu),
-                validators=(),
-                dbt_select=(),
-                runner=None,
-                optional=name in OPTIONAL_STAGES,
-                code_paths=("evaluation",) if name == "evaluate" else (),
+        spec = StageSpec(
+            name=name,
+            version="1",
+            depends_on=depends_on,
+            required_inputs=depends_on,
+            conditional_inputs=(),
+            resource_estimate=ResourceEstimate(gpu_required=name in GPU_STAGES),
+            validators=(),
+            dbt_select=(),
+            runner=None,
+            optional=name in OPTIONAL_STAGES,
+        )
+        override = STAGE_OVERRIDES.get(name)
+        if override is not None:
+            spec = replace(
+                spec,
+                contracts=override.contracts,
+                validators=override.validators,
+                code_paths=override.code_paths,
+                dependency_packages=override.dependency_packages,
             )
-        )
-    inventory_specs = tuple(
-        replace(
-            spec,
-            contracts=("source-occurrences",),
-            validators=("source-occurrences",),
-            code_paths=("pipeline/inventory", "data_quality/rules", "data_quality/engine"),
-            dependency_packages=(
-                "pyarrow",
-                "polars",
-                "pandera",
-                "sqlalchemy",
-                "charset-normalizer",
-            ),
-        )
-        if spec.name == "inventory"
-        else spec
-        for spec in specs
-    )
-    return tuple(
-        replace(
-            spec,
-            contracts=("documents", "spans"),
-            validators=("documents", "spans"),
-            code_paths=("extraction", "data_quality/rules", "data_quality/engine"),
-            dependency_packages=(
-                "iscc-tika",
-                "pyarrow",
-                "polars",
-                "pandera",
-                "sqlalchemy",
-            ),
-            tools=extraction_tool_versions(),
-        )
-        if spec.name == "extract"
-        else spec
-        for spec in inventory_specs
-    )
+        if name == "extract":
+            spec = replace(spec, tools=extraction_tool_versions())
+        specs.append(spec)
+    return tuple(specs)
 
 
 def production_registry() -> StageRegistry:
     """Bind shipped runners onto production specs; others remain unregistered."""
     from arxiv_int.evaluation.evaluate.stage import EvaluateStage
     from arxiv_int.extraction.stage import ExtractionStage
+    from arxiv_int.pipeline.chunk.stage import ChunkStage
+    from arxiv_int.pipeline.dedupe.stage import DedupeStage
     from arxiv_int.pipeline.inventory.stage import InventoryStage
+    from arxiv_int.pipeline.normalize.stage import NormalizeStage
     from arxiv_int.pipeline.publish.preflight import PreflightStage
 
     return (
@@ -119,5 +143,8 @@ def production_registry() -> StageRegistry:
         .with_runner("preflight", PreflightStage())
         .with_runner("inventory", InventoryStage())
         .with_runner("extract", ExtractionStage())
+        .with_runner("normalize", NormalizeStage())
+        .with_runner("dedupe", DedupeStage())
+        .with_runner("chunk", ChunkStage())
         .with_runner("evaluate", EvaluateStage())
     )

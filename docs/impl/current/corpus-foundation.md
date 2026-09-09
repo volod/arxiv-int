@@ -1,10 +1,12 @@
 # Corpus Foundation
 
-Streaming inventory and tiered text extraction are available through the normal stage interface.
-Normalization, deduplication outputs and chunking remain
+Streaming inventory, tiered text extraction, normalization, reversible duplicate overlays, and
+structure-aware chunking are available through the normal stage interface. The integration
+checkpoint and provided-archive corpus proof remain
 [planned](../plan.md#corpus-foundation----corpus-foundation). Implementation and acceptance
-evidence: [record 0060](../records/0060-corpus-implement-streaming-inventory.md) and
-[record 0061](../records/0061-corpus-integrate-tiered-text-extraction.md).
+evidence: [record 0060](../records/0060-corpus-implement-streaming-inventory.md),
+[record 0061](../records/0061-corpus-integrate-tiered-text-extraction.md), and
+[record 0062](../records/0062-corpus-implement-normalization-dedupe-and-chunking.md).
 
 ## Operator workflow
 
@@ -17,6 +19,9 @@ make forecast RUN_ID="$RUN_ID"
 make stage STAGE=preflight RUN_ID="$RUN_ID"
 make stage STAGE=inventory RUN_ID="$RUN_ID"
 make stage STAGE=extract RUN_ID="$RUN_ID"
+make stage STAGE=normalize RUN_ID="$RUN_ID"
+make stage STAGE=dedupe RUN_ID="$RUN_ID"
+make stage STAGE=chunk RUN_ID="$RUN_ID"
 make inspect RUN_ID="$RUN_ID" JSON=1
 ```
 
@@ -46,13 +51,40 @@ source-anchor checks run before publication.
 Inputs, extracted text, span counts, child execution time and captured output are bounded. Inventory
 decompression limits still apply to members; macros and active Office content remain disabled.
 Corrupt, encrypted, unsupported, empty and oversized inputs are quarantined with actionable reasons.
-Any quarantine produces an honest partial stage outcome and stops downstream execution.
+A completed extract that published documents is `produced` even when some inputs were quarantined,
+so `normalize` consumes the snapshot. Incomplete scans remain `partial` and still halt.
 
 For a new CUDA host, install Tesseract and the `rus`, `eng`, `deu`, and `ukr` language packs before
 `make setup`; see [Workstation setup](../../guide/setup.md). Setup verifies those packs, installs the
 locked extraction extra, and prefetches Docling layout/table assets under
 `$MODEL_CACHE_DIR/docling/`. Extraction currently uses CPU/RAM; CUDA is available to later lanes but
 is not required by this stage.
+
+## Normalization, grouping and chunking
+
+The `normalize` stage consumes a checksum-validated extraction snapshot and writes immutable views
+below `$RESULTS_DIR/normalized/normalized-documents/` and `$RESULTS_DIR/quarantine/normalize/`.
+Original extracted text is preserved. Canonical NFC text, a search/casefold view, and a reversible
+offset map are stored per document. Language is scored against packaged offline profiles; short or
+mixed snippets may remain `und`. Empty canonical text is quarantined without a content payload.
+
+The `dedupe` stage proposes exact, normalized, MinHash/lexical, and edition groups into
+`$RESULTS_DIR/normalized/duplicate-groups/` without deleting source or extracted records. One
+representative is elected per group. Members may be suppressed from chunking only when the overlay
+names that representative. Byte-identical files already collapse during extraction, so exact-hash
+groups can be empty on a fixture that reuses content hashes.
+
+The `chunk` stage reads normalized views and the duplicate overlay, skips suppressed members, and
+writes `$RESULTS_DIR/normalized/chunks/`. Structure, table, and sentence chunkers keep source
+character offsets. Table chunks repeat the header in every row group. Generated Pandera checks and
+cross-partition identity uniqueness run before publication. Unchanged inputs reuse validated
+snapshots. These stages use CPU and storage; CUDA is not required.
+
+A bounded fixture Make run on this host published 14 normalized documents, four duplicate groups
+with nine memberships and three suppressed members, and 91 chunks (one table, ninety text) over ten
+representatives. Redacted counts live in
+[record 0062](../records/0062-corpus-implement-normalization-dedupe-and-chunking.md). That result
+does not establish provided-archive quality; the corpus proof remains open.
 
 ## Identities, coverage and storage
 
@@ -136,5 +168,7 @@ multi-terabyte throughput or GPU fit. Validate each deployment against its own c
 using the operator workflow above; historical run artifacts are not required.
 
 The [quality conclusion](../records/0060-corpus-implement-streaming-inventory.md#archive-inventory-quality-conclusion)
-records acceptance and its limits.
+records inventory acceptance and its limits.
+Normalization, grouping and chunking fixture evidence is in
+[record 0062](../records/0062-corpus-implement-normalization-dedupe-and-chunking.md).
 [Provided-archive corpus proof](../plan.md#prove-corpus-foundation-on-provided-archive) remains open.

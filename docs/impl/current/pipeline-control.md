@@ -5,8 +5,8 @@ logging with bounded resource telemetry, a fixture-first DAG CLI, a registered p
 readability worker, a read-only pre-run forecast, profile-declared knowledge-base publication,
 read-only stage artifact inspection, incremental source reconciliation, two-phase stale prune,
 read-only citation/source location lookup, and a provided-archive pipeline-control proof are
-available. Concrete corpus
-stages remain
+available. Concrete corpus stages through `chunk` are registered;
+classification and later investigation stages remain
 [planned](../plan.md#corpus-foundation----corpus-foundation).
 
 See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface-contracts.md),
@@ -255,7 +255,7 @@ CLI values override process environment, then `.env`, then documented defaults. 
 hardcoded `--profile investigation` or `--run-id local` on `pipeline` / `run-create`. `STAGE` and
 `RUN_ID` for atomic commands must be the created run id.
 
-The investigation profile still names unregistered corpus stages. `make pipeline` therefore fails
+The investigation profile still names unregistered later stages. `make pipeline` therefore fails
 explicitly until those runners ship. Fixture DAGs in `tests/pipeline/dag/` cover range,
 skip, invalid dependency, aggregate versus atomic equivalence, failure halt, resume, force,
 invalidate, update, rebuild, prune dry-run, quality not-run/fail, and signal cancel. Declared

@@ -174,7 +174,7 @@ Kubernetes scheduler. CLI values override process environment, then `.env`, then
 defaults. Make does not pass `--run-id local` or a hardcoded `--profile investigation` on
 `pipeline` / `run-create`.
 
-The default investigation profile still names unimplemented corpus stages. `make pipeline`
+The default investigation profile still names unimplemented later stages. `make pipeline`
 therefore fails explicitly until those runners ship. `stage STAGE=preflight` is a registered
 readability worker; aggregate commands still run an archive-readability preflight
 handler before forecast. `run finalize` writes `$RUNS_DIR/<run-id>/knowledge-base.json` and
@@ -205,14 +205,15 @@ make invalidate STAGE=evaluate RUN_ID="$RUN_ID"
 make prune
 ```
 
-`evaluate`, `preflight`, `inventory` and `extract` are shipped production runners.
-Other investigation stages fail as
+`evaluate`, `preflight`, `inventory`, `extract`, `normalize`, `dedupe` and `chunk` are shipped
+production runners. Other investigation stages fail as
 unregistered until their capabilities land. `make prune` is a dry-run; `APPLY=1 PLAN_ID=...` is a
 separate confirmation and refuses to delete the sole recovery copy.
 
 The target diagnostic order below is one valid linear expansion of the baseline registry, not a
-second executable DAG definition. `run-finalize`, `STAGE=preflight`, `STAGE=inventory` and
-`STAGE=extract` are available; later corpus stages remain planned. A forecast precedes atomic stages:
+second executable DAG definition. `run-finalize`, `STAGE=preflight`, `STAGE=inventory`,
+`STAGE=extract`, `STAGE=normalize`, `STAGE=dedupe` and `STAGE=chunk` are available; later
+investigation stages remain planned. A forecast precedes atomic stages:
 
 ```bash
 make forecast RUN_ID="$RUN_ID"
@@ -255,7 +256,7 @@ invalidation/resume policy.
 
 The returned run id identifies the result today. Finalize writes
 `$RUNS_DIR/<run-id>/knowledge-base.json` and diagnostic `reports/index.html`. A production
-investigation run still fails before a complete generation because corpus stages are
+investigation run still fails before a complete generation because later investigation stages are
 unregistered. Product artifacts use configured operator roots, never developer `DATA_DIR`.
 Compare aggregate and atomic results by logical ids, checksums, lineage, quality and completion
 state; run ids and timestamps may differ.

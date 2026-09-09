@@ -5,7 +5,7 @@
     "dbt/domain-artifacts-bom.yml": "27250b158e08f4460c3b90a0187a9fd5be6e3a7ff749f20c41237d2e788f871c",
     "graph/domain-artifacts-bom.sql": "d060758fb9145c77c9ea27d02dd531972a90ae3bbf4dce5fab6c413296f120f7",
     "jsonschema/domain-artifacts-bom.schema.json": "bc285aa250f22cda3d242c97842c707b49f99aa14eac814825f0865f517b5617",
-    "parquet/domain-artifacts-bom.parquet.json": "d3eaa8816ed47c53d699a143cbc6346d4016469f37f07592aee150848959b46f",
+    "parquet/domain-artifacts-bom.parquet.json": "752aee93009cc6d3cf595e21ec80764452a447f628e54dc65599ab610c818013",
     "postgres/domain-artifacts-bom.sql": "2b166bda563eb383c806222afaa5333f6b2845b53abb573fa46064946cb34f70",
     "postgres/extensions/domain-artifacts-bom.sql": "adcbe730c605355a4b000dc3f69d79e950d90b06a9c3211c1bbd61e8ccbdd99b",
     "pydantic/domain-artifacts-bom.py": "e4815b0d145449a276f899c0a7e00414d604bfad624ffb97dea935936037c534",

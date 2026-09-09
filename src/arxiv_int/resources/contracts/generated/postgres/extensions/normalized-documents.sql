@@ -1,0 +1,5 @@
+-- arxiv-int postgres extensions for normalized-documents
+-- source: urn:arxiv-int:contract:normalized-documents:1.0.0@1.0.0
+-- table columns and constraints are owned by corpus.normalized_documents metadata revisions
+-- HASH partition template for corpus.normalized_documents USING (bucket)
+-- CREATE TABLE corpus.normalized_documents_p0 PARTITION OF corpus.normalized_documents FOR VALUES WITH (MODULUS 16, REMAINDER 0);

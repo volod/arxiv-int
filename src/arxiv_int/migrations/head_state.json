@@ -1,5 +1,5 @@
 {
-  "revision": "0001",
+  "revision": "0002",
   "schemas": [
     "corpus",
     "ctl",
@@ -303,6 +303,184 @@
       ],
       "schema": "corpus",
       "table": "documents"
+    },
+    "corpus.duplicate_groups": {
+      "columns": {
+        "bucket": {
+          "comment": "Declared physical partition key from x-arxiv-int.partitionKey.",
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "document_id": {
+          "comment": null,
+          "foreignKeys": [
+            "corpus.documents.document_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "duplicate_membership_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "group_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "method": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "role": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "score": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "DOUBLE PRECISION"
+        },
+        "suppressed": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "BOOLEAN"
+        }
+      },
+      "comment": "Reversible duplicate and edition group memberships proposed over normalized documents.",
+      "constraintNames": {
+        "foreignKeys": {
+          "document_id": "fk_duplicate_groups_document_id"
+        },
+        "primaryKey": "pk_duplicate_groups"
+      },
+      "contractId": "duplicate-groups",
+      "primaryKey": [
+        "duplicate_membership_id"
+      ],
+      "schema": "corpus",
+      "table": "duplicate_groups"
+    },
+    "corpus.normalized_documents": {
+      "columns": {
+        "bucket": {
+          "comment": "Declared physical partition key from x-arxiv-int.partitionKey.",
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "document_id": {
+          "comment": null,
+          "foreignKeys": [
+            "corpus.documents.document_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "language": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "language_confidence": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "DOUBLE PRECISION"
+        },
+        "normalized_document_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "normalized_sha256": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "normalizer_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "text_chars": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "BIGINT"
+        }
+      },
+      "comment": "Canonical normalized text views, detected language, and reversible offset maps.",
+      "constraintNames": {
+        "foreignKeys": {
+          "document_id": "fk_normalized_documents_document_id"
+        },
+        "primaryKey": "pk_normalized_documents"
+      },
+      "contractId": "normalized-documents",
+      "primaryKey": [
+        "normalized_document_id"
+      ],
+      "schema": "corpus",
+      "table": "normalized_documents"
     },
     "corpus.source_occurrences": {
       "columns": {

@@ -26,34 +26,6 @@ and name ready/pending human decisions and the dependent work that must wait at 
 
 ### Corpus foundation -- `corpus-foundation`
 
-#### implement-normalization-dedupe-and-chunking
-
-Normalize extracted text, group exact/near duplicates and editions, and emit source-aligned chunks
-without destructive corpus edits.
-
-- Serves: `corpus-foundation` -- [Normalized data lake](../design/spec.md#normalized-data-lake)
-- Agent status: RUN NEEDED
-- Dependencies: [Tiered text extraction](records/0061-corpus-integrate-tiered-text-extraction.md).
-- User-visible outcome: Each unique document has searchable, table/structure-aware chunks and
-reversible duplicate/edition overlays.
-- Scope boundary: Normalize and propose duplicate groups; do not merge entities or delete
-source/extracted records.
-- Data and artifact paths: `$RESULTS_DIR/normalized/documents/`, `spans/`, `chunks/`, duplicate overlays,
-`src/arxiv_int/pipeline/normalize/`, and `src/arxiv_int/pipeline/chunk/`.
-- Execution path: Preserve original text; create NFC/casefold/search views; map
-original-to-normalized offsets; detect language; run exact, normalized, MinHash/lexical, and
-edition grouping; implement bounded structure/table/sentence chunkers with source breadcrumbs;
-register the normal stage commands and run them against a bounded authorized archive when available.
-Express tabular normalization and grouping with typed Polars expressions and PyArrow batches;
-keep text/span algorithms in focused Python functions. Run generated Pandera checks, cross-partition
-identity checks and bounded-memory tests before publishing.
-- Acceptance gates: Golden offsets and table headers survive chunking; unchanged input yields stable
-ids; dedupe precision is measured on labels; no suppression occurs without an overlay; out-of-core
-memory and shard-resume tests pass; the declared fixture commands produce inspectable artifacts
-whose redacted results are recorded in current-state documentation.
-- Documentation target: `docs/impl/current/corpus-foundation.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
-
 #### review-corpus-and-control-integrity
 
 Review the integrated milestone before lexical loading, classification and NLP consumers.
@@ -61,7 +33,7 @@ Review the integrated milestone before lexical loading, classification and NLP c
 - Serves: `corpus-foundation` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
 - Agent status: CLEAR
 - Task kind: checkpoint
-- Dependencies: `implement-normalization-dedupe-and-chunking`;
+- Dependencies: [Normalization, dedupe and chunking](records/0062-corpus-implement-normalization-dedupe-and-chunking.md);
 [Owned stage fingerprints](records/0058-pipeline-bind-real-owned-stage-fingerprints.md);
 [Bounded archive snapshots](records/0059-pipeline-bound-archive-snapshot-hashing.md);
 [Control integration checkpoint](records/0054-pipeline-review-control-integration-boundaries.md);
@@ -110,7 +82,7 @@ current proof bundle.
 - Serves: `corpus-foundation` --
 [Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
 - Agent status: RUN NEEDED
-- Dependencies: `review-corpus-and-control-integrity`; `implement-normalization-dedupe-and-chunking`;
+- Dependencies: `review-corpus-and-control-integrity`; [Normalization, dedupe and chunking](records/0062-corpus-implement-normalization-dedupe-and-chunking.md);
 [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md);
 [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md);
 [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md);
@@ -268,7 +240,7 @@ UDC-derived classes or one explicit exceptional outcome.
 - Agent status: RUN NEEDED
 - Research: yes
 - Dependencies: `establish-versioned-udc-derived-scheme`;
-`implement-normalization-dedupe-and-chunking`; [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md).
+[Normalization, dedupe and chunking](records/0062-corpus-implement-normalization-dedupe-and-chunking.md); [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md).
 Reviewed real-corpus quality is accepted by the separate proof/human tasks.
 `review-corpus-and-control-integrity`.
 - Human review handoff:
@@ -383,7 +355,7 @@ versioned dictionaries without changing source evidence.
 - Serves: `russian-nlp` --
 [Russian-language and document analysis](../design/spec.md#russian-language-and-document-analysis)
 - Agent status: RUN NEEDED
-- Dependencies: `implement-normalization-dedupe-and-chunking`;
+- Dependencies: [Normalization, dedupe and chunking](records/0062-corpus-implement-normalization-dedupe-and-chunking.md);
 [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md).
 `review-corpus-and-control-integrity`.
 - User-visible outcome: Russian and mixed-language documents expose normalized terms, lemmas where
@@ -1195,7 +1167,7 @@ Build CPU-first topic discovery and drift tracking with an optional bounded embe
 [Analysis, graph, and visualization behavior](../design/spec.md#analysis-graph-and-visualization-behavior)
 - Agent status: RUN NEEDED
 - Research: yes
-- Dependencies: `implement-normalization-dedupe-and-chunking`;
+- Dependencies: [Normalization, dedupe and chunking](records/0062-corpus-implement-normalization-dedupe-and-chunking.md);
 `build-russian-language-morphology-and-terminology-lane`; optional
 `implement-selective-embedding-pipeline` for the embedding lane.
 - User-visible outcome: The archive exposes stable topics, representative documents, terms,

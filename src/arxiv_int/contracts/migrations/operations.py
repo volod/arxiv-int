@@ -17,6 +17,7 @@ _SIMPLE_TYPES = {
     "TEXT": "sa.Text()",
     "BIGINT": "sa.BigInteger()",
     "NUMERIC": "sa.Numeric()",
+    "DOUBLE PRECISION": "postgresql.DOUBLE_PRECISION()",
     "BOOLEAN": "sa.Boolean()",
     "DATE": "sa.Date()",
     "TIME": "sa.Time()",

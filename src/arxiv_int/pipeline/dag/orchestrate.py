@@ -204,6 +204,18 @@ class Orchestrator:
             from arxiv_int.extraction.boundary import ExtractionQuality
 
             return ExtractionQuality(context)
+        if name == "normalize":
+            from arxiv_int.pipeline.normalize.boundary import NormalizeQuality
+
+            return NormalizeQuality(context)
+        if name == "dedupe":
+            from arxiv_int.pipeline.dedupe.boundary import DedupeQuality
+
+            return DedupeQuality(context)
+        if name == "chunk":
+            from arxiv_int.pipeline.chunk.boundary import ChunkQuality
+
+            return ChunkQuality(context)
         return ProductionQuality()
 
     def invalidate(self, stage: str, *, document_id: str | None = None) -> tuple[str, ...]:

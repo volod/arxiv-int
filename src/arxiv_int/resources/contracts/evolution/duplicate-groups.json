@@ -1,0 +1,182 @@
+{
+  "contractId": "duplicate-groups",
+  "fieldIdentity": "schema-qualified",
+  "fields": {
+    "duplicate_groups.contract_version": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "duplicate_groups.document_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "duplicate_groups.duplicate_membership_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "duplicate_groups.generation_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "duplicate_groups.group_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "duplicate_groups.method": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "duplicate_groups.role": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "duplicate_groups.score": {
+      "logicalType": "number",
+      "physicalType": "double",
+      "required": false
+    },
+    "duplicate_groups.suppressed": {
+      "logicalType": "boolean",
+      "physicalType": "",
+      "required": false
+    }
+  },
+  "fingerprints": {
+    "avroSha256": "f52f025bf93ec54a3c93bab089940069cbad35bd369f0b9b8a5aa4decaddf9e0",
+    "generatorVersion": "2.1.0",
+    "postgresSha256": "ceafa9189b697b38480545a2a8363920be04312de0defda0d9bd7a8d1b1a2ed8",
+    "semanticMetadataHash": "d4193c56fcaca0c0a8756bf932f8ce79e019e28f6fcd8c27f647522b026b3146"
+  },
+  "history": [
+    {
+      "contractId": "duplicate-groups",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "duplicate_groups.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "duplicate_groups.document_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "duplicate_groups.duplicate_membership_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "duplicate_groups.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "duplicate_groups.group_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "duplicate_groups.method": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "duplicate_groups.role": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "duplicate_groups.score": {
+          "logicalType": "number",
+          "physicalType": "",
+          "required": false
+        },
+        "duplicate_groups.suppressed": {
+          "logicalType": "boolean",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "65515f281144174f8141f838558b94d1b1ccfadbab1839e0ec8196264a85a381",
+        "generatorVersion": "2.1.0",
+        "postgresSha256": "ee877fa6fa1f42c7b4e6721dd1e8bef5ccf47fb7b227cbe5eef80fd366aca527",
+        "semanticMetadataHash": "d4193c56fcaca0c0a8756bf932f8ce79e019e28f6fcd8c27f647522b026b3146"
+      },
+      "odcsId": "urn:arxiv-int:contract:duplicate-groups:1.0.0",
+      "projections": {},
+      "version": "1.0.0"
+    },
+    {
+      "contractId": "duplicate-groups",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "duplicate_groups.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "duplicate_groups.document_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "duplicate_groups.duplicate_membership_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "duplicate_groups.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "duplicate_groups.group_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "duplicate_groups.method": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "duplicate_groups.role": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "duplicate_groups.score": {
+          "logicalType": "number",
+          "physicalType": "double",
+          "required": false
+        },
+        "duplicate_groups.suppressed": {
+          "logicalType": "boolean",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "f52f025bf93ec54a3c93bab089940069cbad35bd369f0b9b8a5aa4decaddf9e0",
+        "generatorVersion": "2.1.0",
+        "postgresSha256": "ceafa9189b697b38480545a2a8363920be04312de0defda0d9bd7a8d1b1a2ed8",
+        "semanticMetadataHash": "d4193c56fcaca0c0a8756bf932f8ce79e019e28f6fcd8c27f647522b026b3146"
+      },
+      "odcsId": "urn:arxiv-int:contract:duplicate-groups:1.0.0",
+      "projections": {},
+      "version": "1.0.0"
+    }
+  ],
+  "odcsId": "urn:arxiv-int:contract:duplicate-groups:1.0.0",
+  "projections": {},
+  "version": "1.0.0"
+}

@@ -57,7 +57,10 @@ def test_production_investigation_names_unregistered_required_stages() -> None:
     assert "preflight" not in missing
     assert "inventory" not in missing
     assert "extract" not in missing
-    assert "normalize" in missing
+    assert "normalize" not in missing
+    assert "dedupe" not in missing
+    assert "chunk" not in missing
+    assert "classify" in missing
     assert registry.get("evaluate").runner is not None
     assert registry.get("preflight").runner is not None
 

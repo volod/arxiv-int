@@ -13,6 +13,7 @@ CONFIGS_DIRNAME = "configs"
 CONTRACTS_DIRNAME = "contracts"
 ONTOLOGY_DIRNAME = "ontology"
 DBT_DIRNAME = "dbt"
+LANGUAGE_DIRNAME = "language"
 
 
 def resource_root() -> Path:
@@ -68,3 +69,8 @@ def ontology_root(project_root: Path | None = None) -> Path:
 def dbt_project_root(project_root: Path | None = None) -> Path:
     """Return overlay ``<project>/dbt`` or the packaged dbt project."""
     return _overlay_or_packaged(project_root, DBT_DIRNAME)
+
+
+def language_root(project_root: Path | None = None) -> Path:
+    """Return overlay ``<project>/language`` or the packaged language profiles."""
+    return _overlay_or_packaged(project_root, LANGUAGE_DIRNAME)

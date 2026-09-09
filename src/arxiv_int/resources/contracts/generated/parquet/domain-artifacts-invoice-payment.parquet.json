@@ -32,13 +32,13 @@
       "primaryKey": false
     },
     {
-      "arrowType": "float64",
+      "arrowType": "decimal128(38, 9)",
       "name": "amount",
       "nullable": true,
       "primaryKey": false
     },
     {
-      "arrowType": "float64",
+      "arrowType": "decimal128(38, 9)",
       "name": "allocated_amount",
       "nullable": true,
       "primaryKey": false
@@ -98,7 +98,7 @@
       "primaryKey": false
     },
     {
-      "arrowType": "float64",
+      "arrowType": "decimal128(38, 9)",
       "name": "confidence",
       "nullable": true,
       "primaryKey": false

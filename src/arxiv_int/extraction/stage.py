@@ -83,9 +83,7 @@ class ExtractionStage:
         summary = validate_manifest(manifest, digest)
         documents = int(summary["documents"])
         quarantined = int(summary["quarantined"])
-        outcome: StageOutcome = "produced" if documents and not quarantined else "partial"
-        if not documents and not quarantined:
-            outcome = "empty"
+        outcome: StageOutcome = "produced" if documents else ("partial" if quarantined else "empty")
         _LOG.info(
             "extract documents=%s spans=%s quarantined=%s reused_content=%s",
             documents,
