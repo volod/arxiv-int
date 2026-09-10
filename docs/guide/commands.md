@@ -75,6 +75,7 @@ These arrive as their specified capabilities are implemented; see the
 | Command | Availability | Purpose |
 | --- | --- | --- |
 | `arxiv-int search lexical QUERY [--mode identifier] [--language L] [--document-id D] [--facet F] [--citations] [--explain] [--json]` | available | Query the active ParadeDB projection: Russian-aware BM25 ranking or literal identifier lookup, with filters, snippets, facets, resolved source spans and plan diagnostics. Exit 2 when no projection is active; see [lexical retrieval](../impl/current/lexical-retrieval.md). |
+| `arxiv-int search calibrate --run-id RUN_ID [--json]` | available | Transactionally compare the frozen Russian lexical profiles and publish a checksum-verified bundle below `$RUNS_DIR/<run-id>/evaluation/lexical/`; `make calibrate-lexical RUN_ID=...` is the wrapper. |
 | `arxiv-int search semantic\|hybrid QUERY` | planned | Vector and fused retrieval over the same evidence. |
 | `arxiv-int catalog company\|product\|person [--run RUN_ID]` | planned | Inspect roles, aliases, identities and evidence in the three catalogs. |
 | `arxiv-int anomalies list\|show [--run RUN_ID]` | planned | Review detector, baseline, severity and supporting or contradicting evidence. |

@@ -42,6 +42,7 @@ def require_fields(names: Sequence[str], allowed: Sequence[str]) -> tuple[str, .
 def match_query(
     *,
     query_text: str,
+    query_variants: Sequence[str] = (),
     fields: Sequence[str] = SEARCH_FIELDS,
     filters: Mapping[str, str] | None = None,
     lenient: bool = False,
@@ -52,13 +53,18 @@ def match_query(
         raise LexicalFieldError("at least one search field is required")
     applied = {name: value for name, value in (filters or {}).items() if value}
     require_fields(tuple(applied), FILTER_FIELDS)
-    parameters: dict[str, object] = {"query_text": query_text, "lenient": lenient}
+    variants = tuple(dict.fromkeys((query_text, *query_variants)))
+    parameters: dict[str, object] = {"lenient": lenient}
     parsed = []
-    for index, name in enumerate(selected):
-        parameters[f"search_field_{index}"] = name
-        parsed.append(
-            f"paradedb.parse_with_field(:search_field_{index}, :query_text, lenient => :lenient)"
-        )
+    for field_index, name in enumerate(selected):
+        parameters[f"search_field_{field_index}"] = name
+        for variant_index, variant in enumerate(variants):
+            query_key = f"query_text_{variant_index}"
+            parameters[query_key] = variant
+            parsed.append(
+                "paradedb.parse_with_field("
+                f":search_field_{field_index}, :{query_key}, lenient => :lenient)"
+            )
     clauses = ["paradedb.boolean(should => ARRAY[" + ", ".join(parsed) + "])"]
     for index, (name, value) in enumerate(sorted(applied.items())):
         parameters[f"filter_field_{index}"] = name

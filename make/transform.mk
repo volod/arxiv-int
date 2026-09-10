@@ -1,7 +1,7 @@
 # Isolated dbt runs and search/vector/graph projections.
 ##@ Transform
 .PHONY: transform-parse transform-compile transform-build transform-test \
-	projections-build projections-status projections-cleanup search-lexical
+	projections-build projections-status projections-cleanup search-lexical calibrate-lexical
 
 transform-parse: ## Parse the packaged dbt project for RUN_ID without materializing relations
 	@$(require_cli)
@@ -48,3 +48,9 @@ search-lexical: ## Query the active lexical projection (QUERY= LANGUAGE= DOCUMEN
 		$(if $(filter 1,$(EXPLAIN)),--explain,) \
 		$(if $(filter 1,$(JSON)),--json,)
 
+calibrate-lexical: ## Run immutable Russian lexical calibration (RUN_ID= from make run-create)
+	@$(require_cli)
+	@$(load_env) && \
+		arxiv_int_require_created_run_id "$(RUN_ID)" && \
+		"$(CLI)" search calibrate --run-id "$(RUN_ID)" \
+		$(if $(filter 1,$(JSON)),--json,)

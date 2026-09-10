@@ -40,13 +40,57 @@ _LOG = logging.getLogger(__name__)
 def run_search_command(args: argparse.Namespace) -> int:
     """Run one read-only lexical query against the active projection."""
     try:
+        if str(args.search_command) == "calibrate":
+            return _run_calibration(args)
         return _run_lexical(args)
     except LexicalUnavailableError as error:
         _LOG.error("%s", error)
         return EXIT_UNAVAILABLE
-    except (LexicalFieldError, LexicalQueryError, SQLAlchemyError, OSError, RuntimeError) as error:
+    except (
+        LexicalFieldError,
+        LexicalQueryError,
+        SQLAlchemyError,
+        OSError,
+        RuntimeError,
+        ValueError,
+    ) as error:
         _LOG.error("%s", error)
         return EXIT_FAILED
+
+
+def _run_calibration(args: argparse.Namespace) -> int:
+    from arxiv_int.retrieval.calibration import run_calibration
+    from arxiv_int.runtime.config import load_runtime_config
+    from arxiv_int.runtime.project_root import find_project_root
+    from arxiv_int.stores.postgres.selection import store_database_url
+
+    project_root = args.project_root or find_project_root()
+    runtime = load_runtime_config(project_root=project_root)
+    outcome = run_calibration(
+        project_root=project_root,
+        database_url=str(args.database_url or "") or store_database_url(project_root),
+        runs_dir=args.runs_dir or runtime.runs_dir,
+        run_id=str(args.run_id),
+    )
+    payload = {
+        "bundleDir": str(outcome.bundle_dir),
+        "manifestFingerprint": outcome.manifest_fingerprint,
+        "paradeDBVersion": outcome.engine_version,
+        "reindexRequired": outcome.reindex_required,
+        "selectedProfile": outcome.selected_profile,
+        "verdict": outcome.verdict,
+    }
+    if bool(args.json):
+        sys.stdout.write(normalize_json(payload))
+    else:
+        _LOG.info(
+            "lexical calibration verdict=%s selected=%s reindex_required=%s bundle=%s",
+            outcome.verdict,
+            outcome.selected_profile,
+            outcome.reindex_required,
+            outcome.bundle_dir,
+        )
+    return EXIT_OK
 
 
 def _run_lexical(args: argparse.Namespace) -> int:

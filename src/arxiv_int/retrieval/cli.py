@@ -63,3 +63,12 @@ def add_search_parser(
     lexical.add_argument("--database-url", default=None, help=argparse.SUPPRESS)
     lexical.add_argument("--json", action="store_true", help="write JSON to stdout")
     lexical.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
+    calibrate = commands.add_parser(
+        "calibrate",
+        help="compare frozen Russian tokenizer and query profiles",
+    )
+    calibrate.add_argument("--run-id", required=True, help="immutable evaluation run identity")
+    calibrate.add_argument("--runs-dir", type=Path, default=None, help=argparse.SUPPRESS)
+    calibrate.add_argument("--database-url", default=None, help=argparse.SUPPRESS)
+    calibrate.add_argument("--json", action="store_true", help="write JSON to stdout")
+    calibrate.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)

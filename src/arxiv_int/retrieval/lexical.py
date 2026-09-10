@@ -13,6 +13,11 @@ from arxiv_int.retrieval.projection import (
     LexicalTarget,
     active_target,
 )
+from arxiv_int.retrieval.query_normalization import (
+    SELECTED_QUERY_PROFILE,
+    query_policy_fingerprint,
+    query_variants,
+)
 from arxiv_int.stores.projections.adapters.lexical_search import (
     FILTER_FIELDS,
     SEARCH_FIELDS,
@@ -50,6 +55,7 @@ class LexicalRequest:
     facets: tuple[str, ...] = ()
     facet_limit: int = DEFAULT_FACET_LIMIT
     lenient: bool = False
+    query_profile: str = SELECTED_QUERY_PROFILE
 
     def __post_init__(self) -> None:
         if not self.query.strip():
@@ -103,6 +109,7 @@ class LexicalResult:
     total: int
     facets: Mapping[str, tuple[tuple[str, int], ...]] = field(default_factory=dict)
     elapsed_ms: float = 0.0
+    query_profile: str = SELECTED_QUERY_PROFILE
 
     def as_json_dict(self) -> dict[str, object]:
         """Return a secret-free JSON view of one search."""
@@ -114,6 +121,8 @@ class LexicalResult:
             },
             "hits": [hit.as_json_dict() for hit in self.hits],
             "projection": self.target.as_json_dict(),
+            "queryPolicyFingerprint": query_policy_fingerprint(),
+            "queryProfile": self.query_profile,
             "total": self.total,
         }
 
@@ -158,7 +167,7 @@ def search(
         )
         for index, row in enumerate(rows, request.offset + 1)
     )
-    return LexicalResult(resolved, hits, total, facets, elapsed)
+    return LexicalResult(resolved, hits, total, facets, elapsed, request.query_profile)
 
 
 def lookup(
@@ -212,8 +221,10 @@ def explain(
 
 
 def _query_for(request: LexicalRequest) -> BoundQuery:
+    variants = query_variants(request.query, profile_id=request.query_profile)
     return match_query(
         query_text=request.query,
+        query_variants=variants[1:],
         fields=request.fields,
         filters=request.filters(),
         lenient=request.lenient,

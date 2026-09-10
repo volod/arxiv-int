@@ -11,6 +11,7 @@ from arxiv_int.retrieval.lexical import (
 )
 from arxiv_int.retrieval.metrics import SourceSpan
 from arxiv_int.retrieval.projection import LexicalTarget
+from arxiv_int.retrieval.query_normalization import query_policy_fingerprint
 from arxiv_int.stores.projections.adapters.lexical import TOKENIZER_FINGERPRINT
 from arxiv_int.stores.projections.adapters.lexical_search import LexicalFieldError
 
@@ -62,6 +63,8 @@ def test_result_json_reports_projection_identity_and_facets() -> None:
     assert isinstance(projection, dict)
     assert projection["projectionId"] == "lexical:v1"
     assert projection["tokenizerFingerprint"] == TOKENIZER_FINGERPRINT
+    assert payload["queryPolicyFingerprint"] == query_policy_fingerprint()
+    assert payload["queryProfile"] == "russian-safe-v1"
 
 
 def test_unresolved_citations_reports_hits_without_a_canonical_chunk() -> None:

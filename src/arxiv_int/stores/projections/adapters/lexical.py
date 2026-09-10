@@ -45,6 +45,7 @@ TEXT_FIELDS: dict[str, dict[str, object]] = {
 }
 TOKENIZER_PROFILE = json.dumps(TEXT_FIELDS, sort_keys=True, ensure_ascii=True)
 TOKENIZER_FINGERPRINT = sha256_text(TOKENIZER_PROFILE)
+SELECTED_INDEX_PROFILE = "unicode-russian-v1"
 
 
 def lexical_table(version_id: str) -> str:

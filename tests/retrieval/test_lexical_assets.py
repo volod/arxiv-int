@@ -46,11 +46,19 @@ def test_every_searchable_field_is_indexed() -> None:
 def test_match_query_binds_query_text_and_filters() -> None:
     query = match_query(query_text=INJECTION, filters={"language": "rus", "document_id": ""})
     assert INJECTION not in query.expression
-    assert query.parameters["query_text"] == INJECTION
+    assert query.parameters["query_text_0"] == INJECTION
     assert query.parameters["filter_field_0"] == "language"
     assert query.parameters["filter_value_0"] == "rus"
     assert query.expression.count("parse_with_field") == len(SEARCH_FIELDS)
     assert "paradedb.term(:filter_field_0, :filter_value_0)" in query.expression
+
+
+def test_match_query_binds_every_normalized_variant() -> None:
+    query = match_query(query_text="base", query_variants=(INJECTION, "base"))
+    assert query.parameters["query_text_0"] == "base"
+    assert query.parameters["query_text_1"] == INJECTION
+    assert INJECTION not in query.expression
+    assert query.expression.count("parse_with_field") == 2 * len(SEARCH_FIELDS)
 
 
 def test_match_query_orders_filters_deterministically() -> None:
