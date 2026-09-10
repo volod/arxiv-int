@@ -32,7 +32,7 @@ from arxiv_int.evaluation.proof.model import (
 )
 from arxiv_int.resources.paths import configs_output_root
 
-IMPLEMENTED_PROOFS = frozenset({"evaluation-foundation", "pipeline-control"})
+IMPLEMENTED_PROOFS = frozenset({"evaluation-foundation", "pipeline-control", "corpus-foundation"})
 FINGERPRINT_FILENAME = "fingerprint.json"
 
 
@@ -85,9 +85,22 @@ def publish_capability_proof(
     runs_dir: Path,
     fixture_dir: Path | None = None,
     archive_dir: Path | None = None,
+    proof_id: str | None = None,
 ) -> ProofPublishResult:
     """Dispatch one capability proof or refuse unvalidated/unknown targets."""
     target = require_capability(load_capability_registry(project_root), capability)
+    if capability == "corpus-foundation":
+        from arxiv_int.evaluation.proof.corpus_publish import publish_corpus_proof
+
+        return publish_corpus_proof(
+            project_root=project_root,
+            run_id=run_id,
+            results_dir=results_dir,
+            runs_dir=runs_dir,
+            proof_id=proof_id,
+        )
+    if proof_id is not None:
+        raise ProofIntegrityError("separate proof ids are supported only for corpus-foundation")
     if capability == "pipeline-control":
         from arxiv_int.evaluation.proof.control_publish import publish_pipeline_control_proof
 
@@ -167,6 +180,10 @@ def check_capability_proof(directory: Path, project_root: Path, fixture_fingerpr
         raise ProofError("proof manifest is not an object")
     capability = str(payload.get("capability_id") or "")
     target = require_capability(load_capability_registry(project_root), capability)
+    if capability == "corpus-foundation":
+        from arxiv_int.evaluation.proof.corpus_check import check_corpus_proof
+
+        return check_corpus_proof(directory, project_root)
     if capability == "pipeline-control":
         from arxiv_int.evaluation.proof.control_registry import control_proof_fingerprints
 

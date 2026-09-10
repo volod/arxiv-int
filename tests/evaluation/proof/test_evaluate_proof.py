@@ -121,7 +121,7 @@ def test_proof_publish_rejects_unvalidated_and_stale(
     with pytest.raises(ProofIntegrityError, match="unvalidated"):
         publish_capability_proof(
             project_root=real_root,
-            capability="corpus-foundation",
+            capability="lexical-retrieval",
             run_id="proof-2",
             results_dir=tmp_path / "results",
             runs_dir=tmp_path / "runs",

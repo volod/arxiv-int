@@ -2,8 +2,8 @@
 
 This page records evaluation-dataset and provided-archive proof state as it becomes available.
 Frozen synthetic fixtures, paired metrics, the `evaluate` stage, and a proof dispatcher exist.
-The pipeline-control provided-archive proof is published; remaining provided-archive proofs and
-scale pilots stay planned.
+The pipeline-control and [corpus-foundation](corpus-foundation.md#provided-archive-proof)
+provided-archive proofs are published; remaining proofs and scale pilots stay planned.
 
 ## Authorized representative archive
 

@@ -7,7 +7,7 @@ read-only stage artifact inspection, incremental source reconciliation, two-phas
 read-only citation/source location lookup, and a provided-archive pipeline-control proof are
 available. Concrete corpus stages through `chunk` are registered;
 classification and later investigation stages remain
-[planned](../plan.md#corpus-foundation----corpus-foundation).
+[planned](../plan.md#archive-classification----archive-classification).
 
 See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface-contracts.md),
 [record 0041](../records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md),

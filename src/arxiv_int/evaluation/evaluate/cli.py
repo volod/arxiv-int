@@ -26,6 +26,9 @@ def add_evaluate_commands(
     publish = proof_commands.add_parser("publish", help="publish one capability proof bundle")
     publish.add_argument("--capability", required=True)
     publish.add_argument("--run-id", required=True)
+    publish.add_argument(
+        "--proof-id", default=None, help="new corpus proof id over an existing run"
+    )
     publish.add_argument("--results-dir", type=Path, required=True)
     publish.add_argument("--runs-dir", type=Path, required=True)
     publish.add_argument("--fixture-root", type=Path, default=None)

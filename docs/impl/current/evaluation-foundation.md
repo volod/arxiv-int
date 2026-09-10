@@ -2,7 +2,8 @@
 
 Frozen evaluation fixtures, paired metrics, the `evaluate` stage, and a shared proof dispatcher
 are available now. Human gold review and remaining provided-archive proofs stay later tasks.
-`pipeline-control` can publish a provided-archive proof; `evaluation-foundation` can publish a
+`pipeline-control` and `corpus-foundation` can publish provided-archive proofs;
+`evaluation-foundation` can publish a
 fixture proof.
 
 See [record 0033](../records/0033-eval-found-refactor-evaluation-bundle-validation.md),
@@ -63,8 +64,10 @@ make eval RUN_ID=...
 `src/arxiv_int/resources/configs/proofs/capabilities.json` maps each capability to usable stages and
 required
 validators. `arxiv-int evaluation proof discover` lists them. Unknown capabilities fail.
-`evaluation-foundation` can publish a fixture proof and `pipeline-control` can publish a
-provided-archive proof; other capabilities refuse until their usable stages are validated.
+`evaluation-foundation` can publish a fixture proof; `pipeline-control` and `corpus-foundation`
+can publish provided-archive proofs. Other capabilities refuse until their usable stages are
+validated. The [corpus proof](corpus-foundation.md#provided-archive-proof) additionally verifies
+external artifact bytes, source accounting, model identities, contracts and source offsets in place.
 
 A typed `proof-manifest.json` records fingerprints, stage statuses, validators, and artifact
 checksums. Publication claims the destination with exclusive `mkdir` and refuses to replace an
@@ -148,20 +151,27 @@ command, Make target or packaged asset that turns source-derived proof data into
 
 An `evaluation-foundation` bundle holds `proof-manifest.json`, `summary.txt` and
 `fingerprint.json`. A `pipeline-control` bundle adds `gates.json`, `scenario.json` and
-`forecast-summary.json`. The manifest carries the capability, proof and run ids, `data_class`,
+`forecast-summary.json`. A `corpus-foundation` bundle additionally retains an external artifact
+registry, full source/accounting/offset validation metrics and resource histories; its enclosing
+immutable bundle manifest checks every payload. The manifest carries the capability, proof and run
+ids, `data_class`,
 verdict, input fingerprints, stage and validator outcomes, and a sha256/byte record for every
 artifact. `fingerprint.json` records `data_class` and the `raw_fingerprint` of the manifest bytes,
 so a reviewer can confirm the bundle they hold is the one a record names.
 
 `publish_capability_proof()` refuses an unregistered capability, a capability whose usable stages
-have no publisher, and an occupied destination, including a symlink at that name. Every payload
-passes the leak rules before it is written: configured roots are replaced by their variable names,
+have no publisher, and an occupied destination, including a symlink at that name. The fixture and
+pipeline-control publishers apply their summary leak rules before writing: configured roots are
+replaced by their variable names,
 a private path marker refuses publication, synthetic identity labels refuse publication, and an
 `identities.json` entry anywhere in the tree refuses both publication and check.
 
 `check_capability_proof()` re-reads a published directory, resolves the capability's expected
 fingerprints, enforces the checksum, freshness and usable-stage gates, walks the tree for leaks and
-nonregular entries, and returns the manifest fingerprint.
+nonregular entries, and returns the manifest fingerprint. The corpus checker additionally checks
+the immutable bundle and every referenced external artifact, then replays source, contract,
+accounting, offset and resource validation. A new corpus `PROOF_ID` preserves earlier bundles when
+re-proving an existing run.
 
 Commands:
 

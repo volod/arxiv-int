@@ -24,44 +24,6 @@ in place.
 a prerequisite on the producer. Follow the [handoff workflow](../guide/planning-workflow.md#human-review-handoffs)
 and name ready/pending human decisions and the dependent work that must wait at task completion.
 
-### Corpus foundation -- `corpus-foundation`
-
-#### prove-corpus-foundation-on-provided-archive
-
-Run the completed corpus stages against the operator-provided archive and publish their first
-current proof bundle.
-
-- Serves: `corpus-foundation` --
-[Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
-- Agent status: RUN NEEDED
-- Dependencies: [Checkpoint 0063](records/0063-corpus-review-corpus-and-control-integrity.md);
-[Normalization, dedupe and chunking](records/0062-corpus-implement-normalization-dedupe-and-chunking.md);
-[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md);
-[Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md);
-[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md);
-[Representative corpus approval](records/0023-corpus-approve-representative-corpus-and-gold.md).
-- Audit inputs: [AUD-review-corpus-and-control-integrity-6](records/0063-corpus-review-corpus-and-control-integrity.md#audit-handoff);
-[AUD-review-corpus-and-control-integrity-8](records/0063-corpus-review-corpus-and-control-integrity.md#audit-handoff);
-[AUD-review-corpus-and-control-integrity-9](records/0063-corpus-review-corpus-and-control-integrity.md#audit-handoff).
-- User-visible outcome: The supplied file silos have inspectable inventory, extraction,
-normalization, duplicate, and chunk artifacts backed by one reproducible proof id.
-- Scope boundary: Read `ARCHIVE_DIR` without mutation and stop after `chunk`; do not infer
-downstream classification, retrieval, or knowledge quality from this proof.
-- Data and artifact paths: `$ARCHIVE_DIR` used without modification, `$RESULTS_DIR`, and
-`$RESULTS_DIR/proofs/corpus-foundation/<proof-id>/`; only redacted summaries enter current docs.
-- Execution path: Run a passing forecast; execute `inventory` through `chunk`; validate contracts,
-counts, spans, offsets, quarantine reasons, and checksums; rerun the identical closure and capture
-cache decisions plus resource/timing evidence.
-- Acceptance gates: Every usable corpus stage is `passed` or contract-valid `empty`; every inventory
-item is accounted for; artifacts and source anchors validate; the unchanged rerun executes no heavy
-extraction/normalization work; failures keep the task open.
-The bundle stays under the configured roots and nothing source-derived is committed or staged for
-commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
-checksums and contract conformance in place.
-- Documentation target: `docs/impl/current/corpus-foundation.md`
-- Review checkpoint: `review-corpus-and-control-integrity`, accepted as
-[record 0063](records/0063-corpus-review-corpus-and-control-integrity.md).
-
 ### Lexical retrieval -- `lexical-retrieval`
 
 #### build-paradedb-lexical-load-and-query-path

@@ -16,4 +16,4 @@ proof: ## Publish a capability proof (CAPABILITY= RUN_ID=)
 	@test -n "$(CAPABILITY)" || { echo "ERROR: set CAPABILITY"; exit 1; }
 	@$(load_env) && \
 		"$(CLI)" evaluation proof publish --capability "$(CAPABILITY)" \
-		--run-id "$(RUN_ID)" --results-dir "$$RESULTS_DIR" --runs-dir "$$RUNS_DIR"
+		--run-id "$(RUN_ID)" $(if $(PROOF_ID),--proof-id "$(PROOF_ID)",) --results-dir "$$RESULTS_DIR" --runs-dir "$$RUNS_DIR"

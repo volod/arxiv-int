@@ -112,6 +112,7 @@ def _proof(args: argparse.Namespace, root: object) -> int:
         published = publish_capability_proof(
             project_root=project_root,
             capability=args.capability,
+            proof_id=args.proof_id,
             run_id=args.run_id,
             results_dir=args.results_dir,
             runs_dir=args.runs_dir,

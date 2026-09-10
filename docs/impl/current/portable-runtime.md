@@ -14,7 +14,7 @@ ledger, serialized progress logs, a fixture DAG CLI, knowledge-base publication,
 artifact inspection exist under
 [Pipeline control](pipeline-control.md). [Streaming inventory](corpus-foundation.md) through
 chunking is available; classification and later investigation stages remain
-[planned](../plan.md#corpus-foundation----corpus-foundation). A default investigation run still
+[planned](../plan.md#archive-classification----archive-classification). A default investigation run still
 refuses unimplemented stages. Infrastructure-ready never means an archive-to-report run is
 available. See the
 [operator workflow](../../guide/operator-workflow.md) for the atomic chain and the
