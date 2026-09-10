@@ -206,16 +206,20 @@ make stage STAGE=extract RUN_ID="$RUN_ID"
 make stage STAGE=normalize RUN_ID="$RUN_ID"
 make stage STAGE=dedupe RUN_ID="$RUN_ID"
 make stage STAGE=chunk RUN_ID="$RUN_ID"
+make stage STAGE=load-lexical RUN_ID="$RUN_ID"
 make stage STAGE=evaluate RUN_ID="$RUN_ID"
 make run-finalize RUN_ID="$RUN_ID"
 ```
 
-`preflight`, `inventory`, `extract`, `normalize`, `dedupe`, `chunk` and `evaluate` are shipped
-production runners. `preflight` refuses unreadable silos. `inventory` streams a checksum-validated
-source-occurrence snapshot; `extract` runs the tiered text lanes; `normalize` writes canonical and
-search views with a reversible offset map; `dedupe` proposes reversible duplicate and edition
-overlays; `chunk` writes structure-aware chunks that keep source character offsets. Their artifact
-layouts and limits are in [corpus foundation](../impl/current/corpus-foundation.md).
+`preflight`, `inventory`, `extract`, `normalize`, `dedupe`, `chunk`, `load-lexical` and `evaluate`
+are shipped production runners. `preflight` refuses unreadable silos. `inventory` streams a
+checksum-validated source-occurrence snapshot; `extract` runs the tiered text lanes; `normalize`
+writes canonical and search views with a reversible offset map; `dedupe` proposes reversible
+duplicate and edition overlays; `chunk` writes structure-aware chunks that keep source character
+offsets. Their artifact layouts and limits are in
+[corpus foundation](../impl/current/corpus-foundation.md). `load-lexical` loads the canonical corpus
+and rebuilds the searchable projection; see
+[lexical retrieval](../impl/current/lexical-retrieval.md).
 
 Refresh `make forecast` before repeating a completed stage, because the cache plan has changed. An
 unchanged rerun reuses validated snapshots and invokes no heavy work. An interrupted `inventory`
@@ -240,7 +244,6 @@ not a second executable DAG definition. They fail as unregistered until their ca
 
 ```bash
 make stage STAGE=classify RUN_ID="$RUN_ID"
-make stage STAGE=load-lexical RUN_ID="$RUN_ID"
 make stage STAGE=nlp RUN_ID="$RUN_ID"
 make stage STAGE=topics RUN_ID="$RUN_ID"
 make stage STAGE=entities RUN_ID="$RUN_ID"
@@ -289,7 +292,8 @@ Use the returned run id and replace query/document placeholders with actual valu
 | `arxiv-int catalog company --run RUN_ID`, `arxiv-int catalog product --run RUN_ID`, `arxiv-int catalog person --run RUN_ID` | planned | Inspect roles, aliases, identities and evidence in the three catalogs. |
 | Follow financial-party, transaction, supply-chain and BOM links | planned | Trace quantities, relations and gaps to source anchors. |
 | `arxiv-int anomalies list --run RUN_ID` | planned | Review detector, baseline, severity and supporting/contradicting evidence. |
-| `arxiv-int search lexical "QUERY"` | planned | Find source-anchored hits; verify the result's generation. |
+| `arxiv-int search lexical "QUERY"` / `make search-lexical QUERY="..."` | available | Find source-anchored hits in the active projection, with filters, snippets, facets, citations and plan diagnostics. |
+| `arxiv-int search semantic\|hybrid "QUERY"` | planned | Vector and fused retrieval over the same evidence. |
 
 Use `.venv/bin/arxiv-int` when the executable is not on the shell's path. After the session, the
 available `make services-down` stops project containers and preserves their data. Host Ollama is

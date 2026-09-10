@@ -17,7 +17,7 @@ STAGE_FEATURES: Mapping[str, StageFeatureSet] = {
     "dedupe": _features("data-quality", "lake"),
     "chunk": _features("data-quality", "lake"),
     "classify": _features("data-quality", "lake"),
-    "load-lexical": _features("store"),
+    "load-lexical": _features("data-quality", "lake", "store", "transform"),
     "nlp": _features("data-quality", "lake", "nlp"),
     "embed": _features("embeddings", "inference", "lake", conditional=("gpu",)),
     "load-vector": _features("store"),

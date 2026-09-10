@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0069` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0071` after the rows
 below).
 
 | Record | Scope | Result |
@@ -81,3 +81,4 @@ below).
 | [0067 Optional Tika CI typecheck](0067-foundation-fix-optional-tika-ci-typecheck.md) | Type-check the isolated worker without installing the native extraction stack in GitHub | Accepted |
 | [0068 Provided-archive corpus proof](0068-corpus-prove-corpus-foundation-on-provided-archive.md) | Corpus proof execution, model-content identities and immutable verification | Accepted; 568 occurrences accounted for, 70550 chunks, zero-worker replay and CI pass |
 | [0069 Retire milestone evaluation scaffolding](0069-govern-retire-milestone-evaluation-scaffolding.md) | Remove test-like evaluation runners and milestone proof/disposable experiment code; retain reusable primitives and archive checks as integration tests | Accepted; archive integration, CI, coverage, Markdown, and package builds pass |
+| [0070 ParadeDB lexical load and query path](0070-lexical-build-paradedb-lexical-load-and-query-path.md) | Bulk-load the corpus projection, build the BM25 covering index, and expose filtered lexical search with snippets, facets, citations and diagnostics | Accepted; operator archive loaded 414 documents / 70550 chunks, live disposable test, CI, and diagnostics pass |

@@ -28,34 +28,6 @@ and name ready/pending human decisions and the dependent work that must wait at 
 
 ### Lexical retrieval -- `lexical-retrieval`
 
-#### build-paradedb-lexical-load-and-query-path
-
-Bulk-load selected document/chunk projection rows and implement lexical search, filters, snippets,
-facets, and identifier lookup.
-
-- Serves: `lexical-retrieval` --
-[Search and vector projections](../design/spec.md#search-and-vector-projections)
-- Agent status: RUN NEEDED
-- Dependencies: [0025](records/0025-store-implement-rebuildable-search-and-graph-projections.md);
-[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md).
-[Corpus and control integrity checkpoint](records/0063-corpus-review-corpus-and-control-integrity.md).
-- User-visible outcome: The full normalized corpus or chosen partition is searchable with
-evidence-bearing results and stable filter behavior.
-- Scope boundary: Establish the lexical path and lifecycle; semantic fusion is separate.
-- Data and artifact paths: `search.*` tables/indexes, `src/arxiv_int/retrieval/lexical.py`,
-`$RUNS_DIR/<run-id>/search/`, and retrieval fixtures.
-- Execution path: Binary-COPY staging rows; create one covering ParadeDB index per partition/table
-design; index Russian text plus literal ids and required filter fields; expose typed query and
-explain/diagnostic modes.
-Reuse dbt-tested projection inputs and Pandera batch validation; use psycopg binary COPY and
-bound SQLAlchemy queries. Keep ParadeDB index/search syntax in named engine assets and Alembic
-operations, separate from business transformations.
-- Acceptance gates: Load counts/checksums reconcile; result citations resolve to source spans;
-concurrent index build/rebuild remains observable; query and index failures have actionable
-diagnostics.
-- Documentation target: `docs/impl/current/lexical-retrieval.md`
-- Review checkpoint: `review-retrieval-and-classification-boundaries`.
-
 #### calibrate-russian-tokenization-and-bm25
 
 Compare Unicode and ICU segmentation, Russian stemming/stopwords, exact identifier fields, aliases,
@@ -65,7 +37,7 @@ and query normalization on a held-out Russian query set.
 [Russian-language and document analysis](../design/spec.md#russian-language-and-document-analysis)
 - Agent status: RUN NEEDED
 - Research: yes
-- Dependencies: `build-paradedb-lexical-load-and-query-path`;
+- Dependencies: [ParadeDB lexical load and query path](records/0070-lexical-build-paradedb-lexical-load-and-query-path.md);
 [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 - User-visible outcome: The default Russian lexical profile is backed by recall, MRR, evidence
 intactness, latency, and index-size evidence rather than an English default.
@@ -204,7 +176,9 @@ Review searchable/classifiable corpus accounting before archive quality and poli
 `calibrate-russian-tokenization-and-bm25`;
 `establish-versioned-udc-derived-scheme`; `implement-hierarchical-file-classification`;
 [Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
-- Audit inputs: [AUD-review-corpus-and-control-integrity-7](records/0063-corpus-review-corpus-and-control-integrity.md#audit-handoff).
+- Audit inputs: [AUD-review-corpus-and-control-integrity-7](records/0063-corpus-review-corpus-and-control-integrity.md#audit-handoff);
+[AUD-build-paradedb-lexical-1](records/0070-lexical-build-paradedb-lexical-load-and-query-path.md#audit-handoff);
+[AUD-build-paradedb-lexical-2](records/0070-lexical-build-paradedb-lexical-load-and-query-path.md#audit-handoff).
 - User-visible outcome:
 Retrieval and classification proofs consume coherent source, vocabulary and query identities.
 - Scope boundary:
@@ -1681,7 +1655,7 @@ without embedding the entire archive by default.
 - Dependencies: [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md);
 [Local inference adapters](records/0031-inference-implement-local-inference-adapters.md);
 [Model resource scheduler](records/0032-inference-implement-model-resource-scheduler.md);
-`build-paradedb-lexical-load-and-query-path`.
+[ParadeDB lexical load and query path](records/0070-lexical-build-paradedb-lexical-load-and-query-path.md).
 - User-visible outcome: Operators can embed a bounded, explainable corpus slice and resume batches
 while preserving model/profile identity.
 - Scope boundary: Implement tier selection and stable pgvector baseline; do not promote a

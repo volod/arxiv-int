@@ -51,7 +51,7 @@ from `--help` rather than silently doing nothing.
 | `arxiv-int pipeline forecast --run-id RUN_ID` | available | Read-only time and storage forecast with device free-space refusal; exit 3 when the requested scope is blocked. |
 | `arxiv-int pipeline run` | available | Walk the selected profile DAG. It refuses explicitly while required later stages are unregistered. |
 | `arxiv-int pipeline update\|rebuild\|invalidate` | available | Reconcile a changed archive into a new generation, rebuild in isolation, or mark reuse keys stale. |
-| `arxiv-int stage STAGE --run-id RUN_ID` | available | Run one registered stage. `preflight`, `inventory`, `extract`, `normalize`, `dedupe`, and `chunk` are shipped runners; other stages fail as unregistered. |
+| `arxiv-int stage STAGE --run-id RUN_ID` | available | Run one registered stage. `preflight`, `inventory`, `extract`, `normalize`, `dedupe`, `chunk`, and `load-lexical` are shipped runners; other stages fail as unregistered. |
 | `arxiv-int inspect DATASET\|RUN\|latest [--limit N] [--json]` | available | Summarize published artifacts, quality, lineage, anchors, quarantines and failures without recomputing them. |
 | `arxiv-int artifacts prune --stale` | available | Plan derived-artifact maintenance. `--apply --plan PLAN_ID` is a separate confirmation and refuses to delete a sole recovery copy. |
 | `arxiv-int inference --help` | available | Call the configured local Ollama or vLLM endpoint. |
@@ -74,7 +74,8 @@ These arrive as their specified capabilities are implemented; see the
 
 | Command | Availability | Purpose |
 | --- | --- | --- |
-| `arxiv-int search lexical\|semantic\|hybrid QUERY` | planned | Find source-anchored hits and verify the result's generation. |
+| `arxiv-int search lexical QUERY [--mode identifier] [--language L] [--document-id D] [--facet F] [--citations] [--explain] [--json]` | available | Query the active ParadeDB projection: Russian-aware BM25 ranking or literal identifier lookup, with filters, snippets, facets, resolved source spans and plan diagnostics. Exit 2 when no projection is active; see [lexical retrieval](../impl/current/lexical-retrieval.md). |
+| `arxiv-int search semantic\|hybrid QUERY` | planned | Vector and fused retrieval over the same evidence. |
 | `arxiv-int catalog company\|product\|person [--run RUN_ID]` | planned | Inspect roles, aliases, identities and evidence in the three catalogs. |
 | `arxiv-int anomalies list\|show [--run RUN_ID]` | planned | Review detector, baseline, severity and supporting or contradicting evidence. |
 | `arxiv-int graph rebuild\|check\|query` | planned | Rebuild and query the derived graph projection. |

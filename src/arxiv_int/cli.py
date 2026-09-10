@@ -245,6 +245,9 @@ def build_parser() -> argparse.ArgumentParser:
     from arxiv_int.query.evidence.cli import add_archive_parser
 
     add_archive_parser(subcommands)
+    from arxiv_int.retrieval.cli import add_search_parser
+
+    add_search_parser(subcommands)
     from arxiv_int.pipeline.cli import add_pipeline_parsers
 
     add_pipeline_parsers(subcommands)
@@ -593,6 +596,10 @@ def _run_package_command(args: argparse.Namespace) -> int:
         from arxiv_int.query.evidence.commands import run_archive_command
 
         return run_archive_command(args)
+    if args.command == "search":
+        from arxiv_int.retrieval.commands import run_search_command
+
+        return run_search_command(args)
     if args.command in {"pipeline", "stage", "run", "artifacts"}:
         from arxiv_int.pipeline.dag.dispatch import run_pipeline_command
 

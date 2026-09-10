@@ -28,6 +28,7 @@ UPSTREAM_POINTERS: Mapping[str, str] = {
     "normalized-documents": "normalization",
     "duplicate-groups": "dedupe",
     "chunks": "chunking",
+    "lexical-projection": "lexical",
 }
 
 
@@ -38,6 +39,7 @@ def stage_context(context: RunContext, stage: str) -> StageContext:
     options["source_drift_policy"] = context.source_drift_policy
     options["source_metadata_snapshot"] = context.source_metadata_snapshot or ""
     options["tmp_dir"] = context.secret_free.get("TMP_DIR", str(context.results_dir / "tmp"))
+    options["runs_dir"] = str(context.runs_dir)
     options["model_cache_dir"] = context.secret_free.get(
         "MODEL_CACHE_DIR", str(context.results_dir / "models")
     )
@@ -124,6 +126,7 @@ def _output_validators() -> tuple[Callable[[Path], None], ...]:
     from arxiv_int.pipeline.chunk.reuse import validate_chunk_output
     from arxiv_int.pipeline.dedupe.reuse import validate_dedupe_output
     from arxiv_int.pipeline.inventory.reuse import validate_inventory_output
+    from arxiv_int.pipeline.load_lexical.reuse import validate_load_lexical_output
     from arxiv_int.pipeline.normalize.reuse import validate_normalization_output
 
     return (
@@ -132,6 +135,7 @@ def _output_validators() -> tuple[Callable[[Path], None], ...]:
         validate_normalization_output,
         validate_dedupe_output,
         validate_chunk_output,
+        validate_load_lexical_output,
     )
 
 
