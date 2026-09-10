@@ -5,8 +5,9 @@ The `load-lexical` stage bulk-loads the canonical corpus, rebuilds the ParadeDB 
 literal identifier lookup and diagnostics over the active projection. Semantic and hybrid fusion are
 not implemented; see the [forward plan](../plan.md).
 
-See [record 0070](../records/0070-lexical-build-paradedb-lexical-load-and-query-path.md) and
-[record 0071](../records/0071-lexical-calibrate-russian-tokenization-and-bm25.md). The projection
+See [record 0070](../records/0070-lexical-build-paradedb-lexical-load-and-query-path.md),
+[record 0071](../records/0071-lexical-calibrate-russian-tokenization-and-bm25.md) and
+[record 0072](../records/0072-lexical-review-and-deepen-russian-lexical-calibration.md). The projection
 lifecycle, versioned tables and activation pointers belong to the
 [canonical store](canonical-store.md); the stage contract and reuse rules belong to
 [pipeline control](pipeline-control.md).
@@ -55,11 +56,28 @@ with the Russian stemmer and Russian stopwords for `body` and `title`;
 `language` and `document_id` use fast keyword fields for filters and facets. The JSON profile is
 hashed into a tokenizer fingerprint that is retained with every load.
 
-The selected `russian-safe-v1` query profile applies NFC and bounded, query-only variants for the
-reviewed abbreviation/alias dictionary, Cyrillic/Latin homoglyphs, wrong keyboard layout, and Latin
-transliteration. The original query remains a bound variant, every added variant is separately bound,
-and at most five variants are sent to the engine. Stored text and source snippets are never rewritten.
-The query-policy fingerprint and selected profile id appear in search JSON.
+The selected `russian-guarded-v2` query profile applies NFC, then plans bounded, query-only
+variants in three stages.
+
+- The primary stage always runs. It sends:
+  - the original text;
+  - reviewed `technical-v2` abbreviations, substituted as phrases inside the query, plus the
+    abbreviation for any expansion the query already contains (two-letter keys only in upper
+    case);
+  - per-token homoglyph repair toward each token's majority script, and cross-script variants of
+    identifier codes;
+  - a genitive-stem probe for nouns with a fleeting e/o.
+- Keyboard-layout and positional transliteration variants run only when the primary stage matches
+  nothing.
+- A conjunctive edit-distance-1 match over the words of at least five characters in each primary
+  variant runs only when both earlier stages match nothing.
+
+A query that uses query syntax (field prefixes, quotes, grouping, leading `+`/`-`, AND/OR/NOT) is
+sent unchanged. Every variant is a separate bound parameter, with at most five per stage. Stored
+text and source snippets are never rewritten. Search JSON reports the profile, the policy
+fingerprint and `queryStage`. The previously accepted `russian-safe-v1` profile and its
+`legacy-v1` aliases stay declared only to replay record 0071. That legacy map contains an alias
+fitted to 0071's final fixture and must not be served.
 
 `adapters.lexical_search` holds every ParadeDB operator and query-builder call. User text, field
 names, filter values, limits, offsets and snippet tags are always bound parameters; only whitelisted
@@ -87,29 +105,91 @@ builds every declared candidate on identical frozen rows inside a rolled-back tr
 held-out retrieval and cost, and publishes one immutable bundle at
 `$RUNS_DIR/<run-id>/evaluation/lexical/`. An existing bundle is never replaced.
 
+`make lexical-second-opinion RUN_ID=<created-run-id> STAGE=development|preregister|final` (or
+`arxiv-int search second-opinion --run-id ... --stage ...`) runs the frozen second-opinion
+calibration in `retrieval.second_opinion`:
+
+- `development` scores only the development split. It accepts `FILLER_CHUNKS`,
+  `BUILD_REPETITIONS` and `QUERY_REPETITIONS` cost overrides.
+- `preregister` publishes a bundle that binds the final split, protocol, arms, review packet,
+  query policy and code fingerprints.
+- `final` refuses to run without a verified preregistration in the same run whose fingerprints
+  still match, and refuses every override.
+
+Each stage publishes once at `$RUNS_DIR/<run-id>/evaluation/lexical-second-opinion/<stage>/`, with
+a per-arm, per-case ledger, `report.json`, and copies of the frozen inputs.
+
 ## Calibration decision
 
-Run `run-68bd28ccf0244b07b40320d11c282407` on ParadeDB 0.25.6 adopted
-`unicode-russian-safe-v1` over `unicode-russian-v1`. At `k=5` on 12 frozen final cases, recall, MRR,
-span coverage, and intactness each rose from 0.4167 to 0.9167. The paired MRR comparison had 6 wins,
-0 losses and 6 ties; its 95% bootstrap interval was +0.25 to +0.75 and its exact sign-test p-value was
-0.03125. Exact identifiers, mixed-language text, and the retained successful inflection case did not
-regress. One inflection case remains missed and prevents a perfect result.
+Record 0072's preregistered final run `run-204c1ec6c5c846fd8546a0781a7b1789` on ParadeDB 0.25.6
+adopted `russian-guarded-v2` over the previously accepted `russian-safe-v1`. Both served the
+unchanged `unicode-russian-v1` index.
 
-ICU/Russian tied normalized Unicode on all 12 quality readings and received `inconclusive`; their
-single-run fixture p95 readings were 2.552 ms and 2.281 ms respectively. All four tiny indexes were
-3,022,848 bytes and their covering tables were 3,055,616 bytes, so these costs prove comparative
-execution only and do not estimate archive scale. The morphology comparison improved two cases but
-was also `inconclusive` under the paired gate.
+- **Inputs:** the final split has 122 frozen cases and 199 judged chunks, alongside 70,000
+  vocabulary-disjoint filler chunks. It was preregistered at 2026-09-10T22:22:00Z (manifest
+  `6bf8669688b0...`) and executed once, with 5 index rebuilds and 30 query repetitions in seeded
+  random orders.
+- **Quality:** on 90 quality cases, nDCG@10 rose from 0.680 to 0.959: 27 wins, 0 losses and 63
+  ties; 95% interval +0.187 to +0.375; sign-test p=1.5e-8.
+- **Precision:** on 54 precision cases, returned precision@5 rose from 0.431 to 0.464: 4/0/50;
+  interval +0.005 to +0.069.
+- **Gates:** every mandatory gate passed:
+  - identifier exactness;
+  - no new syntax errors or forbidden hits;
+  - no increase in no-answer false positives;
+  - latency (p95 5.15 ms versus 4.88 ms).
+- **Stability:** all five bootstrap seeds agreed, and every ranked hit was identical across
+  repetitions and query orders.
+- **Bundle:** the final manifest is `e691b9b8db5b...`.
 
-The adopted profile changes only query processing. Its tokenizer fingerprint remains
-`3b277b2329ad0f884d7af43261e195bc8577f8790b40792aaa3b0ac0b62ed47e`, so this adoption requires no
-reindex. Selecting ICU or changing any index tokenizer declaration changes that fingerprint and
-requires a full lexical projection rebuild before activation. The final manifest fingerprint is
-`7731ea19f6f3bc4b86802bc92fd1668631716c51ab8cb5a677b457a97f5016bf`; its registered score and
-profile artifacts verify in place. This synthetic held-out run is not the provided-archive relevance
-proof. The CUDA device was available but unused because ParadeDB BM25 calibration is CPU/database
-work.
+Factor readings from the same run:
+
+- Russian stemming added 0.204 nDCG (19/0) but cost 0.105 returned precision (0/13), because it
+  conflates homonymous stems. It is retained.
+- Russian stopwords and ICU segmentation made no significant difference. The Unicode tokenizer
+  is retained; ICU would require a rebuild for no measured gain.
+- Among the accepted transforms, transliteration alone cost 0.25 returned precision (0/15) by
+  reading English words as Russian. The v1 aliases changed nothing on new items, because their
+  entries matched 0071's final queries.
+- Candidate leave-one-out, in wins over the ablated profile:
+  - aliases: +6 quality;
+  - fuzzy stage: +8 quality;
+  - phrase binding: +5 precision;
+  - fallback gating: +4 precision;
+  - homoglyph repair: +2 quality and +2 precision.
+
+  The fleeting-vowel probe and the syntax guard tied here. The fuzzy stage recovered the same
+  inflections, and the guard removes the error `russian-safe-v1` raised on a field query.
+
+Costs on 70,199 rows:
+
+- BM25 indexes took 17.3 to 21.4 MB, 18.9 MB for `unicode-russian`, over 88 to 92 MB covering
+  tables.
+- Median build time was 0.38 to 1.18 s per profile, and rebuilds of one profile varied up to
+  about six-fold.
+- The guarded profile's p50/p95 was 2.67/5.15 ms. Of 122 cases, 22 were answered by the fallback
+  stage and 9 by the fuzzy stage.
+
+Residual limits:
+
+- Both profiles return an unrelated Russian row for all 12 English no-answer words through
+  transliteration.
+- OCR recovery happens only when the correct spelling is absent from the corpus, because fuzzy
+  matching is a zero-hit fallback.
+- These synthetic cases do not prove provided-archive relevance.
+
+The adoption changes only query processing. The index tokenizer fingerprint stays
+`3b277b2329ad0f884d7af43261e195bc8577f8790b40792aaa3b0ac0b62ed47e`, `reindex_required=false`, and
+existing lexical projections remain valid. Switching the default profile after the decision changed
+the query-policy fingerprint from `9a37dfc6...` to `8c020cf3...`; the adopted profile's declaration
+did not change. Selecting ICU or any other index profile changes the tokenizer fingerprint and
+requires a full lexical projection rebuild before activation.
+
+Record 0071's run `run-68bd28ccf0244b07b40320d11c282407` adopted `russian-safe-v1` on 12 final
+cases. The second opinion found that that run's three dictionary wins relied on aliases fitted to
+those items, one of them mapping a word to the fixture's OCR misspelling, and that it never
+measured precision. The run remains immutable history, not current evidence. The CUDA device was
+available but unused: BM25 calibration is CPU and database work.
 
 ## Tests and results
 
@@ -133,3 +213,19 @@ dropped by the projection cleanup command.
 uses the pinned disposable ParadeDB image, creates all four indexes on identical source-safe rows,
 checks the paired adoption and no-reindex decision, verifies the immutable bundle, and rolls back all
 calibration relations.
+
+`tests/retrieval/test_query_plans.py`, `test_second_opinion_inputs.py` and
+`test_second_opinion_decision.py` cover:
+
+- staged plans, syntax preservation, alias phrase binding and homoglyph, transliteration and
+  fleeting-vowel rules, including the NFC primary clause and stage order;
+- frozen-input tamper refusal, split distinctness and minimums;
+- alias leak gates against both splits and filler disjointness;
+- chunk-level scoring;
+- the preregistered verdict rule.
+
+`tests/integration/lexical/test_live_second_opinion.py` (`heavy`,
+`ARXIV_INT_RUN_LEXICAL_SECOND_OPINION=1`) runs a small development stage on the pinned disposable
+store. It checks that final execution is refused without preregistration or with overrides, that
+the bundle verifies, that every arm is reported, and that rollback leaves no relations. It asserts
+harness invariants, never the research verdict.

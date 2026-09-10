@@ -1,0 +1,3479 @@
+{
+  "cases": [
+    {
+      "cohort": "inflection",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-inflection-01",
+      "mode": "match",
+      "query": "\u043a\u043e\u043c\u043f\u0440\u0435\u0441\u0441\u043e\u0440\u043e\u0432",
+      "relevant_chunk_ids": [
+        "so-fin-0001"
+      ]
+    },
+    {
+      "cohort": "inflection",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-inflection-02",
+      "mode": "match",
+      "query": "\u0441\u0435\u043f\u0430\u0440\u0430\u0442\u043e\u0440\u044b",
+      "relevant_chunk_ids": [
+        "so-fin-0002"
+      ]
+    },
+    {
+      "cohort": "inflection",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-inflection-03",
+      "mode": "match",
+      "query": "\u0441\u0432\u0430\u0440\u043e\u0447\u043d\u044b\u0439",
+      "relevant_chunk_ids": [
+        "so-fin-0003"
+      ]
+    },
+    {
+      "cohort": "inflection",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-inflection-04",
+      "mode": "match",
+      "query": "\u0433\u0435\u0440\u043c\u0435\u0442\u0438\u0447\u043d\u043e\u0441\u0442\u044c",
+      "relevant_chunk_ids": [
+        "so-fin-0004"
+      ]
+    },
+    {
+      "cohort": "inflection",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-inflection-05",
+      "mode": "match",
+      "query": "\u043a\u043e\u0440\u0440\u043e\u0437\u0438\u044e",
+      "relevant_chunk_ids": [
+        "so-fin-0005"
+      ]
+    },
+    {
+      "cohort": "inflection",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-inflection-06",
+      "mode": "match",
+      "query": "\u043e\u0445\u043b\u0430\u0434\u0438\u0442\u0435\u043b\u044f",
+      "relevant_chunk_ids": [
+        "so-fin-0006"
+      ]
+    },
+    {
+      "cohort": "inflection",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-inflection-07",
+      "mode": "match",
+      "query": "\u043c\u0443\u0444\u0442\u0443",
+      "relevant_chunk_ids": [
+        "so-fin-0007"
+      ]
+    },
+    {
+      "cohort": "inflection",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-inflection-08",
+      "mode": "match",
+      "query": "\u043b\u043e\u043f\u0430\u0442\u043a\u0430\u043c\u0438",
+      "relevant_chunk_ids": [
+        "so-fin-0008"
+      ]
+    },
+    {
+      "cohort": "inflection",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-inflection-09",
+      "mode": "match",
+      "query": "\u0437\u0430\u0442\u0432\u043e\u0440\u044b",
+      "relevant_chunk_ids": [
+        "so-fin-0009"
+      ]
+    },
+    {
+      "cohort": "inflection",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-inflection-10",
+      "mode": "match",
+      "query": "\u0444\u043e\u0440\u0441\u0443\u043d\u043a\u0438",
+      "relevant_chunk_ids": [
+        "so-fin-0010"
+      ]
+    },
+    {
+      "cohort": "inflection",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-inflection-11",
+      "mode": "match",
+      "query": "\u0437\u043c\u0435\u0435\u0432\u0438\u043a\u0430",
+      "relevant_chunk_ids": [
+        "so-fin-0011"
+      ]
+    },
+    {
+      "cohort": "inflection",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-inflection-12",
+      "mode": "match",
+      "query": "\u043d\u0430\u0441\u0430\u0434\u043a\u043e\u0439",
+      "relevant_chunk_ids": [
+        "so-fin-0012"
+      ]
+    },
+    {
+      "cohort": "inflection",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-inflection-13",
+      "mode": "match",
+      "query": "\u0440\u0435\u0437\u0435\u0446",
+      "relevant_chunk_ids": [
+        "so-fin-0013"
+      ]
+    },
+    {
+      "cohort": "inflection",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-inflection-14",
+      "mode": "match",
+      "query": "\u0441\u0442\u0435\u0440\u0436\u0435\u043d\u044c",
+      "relevant_chunk_ids": [
+        "so-fin-0014"
+      ]
+    },
+    {
+      "cohort": "inflection",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-inflection-15",
+      "mode": "match",
+      "query": "\u0443\u0447\u0430\u0441\u0442\u043e\u043a",
+      "relevant_chunk_ids": [
+        "so-fin-0015"
+      ]
+    },
+    {
+      "cohort": "inflection",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-inflection-16",
+      "mode": "match",
+      "query": "\u043a\u043e\u0442\u0451\u043b",
+      "relevant_chunk_ids": [
+        "so-fin-0016"
+      ]
+    },
+    {
+      "cohort": "inflection",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-inflection-17",
+      "mode": "match",
+      "query": "\u043c\u043e\u043b\u043e\u0442\u043e\u043a",
+      "relevant_chunk_ids": [
+        "so-fin-0017"
+      ]
+    },
+    {
+      "cohort": "inflection",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-inflection-18",
+      "mode": "match",
+      "query": "\u0442\u043e\u0440\u0435\u0446",
+      "relevant_chunk_ids": [
+        "so-fin-0018"
+      ]
+    },
+    {
+      "cohort": "inflection",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-inflection-19",
+      "mode": "match",
+      "query": "\u0437\u0430\u043c\u043a\u0430",
+      "relevant_chunk_ids": [
+        "so-fin-0019"
+      ]
+    },
+    {
+      "cohort": "inflection",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-inflection-20",
+      "mode": "match",
+      "query": "\u043a\u043e\u043d\u0446\u044b",
+      "relevant_chunk_ids": [
+        "so-fin-0020"
+      ]
+    },
+    {
+      "cohort": "e_yo",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-e-yo-01",
+      "mode": "match",
+      "query": "\u043f\u043e\u043b\u0451\u0442",
+      "relevant_chunk_ids": [
+        "so-fin-0021"
+      ]
+    },
+    {
+      "cohort": "e_yo",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-e-yo-02",
+      "mode": "match",
+      "query": "\u0447\u0435\u0440\u043d\u044b\u0439",
+      "relevant_chunk_ids": [
+        "so-fin-0022"
+      ]
+    },
+    {
+      "cohort": "e_yo",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-e-yo-03",
+      "mode": "match",
+      "query": "\u0443\u0447\u0451\u0442",
+      "relevant_chunk_ids": [
+        "so-fin-0023"
+      ]
+    },
+    {
+      "cohort": "e_yo",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-e-yo-04",
+      "mode": "match",
+      "query": "\u0447\u0435\u0442\u043a\u043e\u0441\u0442\u044c",
+      "relevant_chunk_ids": [
+        "so-fin-0024"
+      ]
+    },
+    {
+      "cohort": "e_yo",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-e-yo-05",
+      "mode": "match",
+      "query": "\u0440\u0430\u0441\u0447\u0451\u0442",
+      "relevant_chunk_ids": [
+        "so-fin-0025"
+      ]
+    },
+    {
+      "cohort": "e_yo",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-e-yo-06",
+      "mode": "match",
+      "query": "\u043e\u0431\u044a\u0435\u043c",
+      "relevant_chunk_ids": [
+        "so-fin-0026"
+      ]
+    },
+    {
+      "cohort": "abbreviation",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0027"
+      ],
+      "id": "fin-abbreviation-01",
+      "mode": "match",
+      "query": "\u041b\u042d\u041f",
+      "relevant_chunk_ids": [
+        "so-fin-0028"
+      ]
+    },
+    {
+      "cohort": "abbreviation",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0029",
+        "so-fin-0030",
+        "so-fin-0031"
+      ],
+      "id": "fin-abbreviation-02",
+      "mode": "match",
+      "query": "\u0427\u041f\u0423",
+      "relevant_chunk_ids": [
+        "so-fin-0032"
+      ]
+    },
+    {
+      "cohort": "abbreviation",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0033",
+        "so-fin-0034"
+      ],
+      "id": "fin-abbreviation-03",
+      "mode": "match",
+      "query": "\u0418\u0411\u041f",
+      "relevant_chunk_ids": [
+        "so-fin-0035"
+      ]
+    },
+    {
+      "cohort": "abbreviation",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0036",
+        "so-fin-0037"
+      ],
+      "id": "fin-abbreviation-04",
+      "mode": "match",
+      "query": "\u041a\u041f\u0414",
+      "relevant_chunk_ids": [
+        "so-fin-0038"
+      ]
+    },
+    {
+      "cohort": "abbreviation",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0039",
+        "so-fin-0040"
+      ],
+      "id": "fin-abbreviation-05",
+      "mode": "match",
+      "query": "\u0414\u0412\u0421",
+      "relevant_chunk_ids": [
+        "so-fin-0041"
+      ]
+    },
+    {
+      "cohort": "abbreviation",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0042",
+        "so-fin-0043"
+      ],
+      "id": "fin-abbreviation-06",
+      "mode": "match",
+      "query": "\u043f\u0440\u043e\u0433\u0440\u0430\u043c\u043c\u0438\u0440\u0443\u0435\u043c\u044b\u0439 \u043b\u043e\u0433\u0438\u0447\u0435\u0441\u043a\u0438\u0439 \u043a\u043e\u043d\u0442\u0440\u043e\u043b\u043b\u0435\u0440",
+      "relevant_chunk_ids": [
+        "so-fin-0044"
+      ]
+    },
+    {
+      "cohort": "abbreviation",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-abbreviation-07",
+      "mode": "match",
+      "query": "\u0423\u0417\u041e",
+      "relevant_chunk_ids": [
+        "so-fin-0045"
+      ]
+    },
+    {
+      "cohort": "abbreviation",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-abbreviation-08",
+      "mode": "match",
+      "query": "\u0414\u0413\u0423",
+      "relevant_chunk_ids": [
+        "so-fin-0046"
+      ]
+    },
+    {
+      "cohort": "ocr_noise",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-ocr-noise-01",
+      "mode": "match",
+      "query": "\u0432\u044b\u043a\u043b\u044e\u0447\u0430\u0442\u0435\u043b\u044c",
+      "relevant_chunk_ids": [
+        "so-fin-0047"
+      ]
+    },
+    {
+      "cohort": "ocr_noise",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-ocr-noise-02",
+      "mode": "match",
+      "query": "\u0438\u0437\u043e\u043b\u044f\u0442\u043e\u0440",
+      "relevant_chunk_ids": [
+        "so-fin-0048"
+      ]
+    },
+    {
+      "cohort": "ocr_noise",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-ocr-noise-03",
+      "mode": "match",
+      "query": "\u0449\u0451\u0442\u043a\u0430",
+      "relevant_chunk_ids": [
+        "so-fin-0049"
+      ]
+    },
+    {
+      "cohort": "ocr_noise",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-ocr-noise-04",
+      "mode": "match",
+      "query": "\u0437\u0430\u0437\u0435\u043c\u043b\u0435\u043d\u0438\u0435",
+      "relevant_chunk_ids": [
+        "so-fin-0050"
+      ]
+    },
+    {
+      "cohort": "ocr_noise",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-ocr-noise-05",
+      "mode": "match",
+      "query": "\u043a\u043e\u043d\u0434\u0438\u0446\u0438\u043e\u043d\u0435\u0440",
+      "relevant_chunk_ids": [
+        "so-fin-0051"
+      ]
+    },
+    {
+      "cohort": "ocr_noise",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-ocr-noise-06",
+      "mode": "match",
+      "query": "\u0432\u0435\u043d\u0442\u0438\u043b\u044c",
+      "relevant_chunk_ids": [
+        "so-fin-0052"
+      ]
+    },
+    {
+      "cohort": "homoglyph",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-homoglyph-01",
+      "mode": "match",
+      "query": "\u043ao\u043c\u043f\u0435\u043d\u0441\u0430\u0442\u043e\u0440",
+      "relevant_chunk_ids": [
+        "so-fin-0053"
+      ]
+    },
+    {
+      "cohort": "homoglyph",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-homoglyph-02",
+      "mode": "match",
+      "query": "\u043ca\u043d\u0436\u0435\u0442\u0430",
+      "relevant_chunk_ids": [
+        "so-fin-0054"
+      ]
+    },
+    {
+      "cohort": "homoglyph",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0055"
+      ],
+      "id": "fin-homoglyph-03",
+      "mode": "match",
+      "query": "CK-12",
+      "relevant_chunk_ids": [
+        "so-fin-0056"
+      ]
+    },
+    {
+      "cohort": "homoglyph",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-homoglyph-04",
+      "mode": "match",
+      "query": "M\u043edbus",
+      "relevant_chunk_ids": [
+        "so-fin-0057"
+      ]
+    },
+    {
+      "cohort": "homoglyph",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0058"
+      ],
+      "id": "fin-homoglyph-05",
+      "mode": "match",
+      "query": "\u0422\u041d-45",
+      "relevant_chunk_ids": [
+        "so-fin-0059"
+      ]
+    },
+    {
+      "cohort": "homoglyph",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-homoglyph-06",
+      "mode": "match",
+      "query": "c\u0442\u0430\u043d\u0438\u043d\u0430",
+      "relevant_chunk_ids": [
+        "so-fin-0060"
+      ]
+    },
+    {
+      "cohort": "keyboard_layout",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-keyboard-layout-01",
+      "mode": "match",
+      "query": "irfa",
+      "relevant_chunk_ids": [
+        "so-fin-0061"
+      ]
+    },
+    {
+      "cohort": "keyboard_layout",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-keyboard-layout-02",
+      "mode": "match",
+      "query": "rktvvf",
+      "relevant_chunk_ids": [
+        "so-fin-0062"
+      ]
+    },
+    {
+      "cohort": "keyboard_layout",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-keyboard-layout-03",
+      "mode": "match",
+      "query": "he,bkmybr",
+      "relevant_chunk_ids": [
+        "so-fin-0063"
+      ]
+    },
+    {
+      "cohort": "keyboard_layout",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-keyboard-layout-04",
+      "mode": "match",
+      "query": "nthvjgfhf",
+      "relevant_chunk_ids": [
+        "so-fin-0064"
+      ]
+    },
+    {
+      "cohort": "keyboard_layout",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-keyboard-layout-05",
+      "mode": "match",
+      "query": "lhjcctkm",
+      "relevant_chunk_ids": [
+        "so-fin-0065"
+      ]
+    },
+    {
+      "cohort": "transliteration",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-transliteration-01",
+      "mode": "match",
+      "query": "shlang",
+      "relevant_chunk_ids": [
+        "so-fin-0066"
+      ]
+    },
+    {
+      "cohort": "transliteration",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-transliteration-02",
+      "mode": "match",
+      "query": "ekskavator",
+      "relevant_chunk_ids": [
+        "so-fin-0067"
+      ]
+    },
+    {
+      "cohort": "transliteration",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-transliteration-03",
+      "mode": "match",
+      "query": "kotelnaya",
+      "relevant_chunk_ids": [
+        "so-fin-0068"
+      ]
+    },
+    {
+      "cohort": "transliteration",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-transliteration-04",
+      "mode": "match",
+      "query": "truboprovod",
+      "relevant_chunk_ids": [
+        "so-fin-0069"
+      ]
+    },
+    {
+      "cohort": "transliteration",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-transliteration-05",
+      "mode": "match",
+      "query": "tsilindr",
+      "relevant_chunk_ids": [
+        "so-fin-0070"
+      ]
+    },
+    {
+      "cohort": "transliteration",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-transliteration-06",
+      "mode": "match",
+      "query": "pozharnyy rukav",
+      "relevant_chunk_ids": [
+        "so-fin-0071"
+      ]
+    },
+    {
+      "cohort": "mixed_language",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-mixed-language-01",
+      "mode": "match",
+      "query": "SCADA \u0441\u0435\u0440\u0432\u0435\u0440",
+      "relevant_chunk_ids": [
+        "so-fin-0072"
+      ]
+    },
+    {
+      "cohort": "mixed_language",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-mixed-language-02",
+      "mode": "match",
+      "query": "Ethernet \u043a\u043e\u043c\u043c\u0443\u0442\u0430\u0442\u043e\u0440",
+      "relevant_chunk_ids": [
+        "so-fin-0073"
+      ]
+    },
+    {
+      "cohort": "mixed_language",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-mixed-language-03",
+      "mode": "match",
+      "query": "firmware \u043f\u0440\u0438\u0431\u043e\u0440\u0430",
+      "relevant_chunk_ids": [
+        "so-fin-0074"
+      ]
+    },
+    {
+      "cohort": "mixed_language",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-mixed-language-04",
+      "mode": "match",
+      "query": "HMI \u043f\u0430\u043d\u0435\u043b\u044c",
+      "relevant_chunk_ids": [
+        "so-fin-0075"
+      ]
+    },
+    {
+      "cohort": "mixed_language",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-mixed-language-05",
+      "mode": "match",
+      "query": "OPC UA \u0448\u043b\u044e\u0437",
+      "relevant_chunk_ids": [
+        "so-fin-0076"
+      ]
+    },
+    {
+      "cohort": "multi_term",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0077",
+        "so-fin-0078"
+      ],
+      "id": "fin-multi-term-01",
+      "mode": "match",
+      "query": "\u0437\u0430\u043c\u0435\u043d\u0430 \u0441\u043c\u0430\u0437\u043a\u0438 \u0432 \u043c\u0443\u043b\u044c\u0442\u0438\u043f\u043b\u0438\u043a\u0430\u0442\u043e\u0440\u0435",
+      "relevant_chunk_ids": [
+        "so-fin-0079"
+      ]
+    },
+    {
+      "cohort": "multi_term",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0080",
+        "so-fin-0081"
+      ],
+      "id": "fin-multi-term-02",
+      "mode": "match",
+      "query": "\u0440\u0430\u0437\u0433\u0435\u0440\u043c\u0435\u0442\u0438\u0437\u0430\u0446\u0438\u044f \u0447\u0438\u043b\u043b\u0435\u0440\u0430",
+      "relevant_chunk_ids": [
+        "so-fin-0082"
+      ]
+    },
+    {
+      "cohort": "multi_term",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0083",
+        "so-fin-0084"
+      ],
+      "id": "fin-multi-term-03",
+      "mode": "match",
+      "query": "\u043d\u0430\u0433\u0440\u0435\u0432 \u0431\u0443\u043a\u0441 \u0432\u0430\u0433\u043e\u043d\u0430",
+      "relevant_chunk_ids": [
+        "so-fin-0085"
+      ]
+    },
+    {
+      "cohort": "multi_term",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0086",
+        "so-fin-0087"
+      ],
+      "id": "fin-multi-term-04",
+      "mode": "match",
+      "query": "\u044e\u0441\u0442\u0438\u0440\u043e\u0432\u043a\u0430 \u043d\u0438\u0432\u0435\u043b\u0438\u0440\u0430 \u0433\u0435\u043e\u0434\u0435\u0437\u0438\u0441\u0442\u0430",
+      "relevant_chunk_ids": [
+        "so-fin-0088"
+      ]
+    },
+    {
+      "cohort": "multi_term",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0089",
+        "so-fin-0090"
+      ],
+      "id": "fin-multi-term-05",
+      "mode": "match",
+      "query": "\u0434\u0435\u0444\u0435\u043a\u0442\u043e\u0441\u043a\u043e\u043f\u0438\u044f \u0441\u0432\u0430\u0440\u043d\u043e\u0433\u043e \u0448\u0432\u0430 \u0433\u0430\u0437\u0433\u043e\u043b\u044c\u0434\u0435\u0440\u0430",
+      "relevant_chunk_ids": [
+        "so-fin-0091"
+      ]
+    },
+    {
+      "cohort": "multi_term",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0092",
+        "so-fin-0093"
+      ],
+      "id": "fin-multi-term-06",
+      "mode": "match",
+      "query": "\u0431\u0438\u0435\u043d\u0438\u0435 \u0440\u043e\u0442\u043e\u0440\u0430 \u0446\u0435\u043d\u0442\u0440\u0438\u0444\u0443\u0433\u0438",
+      "relevant_chunk_ids": [
+        "so-fin-0094"
+      ]
+    },
+    {
+      "cohort": "multi_term",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0095",
+        "so-fin-0096"
+      ],
+      "id": "fin-multi-term-07",
+      "mode": "match",
+      "query": "\u0438\u0441\u0442\u0438\u0440\u0430\u043d\u0438\u0435 \u0444\u0443\u0442\u0435\u0440\u043e\u0432\u043a\u0438 \u043c\u0435\u043b\u044c\u043d\u0438\u0446\u044b",
+      "relevant_chunk_ids": [
+        "so-fin-0097"
+      ]
+    },
+    {
+      "cohort": "multi_term",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0098",
+        "so-fin-0099"
+      ],
+      "id": "fin-multi-term-08",
+      "mode": "match",
+      "query": "\u0441\u0440\u0430\u0431\u0430\u0442\u044b\u0432\u0430\u043d\u0438\u0435 \u0442\u043e\u043a\u043e\u0432\u043e\u0439 \u043e\u0442\u0441\u0435\u0447\u043a\u0438",
+      "relevant_chunk_ids": [
+        "so-fin-0100"
+      ]
+    },
+    {
+      "cohort": "multi_term",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0101",
+        "so-fin-0102"
+      ],
+      "id": "fin-multi-term-09",
+      "mode": "match",
+      "query": "\u043f\u0440\u043e\u0431\u043e\u0439 \u0434\u0438\u043e\u0434\u0430 \u0432\u044b\u043f\u0440\u044f\u043c\u0438\u0442\u0435\u043b\u044f",
+      "relevant_chunk_ids": [
+        "so-fin-0103"
+      ]
+    },
+    {
+      "cohort": "multi_term",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0104",
+        "so-fin-0105"
+      ],
+      "id": "fin-multi-term-10",
+      "mode": "match",
+      "query": "\u043f\u0440\u043e\u0434\u0443\u0432\u043a\u0430 \u0432\u043e\u0437\u0434\u0443\u0445\u043e\u0432\u043e\u0434\u0430 \u0432\u044b\u0442\u044f\u0436\u043a\u0438",
+      "relevant_chunk_ids": [
+        "so-fin-0106"
+      ]
+    },
+    {
+      "cohort": "numeric",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0107",
+        "so-fin-0108",
+        "so-fin-0109"
+      ],
+      "id": "fin-numeric-01",
+      "mode": "match",
+      "query": "\u0422\u042d\u041d 2.2 \u043a\u0412\u0442",
+      "relevant_chunk_ids": [
+        "so-fin-0110"
+      ]
+    },
+    {
+      "cohort": "numeric",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0111",
+        "so-fin-0112"
+      ],
+      "id": "fin-numeric-02",
+      "mode": "match",
+      "query": "\u0441\u0435\u0447\u0435\u043d\u0438\u0435 1.5 \u043c\u043c2",
+      "relevant_chunk_ids": [
+        "so-fin-0113"
+      ]
+    },
+    {
+      "cohort": "numeric",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0114",
+        "so-fin-0115"
+      ],
+      "id": "fin-numeric-03",
+      "mode": "match",
+      "query": "\u043d\u0430\u043f\u0440\u044f\u0436\u0435\u043d\u0438\u0435 6,3 \u043a\u0412",
+      "relevant_chunk_ids": [
+        "so-fin-0116"
+      ]
+    },
+    {
+      "cohort": "numeric",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0117",
+        "so-fin-0118"
+      ],
+      "id": "fin-numeric-04",
+      "mode": "match",
+      "query": "\u0434\u0430\u0432\u043b\u0435\u043d\u0438\u0435 2,5 \u0431\u0430\u0440",
+      "relevant_chunk_ids": [
+        "so-fin-0119"
+      ]
+    },
+    {
+      "cohort": "numeric",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0120",
+        "so-fin-0121"
+      ],
+      "id": "fin-numeric-05",
+      "mode": "match",
+      "query": "\u0437\u0430\u0437\u043e\u0440 0.15 \u043c\u043c",
+      "relevant_chunk_ids": [
+        "so-fin-0122"
+      ]
+    },
+    {
+      "cohort": "numeric",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0123",
+        "so-fin-0124"
+      ],
+      "id": "fin-numeric-06",
+      "mode": "match",
+      "query": "\u0440\u043e\u043b\u0438\u043a 6206",
+      "relevant_chunk_ids": [
+        "so-fin-0125"
+      ]
+    },
+    {
+      "cohort": "identifier_match",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0126",
+        "so-fin-0127"
+      ],
+      "id": "fin-identifier-match-01",
+      "mode": "match",
+      "query": "\u0441\u043c\u0435\u0441\u0438\u0442\u0435\u043b\u044c PD-220/4",
+      "relevant_chunk_ids": [
+        "so-fin-0128"
+      ]
+    },
+    {
+      "cohort": "identifier_match",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0129",
+        "so-fin-0130"
+      ],
+      "id": "fin-identifier-match-02",
+      "mode": "match",
+      "query": "\u0440\u0430\u0441\u0445\u043e\u0434\u043e\u043c\u0435\u0440 \u041a\u042d-15",
+      "relevant_chunk_ids": [
+        "so-fin-0131"
+      ]
+    },
+    {
+      "cohort": "identifier_match",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0132",
+        "so-fin-0133"
+      ],
+      "id": "fin-identifier-match-03",
+      "mode": "match",
+      "query": "\u043f\u0443\u0441\u043a\u0430\u0442\u0435\u043b\u044c \u0421-24",
+      "relevant_chunk_ids": [
+        "so-fin-0134"
+      ]
+    },
+    {
+      "cohort": "identifier_match",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0135",
+        "so-fin-0136"
+      ],
+      "id": "fin-identifier-match-04",
+      "mode": "match",
+      "query": "\u0442\u0435\u0440\u043c\u043e\u0441\u0442\u0430\u0442 \u041a-9",
+      "relevant_chunk_ids": [
+        "so-fin-0137"
+      ]
+    },
+    {
+      "cohort": "identifier_exact",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0138",
+        "so-fin-0139"
+      ],
+      "id": "fin-identifier-exact-01",
+      "mode": "identifier",
+      "query": "QX-310",
+      "relevant_chunk_ids": [
+        "so-fin-0140"
+      ]
+    },
+    {
+      "cohort": "identifier_exact",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0141",
+        "so-fin-0142"
+      ],
+      "id": "fin-identifier-exact-02",
+      "mode": "identifier",
+      "query": "CD-45.2",
+      "relevant_chunk_ids": [
+        "so-fin-0143"
+      ]
+    },
+    {
+      "cohort": "identifier_exact",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0144",
+        "so-fin-0145"
+      ],
+      "id": "fin-identifier-exact-03",
+      "mode": "identifier",
+      "query": "\u041f\u0420-2021/11",
+      "relevant_chunk_ids": [
+        "so-fin-0146"
+      ]
+    },
+    {
+      "cohort": "identifier_exact",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0147",
+        "so-fin-0148"
+      ],
+      "id": "fin-identifier-exact-04",
+      "mode": "identifier",
+      "query": "DN80",
+      "relevant_chunk_ids": [
+        "so-fin-0149"
+      ]
+    },
+    {
+      "cohort": "identifier_exact",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0150",
+        "so-fin-0151"
+      ],
+      "id": "fin-identifier-exact-05",
+      "mode": "identifier",
+      "query": "SN-7781",
+      "relevant_chunk_ids": [
+        "so-fin-0152"
+      ]
+    },
+    {
+      "cohort": "identifier_exact",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0153",
+        "so-fin-0154"
+      ],
+      "id": "fin-identifier-exact-06",
+      "mode": "identifier",
+      "query": "10704-91",
+      "relevant_chunk_ids": [
+        "so-fin-0155"
+      ]
+    },
+    {
+      "cohort": "identifier_absent",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0128",
+        "so-fin-0126"
+      ],
+      "id": "fin-identifier-absent-01",
+      "mode": "identifier",
+      "query": "PD-220/5",
+      "relevant_chunk_ids": []
+    },
+    {
+      "cohort": "identifier_absent",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0140",
+        "so-fin-0138"
+      ],
+      "id": "fin-identifier-absent-02",
+      "mode": "identifier",
+      "query": "QX-311",
+      "relevant_chunk_ids": []
+    },
+    {
+      "cohort": "identifier_absent",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0143",
+        "so-fin-0141"
+      ],
+      "id": "fin-identifier-absent-03",
+      "mode": "identifier",
+      "query": "CD-45.3",
+      "relevant_chunk_ids": []
+    },
+    {
+      "cohort": "identifier_absent",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0149",
+        "so-fin-0147"
+      ],
+      "id": "fin-identifier-absent-04",
+      "mode": "identifier",
+      "query": "DN100",
+      "relevant_chunk_ids": []
+    },
+    {
+      "cohort": "identifier_absent",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0152",
+        "so-fin-0150"
+      ],
+      "id": "fin-identifier-absent-05",
+      "mode": "identifier",
+      "query": "SN-7782",
+      "relevant_chunk_ids": []
+    },
+    {
+      "cohort": "identifier_absent",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0155",
+        "so-fin-0154"
+      ],
+      "id": "fin-identifier-absent-06",
+      "mode": "identifier",
+      "query": "10704-92",
+      "relevant_chunk_ids": []
+    },
+    {
+      "cohort": "mixed_script_fp",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0156"
+      ],
+      "id": "fin-mixed-script-fp-01",
+      "mode": "match",
+      "query": "pole",
+      "relevant_chunk_ids": []
+    },
+    {
+      "cohort": "mixed_script_fp",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0157"
+      ],
+      "id": "fin-mixed-script-fp-02",
+      "mode": "match",
+      "query": "shag",
+      "relevant_chunk_ids": []
+    },
+    {
+      "cohort": "mixed_script_fp",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0158"
+      ],
+      "id": "fin-mixed-script-fp-03",
+      "mode": "match",
+      "query": "rot",
+      "relevant_chunk_ids": []
+    },
+    {
+      "cohort": "mixed_script_fp",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0159"
+      ],
+      "id": "fin-mixed-script-fp-04",
+      "mode": "match",
+      "query": "god",
+      "relevant_chunk_ids": []
+    },
+    {
+      "cohort": "mixed_script_fp",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0160"
+      ],
+      "id": "fin-mixed-script-fp-05",
+      "mode": "match",
+      "query": "list",
+      "relevant_chunk_ids": []
+    },
+    {
+      "cohort": "mixed_script_fp",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0161"
+      ],
+      "id": "fin-mixed-script-fp-06",
+      "mode": "match",
+      "query": "pot",
+      "relevant_chunk_ids": []
+    },
+    {
+      "cohort": "mixed_script_fp",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0162"
+      ],
+      "id": "fin-mixed-script-fp-07",
+      "mode": "match",
+      "query": "more",
+      "relevant_chunk_ids": []
+    },
+    {
+      "cohort": "mixed_script_fp",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0163"
+      ],
+      "id": "fin-mixed-script-fp-08",
+      "mode": "match",
+      "query": "sale",
+      "relevant_chunk_ids": []
+    },
+    {
+      "cohort": "mixed_script_fp",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0164"
+      ],
+      "id": "fin-mixed-script-fp-09",
+      "mode": "match",
+      "query": "brake",
+      "relevant_chunk_ids": []
+    },
+    {
+      "cohort": "mixed_script_fp",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0165"
+      ],
+      "id": "fin-mixed-script-fp-10",
+      "mode": "match",
+      "query": "patron",
+      "relevant_chunk_ids": []
+    },
+    {
+      "cohort": "mixed_script_fp",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0166"
+      ],
+      "id": "fin-mixed-script-fp-11",
+      "mode": "match",
+      "query": "bore",
+      "relevant_chunk_ids": []
+    },
+    {
+      "cohort": "mixed_script_fp",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0167"
+      ],
+      "id": "fin-mixed-script-fp-12",
+      "mode": "match",
+      "query": "vole",
+      "relevant_chunk_ids": []
+    },
+    {
+      "cohort": "english_with_answer",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0168"
+      ],
+      "id": "fin-english-with-answer-01",
+      "mode": "match",
+      "query": "hotel",
+      "relevant_chunk_ids": [
+        "so-fin-0169"
+      ]
+    },
+    {
+      "cohort": "english_with_answer",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0170"
+      ],
+      "id": "fin-english-with-answer-02",
+      "mode": "match",
+      "query": "plate",
+      "relevant_chunk_ids": [
+        "so-fin-0171"
+      ]
+    },
+    {
+      "cohort": "english_with_answer",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0172"
+      ],
+      "id": "fin-english-with-answer-03",
+      "mode": "match",
+      "query": "rod",
+      "relevant_chunk_ids": [
+        "so-fin-0173"
+      ]
+    },
+    {
+      "cohort": "stemming_collision",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0174"
+      ],
+      "id": "fin-stemming-collision-01",
+      "mode": "match",
+      "query": "\u0441\u0442\u0435\u043a\u043b\u043e \u0441\u043c\u043e\u0442\u0440\u043e\u0432\u043e\u0435",
+      "relevant_chunk_ids": [
+        "so-fin-0175"
+      ]
+    },
+    {
+      "cohort": "stemming_collision",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0156"
+      ],
+      "id": "fin-stemming-collision-02",
+      "mode": "match",
+      "query": "\u043f\u043e\u043b \u0431\u0435\u0442\u043e\u043d\u043d\u044b\u0439",
+      "relevant_chunk_ids": [
+        "so-fin-0176"
+      ]
+    },
+    {
+      "cohort": "stemming_collision",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0177"
+      ],
+      "id": "fin-stemming-collision-03",
+      "mode": "match",
+      "query": "\u043b\u0435\u0441\u0430 \u0441\u0442\u0440\u043e\u0438\u0442\u0435\u043b\u044c\u043d\u044b\u0435",
+      "relevant_chunk_ids": [
+        "so-fin-0178"
+      ]
+    },
+    {
+      "cohort": "stemming_collision",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0179"
+      ],
+      "id": "fin-stemming-collision-04",
+      "mode": "match",
+      "query": "\u0440\u044f\u0434 \u043e\u043f\u043e\u0440",
+      "relevant_chunk_ids": [
+        "so-fin-0180"
+      ]
+    },
+    {
+      "cohort": "stemming_collision",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0181"
+      ],
+      "id": "fin-stemming-collision-05",
+      "mode": "match",
+      "query": "\u043c\u044b\u043b\u043e \u0445\u043e\u0437\u044f\u0439\u0441\u0442\u0432\u0435\u043d\u043d\u043e\u0435",
+      "relevant_chunk_ids": [
+        "so-fin-0182"
+      ]
+    },
+    {
+      "cohort": "syntax",
+      "forbidden_chunk_ids": [
+        "so-fin-0183"
+      ],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-syntax-01",
+      "mode": "match",
+      "query": "\u043e\u0441\u0443\u0448\u0438\u0442\u0435\u043b\u044c -\u0430\u0434\u0441\u043e\u0440\u0431\u0446\u0438\u043e\u043d\u043d\u044b\u0439",
+      "relevant_chunk_ids": [
+        "so-fin-0184"
+      ]
+    },
+    {
+      "cohort": "syntax",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-syntax-02",
+      "mode": "match",
+      "query": "title:\u043f\u044b\u043b\u0435\u0443\u043b\u043e\u0432\u0438\u0442\u0435\u043b\u044c",
+      "relevant_chunk_ids": [
+        "so-fin-0185"
+      ]
+    },
+    {
+      "cohort": "syntax",
+      "forbidden_chunk_ids": [
+        "so-fin-0186",
+        "so-fin-0187"
+      ],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-syntax-03",
+      "mode": "match",
+      "query": "\u0431\u0430\u043a AND \u043f\u043e\u043f\u043b\u0430\u0432\u043e\u043a",
+      "relevant_chunk_ids": [
+        "so-fin-0188"
+      ]
+    },
+    {
+      "cohort": "syntax",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [
+        "so-fin-0189"
+      ],
+      "id": "fin-syntax-04",
+      "mode": "match",
+      "query": "\"\u0433\u0438\u0434\u0440\u0430\u0432\u043b\u0438\u0447\u0435\u0441\u043a\u0438\u0439 \u043f\u0440\u0435\u0441\u0441\"",
+      "relevant_chunk_ids": [
+        "so-fin-0190"
+      ]
+    },
+    {
+      "cohort": "syntax",
+      "forbidden_chunk_ids": [],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-syntax-05",
+      "mode": "match",
+      "query": "(\u0434\u0435\u0444\u043b\u0435\u043a\u0442\u043e\u0440 OR \u0444\u043b\u044e\u0433\u0430\u0440\u043a\u0430) \u0432\u0435\u043d\u0442\u0448\u0430\u0445\u0442\u044b",
+      "relevant_chunk_ids": [
+        "so-fin-0191",
+        "so-fin-0192"
+      ]
+    },
+    {
+      "cohort": "syntax",
+      "forbidden_chunk_ids": [
+        "so-fin-0193"
+      ],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-syntax-06",
+      "mode": "match",
+      "query": "nagrevatel -maslyanyy",
+      "relevant_chunk_ids": [
+        "so-fin-0194"
+      ]
+    },
+    {
+      "cohort": "syntax",
+      "forbidden_chunk_ids": [
+        "so-fin-0195"
+      ],
+      "hard_negative_chunk_ids": [
+        "so-fin-0196"
+      ],
+      "id": "fin-syntax-07",
+      "mode": "match",
+      "query": "+\u0432\u043e\u0434\u043e\u043c\u0435\u0440 \u0438\u043c\u043f\u0443\u043b\u044c\u0441\u043d\u044b\u0439",
+      "relevant_chunk_ids": [
+        "so-fin-0197"
+      ]
+    },
+    {
+      "cohort": "syntax",
+      "forbidden_chunk_ids": [
+        "so-fin-0198"
+      ],
+      "hard_negative_chunk_ids": [],
+      "id": "fin-syntax-08",
+      "mode": "match",
+      "query": "\u044d\u0436\u0435\u043a\u0442\u043e\u0440 -\u0432\u043e\u0434\u043e\u0441\u0442\u0440\u0443\u0439\u043d\u044b\u0439",
+      "relevant_chunk_ids": [
+        "so-fin-0199"
+      ]
+    }
+  ],
+  "chunks": [
+    {
+      "body": "\u041a\u043e\u043c\u043f\u0440\u0435\u0441\u0441\u043e\u0440 \u0432\u0438\u043d\u0442\u043e\u0432\u043e\u0439 \u043f\u0435\u0440\u0435\u0433\u0440\u0435\u0432\u0430\u0435\u0442\u0441\u044f.",
+      "chunk_id": "so-fin-0001",
+      "document_id": "so-fin-doc-0001",
+      "end_char": 34,
+      "identifiers": "so-fin-0001",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041a\u043e\u043c\u043f\u0440\u0435\u0441\u0441\u043e\u0440 \u0432\u0438\u043d\u0442\u043e\u0432\u043e\u0439 \u043f\u0435\u0440\u0435\u0433\u0440\u0435\u0432\u0430\u0435\u0442\u0441\u044f"
+    },
+    {
+      "body": "\u0421\u0435\u043f\u0430\u0440\u0430\u0442\u043e\u0440 \u043d\u0435\u0444\u0442\u0438 \u043f\u0440\u043e\u043c\u044b\u0442.",
+      "chunk_id": "so-fin-0002",
+      "document_id": "so-fin-doc-0001",
+      "end_char": 59,
+      "identifiers": "so-fin-0002",
+      "language": "rus",
+      "start_char": 36,
+      "title": "\u0421\u0435\u043f\u0430\u0440\u0430\u0442\u043e\u0440 \u043d\u0435\u0444\u0442\u0438 \u043f\u0440\u043e\u043c\u044b\u0442"
+    },
+    {
+      "body": "\u0421\u0432\u0430\u0440\u043e\u0447\u043d\u043e\u0433\u043e \u0430\u043f\u043f\u0430\u0440\u0430\u0442\u0430 \u043d\u0435\u0442 \u0432 \u043c\u0430\u0441\u0442\u0435\u0440\u0441\u043a\u043e\u0439.",
+      "chunk_id": "so-fin-0003",
+      "document_id": "so-fin-doc-0002",
+      "end_char": 37,
+      "identifiers": "so-fin-0003",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0421\u0432\u0430\u0440\u043e\u0447\u043d\u043e\u0433\u043e \u0430\u043f\u043f\u0430\u0440\u0430\u0442\u0430 \u043d\u0435\u0442"
+    },
+    {
+      "body": "\u0413\u0435\u0440\u043c\u0435\u0442\u0438\u0447\u043d\u043e\u0441\u0442\u0438 \u043a\u043e\u0440\u043f\u0443\u0441\u0430 \u043d\u0435\u0434\u043e\u0441\u0442\u0430\u0442\u043e\u0447\u043d\u043e.",
+      "chunk_id": "so-fin-0004",
+      "document_id": "so-fin-doc-0002",
+      "end_char": 74,
+      "identifiers": "so-fin-0004",
+      "language": "rus",
+      "start_char": 39,
+      "title": "\u0413\u0435\u0440\u043c\u0435\u0442\u0438\u0447\u043d\u043e\u0441\u0442\u0438 \u043a\u043e\u0440\u043f\u0443\u0441\u0430 \u043d\u0435\u0434\u043e\u0441\u0442\u0430\u0442\u043e\u0447\u043d\u043e"
+    },
+    {
+      "body": "\u041a\u043e\u0440\u0440\u043e\u0437\u0438\u044f \u0434\u043d\u0438\u0449\u0430 \u0446\u0438\u0441\u0442\u0435\u0440\u043d\u044b.",
+      "chunk_id": "so-fin-0005",
+      "document_id": "so-fin-doc-0003",
+      "end_char": 24,
+      "identifiers": "so-fin-0005",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041a\u043e\u0440\u0440\u043e\u0437\u0438\u044f \u0434\u043d\u0438\u0449\u0430 \u0446\u0438\u0441\u0442\u0435\u0440\u043d\u044b"
+    },
+    {
+      "body": "\u041e\u0445\u043b\u0430\u0434\u0438\u0442\u0435\u043b\u0438 \u043c\u0430\u0441\u043b\u0430 \u043f\u0440\u043e\u043c\u044b\u0442\u044b.",
+      "chunk_id": "so-fin-0006",
+      "document_id": "so-fin-doc-0003",
+      "end_char": 51,
+      "identifiers": "so-fin-0006",
+      "language": "rus",
+      "start_char": 26,
+      "title": "\u041e\u0445\u043b\u0430\u0434\u0438\u0442\u0435\u043b\u0438 \u043c\u0430\u0441\u043b\u0430 \u043f\u0440\u043e\u043c\u044b\u0442\u044b"
+    },
+    {
+      "body": "\u041c\u0443\u0444\u0442\u0430 \u0441\u043e\u0435\u0434\u0438\u043d\u0438\u0442\u0435\u043b\u044c\u043d\u0430\u044f \u043e\u0441\u043b\u0430\u0431\u043b\u0435\u043d\u0430.",
+      "chunk_id": "so-fin-0007",
+      "document_id": "so-fin-doc-0004",
+      "end_char": 31,
+      "identifiers": "so-fin-0007",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041c\u0443\u0444\u0442\u0430 \u0441\u043e\u0435\u0434\u0438\u043d\u0438\u0442\u0435\u043b\u044c\u043d\u0430\u044f \u043e\u0441\u043b\u0430\u0431\u043b\u0435\u043d\u0430"
+    },
+    {
+      "body": "\u041b\u043e\u043f\u0430\u0442\u043a\u0430 \u043a\u0440\u044b\u043b\u044c\u0447\u0430\u0442\u043a\u0438 \u0442\u0440\u0435\u0441\u043d\u0443\u043b\u0430.",
+      "chunk_id": "so-fin-0008",
+      "document_id": "so-fin-doc-0004",
+      "end_char": 61,
+      "identifiers": "so-fin-0008",
+      "language": "rus",
+      "start_char": 33,
+      "title": "\u041b\u043e\u043f\u0430\u0442\u043a\u0430 \u043a\u0440\u044b\u043b\u044c\u0447\u0430\u0442\u043a\u0438 \u0442\u0440\u0435\u0441\u043d\u0443\u043b\u0430"
+    },
+    {
+      "body": "\u0417\u0430\u0442\u0432\u043e\u0440 \u0434\u0438\u0441\u043a\u043e\u0432\u044b\u0439 \u0437\u0430\u043a\u043b\u0438\u043d\u0438\u043b\u043e.",
+      "chunk_id": "so-fin-0009",
+      "document_id": "so-fin-doc-0005",
+      "end_char": 26,
+      "identifiers": "so-fin-0009",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0417\u0430\u0442\u0432\u043e\u0440 \u0434\u0438\u0441\u043a\u043e\u0432\u044b\u0439 \u0437\u0430\u043a\u043b\u0438\u043d\u0438\u043b\u043e"
+    },
+    {
+      "body": "\u0424\u043e\u0440\u0441\u0443\u043d\u043a\u0430 \u0433\u043e\u0440\u0435\u043b\u043a\u0438 \u0437\u0430\u043a\u043e\u043a\u0441\u043e\u0432\u0430\u043d\u0430.",
+      "chunk_id": "so-fin-0010",
+      "document_id": "so-fin-doc-0005",
+      "end_char": 57,
+      "identifiers": "so-fin-0010",
+      "language": "rus",
+      "start_char": 28,
+      "title": "\u0424\u043e\u0440\u0441\u0443\u043d\u043a\u0430 \u0433\u043e\u0440\u0435\u043b\u043a\u0438 \u0437\u0430\u043a\u043e\u043a\u0441\u043e\u0432\u0430\u043d\u0430"
+    },
+    {
+      "body": "\u0417\u043c\u0435\u0435\u0432\u0438\u043a\u0438 \u043f\u043e\u0434\u043e\u0433\u0440\u0435\u0432\u0430\u0442\u0435\u043b\u044f.",
+      "chunk_id": "so-fin-0011",
+      "document_id": "so-fin-doc-0006",
+      "end_char": 23,
+      "identifiers": "so-fin-0011",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0417\u043c\u0435\u0435\u0432\u0438\u043a\u0438 \u043f\u043e\u0434\u043e\u0433\u0440\u0435\u0432\u0430\u0442\u0435\u043b\u044f"
+    },
+    {
+      "body": "\u041d\u0430\u0441\u0430\u0434\u043a\u0438 \u0440\u0430\u0441\u043f\u044b\u043b\u0438\u0442\u0435\u043b\u044f.",
+      "chunk_id": "so-fin-0012",
+      "document_id": "so-fin-doc-0006",
+      "end_char": 45,
+      "identifiers": "so-fin-0012",
+      "language": "rus",
+      "start_char": 25,
+      "title": "\u041d\u0430\u0441\u0430\u0434\u043a\u0438 \u0440\u0430\u0441\u043f\u044b\u043b\u0438\u0442\u0435\u043b\u044f"
+    },
+    {
+      "body": "\u0417\u0430\u0442\u043e\u0447\u043a\u0430 \u0440\u0435\u0437\u0446\u0430 \u0442\u043e\u043a\u0430\u0440\u043d\u043e\u0433\u043e \u0432\u044b\u043f\u043e\u043b\u043d\u0435\u043d\u0430.",
+      "chunk_id": "so-fin-0013",
+      "document_id": "so-fin-doc-0007",
+      "end_char": 34,
+      "identifiers": "so-fin-0013",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0417\u0430\u0442\u043e\u0447\u043a\u0430 \u0440\u0435\u0437\u0446\u0430 \u0442\u043e\u043a\u0430\u0440\u043d\u043e\u0433\u043e"
+    },
+    {
+      "body": "\u0418\u0437\u0433\u0438\u0431 \u0441\u0442\u0435\u0440\u0436\u043d\u044f \u0430\u0440\u043c\u0430\u0442\u0443\u0440\u044b.",
+      "chunk_id": "so-fin-0014",
+      "document_id": "so-fin-doc-0007",
+      "end_char": 59,
+      "identifiers": "so-fin-0014",
+      "language": "rus",
+      "start_char": 36,
+      "title": "\u0418\u0437\u0433\u0438\u0431 \u0441\u0442\u0435\u0440\u0436\u043d\u044f \u0430\u0440\u043c\u0430\u0442\u0443\u0440\u044b"
+    },
+    {
+      "body": "\u041e\u0442\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0435 \u0443\u0447\u0430\u0441\u0442\u043a\u0430 \u0441\u0435\u0442\u0438.",
+      "chunk_id": "so-fin-0015",
+      "document_id": "so-fin-doc-0008",
+      "end_char": 24,
+      "identifiers": "so-fin-0015",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041e\u0442\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0435 \u0443\u0447\u0430\u0441\u0442\u043a\u0430 \u0441\u0435\u0442\u0438"
+    },
+    {
+      "body": "\u0420\u0430\u0441\u0442\u043e\u043f\u043a\u0430 \u043a\u043e\u0442\u043b\u0430 \u043f\u0440\u043e\u0438\u0437\u0432\u0435\u0434\u0435\u043d\u0430.",
+      "chunk_id": "so-fin-0016",
+      "document_id": "so-fin-doc-0008",
+      "end_char": 53,
+      "identifiers": "so-fin-0016",
+      "language": "rus",
+      "start_char": 26,
+      "title": "\u0420\u0430\u0441\u0442\u043e\u043f\u043a\u0430 \u043a\u043e\u0442\u043b\u0430 \u043f\u0440\u043e\u0438\u0437\u0432\u0435\u0434\u0435\u043d\u0430"
+    },
+    {
+      "body": "\u0420\u0443\u043a\u043e\u044f\u0442\u043a\u0430 \u043c\u043e\u043b\u043e\u0442\u043a\u0430 \u0441\u043b\u043e\u043c\u0430\u043d\u0430.",
+      "chunk_id": "so-fin-0017",
+      "document_id": "so-fin-doc-0009",
+      "end_char": 25,
+      "identifiers": "so-fin-0017",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0420\u0443\u043a\u043e\u044f\u0442\u043a\u0430 \u043c\u043e\u043b\u043e\u0442\u043a\u0430 \u0441\u043b\u043e\u043c\u0430\u043d\u0430"
+    },
+    {
+      "body": "\u041e\u0431\u0440\u0430\u0431\u043e\u0442\u043a\u0430 \u0442\u043e\u0440\u0446\u0430 \u0437\u0430\u0433\u043e\u0442\u043e\u0432\u043a\u0438.",
+      "chunk_id": "so-fin-0018",
+      "document_id": "so-fin-doc-0009",
+      "end_char": 53,
+      "identifiers": "so-fin-0018",
+      "language": "rus",
+      "start_char": 27,
+      "title": "\u041e\u0431\u0440\u0430\u0431\u043e\u0442\u043a\u0430 \u0442\u043e\u0440\u0446\u0430 \u0437\u0430\u0433\u043e\u0442\u043e\u0432\u043a\u0438"
+    },
+    {
+      "body": "\u0417\u0430\u043c\u043e\u043a \u043a\u0440\u044b\u0448\u043a\u0438 \u043b\u044e\u043a\u0430 \u0437\u0430\u0435\u0434\u0430\u0435\u0442.",
+      "chunk_id": "so-fin-0019",
+      "document_id": "so-fin-doc-0010",
+      "end_char": 26,
+      "identifiers": "so-fin-0019",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0417\u0430\u043c\u043e\u043a \u043a\u0440\u044b\u0448\u043a\u0438 \u043b\u044e\u043a\u0430"
+    },
+    {
+      "body": "\u041a\u043e\u043d\u0435\u0446 \u043a\u0430\u0431\u0435\u043b\u044f \u0437\u0430\u0438\u0437\u043e\u043b\u0438\u0440\u043e\u0432\u0430\u043d.",
+      "chunk_id": "so-fin-0020",
+      "document_id": "so-fin-doc-0010",
+      "end_char": 54,
+      "identifiers": "so-fin-0020",
+      "language": "rus",
+      "start_char": 28,
+      "title": "\u041a\u043e\u043d\u0435\u0446 \u043a\u0430\u0431\u0435\u043b\u044f \u0437\u0430\u0438\u0437\u043e\u043b\u0438\u0440\u043e\u0432\u0430\u043d"
+    },
+    {
+      "body": "\u0420\u0435\u0436\u0438\u043c \u043f\u043e\u043b\u0435\u0442\u0430 \u0432\u044b\u0431\u0440\u0430\u043d \u0430\u0432\u0442\u043e\u043c\u0430\u0442\u0438\u0447\u0435\u0441\u043a\u0438\u0439.",
+      "chunk_id": "so-fin-0021",
+      "document_id": "so-fin-doc-0011",
+      "end_char": 35,
+      "identifiers": "so-fin-0021",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0420\u0435\u0436\u0438\u043c \u043f\u043e\u043b\u0435\u0442\u0430 \u0432\u044b\u0431\u0440\u0430\u043d"
+    },
+    {
+      "body": "\u0427\u0451\u0440\u043d\u044b\u0439 \u043a\u043e\u0440\u043f\u0443\u0441 \u0449\u0438\u0442\u0430.",
+      "chunk_id": "so-fin-0022",
+      "document_id": "so-fin-doc-0011",
+      "end_char": 56,
+      "identifiers": "so-fin-0022",
+      "language": "rus",
+      "start_char": 37,
+      "title": "\u0427\u0451\u0440\u043d\u044b\u0439 \u043a\u043e\u0440\u043f\u0443\u0441 \u0449\u0438\u0442\u0430"
+    },
+    {
+      "body": "\u041f\u0440\u0438\u0431\u043e\u0440 \u0443\u0447\u0435\u0442\u0430 \u0433\u0430\u0437\u0430 \u043e\u043f\u043b\u043e\u043c\u0431\u0438\u0440\u043e\u0432\u0430\u043d.",
+      "chunk_id": "so-fin-0023",
+      "document_id": "so-fin-doc-0012",
+      "end_char": 31,
+      "identifiers": "so-fin-0023",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041f\u0440\u0438\u0431\u043e\u0440 \u0443\u0447\u0435\u0442\u0430 \u0433\u0430\u0437\u0430"
+    },
+    {
+      "body": "\u0427\u0451\u0442\u043a\u043e\u0441\u0442\u044c \u0438\u0437\u043e\u0431\u0440\u0430\u0436\u0435\u043d\u0438\u044f \u043a\u0430\u043c\u0435\u0440\u044b \u043d\u0438\u0437\u043a\u0430\u044f.",
+      "chunk_id": "so-fin-0024",
+      "document_id": "so-fin-doc-0012",
+      "end_char": 68,
+      "identifiers": "so-fin-0024",
+      "language": "rus",
+      "start_char": 33,
+      "title": "\u0427\u0451\u0442\u043a\u043e\u0441\u0442\u044c \u0438\u0437\u043e\u0431\u0440\u0430\u0436\u0435\u043d\u0438\u044f \u043a\u0430\u043c\u0435\u0440\u044b"
+    },
+    {
+      "body": "\u0420\u0430\u0441\u0447\u0435\u0442 \u043d\u0430\u0433\u0440\u0443\u0437\u043a\u0438 \u043d\u0430 \u043f\u0435\u0440\u0435\u043a\u0440\u044b\u0442\u0438\u0435.",
+      "chunk_id": "so-fin-0025",
+      "document_id": "so-fin-doc-0013",
+      "end_char": 30,
+      "identifiers": "so-fin-0025",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0420\u0430\u0441\u0447\u0435\u0442 \u043d\u0430\u0433\u0440\u0443\u0437\u043a\u0438 \u043d\u0430"
+    },
+    {
+      "body": "\u041e\u0431\u044a\u0451\u043c \u043a\u0430\u0440\u0442\u0435\u0440\u0430 \u043f\u044f\u0442\u044c \u043b\u0438\u0442\u0440\u043e\u0432.",
+      "chunk_id": "so-fin-0026",
+      "document_id": "so-fin-doc-0013",
+      "end_char": 58,
+      "identifiers": "so-fin-0026",
+      "language": "rus",
+      "start_char": 32,
+      "title": "\u041e\u0431\u044a\u0451\u043c \u043a\u0430\u0440\u0442\u0435\u0440\u0430 \u043f\u044f\u0442\u044c"
+    },
+    {
+      "body": "\u041b\u0438\u043d\u0438\u044f \u0440\u043e\u0437\u043b\u0438\u0432\u0430 \u043e\u0441\u0442\u0430\u043d\u043e\u0432\u043b\u0435\u043d\u0430.",
+      "chunk_id": "so-fin-0027",
+      "document_id": "so-fin-doc-0014",
+      "end_char": 26,
+      "identifiers": "so-fin-0027",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041b\u0438\u043d\u0438\u044f \u0440\u043e\u0437\u043b\u0438\u0432\u0430 \u043e\u0441\u0442\u0430\u043d\u043e\u0432\u043b\u0435\u043d\u0430"
+    },
+    {
+      "body": "\u041e\u0431\u0445\u043e\u0434 \u043b\u0438\u043d\u0438\u0438 \u044d\u043b\u0435\u043a\u0442\u0440\u043e\u043f\u0435\u0440\u0435\u0434\u0430\u0447\u0438 \u0432\u044b\u043f\u043e\u043b\u043d\u0435\u043d.",
+      "chunk_id": "so-fin-0028",
+      "document_id": "so-fin-doc-0014",
+      "end_char": 65,
+      "identifiers": "so-fin-0028",
+      "language": "rus",
+      "start_char": 28,
+      "title": "\u041e\u0431\u0445\u043e\u0434 \u043b\u0438\u043d\u0438\u0438 \u044d\u043b\u0435\u043a\u0442\u0440\u043e\u043f\u0435\u0440\u0435\u0434\u0430\u0447\u0438"
+    },
+    {
+      "body": "\u041f\u0440\u043e\u0433\u0440\u0430\u043c\u043c\u043d\u043e\u0435 \u043e\u0431\u0435\u0441\u043f\u0435\u0447\u0435\u043d\u0438\u0435 \u043e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u043e.",
+      "chunk_id": "so-fin-0029",
+      "document_id": "so-fin-doc-0015",
+      "end_char": 34,
+      "identifiers": "so-fin-0029",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041f\u0440\u043e\u0433\u0440\u0430\u043c\u043c\u043d\u043e\u0435 \u043e\u0431\u0435\u0441\u043f\u0435\u0447\u0435\u043d\u0438\u0435 \u043e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u043e"
+    },
+    {
+      "body": "\u0423\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u0435 \u043f\u0435\u0440\u0441\u043e\u043d\u0430\u043b\u043e\u043c \u0440\u0435\u043e\u0440\u0433\u0430\u043d\u0438\u0437\u043e\u0432\u0430\u043d\u043e.",
+      "chunk_id": "so-fin-0030",
+      "document_id": "so-fin-doc-0015",
+      "end_char": 73,
+      "identifiers": "so-fin-0030",
+      "language": "rus",
+      "start_char": 36,
+      "title": "\u0423\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u0435 \u043f\u0435\u0440\u0441\u043e\u043d\u0430\u043b\u043e\u043c \u0440\u0435\u043e\u0440\u0433\u0430\u043d\u0438\u0437\u043e\u0432\u0430\u043d\u043e"
+    },
+    {
+      "body": "\u0427\u0438\u0441\u043b\u043e\u0432\u044b\u0435 \u0434\u0430\u043d\u043d\u044b\u0435 \u0432 \u0442\u0430\u0431\u043b\u0438\u0446\u0435.",
+      "chunk_id": "so-fin-0031",
+      "document_id": "so-fin-doc-0016",
+      "end_char": 26,
+      "identifiers": "so-fin-0031",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0427\u0438\u0441\u043b\u043e\u0432\u044b\u0435 \u0434\u0430\u043d\u043d\u044b\u0435 \u0432"
+    },
+    {
+      "body": "\u0421\u0442\u0430\u043d\u043e\u043a \u0441 \u0447\u0438\u0441\u043b\u043e\u0432\u044b\u043c \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u043c\u043d\u044b\u043c \u0443\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u0435\u043c.",
+      "chunk_id": "so-fin-0032",
+      "document_id": "so-fin-doc-0016",
+      "end_char": 70,
+      "identifiers": "so-fin-0032",
+      "language": "rus",
+      "start_char": 28,
+      "title": "\u0421\u0442\u0430\u043d\u043e\u043a \u0441 \u0447\u0438\u0441\u043b\u043e\u0432\u044b\u043c"
+    },
+    {
+      "body": "\u0418\u0441\u0442\u043e\u0447\u043d\u0438\u043a \u0441\u0432\u0435\u0442\u0430 \u0437\u0430\u043c\u0435\u043d\u0451\u043d.",
+      "chunk_id": "so-fin-0033",
+      "document_id": "so-fin-doc-0017",
+      "end_char": 23,
+      "identifiers": "so-fin-0033",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0418\u0441\u0442\u043e\u0447\u043d\u0438\u043a \u0441\u0432\u0435\u0442\u0430 \u0437\u0430\u043c\u0435\u043d\u0451\u043d"
+    },
+    {
+      "body": "\u041f\u0438\u0442\u0430\u043d\u0438\u0435 \u0441\u0442\u043e\u043b\u043e\u0432\u043e\u0439 \u043f\u043e \u0433\u0440\u0430\u0444\u0438\u043a\u0443.",
+      "chunk_id": "so-fin-0034",
+      "document_id": "so-fin-doc-0017",
+      "end_char": 53,
+      "identifiers": "so-fin-0034",
+      "language": "rus",
+      "start_char": 25,
+      "title": "\u041f\u0438\u0442\u0430\u043d\u0438\u0435 \u0441\u0442\u043e\u043b\u043e\u0432\u043e\u0439 \u043f\u043e"
+    },
+    {
+      "body": "\u0418\u0441\u0442\u043e\u0447\u043d\u0438\u043a \u0431\u0435\u0441\u043f\u0435\u0440\u0435\u0431\u043e\u0439\u043d\u043e\u0433\u043e \u043f\u0438\u0442\u0430\u043d\u0438\u044f \u0432 \u0441\u0435\u0440\u0432\u0435\u0440\u043d\u043e\u0439.",
+      "chunk_id": "so-fin-0035",
+      "document_id": "so-fin-doc-0018",
+      "end_char": 44,
+      "identifiers": "so-fin-0035",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0418\u0441\u0442\u043e\u0447\u043d\u0438\u043a \u0431\u0435\u0441\u043f\u0435\u0440\u0435\u0431\u043e\u0439\u043d\u043e\u0433\u043e \u043f\u0438\u0442\u0430\u043d\u0438\u044f"
+    },
+    {
+      "body": "\u041a\u043e\u044d\u0444\u0444\u0438\u0446\u0438\u0435\u043d\u0442 \u0442\u0440\u0435\u043d\u0438\u044f \u0448\u0438\u043d\u044b.",
+      "chunk_id": "so-fin-0036",
+      "document_id": "so-fin-doc-0018",
+      "end_char": 70,
+      "identifiers": "so-fin-0036",
+      "language": "rus",
+      "start_char": 46,
+      "title": "\u041a\u043e\u044d\u0444\u0444\u0438\u0446\u0438\u0435\u043d\u0442 \u0442\u0440\u0435\u043d\u0438\u044f \u0448\u0438\u043d\u044b"
+    },
+    {
+      "body": "\u0414\u0435\u0439\u0441\u0442\u0432\u0438\u0435 \u043f\u0440\u0438\u043a\u0430\u0437\u0430 \u043f\u0440\u043e\u0434\u043b\u0435\u043d\u043e.",
+      "chunk_id": "so-fin-0037",
+      "document_id": "so-fin-doc-0019",
+      "end_char": 26,
+      "identifiers": "so-fin-0037",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0414\u0435\u0439\u0441\u0442\u0432\u0438\u0435 \u043f\u0440\u0438\u043a\u0430\u0437\u0430 \u043f\u0440\u043e\u0434\u043b\u0435\u043d\u043e"
+    },
+    {
+      "body": "\u041a\u043e\u044d\u0444\u0444\u0438\u0446\u0438\u0435\u043d\u0442 \u043f\u043e\u043b\u0435\u0437\u043d\u043e\u0433\u043e \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u044f \u0443\u0441\u0442\u0430\u043d\u043e\u0432\u043a\u0438.",
+      "chunk_id": "so-fin-0038",
+      "document_id": "so-fin-doc-0019",
+      "end_char": 69,
+      "identifiers": "so-fin-0038",
+      "language": "rus",
+      "start_char": 28,
+      "title": "\u041a\u043e\u044d\u0444\u0444\u0438\u0446\u0438\u0435\u043d\u0442 \u043f\u043e\u043b\u0435\u0437\u043d\u043e\u0433\u043e \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u044f"
+    },
+    {
+      "body": "\u0412\u043d\u0443\u0442\u0440\u0435\u043d\u043d\u0435\u0433\u043e \u0430\u0443\u0434\u0438\u0442\u0430 \u043d\u0435 \u0431\u044b\u043b\u043e.",
+      "chunk_id": "so-fin-0039",
+      "document_id": "so-fin-doc-0020",
+      "end_char": 27,
+      "identifiers": "so-fin-0039",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0412\u043d\u0443\u0442\u0440\u0435\u043d\u043d\u0435\u0433\u043e \u0430\u0443\u0434\u0438\u0442\u0430 \u043d\u0435"
+    },
+    {
+      "body": "\u0414\u0432\u0438\u0433\u0430\u0442\u0435\u043b\u044c \u0432\u0435\u043d\u0442\u0438\u043b\u044f\u0442\u043e\u0440\u0430 \u043e\u0442\u0440\u0435\u043c\u043e\u043d\u0442\u0438\u0440\u043e\u0432\u0430\u043d.",
+      "chunk_id": "so-fin-0040",
+      "document_id": "so-fin-doc-0020",
+      "end_char": 66,
+      "identifiers": "so-fin-0040",
+      "language": "rus",
+      "start_char": 29,
+      "title": "\u0414\u0432\u0438\u0433\u0430\u0442\u0435\u043b\u044c \u0432\u0435\u043d\u0442\u0438\u043b\u044f\u0442\u043e\u0440\u0430 \u043e\u0442\u0440\u0435\u043c\u043e\u043d\u0442\u0438\u0440\u043e\u0432\u0430\u043d"
+    },
+    {
+      "body": "\u0420\u0435\u043c\u043e\u043d\u0442 \u0434\u0432\u0438\u0433\u0430\u0442\u0435\u043b\u044f \u0432\u043d\u0443\u0442\u0440\u0435\u043d\u043d\u0435\u0433\u043e \u0441\u0433\u043e\u0440\u0430\u043d\u0438\u044f.",
+      "chunk_id": "so-fin-0041",
+      "document_id": "so-fin-doc-0021",
+      "end_char": 38,
+      "identifiers": "so-fin-0041",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0420\u0435\u043c\u043e\u043d\u0442 \u0434\u0432\u0438\u0433\u0430\u0442\u0435\u043b\u044f \u0432\u043d\u0443\u0442\u0440\u0435\u043d\u043d\u0435\u0433\u043e"
+    },
+    {
+      "body": "\u041b\u043e\u0433\u0438\u0447\u0435\u0441\u043a\u0438\u0439 \u0430\u043d\u0430\u043b\u0438\u0437\u0430\u0442\u043e\u0440 \u0441\u0438\u0433\u043d\u0430\u043b\u043e\u0432.",
+      "chunk_id": "so-fin-0042",
+      "document_id": "so-fin-doc-0021",
+      "end_char": 71,
+      "identifiers": "so-fin-0042",
+      "language": "rus",
+      "start_char": 40,
+      "title": "\u041b\u043e\u0433\u0438\u0447\u0435\u0441\u043a\u0438\u0439 \u0430\u043d\u0430\u043b\u0438\u0437\u0430\u0442\u043e\u0440 \u0441\u0438\u0433\u043d\u0430\u043b\u043e\u0432"
+    },
+    {
+      "body": "\u041a\u043e\u043d\u0442\u0440\u043e\u043b\u043b\u0435\u0440 \u0437\u0430\u0440\u044f\u0434\u0430 \u0431\u0430\u0442\u0430\u0440\u0435\u0438.",
+      "chunk_id": "so-fin-0043",
+      "document_id": "so-fin-doc-0022",
+      "end_char": 26,
+      "identifiers": "so-fin-0043",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041a\u043e\u043d\u0442\u0440\u043e\u043b\u043b\u0435\u0440 \u0437\u0430\u0440\u044f\u0434\u0430 \u0431\u0430\u0442\u0430\u0440\u0435\u0438"
+    },
+    {
+      "body": "\u0417\u0430\u043c\u0435\u043d\u0430 \u041f\u041b\u041a \u0432 \u0441\u0442\u043e\u0439\u043a\u0435.",
+      "chunk_id": "so-fin-0044",
+      "document_id": "so-fin-doc-0022",
+      "end_char": 48,
+      "identifiers": "so-fin-0044",
+      "language": "rus",
+      "start_char": 28,
+      "title": "\u0417\u0430\u043c\u0435\u043d\u0430 \u041f\u041b\u041a \u0432"
+    },
+    {
+      "body": "\u0423\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u043e \u0437\u0430\u0449\u0438\u0442\u043d\u043e\u0433\u043e \u043e\u0442\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u044f \u0441\u0440\u0430\u0431\u043e\u0442\u0430\u043b\u043e.",
+      "chunk_id": "so-fin-0045",
+      "document_id": "so-fin-doc-0023",
+      "end_char": 42,
+      "identifiers": "so-fin-0045",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0423\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u043e \u0437\u0430\u0449\u0438\u0442\u043d\u043e\u0433\u043e \u043e\u0442\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u044f"
+    },
+    {
+      "body": "\u0414\u0438\u0437\u0435\u043b\u044c-\u0433\u0435\u043d\u0435\u0440\u0430\u0442\u043e\u0440\u043d\u0430\u044f \u0443\u0441\u0442\u0430\u043d\u043e\u0432\u043a\u0430 \u043d\u0430 \u043e\u0431\u044a\u0435\u043a\u0442\u0435.",
+      "chunk_id": "so-fin-0046",
+      "document_id": "so-fin-doc-0023",
+      "end_char": 85,
+      "identifiers": "so-fin-0046",
+      "language": "rus",
+      "start_char": 44,
+      "title": "\u0414\u0438\u0437\u0435\u043b\u044c-\u0433\u0435\u043d\u0435\u0440\u0430\u0442\u043e\u0440\u043d\u0430\u044f \u0443\u0441\u0442\u0430\u043d\u043e\u0432\u043a\u0430 \u043d\u0430"
+    },
+    {
+      "body": "\u0412\u044b\u043a\u043f\u044e\u0447\u0430\u0442\u0435\u043b\u044c \u043d\u0430\u0433\u0440\u0443\u0437\u043a\u0438 \u043d\u0435\u0438\u0441\u043f\u0440\u0430\u0432\u0435\u043d.",
+      "chunk_id": "so-fin-0047",
+      "document_id": "so-fin-doc-0024",
+      "end_char": 32,
+      "identifiers": "so-fin-0047",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0412\u044b\u043a\u043f\u044e\u0447\u0430\u0442\u0435\u043b\u044c \u043d\u0430\u0433\u0440\u0443\u0437\u043a\u0438 \u043d\u0435\u0438\u0441\u043f\u0440\u0430\u0432\u0435\u043d"
+    },
+    {
+      "body": "\u0421\u043a\u043e\u043b \u043d\u0437\u043e\u043b\u044f\u0442\u043e\u0440\u0430 \u043d\u0430 \u043e\u043f\u043e\u0440\u0435.",
+      "chunk_id": "so-fin-0048",
+      "document_id": "so-fin-doc-0024",
+      "end_char": 58,
+      "identifiers": "so-fin-0048",
+      "language": "rus",
+      "start_char": 34,
+      "title": "\u0421\u043a\u043e\u043b \u043d\u0437\u043e\u043b\u044f\u0442\u043e\u0440\u0430 \u043d\u0430"
+    },
+    {
+      "body": "\u0418\u0437\u043d\u043e\u0441 \u0448\u0451\u0442\u043a\u0438 \u043a\u043e\u043b\u043b\u0435\u043a\u0442\u043e\u0440\u0430.",
+      "chunk_id": "so-fin-0049",
+      "document_id": "so-fin-doc-0025",
+      "end_char": 23,
+      "identifiers": "so-fin-0049",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0418\u0437\u043d\u043e\u0441 \u0448\u0451\u0442\u043a\u0438 \u043a\u043e\u043b\u043b\u0435\u043a\u0442\u043e\u0440\u0430"
+    },
+    {
+      "body": "\u0421\u043e\u043f\u0440\u043e\u0442\u0438\u0432\u043b\u0435\u043d\u0438\u0435 \u0437\u0430\u0437\u0435\u043c\u043b\u0435\u0438\u0438\u044f \u0447\u0435\u0442\u044b\u0440\u0435 \u043e\u043c\u0430.",
+      "chunk_id": "so-fin-0050",
+      "document_id": "so-fin-doc-0025",
+      "end_char": 61,
+      "identifiers": "so-fin-0050",
+      "language": "rus",
+      "start_char": 25,
+      "title": "\u0421\u043e\u043f\u0440\u043e\u0442\u0438\u0432\u043b\u0435\u043d\u0438\u0435 \u0437\u0430\u0437\u0435\u043c\u043b\u0435\u0438\u0438\u044f \u0447\u0435\u0442\u044b\u0440\u0435"
+    },
+    {
+      "body": "\u0424\u0438\u043b\u044c\u0442\u0440 \u043a\u043e\u043d\u0434\u0438\u0446\u043d\u043e\u043d\u0435\u0440\u0430 \u0437\u0430\u0431\u0438\u0442.",
+      "chunk_id": "so-fin-0051",
+      "document_id": "so-fin-doc-0026",
+      "end_char": 26,
+      "identifiers": "so-fin-0051",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0424\u0438\u043b\u044c\u0442\u0440 \u043a\u043e\u043d\u0434\u0438\u0446\u043d\u043e\u043d\u0435\u0440\u0430 \u0437\u0430\u0431\u0438\u0442"
+    },
+    {
+      "body": "\u0412\u0435\u043d\u0442\u0438\u043f\u044c \u0437\u0430\u043f\u043e\u0440\u043d\u044b\u0439 \u043b\u0430\u0442\u0443\u043d\u043d\u044b\u0439.",
+      "chunk_id": "so-fin-0052",
+      "document_id": "so-fin-doc-0026",
+      "end_char": 54,
+      "identifiers": "so-fin-0052",
+      "language": "rus",
+      "start_char": 28,
+      "title": "\u0412\u0435\u043d\u0442\u0438\u043f\u044c \u0437\u0430\u043f\u043e\u0440\u043d\u044b\u0439 \u043b\u0430\u0442\u0443\u043d\u043d\u044b\u0439"
+    },
+    {
+      "body": "\u041a\u043e\u043c\u043f\u0435\u043d\u0441\u0430\u0442\u043e\u0440 \u0441\u0438\u043b\u044c\u0444\u043e\u043d\u043d\u044b\u0439 \u0434\u0435\u0444\u043e\u0440\u043c\u0438\u0440\u043e\u0432\u0430\u043d.",
+      "chunk_id": "so-fin-0053",
+      "document_id": "so-fin-doc-0027",
+      "end_char": 36,
+      "identifiers": "so-fin-0053",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041a\u043e\u043c\u043f\u0435\u043d\u0441\u0430\u0442\u043e\u0440 \u0441\u0438\u043b\u044c\u0444\u043e\u043d\u043d\u044b\u0439 \u0434\u0435\u0444\u043e\u0440\u043c\u0438\u0440\u043e\u0432\u0430\u043d"
+    },
+    {
+      "body": "\u041c\u0430\u043d\u0436\u0435\u0442\u0430 \u0441\u0430\u043b\u044c\u043d\u0438\u043a\u0430 \u043f\u043e\u0440\u0432\u0430\u043d\u0430.",
+      "chunk_id": "so-fin-0054",
+      "document_id": "so-fin-doc-0027",
+      "end_char": 63,
+      "identifiers": "so-fin-0054",
+      "language": "rus",
+      "start_char": 38,
+      "title": "\u041c\u0430\u043d\u0436\u0435\u0442\u0430 \u0441\u0430\u043b\u044c\u043d\u0438\u043a\u0430 \u043f\u043e\u0440\u0432\u0430\u043d\u0430"
+    },
+    {
+      "body": "\u0421\u0442\u0430\u043d\u0446\u0438\u044f \u0412\u041a-12 \u0440\u0435\u0437\u0435\u0440\u0432\u043d\u0430\u044f.",
+      "chunk_id": "so-fin-0055",
+      "document_id": "so-fin-doc-0028",
+      "end_char": 24,
+      "identifiers": "\u0412\u041a-12",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0421\u0442\u0430\u043d\u0446\u0438\u044f \u0412\u041a-12 \u0440\u0435\u0437\u0435\u0440\u0432\u043d\u0430\u044f"
+    },
+    {
+      "body": "\u0421\u0442\u0430\u043d\u0446\u0438\u044f \u0421\u041a-12 \u0432\u0432\u0435\u0434\u0435\u043d\u0430.",
+      "chunk_id": "so-fin-0056",
+      "document_id": "so-fin-doc-0028",
+      "end_char": 48,
+      "identifiers": "\u0421\u041a-12",
+      "language": "rus",
+      "start_char": 26,
+      "title": "\u0421\u0442\u0430\u043d\u0446\u0438\u044f \u0421\u041a-12 \u0432\u0432\u0435\u0434\u0435\u043d\u0430"
+    },
+    {
+      "body": "\u041f\u0440\u043e\u0442\u043e\u043a\u043e\u043b Modbus \u043d\u0430\u0441\u0442\u0440\u043e\u0435\u043d.",
+      "chunk_id": "so-fin-0057",
+      "document_id": "so-fin-doc-0029",
+      "end_char": 25,
+      "identifiers": "so-fin-0057",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041f\u0440\u043e\u0442\u043e\u043a\u043e\u043b Modbus \u043d\u0430\u0441\u0442\u0440\u043e\u0435\u043d"
+    },
+    {
+      "body": "\u0423\u0441\u0442\u0430\u043d\u043e\u0432\u043a\u0430 \u0422\u041d-54 \u043e\u043f\u0440\u043e\u0431\u043e\u0432\u0430\u043d\u0430.",
+      "chunk_id": "so-fin-0058",
+      "document_id": "so-fin-doc-0029",
+      "end_char": 54,
+      "identifiers": "\u0422\u041d-54",
+      "language": "rus",
+      "start_char": 27,
+      "title": "\u0423\u0441\u0442\u0430\u043d\u043e\u0432\u043a\u0430 \u0422\u041d-54 \u043e\u043f\u0440\u043e\u0431\u043e\u0432\u0430\u043d\u0430"
+    },
+    {
+      "body": "\u0423\u0441\u0442\u0430\u043d\u043e\u0432\u043a\u0430 TH-45 \u043e\u043f\u0440\u043e\u0431\u043e\u0432\u0430\u043d\u0430.",
+      "chunk_id": "so-fin-0059",
+      "document_id": "so-fin-doc-0030",
+      "end_char": 27,
+      "identifiers": "TH-45",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0423\u0441\u0442\u0430\u043d\u043e\u0432\u043a\u0430 TH-45 \u043e\u043f\u0440\u043e\u0431\u043e\u0432\u0430\u043d\u0430"
+    },
+    {
+      "body": "\u0421\u0442\u0430\u043d\u0438\u043d\u0430 \u043f\u0440\u0435\u0441\u0441\u0430 \u0442\u0440\u0435\u0441\u043d\u0443\u043b\u0430.",
+      "chunk_id": "so-fin-0060",
+      "document_id": "so-fin-doc-0030",
+      "end_char": 53,
+      "identifiers": "so-fin-0060",
+      "language": "rus",
+      "start_char": 29,
+      "title": "\u0421\u0442\u0430\u043d\u0438\u043d\u0430 \u043f\u0440\u0435\u0441\u0441\u0430 \u0442\u0440\u0435\u0441\u043d\u0443\u043b\u0430"
+    },
+    {
+      "body": "\u0428\u043a\u0430\u0444 \u0443\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u044f \u0437\u0430\u043f\u0435\u0440\u0442.",
+      "chunk_id": "so-fin-0061",
+      "document_id": "so-fin-doc-0031",
+      "end_char": 23,
+      "identifiers": "so-fin-0061",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0428\u043a\u0430\u0444 \u0443\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u044f \u0437\u0430\u043f\u0435\u0440\u0442"
+    },
+    {
+      "body": "\u041a\u043b\u0435\u043c\u043c\u0430 \u043e\u043a\u0438\u0441\u043b\u0438\u043b\u0430\u0441\u044c.",
+      "chunk_id": "so-fin-0062",
+      "document_id": "so-fin-doc-0031",
+      "end_char": 43,
+      "identifiers": "so-fin-0062",
+      "language": "rus",
+      "start_char": 25,
+      "title": "\u041a\u043b\u0435\u043c\u043c\u0430 \u043e\u043a\u0438\u0441\u043b\u0438\u043b\u0430\u0441\u044c"
+    },
+    {
+      "body": "\u0420\u0443\u0431\u0438\u043b\u044c\u043d\u0438\u043a \u0432\u0432\u043e\u0434\u043d\u043e\u0439 \u0432\u044b\u043a\u043b\u044e\u0447\u0435\u043d.",
+      "chunk_id": "so-fin-0063",
+      "document_id": "so-fin-doc-0032",
+      "end_char": 27,
+      "identifiers": "so-fin-0063",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0420\u0443\u0431\u0438\u043b\u044c\u043d\u0438\u043a \u0432\u0432\u043e\u0434\u043d\u043e\u0439 \u0432\u044b\u043a\u043b\u044e\u0447\u0435\u043d"
+    },
+    {
+      "body": "\u0422\u0435\u0440\u043c\u043e\u043f\u0430\u0440\u0430 \u043f\u043e\u043a\u0430\u0437\u044b\u0432\u0430\u0435\u0442 \u043e\u0431\u0440\u044b\u0432.",
+      "chunk_id": "so-fin-0064",
+      "document_id": "so-fin-doc-0032",
+      "end_char": 56,
+      "identifiers": "so-fin-0064",
+      "language": "rus",
+      "start_char": 29,
+      "title": "\u0422\u0435\u0440\u043c\u043e\u043f\u0430\u0440\u0430 \u043f\u043e\u043a\u0430\u0437\u044b\u0432\u0430\u0435\u0442 \u043e\u0431\u0440\u044b\u0432"
+    },
+    {
+      "body": "\u0414\u0440\u043e\u0441\u0441\u0435\u043b\u044c \u043b\u044e\u043c\u0438\u043d\u0435\u0441\u0446\u0435\u043d\u0442\u043d\u043e\u0439 \u043b\u0430\u043c\u043f\u044b \u0433\u0443\u0434\u0438\u0442.",
+      "chunk_id": "so-fin-0065",
+      "document_id": "so-fin-doc-0033",
+      "end_char": 36,
+      "identifiers": "so-fin-0065",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0414\u0440\u043e\u0441\u0441\u0435\u043b\u044c \u043b\u044e\u043c\u0438\u043d\u0435\u0441\u0446\u0435\u043d\u0442\u043d\u043e\u0439 \u043b\u0430\u043c\u043f\u044b"
+    },
+    {
+      "body": "\u0428\u043b\u0430\u043d\u0433 \u0432\u044b\u0441\u043e\u043a\u043e\u0433\u043e \u0434\u0430\u0432\u043b\u0435\u043d\u0438\u044f \u043b\u043e\u043f\u043d\u0443\u043b.",
+      "chunk_id": "so-fin-0066",
+      "document_id": "so-fin-doc-0033",
+      "end_char": 69,
+      "identifiers": "so-fin-0066",
+      "language": "rus",
+      "start_char": 38,
+      "title": "\u0428\u043b\u0430\u043d\u0433 \u0432\u044b\u0441\u043e\u043a\u043e\u0433\u043e \u0434\u0430\u0432\u043b\u0435\u043d\u0438\u044f"
+    },
+    {
+      "body": "\u042d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u0440 \u043d\u0430 \u0433\u0443\u0441\u0435\u043d\u0438\u0447\u043d\u043e\u043c \u0445\u043e\u0434\u0443.",
+      "chunk_id": "so-fin-0067",
+      "document_id": "so-fin-doc-0034",
+      "end_char": 30,
+      "identifiers": "so-fin-0067",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u042d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u0440 \u043d\u0430 \u0433\u0443\u0441\u0435\u043d\u0438\u0447\u043d\u043e\u043c"
+    },
+    {
+      "body": "\u041a\u043e\u0442\u0435\u043b\u044c\u043d\u0430\u044f \u043f\u0435\u0440\u0435\u0432\u0435\u0434\u0435\u043d\u0430 \u043d\u0430 \u0433\u0430\u0437.",
+      "chunk_id": "so-fin-0068",
+      "document_id": "so-fin-doc-0034",
+      "end_char": 60,
+      "identifiers": "so-fin-0068",
+      "language": "rus",
+      "start_char": 32,
+      "title": "\u041a\u043e\u0442\u0435\u043b\u044c\u043d\u0430\u044f \u043f\u0435\u0440\u0435\u0432\u0435\u0434\u0435\u043d\u0430 \u043d\u0430"
+    },
+    {
+      "body": "\u0422\u0440\u0443\u0431\u043e\u043f\u0440\u043e\u0432\u043e\u0434 \u043e\u0431\u0440\u0430\u0442\u043d\u043e\u0439 \u0432\u043e\u0434\u044b.",
+      "chunk_id": "so-fin-0069",
+      "document_id": "so-fin-doc-0035",
+      "end_char": 26,
+      "identifiers": "so-fin-0069",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0422\u0440\u0443\u0431\u043e\u043f\u0440\u043e\u0432\u043e\u0434 \u043e\u0431\u0440\u0430\u0442\u043d\u043e\u0439 \u0432\u043e\u0434\u044b"
+    },
+    {
+      "body": "\u0426\u0438\u043b\u0438\u043d\u0434\u0440 \u0433\u0438\u0434\u0440\u0430\u0432\u043b\u0438\u0447\u0435\u0441\u043a\u0438\u0439 \u043f\u043e\u0434\u0442\u0435\u043a\u0430\u0435\u0442.",
+      "chunk_id": "so-fin-0070",
+      "document_id": "so-fin-doc-0035",
+      "end_char": 61,
+      "identifiers": "so-fin-0070",
+      "language": "rus",
+      "start_char": 28,
+      "title": "\u0426\u0438\u043b\u0438\u043d\u0434\u0440 \u0433\u0438\u0434\u0440\u0430\u0432\u043b\u0438\u0447\u0435\u0441\u043a\u0438\u0439 \u043f\u043e\u0434\u0442\u0435\u043a\u0430\u0435\u0442"
+    },
+    {
+      "body": "\u041f\u043e\u0436\u0430\u0440\u043d\u044b\u0439 \u0440\u0443\u043a\u0430\u0432 \u0441\u043a\u0430\u0442\u0430\u043d.",
+      "chunk_id": "so-fin-0071",
+      "document_id": "so-fin-doc-0036",
+      "end_char": 22,
+      "identifiers": "so-fin-0071",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041f\u043e\u0436\u0430\u0440\u043d\u044b\u0439 \u0440\u0443\u043a\u0430\u0432 \u0441\u043a\u0430\u0442\u0430\u043d"
+    },
+    {
+      "body": "\u0421\u0435\u0440\u0432\u0435\u0440 SCADA \u043f\u0435\u0440\u0435\u0437\u0430\u043f\u0443\u0449\u0435\u043d.",
+      "chunk_id": "so-fin-0072",
+      "document_id": "so-fin-doc-0036",
+      "end_char": 49,
+      "identifiers": "so-fin-0072",
+      "language": "rus",
+      "start_char": 24,
+      "title": "\u0421\u0435\u0440\u0432\u0435\u0440 SCADA \u043f\u0435\u0440\u0435\u0437\u0430\u043f\u0443\u0449\u0435\u043d"
+    },
+    {
+      "body": "\u041a\u043e\u043c\u043c\u0443\u0442\u0430\u0442\u043e\u0440 Ethernet \u0432 \u0441\u0442\u043e\u0439\u043a\u0435.",
+      "chunk_id": "so-fin-0073",
+      "document_id": "so-fin-doc-0037",
+      "end_char": 29,
+      "identifiers": "so-fin-0073",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041a\u043e\u043c\u043c\u0443\u0442\u0430\u0442\u043e\u0440 Ethernet \u0432"
+    },
+    {
+      "body": "\u041e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u0435 firmware \u043f\u0440\u0438\u0431\u043e\u0440\u0430.",
+      "chunk_id": "so-fin-0074",
+      "document_id": "so-fin-doc-0037",
+      "end_char": 59,
+      "identifiers": "so-fin-0074",
+      "language": "rus",
+      "start_char": 31,
+      "title": "\u041e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u0435 firmware \u043f\u0440\u0438\u0431\u043e\u0440\u0430"
+    },
+    {
+      "body": "\u041f\u0430\u043d\u0435\u043b\u044c HMI \u043e\u043f\u0435\u0440\u0430\u0442\u043e\u0440\u0430.",
+      "chunk_id": "so-fin-0075",
+      "document_id": "so-fin-doc-0038",
+      "end_char": 21,
+      "identifiers": "so-fin-0075",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041f\u0430\u043d\u0435\u043b\u044c HMI \u043e\u043f\u0435\u0440\u0430\u0442\u043e\u0440\u0430"
+    },
+    {
+      "body": "\u0428\u043b\u044e\u0437 OPC UA \u043d\u0430\u0441\u0442\u0440\u043e\u0435\u043d.",
+      "chunk_id": "so-fin-0076",
+      "document_id": "so-fin-doc-0038",
+      "end_char": 44,
+      "identifiers": "so-fin-0076",
+      "language": "rus",
+      "start_char": 23,
+      "title": "\u0428\u043b\u044e\u0437 OPC UA"
+    },
+    {
+      "body": "\u0417\u0430\u043c\u0435\u043d\u0430 \u043b\u0430\u043c\u043f \u0432 \u0446\u0435\u0445\u0435.",
+      "chunk_id": "so-fin-0077",
+      "document_id": "so-fin-doc-0039",
+      "end_char": 19,
+      "identifiers": "so-fin-0077",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0417\u0430\u043c\u0435\u043d\u0430 \u043b\u0430\u043c\u043f \u0432"
+    },
+    {
+      "body": "\u0421\u043c\u0430\u0437\u043a\u0430 \u0446\u0435\u043f\u0438 \u0442\u0440\u0430\u043d\u0441\u043f\u043e\u0440\u0442\u0451\u0440\u0430.",
+      "chunk_id": "so-fin-0078",
+      "document_id": "so-fin-doc-0039",
+      "end_char": 46,
+      "identifiers": "so-fin-0078",
+      "language": "rus",
+      "start_char": 21,
+      "title": "\u0421\u043c\u0430\u0437\u043a\u0430 \u0446\u0435\u043f\u0438 \u0442\u0440\u0430\u043d\u0441\u043f\u043e\u0440\u0442\u0451\u0440\u0430"
+    },
+    {
+      "body": "\u0417\u0430\u043c\u0435\u043d\u0430 \u0441\u043c\u0430\u0437\u043a\u0438 \u0432 \u043c\u0443\u043b\u044c\u0442\u0438\u043f\u043b\u0438\u043a\u0430\u0442\u043e\u0440\u0435 \u0432\u0435\u0442\u0440\u043e\u0443\u0441\u0442\u0430\u043d\u043e\u0432\u043a\u0438.",
+      "chunk_id": "so-fin-0079",
+      "document_id": "so-fin-doc-0040",
+      "end_char": 47,
+      "identifiers": "so-fin-0079",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0417\u0430\u043c\u0435\u043d\u0430 \u0441\u043c\u0430\u0437\u043a\u0438 \u0432"
+    },
+    {
+      "body": "\u0427\u0438\u043b\u043b\u0435\u0440 \u043f\u0435\u0440\u0435\u0432\u0435\u0434\u0451\u043d \u0432 \u0437\u0438\u043c\u043d\u0438\u0439 \u0440\u0435\u0436\u0438\u043c.",
+      "chunk_id": "so-fin-0080",
+      "document_id": "so-fin-doc-0040",
+      "end_char": 81,
+      "identifiers": "so-fin-0080",
+      "language": "rus",
+      "start_char": 49,
+      "title": "\u0427\u0438\u043b\u043b\u0435\u0440 \u043f\u0435\u0440\u0435\u0432\u0435\u0434\u0451\u043d \u0432"
+    },
+    {
+      "body": "\u0420\u0430\u0437\u0433\u0435\u0440\u043c\u0435\u0442\u0438\u0437\u0430\u0446\u0438\u044f \u0443\u043f\u0430\u043a\u043e\u0432\u043a\u0438 \u043d\u0430 \u0441\u043a\u043b\u0430\u0434\u0435.",
+      "chunk_id": "so-fin-0081",
+      "document_id": "so-fin-doc-0041",
+      "end_char": 35,
+      "identifiers": "so-fin-0081",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0420\u0430\u0437\u0433\u0435\u0440\u043c\u0435\u0442\u0438\u0437\u0430\u0446\u0438\u044f \u0443\u043f\u0430\u043a\u043e\u0432\u043a\u0438 \u043d\u0430"
+    },
+    {
+      "body": "\u0420\u0430\u0437\u0433\u0435\u0440\u043c\u0435\u0442\u0438\u0437\u0430\u0446\u0438\u044f \u0447\u0438\u043b\u043b\u0435\u0440\u0430 \u0443\u0441\u0442\u0440\u0430\u043d\u0435\u043d\u0430.",
+      "chunk_id": "so-fin-0082",
+      "document_id": "so-fin-doc-0041",
+      "end_char": 71,
+      "identifiers": "so-fin-0082",
+      "language": "rus",
+      "start_char": 37,
+      "title": "\u0420\u0430\u0437\u0433\u0435\u0440\u043c\u0435\u0442\u0438\u0437\u0430\u0446\u0438\u044f \u0447\u0438\u043b\u043b\u0435\u0440\u0430 \u0443\u0441\u0442\u0440\u0430\u043d\u0435\u043d\u0430"
+    },
+    {
+      "body": "\u041d\u0430\u0433\u0440\u0435\u0432 \u0432\u043e\u0434\u044b \u0431\u043e\u0439\u043b\u0435\u0440\u043e\u043c.",
+      "chunk_id": "so-fin-0083",
+      "document_id": "so-fin-doc-0042",
+      "end_char": 21,
+      "identifiers": "so-fin-0083",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041d\u0430\u0433\u0440\u0435\u0432 \u0432\u043e\u0434\u044b \u0431\u043e\u0439\u043b\u0435\u0440\u043e\u043c"
+    },
+    {
+      "body": "\u0412\u0430\u0433\u043e\u043d \u043d\u0430 \u0437\u0430\u043f\u0430\u0441\u043d\u043e\u043c \u043f\u0443\u0442\u0438.",
+      "chunk_id": "so-fin-0084",
+      "document_id": "so-fin-doc-0042",
+      "end_char": 46,
+      "identifiers": "so-fin-0084",
+      "language": "rus",
+      "start_char": 23,
+      "title": "\u0412\u0430\u0433\u043e\u043d \u043d\u0430 \u0437\u0430\u043f\u0430\u0441\u043d\u043e\u043c"
+    },
+    {
+      "body": "\u041d\u0430\u0433\u0440\u0435\u0432 \u0431\u0443\u043a\u0441 \u0432\u0430\u0433\u043e\u043d\u0430 \u0432\u044b\u0448\u0435 \u043d\u043e\u0440\u043c\u044b.",
+      "chunk_id": "so-fin-0085",
+      "document_id": "so-fin-doc-0043",
+      "end_char": 30,
+      "identifiers": "so-fin-0085",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041d\u0430\u0433\u0440\u0435\u0432 \u0431\u0443\u043a\u0441 \u0432\u0430\u0433\u043e\u043d\u0430"
+    },
+    {
+      "body": "\u042e\u0441\u0442\u0438\u0440\u043e\u0432\u043a\u0430 \u043e\u043f\u0442\u0438\u043a\u0438 \u043f\u0440\u0438\u0446\u0435\u043b\u0430.",
+      "chunk_id": "so-fin-0086",
+      "document_id": "so-fin-doc-0043",
+      "end_char": 57,
+      "identifiers": "so-fin-0086",
+      "language": "rus",
+      "start_char": 32,
+      "title": "\u042e\u0441\u0442\u0438\u0440\u043e\u0432\u043a\u0430 \u043e\u043f\u0442\u0438\u043a\u0438 \u043f\u0440\u0438\u0446\u0435\u043b\u0430"
+    },
+    {
+      "body": "\u041d\u0438\u0432\u0435\u043b\u0438\u0440 \u0443\u043f\u0430\u043b \u0441 \u0442\u0440\u0435\u043d\u043e\u0433\u0438.",
+      "chunk_id": "so-fin-0087",
+      "document_id": "so-fin-doc-0044",
+      "end_char": 23,
+      "identifiers": "so-fin-0087",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041d\u0438\u0432\u0435\u043b\u0438\u0440 \u0443\u043f\u0430\u043b \u0441"
+    },
+    {
+      "body": "\u042e\u0441\u0442\u0438\u0440\u043e\u0432\u043a\u0430 \u043d\u0438\u0432\u0435\u043b\u0438\u0440\u0430 \u0433\u0435\u043e\u0434\u0435\u0437\u0438\u0441\u0442\u0430 \u0432\u044b\u043f\u043e\u043b\u043d\u0435\u043d\u0430.",
+      "chunk_id": "so-fin-0088",
+      "document_id": "so-fin-doc-0044",
+      "end_char": 65,
+      "identifiers": "so-fin-0088",
+      "language": "rus",
+      "start_char": 25,
+      "title": "\u042e\u0441\u0442\u0438\u0440\u043e\u0432\u043a\u0430 \u043d\u0438\u0432\u0435\u043b\u0438\u0440\u0430 \u0433\u0435\u043e\u0434\u0435\u0437\u0438\u0441\u0442\u0430"
+    },
+    {
+      "body": "\u0428\u043e\u0432 \u043d\u0430 \u0440\u0443\u043a\u0430\u0432\u0435 \u0440\u0430\u0441\u043f\u043e\u0440\u043e\u043b\u0441\u044f.",
+      "chunk_id": "so-fin-0089",
+      "document_id": "so-fin-doc-0045",
+      "end_char": 25,
+      "identifiers": "so-fin-0089",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0428\u043e\u0432 \u043d\u0430 \u0440\u0443\u043a\u0430\u0432\u0435"
+    },
+    {
+      "body": "\u0414\u0435\u0444\u0435\u043a\u0442\u043e\u0441\u043a\u043e\u043f\u0438\u044f \u0440\u0435\u043b\u044c\u0441\u043e\u0432 \u0432\u0430\u0433\u043e\u043d\u043e\u043c.",
+      "chunk_id": "so-fin-0090",
+      "document_id": "so-fin-doc-0045",
+      "end_char": 57,
+      "identifiers": "so-fin-0090",
+      "language": "rus",
+      "start_char": 27,
+      "title": "\u0414\u0435\u0444\u0435\u043a\u0442\u043e\u0441\u043a\u043e\u043f\u0438\u044f \u0440\u0435\u043b\u044c\u0441\u043e\u0432 \u0432\u0430\u0433\u043e\u043d\u043e\u043c"
+    },
+    {
+      "body": "\u0414\u0435\u0444\u0435\u043a\u0442\u043e\u0441\u043a\u043e\u043f\u0438\u044f \u0441\u0432\u0430\u0440\u043d\u043e\u0433\u043e \u0448\u0432\u0430 \u0433\u0430\u0437\u0433\u043e\u043b\u044c\u0434\u0435\u0440\u0430 \u043f\u0440\u043e\u0432\u0435\u0434\u0435\u043d\u0430.",
+      "chunk_id": "so-fin-0091",
+      "document_id": "so-fin-doc-0046",
+      "end_char": 49,
+      "identifiers": "so-fin-0091",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0414\u0435\u0444\u0435\u043a\u0442\u043e\u0441\u043a\u043e\u043f\u0438\u044f \u0441\u0432\u0430\u0440\u043d\u043e\u0433\u043e \u0448\u0432\u0430"
+    },
+    {
+      "body": "\u0420\u043e\u0442\u043e\u0440 \u0433\u0435\u043d\u0435\u0440\u0430\u0442\u043e\u0440\u0430 \u043f\u0435\u0440\u0435\u043c\u043e\u0442\u0430\u043d.",
+      "chunk_id": "so-fin-0092",
+      "document_id": "so-fin-doc-0046",
+      "end_char": 78,
+      "identifiers": "so-fin-0092",
+      "language": "rus",
+      "start_char": 51,
+      "title": "\u0420\u043e\u0442\u043e\u0440 \u0433\u0435\u043d\u0435\u0440\u0430\u0442\u043e\u0440\u0430 \u043f\u0435\u0440\u0435\u043c\u043e\u0442\u0430\u043d"
+    },
+    {
+      "body": "\u0426\u0435\u043d\u0442\u0440\u0438\u0444\u0443\u0433\u0430 \u043b\u0430\u0431\u043e\u0440\u0430\u0442\u043e\u0440\u043d\u0430\u044f.",
+      "chunk_id": "so-fin-0093",
+      "document_id": "so-fin-doc-0047",
+      "end_char": 24,
+      "identifiers": "so-fin-0093",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0426\u0435\u043d\u0442\u0440\u0438\u0444\u0443\u0433\u0430 \u043b\u0430\u0431\u043e\u0440\u0430\u0442\u043e\u0440\u043d\u0430\u044f"
+    },
+    {
+      "body": "\u0411\u0438\u0435\u043d\u0438\u0435 \u0440\u043e\u0442\u043e\u0440\u0430 \u0446\u0435\u043d\u0442\u0440\u0438\u0444\u0443\u0433\u0438 \u043f\u0440\u0435\u0432\u044b\u0448\u0430\u0435\u0442 \u043d\u043e\u0440\u043c\u0443.",
+      "chunk_id": "so-fin-0094",
+      "document_id": "so-fin-doc-0047",
+      "end_char": 67,
+      "identifiers": "so-fin-0094",
+      "language": "rus",
+      "start_char": 26,
+      "title": "\u0411\u0438\u0435\u043d\u0438\u0435 \u0440\u043e\u0442\u043e\u0440\u0430 \u0446\u0435\u043d\u0442\u0440\u0438\u0444\u0443\u0433\u0438"
+    },
+    {
+      "body": "\u0424\u0443\u0442\u0435\u0440\u043e\u0432\u043a\u0430 \u043f\u0435\u0447\u0438 \u043e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0430.",
+      "chunk_id": "so-fin-0095",
+      "document_id": "so-fin-doc-0048",
+      "end_char": 25,
+      "identifiers": "so-fin-0095",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0424\u0443\u0442\u0435\u0440\u043e\u0432\u043a\u0430 \u043f\u0435\u0447\u0438 \u043e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0430"
+    },
+    {
+      "body": "\u041c\u0435\u043b\u044c\u043d\u0438\u0446\u0430 \u0434\u043b\u044f \u043a\u043e\u0444\u0435.",
+      "chunk_id": "so-fin-0096",
+      "document_id": "so-fin-doc-0048",
+      "end_char": 45,
+      "identifiers": "so-fin-0096",
+      "language": "rus",
+      "start_char": 27,
+      "title": "\u041c\u0435\u043b\u044c\u043d\u0438\u0446\u0430 \u0434\u043b\u044f \u043a\u043e\u0444\u0435"
+    },
+    {
+      "body": "\u0418\u0441\u0442\u0438\u0440\u0430\u043d\u0438\u0435 \u0444\u0443\u0442\u0435\u0440\u043e\u0432\u043a\u0438 \u0448\u0430\u0440\u043e\u0432\u043e\u0439 \u043c\u0435\u043b\u044c\u043d\u0438\u0446\u044b.",
+      "chunk_id": "so-fin-0097",
+      "document_id": "so-fin-doc-0049",
+      "end_char": 37,
+      "identifiers": "so-fin-0097",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0418\u0441\u0442\u0438\u0440\u0430\u043d\u0438\u0435 \u0444\u0443\u0442\u0435\u0440\u043e\u0432\u043a\u0438 \u0448\u0430\u0440\u043e\u0432\u043e\u0439"
+    },
+    {
+      "body": "\u041e\u0442\u0441\u0435\u0447\u043a\u0430 \u043a\u043b\u0430\u043f\u0430\u043d\u0430 \u043f\u043e \u0443\u0440\u043e\u0432\u043d\u044e.",
+      "chunk_id": "so-fin-0098",
+      "document_id": "so-fin-doc-0049",
+      "end_char": 65,
+      "identifiers": "so-fin-0098",
+      "language": "rus",
+      "start_char": 39,
+      "title": "\u041e\u0442\u0441\u0435\u0447\u043a\u0430 \u043a\u043b\u0430\u043f\u0430\u043d\u0430 \u043f\u043e"
+    },
+    {
+      "body": "\u0422\u043e\u043a\u043e\u0432\u044b\u0435 \u043a\u043b\u0435\u0449\u0438 \u0432 \u0441\u0443\u043c\u043a\u0435.",
+      "chunk_id": "so-fin-0099",
+      "document_id": "so-fin-doc-0050",
+      "end_char": 22,
+      "identifiers": "so-fin-0099",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0422\u043e\u043a\u043e\u0432\u044b\u0435 \u043a\u043b\u0435\u0449\u0438 \u0432"
+    },
+    {
+      "body": "\u0421\u0440\u0430\u0431\u0430\u0442\u044b\u0432\u0430\u043d\u0438\u0435 \u0442\u043e\u043a\u043e\u0432\u043e\u0439 \u043e\u0442\u0441\u0435\u0447\u043a\u0438 \u043d\u0430 \u0444\u0438\u0434\u0435\u0440\u0435.",
+      "chunk_id": "so-fin-0100",
+      "document_id": "so-fin-doc-0050",
+      "end_char": 63,
+      "identifiers": "so-fin-0100",
+      "language": "rus",
+      "start_char": 24,
+      "title": "\u0421\u0440\u0430\u0431\u0430\u0442\u044b\u0432\u0430\u043d\u0438\u0435 \u0442\u043e\u043a\u043e\u0432\u043e\u0439 \u043e\u0442\u0441\u0435\u0447\u043a\u0438"
+    },
+    {
+      "body": "\u0414\u0438\u043e\u0434 \u0438\u043d\u0434\u0438\u043a\u0430\u0446\u0438\u0438 \u043d\u0435 \u0433\u043e\u0440\u0438\u0442.",
+      "chunk_id": "so-fin-0101",
+      "document_id": "so-fin-doc-0051",
+      "end_char": 24,
+      "identifiers": "so-fin-0101",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0414\u0438\u043e\u0434 \u0438\u043d\u0434\u0438\u043a\u0430\u0446\u0438\u0438 \u043d\u0435"
+    },
+    {
+      "body": "\u0412\u044b\u043f\u0440\u044f\u043c\u0438\u0442\u0435\u043b\u044c \u0437\u0430\u0440\u044f\u0434\u043d\u043e\u0433\u043e \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u0430.",
+      "chunk_id": "so-fin-0102",
+      "document_id": "so-fin-doc-0051",
+      "end_char": 59,
+      "identifiers": "so-fin-0102",
+      "language": "rus",
+      "start_char": 26,
+      "title": "\u0412\u044b\u043f\u0440\u044f\u043c\u0438\u0442\u0435\u043b\u044c \u0437\u0430\u0440\u044f\u0434\u043d\u043e\u0433\u043e \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u0430"
+    },
+    {
+      "body": "\u041f\u0440\u043e\u0431\u043e\u0439 \u0434\u0438\u043e\u0434\u0430 \u0432\u044b\u043f\u0440\u044f\u043c\u0438\u0442\u0435\u043b\u044f \u043e\u0431\u043d\u0430\u0440\u0443\u0436\u0435\u043d.",
+      "chunk_id": "so-fin-0103",
+      "document_id": "so-fin-doc-0052",
+      "end_char": 35,
+      "identifiers": "so-fin-0103",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041f\u0440\u043e\u0431\u043e\u0439 \u0434\u0438\u043e\u0434\u0430 \u0432\u044b\u043f\u0440\u044f\u043c\u0438\u0442\u0435\u043b\u044f"
+    },
+    {
+      "body": "\u0412\u043e\u0437\u0434\u0443\u0445\u043e\u0432\u043e\u0434 \u043f\u0440\u0438\u0442\u043e\u0447\u043d\u043e\u0439 \u0443\u0441\u0442\u0430\u043d\u043e\u0432\u043a\u0438.",
+      "chunk_id": "so-fin-0104",
+      "document_id": "so-fin-doc-0052",
+      "end_char": 68,
+      "identifiers": "so-fin-0104",
+      "language": "rus",
+      "start_char": 37,
+      "title": "\u0412\u043e\u0437\u0434\u0443\u0445\u043e\u0432\u043e\u0434 \u043f\u0440\u0438\u0442\u043e\u0447\u043d\u043e\u0439 \u0443\u0441\u0442\u0430\u043d\u043e\u0432\u043a\u0438"
+    },
+    {
+      "body": "\u041f\u0440\u043e\u0434\u0443\u0432\u043a\u0430 \u0442\u043e\u0440\u043c\u043e\u0437\u043e\u0432.",
+      "chunk_id": "so-fin-0105",
+      "document_id": "so-fin-doc-0053",
+      "end_char": 18,
+      "identifiers": "so-fin-0105",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041f\u0440\u043e\u0434\u0443\u0432\u043a\u0430 \u0442\u043e\u0440\u043c\u043e\u0437\u043e\u0432"
+    },
+    {
+      "body": "\u041f\u0440\u043e\u0434\u0443\u0432\u043a\u0430 \u0432\u043e\u0437\u0434\u0443\u0445\u043e\u0432\u043e\u0434\u0430 \u0432\u044b\u0442\u044f\u0436\u043a\u0438 \u0441\u0436\u0430\u0442\u044b\u043c \u0432\u043e\u0437\u0434\u0443\u0445\u043e\u043c.",
+      "chunk_id": "so-fin-0106",
+      "document_id": "so-fin-doc-0053",
+      "end_char": 65,
+      "identifiers": "so-fin-0106",
+      "language": "rus",
+      "start_char": 20,
+      "title": "\u041f\u0440\u043e\u0434\u0443\u0432\u043a\u0430 \u0432\u043e\u0437\u0434\u0443\u0445\u043e\u0432\u043e\u0434\u0430 \u0432\u044b\u0442\u044f\u0436\u043a\u0438"
+    },
+    {
+      "body": "\u0422\u042d\u041d 2 \u043a\u0412\u0442.",
+      "chunk_id": "so-fin-0107",
+      "document_id": "so-fin-doc-0054",
+      "end_char": 10,
+      "identifiers": "so-fin-0107",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0422\u042d\u041d 2 \u043a\u0412\u0442"
+    },
+    {
+      "body": "\u0422\u042d\u041d 22 \u043a\u0412\u0442.",
+      "chunk_id": "so-fin-0108",
+      "document_id": "so-fin-doc-0054",
+      "end_char": 23,
+      "identifiers": "so-fin-0108",
+      "language": "rus",
+      "start_char": 12,
+      "title": "\u0422\u042d\u041d 22 \u043a\u0412\u0442"
+    },
+    {
+      "body": "\u0422\u042d\u041d 2.5 \u043a\u0412\u0442.",
+      "chunk_id": "so-fin-0109",
+      "document_id": "so-fin-doc-0055",
+      "end_char": 12,
+      "identifiers": "so-fin-0109",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0422\u042d\u041d 2.5 \u043a\u0412\u0442"
+    },
+    {
+      "body": "\u0422\u042d\u041d 2.2 \u043a\u0412\u0442 \u0432 \u0431\u043e\u0439\u043b\u0435\u0440\u0435.",
+      "chunk_id": "so-fin-0110",
+      "document_id": "so-fin-doc-0055",
+      "end_char": 36,
+      "identifiers": "so-fin-0110",
+      "language": "rus",
+      "start_char": 14,
+      "title": "\u0422\u042d\u041d 2.2 \u043a\u0412\u0442"
+    },
+    {
+      "body": "\u041f\u0440\u043e\u0432\u043e\u0434 \u0441\u0435\u0447\u0435\u043d\u0438\u0435\u043c 2.5 \u043c\u043c2.",
+      "chunk_id": "so-fin-0111",
+      "document_id": "so-fin-doc-0056",
+      "end_char": 24,
+      "identifiers": "\u043c\u043c2",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041f\u0440\u043e\u0432\u043e\u0434 \u0441\u0435\u0447\u0435\u043d\u0438\u0435\u043c 2.5"
+    },
+    {
+      "body": "\u041f\u0440\u043e\u0432\u043e\u0434 \u0441\u0435\u0447\u0435\u043d\u0438\u0435\u043c 15 \u043c\u043c2.",
+      "chunk_id": "so-fin-0112",
+      "document_id": "so-fin-doc-0056",
+      "end_char": 49,
+      "identifiers": "\u043c\u043c2",
+      "language": "rus",
+      "start_char": 26,
+      "title": "\u041f\u0440\u043e\u0432\u043e\u0434 \u0441\u0435\u0447\u0435\u043d\u0438\u0435\u043c 15"
+    },
+    {
+      "body": "\u041f\u0440\u043e\u0432\u043e\u0434 \u0441\u0435\u0447\u0435\u043d\u0438\u0435\u043c 1.5 \u043c\u043c2.",
+      "chunk_id": "so-fin-0113",
+      "document_id": "so-fin-doc-0057",
+      "end_char": 24,
+      "identifiers": "\u043c\u043c2",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041f\u0440\u043e\u0432\u043e\u0434 \u0441\u0435\u0447\u0435\u043d\u0438\u0435\u043c 1.5"
+    },
+    {
+      "body": "\u0421\u0435\u0442\u044c \u043d\u0430\u043f\u0440\u044f\u0436\u0435\u043d\u0438\u0435\u043c 63 \u043a\u0412.",
+      "chunk_id": "so-fin-0114",
+      "document_id": "so-fin-doc-0057",
+      "end_char": 49,
+      "identifiers": "so-fin-0114",
+      "language": "rus",
+      "start_char": 26,
+      "title": "\u0421\u0435\u0442\u044c \u043d\u0430\u043f\u0440\u044f\u0436\u0435\u043d\u0438\u0435\u043c 63"
+    },
+    {
+      "body": "\u0421\u0435\u0442\u044c 3 \u043a\u0412 \u0440\u0435\u0437\u0435\u0440\u0432\u043d\u0430\u044f.",
+      "chunk_id": "so-fin-0115",
+      "document_id": "so-fin-doc-0058",
+      "end_char": 20,
+      "identifiers": "so-fin-0115",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0421\u0435\u0442\u044c 3 \u043a\u0412"
+    },
+    {
+      "body": "\u0421\u0435\u0442\u044c \u043d\u0430\u043f\u0440\u044f\u0436\u0435\u043d\u0438\u0435\u043c 6,3 \u043a\u0412.",
+      "chunk_id": "so-fin-0116",
+      "document_id": "so-fin-doc-0058",
+      "end_char": 46,
+      "identifiers": "so-fin-0116",
+      "language": "rus",
+      "start_char": 22,
+      "title": "\u0421\u0435\u0442\u044c \u043d\u0430\u043f\u0440\u044f\u0436\u0435\u043d\u0438\u0435\u043c 6,3"
+    },
+    {
+      "body": "\u0414\u0430\u0432\u043b\u0435\u043d\u0438\u0435 \u0432 \u043a\u043e\u043d\u0442\u0443\u0440\u0435 5 \u0431\u0430\u0440.",
+      "chunk_id": "so-fin-0117",
+      "document_id": "so-fin-doc-0059",
+      "end_char": 25,
+      "identifiers": "so-fin-0117",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0414\u0430\u0432\u043b\u0435\u043d\u0438\u0435 \u0432 \u043a\u043e\u043d\u0442\u0443\u0440\u0435"
+    },
+    {
+      "body": "\u0414\u0430\u0432\u043b\u0435\u043d\u0438\u0435 25 \u0431\u0430\u0440 \u0432 \u0433\u0438\u0434\u0440\u043e\u043f\u0440\u0438\u0432\u043e\u0434\u0435.",
+      "chunk_id": "so-fin-0118",
+      "document_id": "so-fin-doc-0059",
+      "end_char": 58,
+      "identifiers": "so-fin-0118",
+      "language": "rus",
+      "start_char": 27,
+      "title": "\u0414\u0430\u0432\u043b\u0435\u043d\u0438\u0435 25 \u0431\u0430\u0440"
+    },
+    {
+      "body": "\u0414\u0430\u0432\u043b\u0435\u043d\u0438\u0435 \u0432 \u043a\u043e\u043d\u0442\u0443\u0440\u0435 2.5 \u0431\u0430\u0440.",
+      "chunk_id": "so-fin-0119",
+      "document_id": "so-fin-doc-0060",
+      "end_char": 27,
+      "identifiers": "so-fin-0119",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0414\u0430\u0432\u043b\u0435\u043d\u0438\u0435 \u0432 \u043a\u043e\u043d\u0442\u0443\u0440\u0435"
+    },
+    {
+      "body": "\u0417\u0430\u0437\u043e\u0440 0.25 \u043c\u043c.",
+      "chunk_id": "so-fin-0120",
+      "document_id": "so-fin-doc-0060",
+      "end_char": 43,
+      "identifiers": "so-fin-0120",
+      "language": "rus",
+      "start_char": 29,
+      "title": "\u0417\u0430\u0437\u043e\u0440 0.25 \u043c\u043c"
+    },
+    {
+      "body": "\u0417\u0430\u0437\u043e\u0440 15 \u043c\u043c.",
+      "chunk_id": "so-fin-0121",
+      "document_id": "so-fin-doc-0061",
+      "end_char": 12,
+      "identifiers": "so-fin-0121",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0417\u0430\u0437\u043e\u0440 15 \u043c\u043c"
+    },
+    {
+      "body": "\u0417\u0430\u0437\u043e\u0440 \u043a\u043b\u0430\u043f\u0430\u043d\u043e\u0432 0.15 \u043c\u043c.",
+      "chunk_id": "so-fin-0122",
+      "document_id": "so-fin-doc-0061",
+      "end_char": 37,
+      "identifiers": "so-fin-0122",
+      "language": "rus",
+      "start_char": 14,
+      "title": "\u0417\u0430\u0437\u043e\u0440 \u043a\u043b\u0430\u043f\u0430\u043d\u043e\u0432 0.15"
+    },
+    {
+      "body": "\u0420\u043e\u043b\u0438\u043a 6205 \u0437\u0430\u043a\u0440\u044b\u0442\u043e\u0433\u043e \u0442\u0438\u043f\u0430.",
+      "chunk_id": "so-fin-0123",
+      "document_id": "so-fin-doc-0062",
+      "end_char": 26,
+      "identifiers": "so-fin-0123",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0420\u043e\u043b\u0438\u043a 6205 \u0437\u0430\u043a\u0440\u044b\u0442\u043e\u0433\u043e"
+    },
+    {
+      "body": "\u0420\u043e\u043b\u0438\u043a 62060.",
+      "chunk_id": "so-fin-0124",
+      "document_id": "so-fin-doc-0062",
+      "end_char": 40,
+      "identifiers": "so-fin-0124",
+      "language": "rus",
+      "start_char": 28,
+      "title": "\u0420\u043e\u043b\u0438\u043a 62060"
+    },
+    {
+      "body": "\u0420\u043e\u043b\u0438\u043a 6206 \u0437\u0430\u043a\u0440\u044b\u0442\u043e\u0433\u043e \u0442\u0438\u043f\u0430.",
+      "chunk_id": "so-fin-0125",
+      "document_id": "so-fin-doc-0063",
+      "end_char": 26,
+      "identifiers": "so-fin-0125",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0420\u043e\u043b\u0438\u043a 6206 \u0437\u0430\u043a\u0440\u044b\u0442\u043e\u0433\u043e"
+    },
+    {
+      "body": "\u0421\u043c\u0435\u0441\u0438\u0442\u0435\u043b\u044c PD-220/40 \u0440\u0430\u0431\u043e\u0442\u0430\u0435\u0442.",
+      "chunk_id": "so-fin-0126",
+      "document_id": "so-fin-doc-0063",
+      "end_char": 57,
+      "identifiers": "PD-220/40",
+      "language": "rus",
+      "start_char": 28,
+      "title": "\u0421\u043c\u0435\u0441\u0438\u0442\u0435\u043b\u044c PD-220/40 \u0440\u0430\u0431\u043e\u0442\u0430\u0435\u0442"
+    },
+    {
+      "body": "\u0421\u043c\u0435\u0441\u0438\u0442\u0435\u043b\u044c PD-202/4 \u0440\u0430\u0431\u043e\u0442\u0430\u0435\u0442.",
+      "chunk_id": "so-fin-0127",
+      "document_id": "so-fin-doc-0064",
+      "end_char": 28,
+      "identifiers": "PD-202/4",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0421\u043c\u0435\u0441\u0438\u0442\u0435\u043b\u044c PD-202/4 \u0440\u0430\u0431\u043e\u0442\u0430\u0435\u0442"
+    },
+    {
+      "body": "\u0421\u043c\u0435\u0441\u0438\u0442\u0435\u043b\u044c PD-220/4 \u0440\u0430\u0431\u043e\u0442\u0430\u0435\u0442.",
+      "chunk_id": "so-fin-0128",
+      "document_id": "so-fin-doc-0064",
+      "end_char": 58,
+      "identifiers": "PD-220/4",
+      "language": "rus",
+      "start_char": 30,
+      "title": "\u0421\u043c\u0435\u0441\u0438\u0442\u0435\u043b\u044c PD-220/4 \u0440\u0430\u0431\u043e\u0442\u0430\u0435\u0442"
+    },
+    {
+      "body": "\u0420\u0430\u0441\u0445\u043e\u0434\u043e\u043c\u0435\u0440 \u041a\u042d-51 \u043e\u043f\u043b\u043e\u043c\u0431\u0438\u0440\u043e\u0432\u0430\u043d.",
+      "chunk_id": "so-fin-0129",
+      "document_id": "so-fin-doc-0065",
+      "end_char": 30,
+      "identifiers": "\u041a\u042d-51",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0420\u0430\u0441\u0445\u043e\u0434\u043e\u043c\u0435\u0440 \u041a\u042d-51 \u043e\u043f\u043b\u043e\u043c\u0431\u0438\u0440\u043e\u0432\u0430\u043d"
+    },
+    {
+      "body": "\u0420\u0430\u0441\u0445\u043e\u0434\u043e\u043c\u0435\u0440 \u041a\u042d-150 \u043e\u043f\u043b\u043e\u043c\u0431\u0438\u0440\u043e\u0432\u0430\u043d.",
+      "chunk_id": "so-fin-0130",
+      "document_id": "so-fin-doc-0065",
+      "end_char": 63,
+      "identifiers": "\u041a\u042d-150",
+      "language": "rus",
+      "start_char": 32,
+      "title": "\u0420\u0430\u0441\u0445\u043e\u0434\u043e\u043c\u0435\u0440 \u041a\u042d-150 \u043e\u043f\u043b\u043e\u043c\u0431\u0438\u0440\u043e\u0432\u0430\u043d"
+    },
+    {
+      "body": "\u0420\u0430\u0441\u0445\u043e\u0434\u043e\u043c\u0435\u0440 \u041a\u042d-15 \u043e\u043f\u043b\u043e\u043c\u0431\u0438\u0440\u043e\u0432\u0430\u043d.",
+      "chunk_id": "so-fin-0131",
+      "document_id": "so-fin-doc-0066",
+      "end_char": 30,
+      "identifiers": "\u041a\u042d-15",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0420\u0430\u0441\u0445\u043e\u0434\u043e\u043c\u0435\u0440 \u041a\u042d-15 \u043e\u043f\u043b\u043e\u043c\u0431\u0438\u0440\u043e\u0432\u0430\u043d"
+    },
+    {
+      "body": "\u041f\u0443\u0441\u043a\u0430\u0442\u0435\u043b\u044c \u0412-24 \u0432 \u044f\u0449\u0438\u043a\u0435.",
+      "chunk_id": "so-fin-0132",
+      "document_id": "so-fin-doc-0066",
+      "end_char": 55,
+      "identifiers": "\u0412-24",
+      "language": "rus",
+      "start_char": 32,
+      "title": "\u041f\u0443\u0441\u043a\u0430\u0442\u0435\u043b\u044c \u0412-24 \u0432"
+    },
+    {
+      "body": "\u041f\u0443\u0441\u043a\u0430\u0442\u0435\u043b\u044c \u0421-42 \u0432 \u044f\u0449\u0438\u043a\u0435.",
+      "chunk_id": "so-fin-0133",
+      "document_id": "so-fin-doc-0067",
+      "end_char": 23,
+      "identifiers": "\u0421-42",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041f\u0443\u0441\u043a\u0430\u0442\u0435\u043b\u044c \u0421-42 \u0432"
+    },
+    {
+      "body": "\u041f\u0443\u0441\u043a\u0430\u0442\u0435\u043b\u044c \u0421-24 \u0432 \u044f\u0449\u0438\u043a\u0435.",
+      "chunk_id": "so-fin-0134",
+      "document_id": "so-fin-doc-0067",
+      "end_char": 48,
+      "identifiers": "\u0421-24",
+      "language": "rus",
+      "start_char": 25,
+      "title": "\u041f\u0443\u0441\u043a\u0430\u0442\u0435\u043b\u044c \u0421-24 \u0432"
+    },
+    {
+      "body": "\u0422\u0435\u0440\u043c\u043e\u0441\u0442\u0430\u0442 \u0410-9 \u0437\u0430\u043c\u0435\u043d\u0451\u043d.",
+      "chunk_id": "so-fin-0135",
+      "document_id": "so-fin-doc-0068",
+      "end_char": 22,
+      "identifiers": "\u0410-9",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0422\u0435\u0440\u043c\u043e\u0441\u0442\u0430\u0442 \u0410-9 \u0437\u0430\u043c\u0435\u043d\u0451\u043d"
+    },
+    {
+      "body": "\u0422\u0435\u0440\u043c\u043e\u0441\u0442\u0430\u0442 \u041a-90 \u0437\u0430\u043c\u0435\u043d\u0451\u043d.",
+      "chunk_id": "so-fin-0136",
+      "document_id": "so-fin-doc-0068",
+      "end_char": 47,
+      "identifiers": "\u041a-90",
+      "language": "rus",
+      "start_char": 24,
+      "title": "\u0422\u0435\u0440\u043c\u043e\u0441\u0442\u0430\u0442 \u041a-90 \u0437\u0430\u043c\u0435\u043d\u0451\u043d"
+    },
+    {
+      "body": "\u0422\u0435\u0440\u043c\u043e\u0441\u0442\u0430\u0442 \u041a-9 \u0437\u0430\u043c\u0435\u043d\u0451\u043d.",
+      "chunk_id": "so-fin-0137",
+      "document_id": "so-fin-doc-0069",
+      "end_char": 22,
+      "identifiers": "\u041a-9",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0422\u0435\u0440\u043c\u043e\u0441\u0442\u0430\u0442 \u041a-9 \u0437\u0430\u043c\u0435\u043d\u0451\u043d"
+    },
+    {
+      "body": "\u041f\u0430\u0441\u043f\u043e\u0440\u0442 \u0438\u0437\u0434\u0435\u043b\u0438\u044f QX-3100.",
+      "chunk_id": "so-fin-0138",
+      "document_id": "so-fin-doc-0069",
+      "end_char": 48,
+      "identifiers": "QX-3100",
+      "language": "rus",
+      "start_char": 24,
+      "title": "\u041f\u0430\u0441\u043f\u043e\u0440\u0442 \u0438\u0437\u0434\u0435\u043b\u0438\u044f QX-3100"
+    },
+    {
+      "body": "\u041f\u0430\u0441\u043f\u043e\u0440\u0442 \u0438\u0437\u0434\u0435\u043b\u0438\u044f QX-31.",
+      "chunk_id": "so-fin-0139",
+      "document_id": "so-fin-doc-0070",
+      "end_char": 22,
+      "identifiers": "QX-31",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041f\u0430\u0441\u043f\u043e\u0440\u0442 \u0438\u0437\u0434\u0435\u043b\u0438\u044f QX-31"
+    },
+    {
+      "body": "\u041f\u0430\u0441\u043f\u043e\u0440\u0442 \u0438\u0437\u0434\u0435\u043b\u0438\u044f QX-310.",
+      "chunk_id": "so-fin-0140",
+      "document_id": "so-fin-doc-0070",
+      "end_char": 47,
+      "identifiers": "QX-310",
+      "language": "rus",
+      "start_char": 24,
+      "title": "\u041f\u0430\u0441\u043f\u043e\u0440\u0442 \u0438\u0437\u0434\u0435\u043b\u0438\u044f QX-310"
+    },
+    {
+      "body": "\u041a\u0430\u0440\u0442\u0430 \u0434\u0435\u0442\u0430\u043b\u0438 CD-45.20.",
+      "chunk_id": "so-fin-0141",
+      "document_id": "so-fin-doc-0071",
+      "end_char": 22,
+      "identifiers": "CD-45.20",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041a\u0430\u0440\u0442\u0430 \u0434\u0435\u0442\u0430\u043b\u0438 CD-45.20"
+    },
+    {
+      "body": "\u041a\u0430\u0440\u0442\u0430 \u0434\u0435\u0442\u0430\u043b\u0438 CD-45-2.",
+      "chunk_id": "so-fin-0142",
+      "document_id": "so-fin-doc-0071",
+      "end_char": 45,
+      "identifiers": "CD-45-2",
+      "language": "rus",
+      "start_char": 24,
+      "title": "\u041a\u0430\u0440\u0442\u0430 \u0434\u0435\u0442\u0430\u043b\u0438 CD-45-2"
+    },
+    {
+      "body": "\u041a\u0430\u0440\u0442\u0430 \u0434\u0435\u0442\u0430\u043b\u0438 CD-45.2.",
+      "chunk_id": "so-fin-0143",
+      "document_id": "so-fin-doc-0072",
+      "end_char": 21,
+      "identifiers": "CD-45.2",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041a\u0430\u0440\u0442\u0430 \u0434\u0435\u0442\u0430\u043b\u0438 CD-45.2"
+    },
+    {
+      "body": "\u0410\u043a\u0442 \u041f\u0420-2021/1 \u043f\u043e\u0434\u043f\u0438\u0441\u0430\u043d.",
+      "chunk_id": "so-fin-0144",
+      "document_id": "so-fin-doc-0072",
+      "end_char": 46,
+      "identifiers": "\u041f\u0420-2021/1",
+      "language": "rus",
+      "start_char": 23,
+      "title": "\u0410\u043a\u0442 \u041f\u0420-2021/1 \u043f\u043e\u0434\u043f\u0438\u0441\u0430\u043d"
+    },
+    {
+      "body": "\u0410\u043a\u0442 PR-2021/11 \u043f\u043e\u0434\u043f\u0438\u0441\u0430\u043d.",
+      "chunk_id": "so-fin-0145",
+      "document_id": "so-fin-doc-0073",
+      "end_char": 24,
+      "identifiers": "PR-2021/11",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0410\u043a\u0442 PR-2021/11 \u043f\u043e\u0434\u043f\u0438\u0441\u0430\u043d"
+    },
+    {
+      "body": "\u0410\u043a\u0442 \u041f\u0420-2021/11 \u043f\u043e\u0434\u043f\u0438\u0441\u0430\u043d.",
+      "chunk_id": "so-fin-0146",
+      "document_id": "so-fin-doc-0073",
+      "end_char": 50,
+      "identifiers": "\u041f\u0420-2021/11",
+      "language": "rus",
+      "start_char": 26,
+      "title": "\u0410\u043a\u0442 \u041f\u0420-2021/11 \u043f\u043e\u0434\u043f\u0438\u0441\u0430\u043d"
+    },
+    {
+      "body": "\u0422\u0440\u043e\u0439\u043d\u0438\u043a DN800 \u0441\u0442\u0430\u043b\u044c\u043d\u043e\u0439.",
+      "chunk_id": "so-fin-0147",
+      "document_id": "so-fin-doc-0074",
+      "end_char": 23,
+      "identifiers": "DN800",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0422\u0440\u043e\u0439\u043d\u0438\u043a DN800 \u0441\u0442\u0430\u043b\u044c\u043d\u043e\u0439"
+    },
+    {
+      "body": "\u0422\u0440\u043e\u0439\u043d\u0438\u043a DN 80 \u0441\u0442\u0430\u043b\u044c\u043d\u043e\u0439.",
+      "chunk_id": "so-fin-0148",
+      "document_id": "so-fin-doc-0074",
+      "end_char": 48,
+      "identifiers": "so-fin-0148",
+      "language": "rus",
+      "start_char": 25,
+      "title": "\u0422\u0440\u043e\u0439\u043d\u0438\u043a DN 80"
+    },
+    {
+      "body": "\u0422\u0440\u043e\u0439\u043d\u0438\u043a DN80 \u0441\u0442\u0430\u043b\u044c\u043d\u043e\u0439.",
+      "chunk_id": "so-fin-0149",
+      "document_id": "so-fin-doc-0075",
+      "end_char": 22,
+      "identifiers": "DN80",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0422\u0440\u043e\u0439\u043d\u0438\u043a DN80 \u0441\u0442\u0430\u043b\u044c\u043d\u043e\u0439"
+    },
+    {
+      "body": "\u0421\u0435\u0440\u0438\u0439\u043d\u044b\u0439 \u043d\u043e\u043c\u0435\u0440 SN-778.",
+      "chunk_id": "so-fin-0150",
+      "document_id": "so-fin-doc-0075",
+      "end_char": 46,
+      "identifiers": "SN-778",
+      "language": "rus",
+      "start_char": 24,
+      "title": "\u0421\u0435\u0440\u0438\u0439\u043d\u044b\u0439 \u043d\u043e\u043c\u0435\u0440 SN-778"
+    },
+    {
+      "body": "\u0421\u0435\u0440\u0438\u0439\u043d\u044b\u0439 \u043d\u043e\u043c\u0435\u0440 sn-7781.",
+      "chunk_id": "so-fin-0151",
+      "document_id": "so-fin-doc-0076",
+      "end_char": 23,
+      "identifiers": "sn-7781",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0421\u0435\u0440\u0438\u0439\u043d\u044b\u0439 \u043d\u043e\u043c\u0435\u0440 sn-7781"
+    },
+    {
+      "body": "\u0421\u0435\u0440\u0438\u0439\u043d\u044b\u0439 \u043d\u043e\u043c\u0435\u0440 SN-7781.",
+      "chunk_id": "so-fin-0152",
+      "document_id": "so-fin-doc-0076",
+      "end_char": 48,
+      "identifiers": "SN-7781",
+      "language": "rus",
+      "start_char": 25,
+      "title": "\u0421\u0435\u0440\u0438\u0439\u043d\u044b\u0439 \u043d\u043e\u043c\u0435\u0440 SN-7781"
+    },
+    {
+      "body": "\u0422\u0440\u0443\u0431\u044b \u043f\u043e \u0413\u041e\u0421\u0422 10705-80.",
+      "chunk_id": "so-fin-0153",
+      "document_id": "so-fin-doc-0077",
+      "end_char": 23,
+      "identifiers": "10705-80",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0422\u0440\u0443\u0431\u044b \u043f\u043e \u0413\u041e\u0421\u0422"
+    },
+    {
+      "body": "\u0422\u0440\u0443\u0431\u044b \u043f\u043e \u0413\u041e\u0421\u0422 10704-76.",
+      "chunk_id": "so-fin-0154",
+      "document_id": "so-fin-doc-0077",
+      "end_char": 48,
+      "identifiers": "10704-76",
+      "language": "rus",
+      "start_char": 25,
+      "title": "\u0422\u0440\u0443\u0431\u044b \u043f\u043e \u0413\u041e\u0421\u0422"
+    },
+    {
+      "body": "\u0422\u0440\u0443\u0431\u044b \u043f\u043e \u0413\u041e\u0421\u0422 10704-91.",
+      "chunk_id": "so-fin-0155",
+      "document_id": "so-fin-doc-0078",
+      "end_char": 23,
+      "identifiers": "10704-91",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0422\u0440\u0443\u0431\u044b \u043f\u043e \u0413\u041e\u0421\u0422"
+    },
+    {
+      "body": "\u041f\u043e\u043b\u0435 \u0434\u043e\u043f\u0443\u0441\u043a\u0430 \u043d\u0430 \u0440\u0430\u0437\u043c\u0435\u0440 \u0432\u0430\u043b\u0430.",
+      "chunk_id": "so-fin-0156",
+      "document_id": "so-fin-doc-0078",
+      "end_char": 53,
+      "identifiers": "so-fin-0156",
+      "language": "rus",
+      "start_char": 25,
+      "title": "\u041f\u043e\u043b\u0435 \u0434\u043e\u043f\u0443\u0441\u043a\u0430 \u043d\u0430"
+    },
+    {
+      "body": "\u0428\u0430\u0433 \u0440\u0435\u0448\u0451\u0442\u043a\u0438 \u043e\u0433\u0440\u0430\u0436\u0434\u0435\u043d\u0438\u044f.",
+      "chunk_id": "so-fin-0157",
+      "document_id": "so-fin-doc-0079",
+      "end_char": 23,
+      "identifiers": "so-fin-0157",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0428\u0430\u0433 \u0440\u0435\u0448\u0451\u0442\u043a\u0438 \u043e\u0433\u0440\u0430\u0436\u0434\u0435\u043d\u0438\u044f"
+    },
+    {
+      "body": "\u0420\u043e\u0442 \u0438 \u043d\u043e\u0441 \u0437\u0430\u0449\u0438\u0449\u0435\u043d\u044b \u0440\u0435\u0441\u043f\u0438\u0440\u0430\u0442\u043e\u0440\u043e\u043c.",
+      "chunk_id": "so-fin-0158",
+      "document_id": "so-fin-doc-0079",
+      "end_char": 57,
+      "identifiers": "so-fin-0158",
+      "language": "rus",
+      "start_char": 25,
+      "title": "\u0420\u043e\u0442 \u0438 \u043d\u043e\u0441"
+    },
+    {
+      "body": "\u041e\u0442\u0447\u0451\u0442 \u0437\u0430 \u043f\u0440\u043e\u0448\u043b\u044b\u0439 \u0433\u043e\u0434 \u0443\u0442\u0432\u0435\u0440\u0436\u0434\u0451\u043d.",
+      "chunk_id": "so-fin-0159",
+      "document_id": "so-fin-doc-0080",
+      "end_char": 31,
+      "identifiers": "so-fin-0159",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041e\u0442\u0447\u0451\u0442 \u0437\u0430 \u043f\u0440\u043e\u0448\u043b\u044b\u0439"
+    },
+    {
+      "body": "\u041b\u0438\u0441\u0442 \u043d\u0435\u0440\u0436\u0430\u0432\u0435\u044e\u0449\u0438\u0439 \u0442\u043e\u043b\u0449\u0438\u043d\u043e\u0439 \u0434\u0432\u0430 \u043c\u0438\u043b\u043b\u0438\u043c\u0435\u0442\u0440\u0430.",
+      "chunk_id": "so-fin-0160",
+      "document_id": "so-fin-doc-0080",
+      "end_char": 74,
+      "identifiers": "so-fin-0160",
+      "language": "rus",
+      "start_char": 33,
+      "title": "\u041b\u0438\u0441\u0442 \u043d\u0435\u0440\u0436\u0430\u0432\u0435\u044e\u0449\u0438\u0439 \u0442\u043e\u043b\u0449\u0438\u043d\u043e\u0439"
+    },
+    {
+      "body": "\u041f\u043e\u0442 \u0437\u0430\u043b\u0438\u0432\u0430\u043b \u0433\u043b\u0430\u0437\u0430 \u043c\u043e\u043d\u0442\u0430\u0436\u043d\u0438\u043a\u0430.",
+      "chunk_id": "so-fin-0161",
+      "document_id": "so-fin-doc-0081",
+      "end_char": 29,
+      "identifiers": "so-fin-0161",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041f\u043e\u0442 \u0437\u0430\u043b\u0438\u0432\u0430\u043b \u0433\u043b\u0430\u0437\u0430"
+    },
+    {
+      "body": "\u041c\u043e\u0440\u0435 \u0448\u0442\u043e\u0440\u043c\u0438\u043b\u043e \u0432\u0441\u044e \u043d\u0435\u0434\u0435\u043b\u044e.",
+      "chunk_id": "so-fin-0162",
+      "document_id": "so-fin-doc-0081",
+      "end_char": 56,
+      "identifiers": "so-fin-0162",
+      "language": "rus",
+      "start_char": 31,
+      "title": "\u041c\u043e\u0440\u0435 \u0448\u0442\u043e\u0440\u043c\u0438\u043b\u043e \u0432\u0441\u044e"
+    },
+    {
+      "body": "\u0421\u0430\u043b\u043e \u0438 \u0445\u043b\u0435\u0431 \u043d\u0430 \u043e\u0431\u0435\u0434.",
+      "chunk_id": "so-fin-0163",
+      "document_id": "so-fin-doc-0082",
+      "end_char": 20,
+      "identifiers": "so-fin-0163",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0421\u0430\u043b\u043e \u0438 \u0445\u043b\u0435\u0431"
+    },
+    {
+      "body": "\u0411\u0440\u0430\u043a \u043f\u0440\u043e\u0434\u0443\u043a\u0446\u0438\u0438 \u043f\u0440\u0435\u0432\u044b\u0441\u0438\u043b \u043d\u043e\u0440\u043c\u0443.",
+      "chunk_id": "so-fin-0164",
+      "document_id": "so-fin-doc-0082",
+      "end_char": 52,
+      "identifiers": "so-fin-0164",
+      "language": "rus",
+      "start_char": 22,
+      "title": "\u0411\u0440\u0430\u043a \u043f\u0440\u043e\u0434\u0443\u043a\u0446\u0438\u0438 \u043f\u0440\u0435\u0432\u044b\u0441\u0438\u043b"
+    },
+    {
+      "body": "\u041f\u0430\u0442\u0440\u043e\u043d \u0442\u043e\u043a\u0430\u0440\u043d\u043e\u0433\u043e \u0441\u0442\u0430\u043d\u043a\u0430 \u0440\u0430\u0437\u0431\u043e\u043b\u0442\u0430\u043d.",
+      "chunk_id": "so-fin-0165",
+      "document_id": "so-fin-doc-0083",
+      "end_char": 34,
+      "identifiers": "so-fin-0165",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041f\u0430\u0442\u0440\u043e\u043d \u0442\u043e\u043a\u0430\u0440\u043d\u043e\u0433\u043e \u0441\u0442\u0430\u043d\u043a\u0430"
+    },
+    {
+      "body": "\u0421\u043e\u0441\u043d\u043e\u0432\u044b\u0439 \u0431\u043e\u0440 \u0437\u0430 \u043e\u0433\u0440\u0430\u0434\u043e\u0439.",
+      "chunk_id": "so-fin-0166",
+      "document_id": "so-fin-doc-0083",
+      "end_char": 60,
+      "identifiers": "so-fin-0166",
+      "language": "rus",
+      "start_char": 36,
+      "title": "\u0421\u043e\u0441\u043d\u043e\u0432\u044b\u0439 \u0431\u043e\u0440 \u0437\u0430"
+    },
+    {
+      "body": "\u0412\u043e\u043b \u0442\u044f\u043d\u0443\u043b \u0442\u0435\u043b\u0435\u0433\u0443.",
+      "chunk_id": "so-fin-0167",
+      "document_id": "so-fin-doc-0084",
+      "end_char": 17,
+      "identifiers": "so-fin-0167",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0412\u043e\u043b \u0442\u044f\u043d\u0443\u043b \u0442\u0435\u043b\u0435\u0433\u0443"
+    },
+    {
+      "body": "\u0418\u043d\u0436\u0435\u043d\u0435\u0440 \u0445\u043e\u0442\u0435\u043b \u0443\u0442\u043e\u0447\u043d\u0438\u0442\u044c \u0433\u0440\u0430\u0444\u0438\u043a.",
+      "chunk_id": "so-fin-0168",
+      "document_id": "so-fin-doc-0084",
+      "end_char": 49,
+      "identifiers": "so-fin-0168",
+      "language": "rus",
+      "start_char": 19,
+      "title": "\u0418\u043d\u0436\u0435\u043d\u0435\u0440 \u0445\u043e\u0442\u0435\u043b \u0443\u0442\u043e\u0447\u043d\u0438\u0442\u044c"
+    },
+    {
+      "body": "Hotel booking for the commissioning team.",
+      "chunk_id": "so-fin-0169",
+      "document_id": "so-fin-doc-0085",
+      "end_char": 41,
+      "identifiers": "so-fin-0169",
+      "language": "eng",
+      "start_char": 0,
+      "title": "Hotel booking for"
+    },
+    {
+      "body": "\u041f\u043b\u0430\u0442\u0430 \u0440\u0430\u0441\u0448\u0438\u0440\u0435\u043d\u0438\u044f \u043a\u043e\u043d\u0442\u0440\u043e\u043b\u043b\u0435\u0440\u0430.",
+      "chunk_id": "so-fin-0170",
+      "document_id": "so-fin-doc-0085",
+      "end_char": 72,
+      "identifiers": "so-fin-0170",
+      "language": "rus",
+      "start_char": 43,
+      "title": "\u041f\u043b\u0430\u0442\u0430 \u0440\u0430\u0441\u0448\u0438\u0440\u0435\u043d\u0438\u044f \u043a\u043e\u043d\u0442\u0440\u043e\u043b\u043b\u0435\u0440\u0430"
+    },
+    {
+      "body": "Base plate alignment check.",
+      "chunk_id": "so-fin-0171",
+      "document_id": "so-fin-doc-0086",
+      "end_char": 27,
+      "identifiers": "so-fin-0171",
+      "language": "eng",
+      "start_char": 0,
+      "title": "Base plate alignment"
+    },
+    {
+      "body": "\u0420\u043e\u0434 \u0434\u0435\u044f\u0442\u0435\u043b\u044c\u043d\u043e\u0441\u0442\u0438 \u0437\u0430\u044f\u0432\u0438\u0442\u0435\u043b\u044f \u0443\u043a\u0430\u0437\u0430\u043d.",
+      "chunk_id": "so-fin-0172",
+      "document_id": "so-fin-doc-0086",
+      "end_char": 63,
+      "identifiers": "so-fin-0172",
+      "language": "rus",
+      "start_char": 29,
+      "title": "\u0420\u043e\u0434 \u0434\u0435\u044f\u0442\u0435\u043b\u044c\u043d\u043e\u0441\u0442\u0438 \u0437\u0430\u044f\u0432\u0438\u0442\u0435\u043b\u044f"
+    },
+    {
+      "body": "Piston rod wear measurement.",
+      "chunk_id": "so-fin-0173",
+      "document_id": "so-fin-doc-0087",
+      "end_char": 28,
+      "identifiers": "so-fin-0173",
+      "language": "eng",
+      "start_char": 0,
+      "title": "Piston rod wear"
+    },
+    {
+      "body": "\u041c\u0430\u0441\u043b\u043e \u0441\u0442\u0435\u043a\u043b\u043e \u0432 \u043f\u043e\u0434\u0434\u043e\u043d.",
+      "chunk_id": "so-fin-0174",
+      "document_id": "so-fin-doc-0087",
+      "end_char": 52,
+      "identifiers": "so-fin-0174",
+      "language": "rus",
+      "start_char": 30,
+      "title": "\u041c\u0430\u0441\u043b\u043e \u0441\u0442\u0435\u043a\u043b\u043e \u0432"
+    },
+    {
+      "body": "\u0421\u0442\u0435\u043a\u043b\u043e \u0441\u043c\u043e\u0442\u0440\u043e\u0432\u043e\u0433\u043e \u043e\u043a\u043d\u0430 \u0442\u0440\u0435\u0441\u043d\u0443\u043b\u043e.",
+      "chunk_id": "so-fin-0175",
+      "document_id": "so-fin-doc-0088",
+      "end_char": 32,
+      "identifiers": "so-fin-0175",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0421\u0442\u0435\u043a\u043b\u043e \u0441\u043c\u043e\u0442\u0440\u043e\u0432\u043e\u0433\u043e \u043e\u043a\u043d\u0430"
+    },
+    {
+      "body": "\u041f\u043e\u043b \u0431\u0435\u0442\u043e\u043d\u043d\u044b\u0439 \u0437\u0430\u043b\u0438\u0442 \u0432 \u0441\u043a\u043b\u0430\u0434\u0435.",
+      "chunk_id": "so-fin-0176",
+      "document_id": "so-fin-doc-0088",
+      "end_char": 62,
+      "identifiers": "so-fin-0176",
+      "language": "rus",
+      "start_char": 34,
+      "title": "\u041f\u043e\u043b \u0431\u0435\u0442\u043e\u043d\u043d\u044b\u0439 \u0437\u0430\u043b\u0438\u0442"
+    },
+    {
+      "body": "\u041b\u0435\u0441 \u0437\u0430 \u0442\u0435\u0440\u0440\u0438\u0442\u043e\u0440\u0438\u0435\u0439 \u0432\u044b\u0440\u0443\u0431\u043b\u0435\u043d.",
+      "chunk_id": "so-fin-0177",
+      "document_id": "so-fin-doc-0089",
+      "end_char": 28,
+      "identifiers": "so-fin-0177",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041b\u0435\u0441 \u0437\u0430 \u0442\u0435\u0440\u0440\u0438\u0442\u043e\u0440\u0438\u0435\u0439"
+    },
+    {
+      "body": "\u041b\u0435\u0441\u0430 \u0441\u0442\u0440\u043e\u0438\u0442\u0435\u043b\u044c\u043d\u044b\u0435 \u0441\u043c\u043e\u043d\u0442\u0438\u0440\u043e\u0432\u0430\u043d\u044b \u0443 \u0444\u0430\u0441\u0430\u0434\u0430.",
+      "chunk_id": "so-fin-0178",
+      "document_id": "so-fin-doc-0089",
+      "end_char": 70,
+      "identifiers": "so-fin-0178",
+      "language": "rus",
+      "start_char": 30,
+      "title": "\u041b\u0435\u0441\u0430 \u0441\u0442\u0440\u043e\u0438\u0442\u0435\u043b\u044c\u043d\u044b\u0435 \u0441\u043c\u043e\u043d\u0442\u0438\u0440\u043e\u0432\u0430\u043d\u044b"
+    },
+    {
+      "body": "\u0420\u044f\u0434\u043e\u043c \u0441 \u043f\u0440\u043e\u0445\u043e\u0434\u043d\u043e\u0439 \u043f\u0430\u0440\u043a\u043e\u0432\u043a\u0430.",
+      "chunk_id": "so-fin-0179",
+      "document_id": "so-fin-doc-0090",
+      "end_char": 27,
+      "identifiers": "so-fin-0179",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0420\u044f\u0434\u043e\u043c \u0441 \u043f\u0440\u043e\u0445\u043e\u0434\u043d\u043e\u0439"
+    },
+    {
+      "body": "\u0420\u044f\u0434 \u043e\u043f\u043e\u0440 \u0432\u044b\u0440\u043e\u0432\u043d\u0435\u043d.",
+      "chunk_id": "so-fin-0180",
+      "document_id": "so-fin-doc-0090",
+      "end_char": 47,
+      "identifiers": "so-fin-0180",
+      "language": "rus",
+      "start_char": 29,
+      "title": "\u0420\u044f\u0434 \u043e\u043f\u043e\u0440 \u0432\u044b\u0440\u043e\u0432\u043d\u0435\u043d"
+    },
+    {
+      "body": "\u0411\u0440\u0438\u0433\u0430\u0434\u0430 \u043c\u044b\u043b\u0430 \u0441\u0442\u0435\u043d\u044b \u0446\u0435\u0445\u0430.",
+      "chunk_id": "so-fin-0181",
+      "document_id": "so-fin-doc-0091",
+      "end_char": 24,
+      "identifiers": "so-fin-0181",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0411\u0440\u0438\u0433\u0430\u0434\u0430 \u043c\u044b\u043b\u0430 \u0441\u0442\u0435\u043d\u044b"
+    },
+    {
+      "body": "\u041c\u044b\u043b\u043e \u0445\u043e\u0437\u044f\u0439\u0441\u0442\u0432\u0435\u043d\u043d\u043e\u0435 \u0432\u044b\u0434\u0430\u043d\u043e \u0443\u0431\u043e\u0440\u0449\u0438\u0446\u0430\u043c.",
+      "chunk_id": "so-fin-0182",
+      "document_id": "so-fin-doc-0091",
+      "end_char": 62,
+      "identifiers": "so-fin-0182",
+      "language": "rus",
+      "start_char": 26,
+      "title": "\u041c\u044b\u043b\u043e \u0445\u043e\u0437\u044f\u0439\u0441\u0442\u0432\u0435\u043d\u043d\u043e\u0435 \u0432\u044b\u0434\u0430\u043d\u043e"
+    },
+    {
+      "body": "\u041e\u0441\u0443\u0448\u0438\u0442\u0435\u043b\u044c \u0430\u0434\u0441\u043e\u0440\u0431\u0446\u0438\u043e\u043d\u043d\u044b\u0439.",
+      "chunk_id": "so-fin-0183",
+      "document_id": "so-fin-doc-0092",
+      "end_char": 24,
+      "identifiers": "so-fin-0183",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041e\u0441\u0443\u0448\u0438\u0442\u0435\u043b\u044c \u0430\u0434\u0441\u043e\u0440\u0431\u0446\u0438\u043e\u043d\u043d\u044b\u0439"
+    },
+    {
+      "body": "\u041e\u0441\u0443\u0448\u0438\u0442\u0435\u043b\u044c \u0440\u0435\u0444\u0440\u0438\u0436\u0435\u0440\u0430\u0442\u043e\u0440\u043d\u044b\u0439.",
+      "chunk_id": "so-fin-0184",
+      "document_id": "so-fin-doc-0092",
+      "end_char": 52,
+      "identifiers": "so-fin-0184",
+      "language": "rus",
+      "start_char": 26,
+      "title": "\u041e\u0441\u0443\u0448\u0438\u0442\u0435\u043b\u044c \u0440\u0435\u0444\u0440\u0438\u0436\u0435\u0440\u0430\u0442\u043e\u0440\u043d\u044b\u0439"
+    },
+    {
+      "body": "\u041f\u044b\u043b\u0435\u0443\u043b\u043e\u0432\u0438\u0442\u0435\u043b\u044c \u0446\u0438\u043a\u043b\u043e\u043d\u043d\u043e\u0433\u043e \u0442\u0438\u043f\u0430.",
+      "chunk_id": "so-fin-0185",
+      "document_id": "so-fin-doc-0093",
+      "end_char": 30,
+      "identifiers": "so-fin-0185",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041f\u044b\u043b\u0435\u0443\u043b\u043e\u0432\u0438\u0442\u0435\u043b\u044c \u0446\u0438\u043a\u043b\u043e\u043d\u043d\u043e\u0433\u043e \u0442\u0438\u043f\u0430"
+    },
+    {
+      "body": "\u0411\u0430\u043a \u0440\u0430\u0441\u0448\u0438\u0440\u0438\u0442\u0435\u043b\u044c\u043d\u044b\u0439.",
+      "chunk_id": "so-fin-0186",
+      "document_id": "so-fin-doc-0093",
+      "end_char": 51,
+      "identifiers": "so-fin-0186",
+      "language": "rus",
+      "start_char": 32,
+      "title": "\u0411\u0430\u043a \u0440\u0430\u0441\u0448\u0438\u0440\u0438\u0442\u0435\u043b\u044c\u043d\u044b\u0439"
+    },
+    {
+      "body": "\u041f\u043e\u043f\u043b\u0430\u0432\u043e\u043a \u0443\u0440\u043e\u0432\u043d\u0435\u043c\u0435\u0440\u0430.",
+      "chunk_id": "so-fin-0187",
+      "document_id": "so-fin-doc-0094",
+      "end_char": 20,
+      "identifiers": "so-fin-0187",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041f\u043e\u043f\u043b\u0430\u0432\u043e\u043a \u0443\u0440\u043e\u0432\u043d\u0435\u043c\u0435\u0440\u0430"
+    },
+    {
+      "body": "\u0411\u0430\u043a \u0441 \u043f\u043e\u043f\u043b\u0430\u0432\u043a\u043e\u043c.",
+      "chunk_id": "so-fin-0188",
+      "document_id": "so-fin-doc-0094",
+      "end_char": 38,
+      "identifiers": "so-fin-0188",
+      "language": "rus",
+      "start_char": 22,
+      "title": "\u0411\u0430\u043a \u0441 \u043f\u043e\u043f\u043b\u0430\u0432\u043a\u043e\u043c"
+    },
+    {
+      "body": "\u041f\u0440\u0435\u0441\u0441 \u0433\u0438\u0434\u0440\u0430\u0432\u043b\u0438\u0447\u0435\u0441\u043a\u0438\u0439 \u0440\u0443\u0447\u043d\u043e\u0439.",
+      "chunk_id": "so-fin-0189",
+      "document_id": "so-fin-doc-0095",
+      "end_char": 28,
+      "identifiers": "so-fin-0189",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041f\u0440\u0435\u0441\u0441 \u0433\u0438\u0434\u0440\u0430\u0432\u043b\u0438\u0447\u0435\u0441\u043a\u0438\u0439 \u0440\u0443\u0447\u043d\u043e\u0439"
+    },
+    {
+      "body": "\u0413\u0438\u0434\u0440\u0430\u0432\u043b\u0438\u0447\u0435\u0441\u043a\u0438\u0439 \u043f\u0440\u0435\u0441\u0441 \u0443\u0441\u0438\u043b\u0438\u0435\u043c \u0441\u0442\u043e \u0442\u043e\u043d\u043d.",
+      "chunk_id": "so-fin-0190",
+      "document_id": "so-fin-doc-0095",
+      "end_char": 68,
+      "identifiers": "so-fin-0190",
+      "language": "rus",
+      "start_char": 30,
+      "title": "\u0413\u0438\u0434\u0440\u0430\u0432\u043b\u0438\u0447\u0435\u0441\u043a\u0438\u0439 \u043f\u0440\u0435\u0441\u0441 \u0443\u0441\u0438\u043b\u0438\u0435\u043c"
+    },
+    {
+      "body": "\u0414\u0435\u0444\u043b\u0435\u043a\u0442\u043e\u0440 \u0432\u0435\u043d\u0442\u0448\u0430\u0445\u0442\u044b \u043f\u043e\u0433\u043d\u0443\u0442.",
+      "chunk_id": "so-fin-0191",
+      "document_id": "so-fin-doc-0096",
+      "end_char": 27,
+      "identifiers": "so-fin-0191",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0414\u0435\u0444\u043b\u0435\u043a\u0442\u043e\u0440 \u0432\u0435\u043d\u0442\u0448\u0430\u0445\u0442\u044b \u043f\u043e\u0433\u043d\u0443\u0442"
+    },
+    {
+      "body": "\u0424\u043b\u044e\u0433\u0430\u0440\u043a\u0430 \u0432\u0435\u043d\u0442\u0448\u0430\u0445\u0442\u044b \u0441\u043e\u0440\u0432\u0430\u043d\u0430.",
+      "chunk_id": "so-fin-0192",
+      "document_id": "so-fin-doc-0096",
+      "end_char": 56,
+      "identifiers": "so-fin-0192",
+      "language": "rus",
+      "start_char": 29,
+      "title": "\u0424\u043b\u044e\u0433\u0430\u0440\u043a\u0430 \u0432\u0435\u043d\u0442\u0448\u0430\u0445\u0442\u044b \u0441\u043e\u0440\u0432\u0430\u043d\u0430"
+    },
+    {
+      "body": "\u041d\u0430\u0433\u0440\u0435\u0432\u0430\u0442\u0435\u043b\u044c \u043c\u0430\u0441\u043b\u044f\u043d\u044b\u0439.",
+      "chunk_id": "so-fin-0193",
+      "document_id": "so-fin-doc-0097",
+      "end_char": 21,
+      "identifiers": "so-fin-0193",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u041d\u0430\u0433\u0440\u0435\u0432\u0430\u0442\u0435\u043b\u044c \u043c\u0430\u0441\u043b\u044f\u043d\u044b\u0439"
+    },
+    {
+      "body": "\u041d\u0430\u0433\u0440\u0435\u0432\u0430\u0442\u0435\u043b\u044c \u0438\u043d\u0444\u0440\u0430\u043a\u0440\u0430\u0441\u043d\u044b\u0439.",
+      "chunk_id": "so-fin-0194",
+      "document_id": "so-fin-doc-0097",
+      "end_char": 48,
+      "identifiers": "so-fin-0194",
+      "language": "rus",
+      "start_char": 23,
+      "title": "\u041d\u0430\u0433\u0440\u0435\u0432\u0430\u0442\u0435\u043b\u044c \u0438\u043d\u0444\u0440\u0430\u043a\u0440\u0430\u0441\u043d\u044b\u0439"
+    },
+    {
+      "body": "\u0418\u043c\u043f\u0443\u043b\u044c\u0441\u043d\u044b\u0439 \u0431\u043b\u043e\u043a \u043f\u0438\u0442\u0430\u043d\u0438\u044f.",
+      "chunk_id": "so-fin-0195",
+      "document_id": "so-fin-doc-0098",
+      "end_char": 24,
+      "identifiers": "so-fin-0195",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0418\u043c\u043f\u0443\u043b\u044c\u0441\u043d\u044b\u0439 \u0431\u043b\u043e\u043a \u043f\u0438\u0442\u0430\u043d\u0438\u044f"
+    },
+    {
+      "body": "\u0412\u043e\u0434\u043e\u043c\u0435\u0440 \u043c\u0435\u0445\u0430\u043d\u0438\u0447\u0435\u0441\u043a\u0438\u0439.",
+      "chunk_id": "so-fin-0196",
+      "document_id": "so-fin-doc-0098",
+      "end_char": 47,
+      "identifiers": "so-fin-0196",
+      "language": "rus",
+      "start_char": 26,
+      "title": "\u0412\u043e\u0434\u043e\u043c\u0435\u0440 \u043c\u0435\u0445\u0430\u043d\u0438\u0447\u0435\u0441\u043a\u0438\u0439"
+    },
+    {
+      "body": "\u0412\u043e\u0434\u043e\u043c\u0435\u0440 \u0438\u043c\u043f\u0443\u043b\u044c\u0441\u043d\u044b\u0439.",
+      "chunk_id": "so-fin-0197",
+      "document_id": "so-fin-doc-0099",
+      "end_char": 19,
+      "identifiers": "so-fin-0197",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u0412\u043e\u0434\u043e\u043c\u0435\u0440 \u0438\u043c\u043f\u0443\u043b\u044c\u0441\u043d\u044b\u0439"
+    },
+    {
+      "body": "\u042d\u0436\u0435\u043a\u0442\u043e\u0440 \u0432\u043e\u0434\u043e\u0441\u0442\u0440\u0443\u0439\u043d\u044b\u0439.",
+      "chunk_id": "so-fin-0198",
+      "document_id": "so-fin-doc-0099",
+      "end_char": 42,
+      "identifiers": "so-fin-0198",
+      "language": "rus",
+      "start_char": 21,
+      "title": "\u042d\u0436\u0435\u043a\u0442\u043e\u0440 \u0432\u043e\u0434\u043e\u0441\u0442\u0440\u0443\u0439\u043d\u044b\u0439"
+    },
+    {
+      "body": "\u042d\u0436\u0435\u043a\u0442\u043e\u0440 \u043f\u0430\u0440\u043e\u0441\u0442\u0440\u0443\u0439\u043d\u044b\u0439.",
+      "chunk_id": "so-fin-0199",
+      "document_id": "so-fin-doc-0100",
+      "end_char": 21,
+      "identifiers": "so-fin-0199",
+      "language": "rus",
+      "start_char": 0,
+      "title": "\u042d\u0436\u0435\u043a\u0442\u043e\u0440 \u043f\u0430\u0440\u043e\u0441\u0442\u0440\u0443\u0439\u043d\u044b\u0439"
+    }
+  ],
+  "schema": "arxiv-int.retrieval.lexical-second-opinion-split.v1",
+  "split": "final"
+}

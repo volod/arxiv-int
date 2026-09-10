@@ -8,7 +8,7 @@ from arxiv_int.retrieval.calibration.config import (
     load_calibration_config,
     profile_text_fields,
 )
-from arxiv_int.retrieval.query_normalization import SELECTED_QUERY_PROFILE
+from arxiv_int.retrieval.query_normalization import ACCEPTED_V1_QUERY_PROFILE
 from arxiv_int.stores.projections.adapters.lexical import (
     SELECTED_INDEX_PROFILE,
     TOKENIZER_FINGERPRINT,
@@ -32,5 +32,5 @@ def test_adopted_index_declaration_matches_the_production_fingerprint() -> None:
     )
     fields = profile_text_fields(candidate)
     fingerprint = sha256_text(json.dumps(fields, ensure_ascii=True, sort_keys=True))
-    assert candidate.query_profile == SELECTED_QUERY_PROFILE
+    assert candidate.query_profile == ACCEPTED_V1_QUERY_PROFILE
     assert fingerprint == TOKENIZER_FINGERPRINT

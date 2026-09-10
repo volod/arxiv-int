@@ -17,6 +17,7 @@ from arxiv_int.stores.projections.adapters.lexical_search import (
     count_sql,
     explain_sql,
     facet_sql,
+    fuzzy_query,
     identifier_query,
     lookup_sql,
     match_query,
@@ -101,3 +102,17 @@ def test_facet_sql_only_groups_whitelisted_columns() -> None:
     assert "GROUP BY 1" in facet_sql("search.t", query, "language")
     with pytest.raises(LexicalFieldError, match="unindexed field"):
         facet_sql("search.t", query, "body")
+
+
+def test_fuzzy_query_binds_every_text_conjunctively_and_bounds_distance() -> None:
+    query = fuzzy_query(query_texts=(INJECTION, "base"), filters={"language": "rus"})
+    assert INJECTION not in query.expression
+    assert query.parameters["fuzzy_text_0"] == INJECTION
+    assert query.parameters["fuzzy_distance"] == 1
+    assert query.expression.count("paradedb.match(") == 2 * len(SEARCH_FIELDS)
+    assert "conjunction_mode => true" in query.expression
+    assert "paradedb.term(:filter_field_0, :filter_value_0)" in query.expression
+    with pytest.raises(LexicalFieldError, match="fuzzy distance"):
+        fuzzy_query(query_texts=("x",), distance=3)
+    with pytest.raises(LexicalFieldError, match="fuzzy text"):
+        fuzzy_query(query_texts=())

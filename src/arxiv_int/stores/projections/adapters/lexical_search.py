@@ -15,6 +15,8 @@ FILTER_FIELDS: tuple[str, ...] = ("language", "document_id")
 IDENTIFIER_FIELDS: tuple[str, ...] = ("identifiers", "document_id")
 SNIPPET_FIELD = "body"
 RESULT_COLUMNS: tuple[str, ...] = ("chunk_id", "document_id", "title", "language")
+FUZZY_DISTANCE = 1
+MAX_FUZZY_DISTANCE = 2
 
 
 class LexicalFieldError(ValueError):
@@ -65,7 +67,41 @@ def match_query(
                 "paradedb.parse_with_field("
                 f":search_field_{field_index}, :{query_key}, lenient => :lenient)"
             )
-    clauses = ["paradedb.boolean(should => ARRAY[" + ", ".join(parsed) + "])"]
+    return _filtered(parsed, applied, parameters)
+
+
+def fuzzy_query(
+    *,
+    query_texts: Sequence[str],
+    fields: Sequence[str] = SEARCH_FIELDS,
+    filters: Mapping[str, str] | None = None,
+    distance: int = FUZZY_DISTANCE,
+) -> BoundQuery:
+    """Build a bounded-edit-distance query; every word of one text must match approximately."""
+    selected = require_fields(fields, SEARCH_FIELDS)
+    if not selected or not query_texts:
+        raise LexicalFieldError("at least one search field and fuzzy text are required")
+    if not 0 < distance <= MAX_FUZZY_DISTANCE:
+        raise LexicalFieldError(f"fuzzy distance must be between 1 and {MAX_FUZZY_DISTANCE}")
+    applied = {name: value for name, value in (filters or {}).items() if value}
+    require_fields(tuple(applied), FILTER_FIELDS)
+    parameters: dict[str, object] = {"fuzzy_distance": distance}
+    matched = []
+    for field_index, name in enumerate(selected):
+        parameters[f"fuzzy_field_{field_index}"] = name
+        for text_index, value in enumerate(query_texts):
+            parameters[f"fuzzy_text_{text_index}"] = value
+            matched.append(
+                f"paradedb.match(:fuzzy_field_{field_index}, :fuzzy_text_{text_index}, "
+                "distance => :fuzzy_distance, conjunction_mode => true)"
+            )
+    return _filtered(matched, applied, parameters)
+
+
+def _filtered(
+    should: Sequence[str], applied: Mapping[str, str], parameters: dict[str, object]
+) -> BoundQuery:
+    clauses = ["paradedb.boolean(should => ARRAY[" + ", ".join(should) + "])"]
     for index, (name, value) in enumerate(sorted(applied.items())):
         parameters[f"filter_field_{index}"] = name
         parameters[f"filter_value_{index}"] = value

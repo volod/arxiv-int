@@ -1,0 +1,148 @@
+{
+  "decision_under_review": "record 0071: query profile russian-safe-v1 adopted over literal-v1 on unicode-russian-v1 (run-68bd28ccf0244b07b40320d11c282407)",
+  "findings": [
+    {
+      "disposition": "The accepted verdict is treated as provisional. The replacement run uses independently authored development and final splits; no final item may appear in any alias key or value; the v1 alias map is replayed only as the baseline and is never extended.",
+      "evidence": "All four v1 aliases are final-query keys; one maps the correct word to the fixture's own OCR misspelling. Three of six wins need a dictionary entry; without the OCR alias the result is 5-0, p=0.0625, inconclusive.",
+      "id": "F1",
+      "severity": "blocking",
+      "title": "final split leaked into the alias dictionary"
+    },
+    {
+      "disposition": "Development and final splits are frozen by checksum in protocol.json before any execution; a preregistration bundle binding the final split, protocol, query policy and code is published before the final run, and the final run refuses to execute without it.",
+      "evidence": "The loader rejects any split other than final; configuration and run were created in the same commit after the run manifest.",
+      "id": "F2",
+      "severity": "major",
+      "title": "preregistration was unverifiable and no development split existed"
+    },
+    {
+      "disposition": "Precision cohorts with hard negatives, alias-collision, stemming-collision, identifier near-miss, English/transliteration collision and no-answer queries are scored with returned precision at 5 and a no-answer false-positive gate; the candidate binds aliases as phrases and gates mechanical variants.",
+      "evidence": "Variants are OR-ed unweighted, so the candidate's match set is a superset of the baseline's; a multi-word alias expansion matched an unrelated chunk through one common word; each query had one relevant chunk and no negatives.",
+      "id": "F3",
+      "severity": "blocking",
+      "title": "precision was unmeasured"
+    },
+    {
+      "disposition": "Cohort and decided-pair minimums are preregistered; identifier-mode and syntax cases are mandatory gates outside the paired set; the adopt/retain verdict requires at least 20 decided pairs.",
+      "evidence": "Six decided pairs is the smallest outcome that can reach p<=0.05; categories held one or two items; identifier cases can never differ.",
+      "id": "F4",
+      "severity": "major",
+      "title": "statistical power was at the minimum"
+    },
+    {
+      "disposition": "Relevance is scored on chunk identities with multi-relevant qrels, nDCG at 10 and returned precision; intactness is reported from real per-chunk offsets in multi-chunk documents and declared non-discriminating because lexical profiles do not change chunk boundaries.",
+      "evidence": "Every hit and span used offsets (0, len(body)), so coverage and intactness equalled the hit indicator and MRR equalled recall.",
+      "id": "F5",
+      "severity": "major",
+      "title": "recall, MRR, coverage and intactness were one reading"
+    },
+    {
+      "disposition": "An archive-scale synthetic filler corpus, repeated interleaved builds and queries in seeded random orders, median and p95 per arm, and a preregistered candidate/baseline p95 ratio gate.",
+      "evidence": "Nearest-rank p95 of 12 single samples is the maximum; index sizes were identical page allocations; build order changed build time.",
+      "id": "F6",
+      "severity": "major",
+      "title": "cost evidence proved only execution"
+    },
+    {
+      "disposition": "Index profiles form a 2x2x2 tokenizer x stemmer x stopwords factorial; each v1 query transform is evaluated alone; candidate components are evaluated leave-one-out on development; ICU receives decimal, comma-decimal and identifier segmentation cases.",
+      "evidence": "The candidate bundled five transforms; stemming and stopwords toggled together; no case was segmentation-sensitive, so the ICU tie was vacuous.",
+      "id": "F7",
+      "severity": "major",
+      "title": "factors were confounded"
+    },
+    {
+      "disposition": "Fixed: the NFC-normalized base variant is bound as the primary clause; regression test on the bound parameters.",
+      "evidence": "The raw request text was bound as query_text_0 while variants[1:] carried the normalized forms.",
+      "id": "F8",
+      "severity": "major",
+      "title": "NFC was never applied to the primary query clause"
+    },
+    {
+      "disposition": "The candidate repairs homoglyphs per token, only for mixed-script tokens and for identifier-like lookalike tokens, in both directions and with uppercase-only lookalikes; mixed-script false-positive and repair cases are measured.",
+      "evidence": "Only lowercase Latin-to-Cyrillic repair of the whole query when both scripts occur; uppercase B/H lookalikes ignored; real Latin words corrupted; all-Latin lookalike identifiers never repaired.",
+      "id": "F9",
+      "severity": "major",
+      "title": "homoglyph repair targeted the wrong scope and direction"
+    },
+    {
+      "disposition": "The candidate uses corrected positional transliteration rules (word-initial e/ae, y/i-short endings, x/w/q/c, apostrophe), refuses outputs with residual Latin, and applies layout and transliteration only when the literal and repaired query returns no hit; English-collision cases measure the residual risk.",
+      "evidence": "c became ts, initial e never became ae, yy became yy-hard, x/w/q stayed Latin; both transforms fired on every Latin query, turning English words into unrelated Russian words.",
+      "id": "F10",
+      "severity": "major",
+      "title": "keyboard and transliteration gating and tables were wrong"
+    },
+    {
+      "disposition": "The candidate emits no variant for a query containing query syntax (field prefixes, quotes, parentheses, leading +/-, AND/OR/NOT); syntax probes gate on zero new errors and zero forbidden hits.",
+      "evidence": "Variants rewrote field names and operators, and an OR-ed variant re-admitted chunks the user excluded.",
+      "id": "F11",
+      "severity": "major",
+      "title": "query syntax was not preserved across variants"
+    },
+    {
+      "disposition": "Emitted variants and whether a fallback fired are recorded in the case ledger; truncation order is explicit and tested.",
+      "evidence": "Variants were silently truncated to five after aliases.",
+      "id": "F12",
+      "severity": "minor",
+      "title": "variant truncation was silent"
+    },
+    {
+      "disposition": "The candidate dictionary contains no e/yo entry; bidirectional e/yo cases measure stemmer folding and unstemmed profiles.",
+      "evidence": "The Russian Snowball stemmer on the pinned engine folds yo to e; the unstemmed profile did not; the v1 e/yo alias was redundant.",
+      "id": "F13",
+      "severity": "note",
+      "title": "e/yo folding comes from the stemmer"
+    },
+    {
+      "disposition": "The new live test asserts harness invariants and immutability, never the research verdict.",
+      "evidence": "The live calibration test asserted adopt and a minimum win count.",
+      "id": "F14",
+      "severity": "minor",
+      "title": "the live test locked the research outcome"
+    },
+    {
+      "disposition": "Stopwords are a separate factor; identifier-match cases include single-letter prefixes that the Russian stopword list removes.",
+      "evidence": "Single-letter Cyrillic prefixes and numerals are Russian stopwords, collapsing letter-prefixed identifiers to their digits in match mode.",
+      "id": "F15",
+      "severity": "note",
+      "title": "stopwords erase single-letter identifier prefixes"
+    },
+    {
+      "disposition": "The candidate matches dictionary keys as tokens inside multi-term queries (two-letter keys only when typed in upper case) and matches expansions in reverse; the dictionary is a general technical list written before any case was authored.",
+      "evidence": "v1 expands an alias only when the whole query equals the key, so an abbreviation inside a longer query is never expanded.",
+      "id": "F16",
+      "severity": "major",
+      "title": "alias expansion applied only to whole-query matches"
+    },
+    {
+      "disposition": "Inflection cases use same-lexeme pairs; fleeting-vowel nouns are a declared sub-cohort and the candidate evaluates a bounded genitive-stem variant for them.",
+      "evidence": "The engine stems nominative and oblique forms of fleeting-vowel nouns to different stems; the v1 inflection miss was a derivational adjective, not an inflection.",
+      "id": "F17",
+      "severity": "major",
+      "title": "the stemmer misses fleeting-vowel inflection and one v1 inflection item was derivational"
+    },
+    {
+      "disposition": "Stemming-collision cases measure the precision cost of stemming (steel/became, shelf/regiment, angle/coal).",
+      "evidence": "The engine stemmer conflates unrelated lexemes with shared stems.",
+      "id": "F18",
+      "severity": "note",
+      "title": "stemming over-conflates homonymous stems"
+    },
+    {
+      "disposition": "Recorded as a follow-up owned by the retrieval boundary review: layout-typed text containing bracket or semicolon keys is parsed as query syntax and fails in non-lenient mode for every profile.",
+      "evidence": "Wrong-layout letters on bracket, semicolon and quote keys become query syntax characters in the original text.",
+      "id": "F19",
+      "severity": "minor",
+      "title": "wrong-layout text can contain parser syntax"
+    }
+  ],
+  "reviewers": [
+    "independent read-only agent review of record 0071, its configuration, case ledger and implementation",
+    "second-opinion session review with rollback-only probes on the pinned ParadeDB 0.25.6 engine"
+  ],
+  "schema": "arxiv-int.retrieval.lexical-second-opinion-review.v1",
+  "unadopted_recommendations": [
+    "150 positive and 60-per-cohort negative final items: the preregistered minimums are 60 quality-cohort cases, 40 precision-cohort cases and 20 decided pairs; the achieved counts are reported with their false-positive bounds.",
+    "An ancestor-commit check: commits require operator authorization; ordering evidence is the checksum-verified preregistration bundle that the final run requires.",
+    "Leave-one-out pruning on final: pruning on final would tune on it, so component retention is decided on development and final ablations are exploratory."
+  ]
+}

@@ -100,8 +100,12 @@ owned by `prove-lexical-retrieval-on-provided-archive`.
 
 Implementation and live acceptance evidence pass. The task was removed from the forward plan and
 dependent links now resolve through this record. At the user's request, the independent
-`review-and-deepen-russian-lexical-calibration` task now owns stronger negative, inflectional,
-precision and repeated-cost evidence before provided-archive proof. Final plan counts and CI evidence
-are recorded after the closing checks: 60 before and 60 after because this task closed and the
-user-requested second-opinion task was added; agent/human lane counts remain 50/10. No human review
-handoff applies. Next action: execute `review-and-deepen-russian-lexical-calibration`.
+second-opinion task ([record 0072](0072-lexical-review-and-deepen-russian-lexical-calibration.md))
+owned stronger negative, inflectional, precision and repeated-cost evidence before provided-archive
+proof. Final plan counts and CI evidence are recorded after the closing checks: 60 before and 60
+after because this task closed and the user-requested second-opinion task was added; agent/human
+lane counts remain 50/10. No human review handoff applies. Superseded by [record
+0072](0072-lexical-review-and-deepen-russian-lexical-calibration.md): its independent review found
+that the three dictionary wins here relied on aliases fitted to this run's final items and that
+precision was unmeasured; its preregistered final run replaced `russian-safe-v1` with
+`russian-guarded-v2`. This run remains immutable history.

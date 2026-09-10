@@ -28,41 +28,6 @@ and name ready/pending human decisions and the dependent work that must wait at 
 
 ### Lexical retrieval -- `lexical-retrieval`
 
-#### review-and-deepen-russian-lexical-calibration
-
-Take an independent second opinion on the accepted Russian lexical calibration, then implement and
-rerun a higher-effort comparison with stronger held-out and negative evidence.
-
-- Serves: `lexical-retrieval` --
-[Russian-language and document analysis](../design/spec.md#russian-language-and-document-analysis)
-- Agent status: RUN NEEDED
-- Research: yes
-- Dependencies: [Russian tokenization and BM25 calibration](records/0071-lexical-calibrate-russian-tokenization-and-bm25.md).
-- User-visible outcome: The selected Russian query/index profile survives an independent challenge
-with adequately powered inflection, ranking, collision and false-positive evidence, or is replaced by
-a better measured profile.
-- Scope boundary: Preserve the accepted run and source text; do not tune on its final items, promote
-from synthetic recall alone, or change the profile without a fresh immutable adopt/retain/inconclusive
-decision. Keep the provided-archive proof separate.
-- Data and artifact paths: `src/arxiv_int/resources/configs/retrieval/`, retrieval calibration code
-and tests, `$RUNS_DIR/<run-id>/evaluation/lexical-second-opinion/`, and
-`docs/impl/current/lexical-retrieval.md`.
-- Execution path: Start from a fresh second-opinion review of record 0071, its configuration, case
-ledger and implementation, using a higher-reasoning reviewer/agent when available. Freeze distinct
-development and untouched final expansions before running them. Add enough inflectional pairs for the
-paired gate, hard irrelevant and alias-collision negatives, multi-term ranking, identifier near misses,
-mixed-script false positives, and repeated latency/build samples. Factor tokenizer, morphology,
-stopwords and query transformations independently; compare precision as well as recall/MRR/intactness;
-replay on the pinned ParadeDB version and report sensitivity to seeds and query order.
-- Acceptance gates: The second-opinion packet records findings and dispositions; final items and
-promotion thresholds were frozen before execution; positive and negative cohorts have sufficient
-decided pairs for the declared confidence; one profile receives `adopt`, `retain baseline`, or
-`inconclusive` from paired quality evidence without a mandatory-gate regression. Costs and every input
-fingerprint cite an immutable verified run. Any selected tokenizer change names and proves required
-reindex work; a query-only decision proves whether existing indexes remain valid.
-- Documentation target: `docs/impl/current/lexical-retrieval.md`
-- Review checkpoint: `review-retrieval-and-classification-boundaries`.
-
 #### prove-lexical-retrieval-on-provided-archive
 
 Build and query the lexical projection for the supplied archive through an explicit integration test.
@@ -70,7 +35,7 @@ Build and query the lexical projection for the supplied archive through an expli
 - Serves: `lexical-retrieval` --
 [Provided-archive integration runs](../design/spec.md#provided-archive-integration-runs)
 - Agent status: RUN NEEDED
-- Dependencies: `review-and-deepen-russian-lexical-calibration`;
+- Dependencies: [Russian lexical calibration second opinion](records/0072-lexical-review-and-deepen-russian-lexical-calibration.md);
 [Pipeline-control provided-archive proof](records/0053-pipeline-prove-pipeline-control-on-provided-archive.md).
 `review-retrieval-and-classification-boundaries`.
 - User-visible outcome: Supplied documents are searchable through the selected Russian lexical
@@ -183,11 +148,14 @@ Review searchable/classifiable corpus accounting before archive quality and poli
 - Agent status: CLEAR
 - Task kind: checkpoint
 - Dependencies: [Checkpoint 0063](records/0063-corpus-review-corpus-and-control-integrity.md);
-`review-and-deepen-russian-lexical-calibration`;
+[Russian lexical calibration second opinion](records/0072-lexical-review-and-deepen-russian-lexical-calibration.md);
 `establish-versioned-udc-derived-scheme`; `implement-hierarchical-file-classification`;
 [Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
 - Audit inputs: [AUD-review-corpus-and-control-integrity-7](records/0063-corpus-review-corpus-and-control-integrity.md#audit-handoff);
 [AUD-build-paradedb-lexical-1](records/0070-lexical-build-paradedb-lexical-load-and-query-path.md#audit-handoff);
+[AUD-review-and-deepen-russian-lexical-calibration-1](records/0072-lexical-review-and-deepen-russian-lexical-calibration.md#audit-handoff);
+[AUD-review-and-deepen-russian-lexical-calibration-2](records/0072-lexical-review-and-deepen-russian-lexical-calibration.md#audit-handoff);
+[AUD-review-and-deepen-russian-lexical-calibration-3](records/0072-lexical-review-and-deepen-russian-lexical-calibration.md#audit-handoff);
 [AUD-build-paradedb-lexical-2](records/0070-lexical-build-paradedb-lexical-load-and-query-path.md#audit-handoff).
 - User-visible outcome:
 Retrieval and classification proofs consume coherent source, vocabulary and query identities.
@@ -1124,7 +1092,7 @@ company/product/person catalogs and the analyst entry report through CLI and a s
 
 - Serves: `discovery-visualization` -- [CLI and Make interface](../design/spec.md#cli-and-make-interface)
 - Agent status: CLEAR
-- Dependencies: `review-and-deepen-russian-lexical-calibration`;
+- Dependencies: [Russian lexical calibration second opinion](records/0072-lexical-review-and-deepen-russian-lexical-calibration.md);
 `build-and-validate-age-projection`;
 `register-and-expose-domain-artifacts`; `build-company-product-and-person-catalogs`;
 `implement-anomaly-review-and-triage-exports`;

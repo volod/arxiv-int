@@ -72,3 +72,21 @@ def add_search_parser(
     calibrate.add_argument("--database-url", default=None, help=argparse.SUPPRESS)
     calibrate.add_argument("--json", action="store_true", help="write JSON to stdout")
     calibrate.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)
+    second = commands.add_parser(
+        "second-opinion",
+        help="run one frozen Russian lexical second-opinion stage",
+    )
+    second.add_argument("--run-id", required=True, help="immutable evaluation run identity")
+    second.add_argument(
+        "--stage",
+        required=True,
+        choices=("development", "preregister", "final"),
+        help="development (tuning allowed), preregister (bind final inputs), or final (once)",
+    )
+    second.add_argument("--filler-chunks", type=int, default=None, help="development only")
+    second.add_argument("--build-repetitions", type=int, default=None, help="development only")
+    second.add_argument("--query-repetitions", type=int, default=None, help="development only")
+    second.add_argument("--runs-dir", type=Path, default=None, help=argparse.SUPPRESS)
+    second.add_argument("--database-url", default=None, help=argparse.SUPPRESS)
+    second.add_argument("--json", action="store_true", help="write JSON to stdout")
+    second.add_argument("--project-root", type=Path, default=None, help=argparse.SUPPRESS)

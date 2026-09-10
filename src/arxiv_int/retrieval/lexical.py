@@ -2,129 +2,61 @@
 
 import time
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass, field
 from typing import Any
 
-from sqlalchemy import Connection, CursorResult, text
+from sqlalchemy import Connection, CursorResult, Row, text
 from sqlalchemy.exc import SQLAlchemyError
 
+from arxiv_int.retrieval.lexical_model import (
+    DEFAULT_FACET_LIMIT,
+    DEFAULT_LIMIT,
+    DEFAULT_SNIPPET_CHARS,
+    MAX_LIMIT,
+    STAGE_PRIMARY,
+    LexicalHit,
+    LexicalRequest,
+    LexicalResult,
+)
 from arxiv_int.retrieval.projection import (
     LexicalQueryError,
     LexicalTarget,
     active_target,
 )
-from arxiv_int.retrieval.query_normalization import (
-    SELECTED_QUERY_PROFILE,
-    query_policy_fingerprint,
-    query_variants,
-)
+from arxiv_int.retrieval.query_normalization import QueryPlan, query_plan
 from arxiv_int.stores.projections.adapters.lexical_search import (
     FILTER_FIELDS,
-    SEARCH_FIELDS,
     BoundQuery,
     LexicalFieldError,
     count_sql,
     explain_sql,
     facet_sql,
+    fuzzy_query,
     identifier_query,
     lookup_sql,
     match_query,
     search_sql,
 )
 
-DEFAULT_LIMIT = 10
-DEFAULT_SNIPPET_CHARS = 200
-DEFAULT_FACET_LIMIT = 10
-MAX_LIMIT = 1000
+__all__ = [
+    "DEFAULT_FACET_LIMIT",
+    "DEFAULT_LIMIT",
+    "DEFAULT_SNIPPET_CHARS",
+    "END_TAG",
+    "MAX_LIMIT",
+    "START_TAG",
+    "LexicalHit",
+    "LexicalRequest",
+    "LexicalResult",
+    "explain",
+    "lookup",
+    "resolve_target",
+    "search",
+]
+
 START_TAG = "[["
 END_TAG = "]]"
-
-
-@dataclass(frozen=True, slots=True)
-class LexicalRequest:
-    """One bounded lexical query with its filters and result shaping."""
-
-    query: str
-    limit: int = DEFAULT_LIMIT
-    offset: int = 0
-    fields: tuple[str, ...] = SEARCH_FIELDS
-    language: str | None = None
-    document_id: str | None = None
-    snippets: bool = True
-    snippet_chars: int = DEFAULT_SNIPPET_CHARS
-    facets: tuple[str, ...] = ()
-    facet_limit: int = DEFAULT_FACET_LIMIT
-    lenient: bool = False
-    query_profile: str = SELECTED_QUERY_PROFILE
-
-    def __post_init__(self) -> None:
-        if not self.query.strip():
-            raise LexicalFieldError("a lexical query must contain at least one term")
-        if not 0 < self.limit <= MAX_LIMIT:
-            raise LexicalFieldError(f"limit must be between 1 and {MAX_LIMIT}")
-        if self.offset < 0:
-            raise LexicalFieldError("offset must not be negative")
-        if self.snippet_chars <= 0:
-            raise LexicalFieldError("snippet_chars must be positive")
-        if not 0 < self.facet_limit <= MAX_LIMIT:
-            raise LexicalFieldError(f"facet_limit must be between 1 and {MAX_LIMIT}")
-
-    def filters(self) -> dict[str, str]:
-        """Return the applied equality filters keyed by indexed field."""
-        applied = {"language": self.language or "", "document_id": self.document_id or ""}
-        return {name: value for name, value in applied.items() if value}
-
-
-@dataclass(frozen=True, slots=True)
-class LexicalHit:
-    """One ranked chunk with the evidence needed to resolve its citation."""
-
-    rank: int
-    chunk_id: str
-    document_id: str
-    title: str
-    language: str
-    score: float
-    snippet: str = ""
-
-    def as_json_dict(self) -> dict[str, object]:
-        """Return a secret-free result row."""
-        return {
-            "chunkId": self.chunk_id,
-            "documentId": self.document_id,
-            "language": self.language,
-            "rank": self.rank,
-            "score": self.score,
-            "snippet": self.snippet,
-            "title": self.title,
-        }
-
-
-@dataclass(frozen=True, slots=True)
-class LexicalResult:
-    """Ranked hits with total matches, facets, and the projection they came from."""
-
-    target: LexicalTarget
-    hits: tuple[LexicalHit, ...]
-    total: int
-    facets: Mapping[str, tuple[tuple[str, int], ...]] = field(default_factory=dict)
-    elapsed_ms: float = 0.0
-    query_profile: str = SELECTED_QUERY_PROFILE
-
-    def as_json_dict(self) -> dict[str, object]:
-        """Return a secret-free JSON view of one search."""
-        return {
-            "elapsedMs": self.elapsed_ms,
-            "facets": {
-                name: [{"matched": count, "value": value} for value, count in values]
-                for name, values in sorted(self.facets.items())
-            },
-            "hits": [hit.as_json_dict() for hit in self.hits],
-            "projection": self.target.as_json_dict(),
-            "queryPolicyFingerprint": query_policy_fingerprint(),
-            "queryProfile": self.query_profile,
-            "total": self.total,
-        }
+STAGE_FALLBACK = "fallback"
+STAGE_FUZZY = "fuzzy"
 
 
 def resolve_target(connection: Connection, target: LexicalTarget | None) -> LexicalTarget:
@@ -138,36 +70,31 @@ def search(
     *,
     target: LexicalTarget | None = None,
 ) -> LexicalResult:
-    """Run one ranked BM25 query with filters, snippets, and optional facets."""
+    """Run one ranked BM25 query with filters, snippets, and optional facets.
+
+    The profile's primary variants always run; its fallback and fuzzy stages run
+    only when every earlier stage matched nothing.
+    """
     resolved = resolve_target(connection, target)
-    query = _query_for(request)
+    plan = query_plan(request.query, profile_id=request.query_profile)
     started = time.perf_counter()
-    rows = _execute(
-        connection,
-        search_sql(resolved.table, query, snippets=request.snippets),
-        {**query.parameters, **_paging(request)},
-    ).fetchall()
-    total = int(
-        _execute(connection, count_sql(resolved.table, query), query.parameters).scalar() or 0
-    )
+    for current in _stages(request, plan):
+        stage, query = current
+        rows = _execute(
+            connection,
+            search_sql(resolved.table, query, snippets=request.snippets),
+            {**query.parameters, **_paging(request)},
+        ).fetchall()
+        total = _total(connection, resolved, query, request, len(rows))
+        if total:
+            break
     facets = {
         name: _facet_counts(connection, resolved, query, name, request.facet_limit)
         for name in _facet_names(request)
     }
     elapsed = round((time.perf_counter() - started) * 1000, 3)
-    hits = tuple(
-        LexicalHit(
-            rank=index,
-            chunk_id=str(row.chunk_id),
-            document_id=str(row.document_id or ""),
-            title=str(row.title or ""),
-            language=str(row.language or ""),
-            score=float(row.score or 0.0),
-            snippet=str(row.snippet or ""),
-        )
-        for index, row in enumerate(rows, request.offset + 1)
-    )
-    return LexicalResult(resolved, hits, total, facets, elapsed, request.query_profile)
+    hits = tuple(_hit(index, row) for index, row in enumerate(rows, request.offset + 1))
+    return LexicalResult(resolved, hits, total, facets, elapsed, request.query_profile, stage)
 
 
 def lookup(
@@ -208,9 +135,10 @@ def explain(
     *,
     target: LexicalTarget | None = None,
 ) -> tuple[str, ...]:
-    """Return the analyzed plan of one search, including the pushed-down query."""
+    """Return the analyzed plan of the primary search stage, including the pushed-down query."""
     resolved = resolve_target(connection, target)
-    query = _query_for(request)
+    plan = query_plan(request.query, profile_id=request.query_profile)
+    query = _match(request, plan.primary)
     statement = search_sql(resolved.table, query, snippets=request.snippets)
     rows = _execute(
         connection,
@@ -220,14 +148,55 @@ def explain(
     return tuple(str(row[0]) for row in rows)
 
 
-def _query_for(request: LexicalRequest) -> BoundQuery:
-    variants = query_variants(request.query, profile_id=request.query_profile)
+def _stages(request: LexicalRequest, plan: QueryPlan) -> list[tuple[str, BoundQuery]]:
+    stages = [(STAGE_PRIMARY, _match(request, plan.primary))]
+    if plan.fallback:
+        stages.append((STAGE_FALLBACK, _match(request, plan.variants)))
+    if plan.fuzzy:
+        stages.append(
+            (
+                STAGE_FUZZY,
+                fuzzy_query(
+                    query_texts=plan.fuzzy, fields=request.fields, filters=request.filters()
+                ),
+            )
+        )
+    return stages
+
+
+def _match(request: LexicalRequest, variants: Sequence[str]) -> BoundQuery:
+    # variants[0] is the NFC-normalized base, so the primary clause is normalized too.
     return match_query(
-        query_text=request.query,
+        query_text=variants[0],
         query_variants=variants[1:],
         fields=request.fields,
         filters=request.filters(),
         lenient=request.lenient,
+    )
+
+
+def _total(
+    connection: Connection,
+    target: LexicalTarget,
+    query: BoundQuery,
+    request: LexicalRequest,
+    returned: int,
+) -> int:
+    # A first page shorter than the limit already holds every match.
+    if request.offset == 0 and returned < request.limit:
+        return returned
+    return int(_execute(connection, count_sql(target.table, query), query.parameters).scalar() or 0)
+
+
+def _hit(rank: int, row: Row[Any]) -> LexicalHit:
+    return LexicalHit(
+        rank=rank,
+        chunk_id=str(row.chunk_id),
+        document_id=str(row.document_id or ""),
+        title=str(row.title or ""),
+        language=str(row.language or ""),
+        score=float(row.score or 0.0),
+        snippet=str(row.snippet or ""),
     )
 
 
