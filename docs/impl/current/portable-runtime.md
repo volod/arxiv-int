@@ -14,7 +14,7 @@ ledger, serialized progress logs, a fixture DAG CLI, knowledge-base publication,
 artifact inspection exist under
 [Pipeline control](pipeline-control.md). [Streaming inventory](corpus-foundation.md) through
 chunking is available; classification and later investigation stages remain
-[planned](../plan.md#corpus-foundation----corpus-foundation). A default investigation run still
+[planned](../plan.md#archive-classification----archive-classification). A default investigation run still
 refuses unimplemented stages. Infrastructure-ready never means an archive-to-report run is
 available. See the
 [operator workflow](../../guide/operator-workflow.md) for the atomic chain and the
@@ -70,7 +70,7 @@ use `ARCHIVE_SILO_<ID>_DIR`, with underscores in the variable id rendered as hyp
 overridden. Optional `PG_WAL_DIR` and `PG_TABLESPACE_<NAME>_DIR` roots remain unset by default.
 `DATA_DIR` remains checkout-relative developer-tooling state and is not a runtime output root. There
 are no development-only archive aliases or result roots; stage implementations and provided-archive
-proof runs use the configured `ARCHIVE_DIR` silos. See
+integration tests use the configured `ARCHIVE_DIR` silos. See
 [0029](../records/0029-runtime-retire-separate-proof-archive-root.md).
 
 `scripts/shared/dotenv.sh`, sourced by `scripts/shared/common.sh`, implements the same documented
@@ -117,7 +117,7 @@ owns the typed
 association between each variable, resolved path, and storage class.
 
 After a report has no blocking findings, `create_results_layout()` creates the fixed
-`normalized/`, `quarantine/`, `proofs/`, and `exports/` trees, the four resolved derived roots, and
+`normalized/`, `quarantine/`, and `exports/` trees, the four resolved derived roots, and
 the configured PostgreSQL, WAL, and tablespace directories. New database-class directories use
 owner-only mode even beneath a group-writable storage root. It creates no corpus artifact and
 starts no process or container.

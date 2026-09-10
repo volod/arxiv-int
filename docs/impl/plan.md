@@ -14,53 +14,17 @@ contract-derived SQLAlchemy metadata and Alembic revisions, dbt models for relat
 transformations, Polars/PyArrow for local batches, and Pandera/dbt validation before publication.
 Each producer owns its domain models/checks and uses the shared implementations below. Transactional
 queries, COPY, extension DDL, and Cypher retain the narrow exceptions defined in the specification.
-Proof tasks retain tool/rule/model fingerprints and required quality outcomes; a skipped validator
-cannot establish a pass. These requirements also apply to later additive contract/migration work.
-Proof data and human-review packets stay under the configured roots and are never committed; see
+Archive integration tasks retain tool/rule/model fingerprints and required quality outcomes in the
+ordinary run artifacts; a skipped validator cannot establish a pass. Extra cross-checks belong
+under `tests/integration/`, never in a production proof publisher or parallel manifest registry.
+These requirements also apply to later additive contract/migration work. Integration evidence and
+human-review packets stay under the configured roots and are never committed; see
 [published proof and evaluation data](../design/spec.md#published-proof-and-evaluation-data).
-Each proof task names the roots its artifacts occupy and the bundle fingerprint a reviewer checks
-in place.
+Each integration task names the ordinary run, artifact roots, manifests, and checksums a reviewer
+checks in place.
 `Human review handoff` marks an agent producer of human-evaluation evidence; it is not approval or
 a prerequisite on the producer. Follow the [handoff workflow](../guide/planning-workflow.md#human-review-handoffs)
 and name ready/pending human decisions and the dependent work that must wait at task completion.
-
-### Corpus foundation -- `corpus-foundation`
-
-#### prove-corpus-foundation-on-provided-archive
-
-Run the completed corpus stages against the operator-provided archive and publish their first
-current proof bundle.
-
-- Serves: `corpus-foundation` --
-[Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
-- Agent status: RUN NEEDED
-- Dependencies: [Checkpoint 0063](records/0063-corpus-review-corpus-and-control-integrity.md);
-[Normalization, dedupe and chunking](records/0062-corpus-implement-normalization-dedupe-and-chunking.md);
-[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md);
-[Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md);
-[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md);
-[Representative corpus approval](records/0023-corpus-approve-representative-corpus-and-gold.md).
-- Audit inputs: [AUD-review-corpus-and-control-integrity-6](records/0063-corpus-review-corpus-and-control-integrity.md#audit-handoff);
-[AUD-review-corpus-and-control-integrity-8](records/0063-corpus-review-corpus-and-control-integrity.md#audit-handoff);
-[AUD-review-corpus-and-control-integrity-9](records/0063-corpus-review-corpus-and-control-integrity.md#audit-handoff).
-- User-visible outcome: The supplied file silos have inspectable inventory, extraction,
-normalization, duplicate, and chunk artifacts backed by one reproducible proof id.
-- Scope boundary: Read `ARCHIVE_DIR` without mutation and stop after `chunk`; do not infer
-downstream classification, retrieval, or knowledge quality from this proof.
-- Data and artifact paths: `$ARCHIVE_DIR` used without modification, `$RESULTS_DIR`, and
-`$RESULTS_DIR/proofs/corpus-foundation/<proof-id>/`; only redacted summaries enter current docs.
-- Execution path: Run a passing forecast; execute `inventory` through `chunk`; validate contracts,
-counts, spans, offsets, quarantine reasons, and checksums; rerun the identical closure and capture
-cache decisions plus resource/timing evidence.
-- Acceptance gates: Every usable corpus stage is `passed` or contract-valid `empty`; every inventory
-item is accounted for; artifacts and source anchors validate; the unchanged rerun executes no heavy
-extraction/normalization work; failures keep the task open.
-The bundle stays under the configured roots and nothing source-derived is committed or staged for
-commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
-checksums and contract conformance in place.
-- Documentation target: `docs/impl/current/corpus-foundation.md`
-- Review checkpoint: `review-corpus-and-control-integrity`, accepted as
-[record 0063](records/0063-corpus-review-corpus-and-control-integrity.md).
 
 ### Lexical retrieval -- `lexical-retrieval`
 
@@ -119,10 +83,10 @@ metrics and costs cite immutable runs; profile changes name required reindex wor
 
 #### prove-lexical-retrieval-on-provided-archive
 
-Build and query the lexical projection for the supplied archive and publish its proof bundle.
+Build and query the lexical projection for the supplied archive through an explicit integration test.
 
 - Serves: `lexical-retrieval` --
-[Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
+[Provided-archive integration runs](../design/spec.md#provided-archive-integration-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `calibrate-russian-tokenization-and-bm25`;
 [Pipeline-control provided-archive proof](records/0053-pipeline-prove-pipeline-control-on-provided-archive.md).
@@ -132,16 +96,15 @@ profile, with filters, snippets, identifiers, and citations that resolve to sour
 - Scope boundary: Prove lexical load/query behavior and declared evaluation queries; do not claim
 semantic retrieval or full-archive relevance from this test archive.
 - Data and artifact paths: `$ARCHIVE_DIR` used without modification, lexical tables/indexes, and
-`$RESULTS_DIR/proofs/lexical-retrieval/<proof-id>/`.
+`$RUNS_DIR/<run-id>/search/`, plus test logs below `$DATA_DIR/integration/lexical-retrieval/`.
 - Execution path: Forecast; load/build the selected lexical projection; reconcile counts/checksums;
 run archive-appropriate smoke and held-out queries; validate citations and limits; rerun unchanged
 and record load/index cache decisions.
 - Acceptance gates: Projection and source counts reconcile; required queries return valid evidence
 under declared metrics; index/query manifests validate; unchanged rerun does not rebuild or reload
 unchanged partitions; failures or missing citations keep the task open.
-The bundle stays under the configured roots and nothing source-derived is committed or staged for
-commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
-checksums and contract conformance in place.
+Only ordinary pipeline artifacts stay under configured roots; nothing source-derived is committed
+or staged for commit. Record the run id, artifact roots, manifests, and checksums checked in place.
 - Documentation target: `docs/impl/current/lexical-retrieval.md`
 - Review checkpoint: `review-investigation-and-report-integrity`.
 
@@ -270,7 +233,7 @@ Run `make ci`; coverage is diagnostic. Route each nonblocking note to one explic
 Classify the supplied archive and validate its complete hierarchical mapping and source references.
 
 - Serves: `archive-classification` --
-[Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
+[Provided-archive integration runs](../design/spec.md#provided-archive-integration-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `implement-hierarchical-file-classification`;
 [Pipeline-control provided-archive proof](records/0053-pipeline-prove-pipeline-control-on-provided-archive.md);
@@ -293,15 +256,15 @@ confidence, evidence/failure reasons, and initial source lookup.
 are accepted independently under `archive-organization`.
 - Data and artifact paths: `$ARCHIVE_DIR` used without modification,
 `$RESULTS_DIR/normalized/classifications/`, and
-`$RESULTS_DIR/proofs/archive-classification/<proof-id>/`.
+`$RUNS_DIR/<run-id>/classification/`, plus test logs below
+`$DATA_DIR/integration/archive-classification/`.
 - Execution path: Forecast the closure; classify and validate coverage, hierarchy, evidence, exceptions,
 fingerprints, and physical/virtual source accounting; rerun unchanged and record cache hits.
 - Acceptance gates: Every physical inventory item has one complete result; virtual members retain container
 links; source references and calibration metrics validate; supplied bytes remain unchanged; the
-identical rerun invokes no heavy classifier; proof artifacts and checksums are complete.
-The bundle stays under the configured roots and nothing source-derived is committed or staged for
-commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
-checksums and contract conformance in place.
+identical rerun invokes no heavy classifier; ordinary artifact manifests and checksums are complete.
+Only ordinary pipeline artifacts stay under configured roots; nothing source-derived is committed
+or staged for commit. Record the run id, artifact roots, manifests, and checksums checked in place.
 - Documentation target: `docs/impl/current/archive-classification.md`
 - Review checkpoint: `review-investigation-and-report-integrity`.
 
@@ -361,11 +324,11 @@ resource budget.
 
 #### prove-russian-nlp-on-provided-archive
 
-Run the language, morphology, terminology, and NER stages on supplied archive content and publish
-their proof bundle.
+Run the language, morphology, terminology, and NER stages on supplied archive content through an
+explicit integration test.
 
 - Serves: `russian-nlp` --
-[Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
+[Provided-archive integration runs](../design/spec.md#provided-archive-integration-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `evaluate-general-and-domain-ner`;
 [Pipeline-control provided-archive proof](records/0053-pipeline-prove-pipeline-control-on-provided-archive.md).
@@ -375,16 +338,15 @@ language/noise results, mentions, source offsets, model identities, and measured
 unreviewed mentions as canonical objects or infer quality for absent strata.
 - Data and artifact paths: `$ARCHIVE_DIR` used without modification,
 `$RESULTS_DIR/normalized/nlp/`, mention tables,
-and `$RESULTS_DIR/proofs/russian-nlp/<proof-id>/`.
+and test logs below `$DATA_DIR/integration/russian-nlp/`.
 - Execution path: Forecast; run NLP and mention extraction; validate schemas, language coverage,
 offset/source mapping, per-type summaries, and model fingerprints; rerun unchanged and record
 dictionary/model cache hits.
 - Acceptance gates: All usable NLP outputs validate and resolve to source spans; unsupported and
 ambiguous cases are counted; configured metrics are reported by present stratum; unchanged rerun
 performs no heavy NER or morphology work; incomplete evidence keeps the task open.
-The bundle stays under the configured roots and nothing source-derived is committed or staged for
-commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
-checksums and contract conformance in place.
+Only ordinary pipeline artifacts stay under configured roots; nothing source-derived is committed
+or staged for commit. Record the run id, artifact roots, manifests, and checksums checked in place.
 - Documentation target: `docs/impl/current/russian-nlp.md`
 - Review checkpoint: `review-knowledge-and-identity-integrity`.
 
@@ -521,11 +483,11 @@ term handling is explicit, stale snapshots cannot activate, and unknown place/ti
 
 #### prove-identity-ontology-graph-on-provided-archive
 
-Resolve identities, validate ontology assets, build the graph or fallback exports, and publish the
-supplied-archive proof bundle.
+Resolve identities, validate ontology assets, and build the graph or fallback exports through an
+explicit supplied-archive integration test.
 
 - Serves: `identity-ontology-graph` --
-[Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
+[Provided-archive integration runs](../design/spec.md#provided-archive-integration-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `build-and-validate-age-projection`;
 `prove-knowledge-extraction-on-provided-archive`.
@@ -545,7 +507,7 @@ bounded graph paths are inspectable with reversible decisions and source evidenc
 entities, publish disputed ontology changes, or require AGE when the declared fallback is active.
 - Data and artifact paths: `$ARCHIVE_DIR` used without modification,
 identity/ontology/graph stores and
-exports, and `$RESULTS_DIR/proofs/identity-ontology-graph/<proof-id>/`.
+exports, and test logs below `$DATA_DIR/integration/identity-ontology-graph/`.
 - Execution path: Forecast; run entity resolution and ontology validation; build the active AGE or
 relational/open-export graph; reconcile counts and sampled SQL/path parity; resolve edge evidence;
 rerun unchanged and capture linkage/reasoning/projection cache hits.
@@ -554,9 +516,8 @@ and producer/consumer typing on sampled catalog and graph labels.
 - Acceptance gates: Cluster and ontology validators pass at declared policies; graph/fallback counts
 and sampled paths agree with canonical facts; every sampled edge has evidence; unchanged rerun avoids
 heavy linkage and graph rebuild; failed projection never replaces the prior active version.
-The bundle stays under the configured roots and nothing source-derived is committed or staged for
-commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
-checksums and contract conformance in place.
+Only ordinary pipeline artifacts stay under configured roots; nothing source-derived is committed
+or staged for commit. Record the run id, artifact roots, manifests, and checksums checked in place.
 - Documentation target: `docs/impl/current/identity-ontology-graph.md`
 - Review checkpoint: `review-knowledge-and-identity-integrity`.
 
@@ -579,10 +540,10 @@ model upgrade, scope expansion or deferred replacement for each producer task's 
 Adding tests for important stabilized integrity, correctness, and business-logic cases in this
 stage is in scope; concluding that existing tests already cover them is valid. Restoring a
 numeric coverage floor is not.
-Use deterministic integration evidence and inspect provided-archive proofs when available;
+Use deterministic integration evidence and inspect provided-archive runs when available;
 this verdict permits fixture implementation, not real-data or CUDA promotion.
 - Data and artifact paths: Accepted producer records under `docs/impl/records/`, current-state pages,
-existing test/proof artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
+existing test/run artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
 - Execution path: Read full task snapshots and source changes; trace mention anchors versus clusters,
 merge/split replay, exact fact evidence, ontology/domain
 constraints including [Ontology design](../design/spec.md#ontology-design) (domain terms, hidden
@@ -760,11 +721,10 @@ role/revision boundary cases; as-of results distinguish source-valid from record
 
 #### prove-knowledge-extraction-on-provided-archive
 
-Run fact extraction and validation on the supplied archive and publish the knowledge-extraction
-proof bundle.
+Run fact extraction and validation on the supplied archive through an explicit integration test.
 
 - Serves: `knowledge-extraction` --
-[Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
+[Provided-archive integration runs](../design/spec.md#provided-archive-integration-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `implement-fact-validation-conflict-and-review-overlays`;
 `prove-russian-nlp-on-provided-archive`; [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md).
@@ -782,17 +742,16 @@ inspectable with exact evidence, validation findings, conflicts, and extractor/m
 - Scope boundary: Exercise only forecast-approved deterministic and local-model lanes; do not
 auto-accept facts or claim correctness for unreviewed domain assertions.
 - Data and artifact paths: `$ARCHIVE_DIR` used without modification,
-`$RESULTS_DIR/normalized/facts/`, knowledge
-tables, and `$RESULTS_DIR/proofs/knowledge-extraction/<proof-id>/`.
+`$RESULTS_DIR/normalized/facts/`, knowledge tables, and test logs below
+`$DATA_DIR/integration/knowledge-extraction/`.
 - Execution path: Forecast; run configured fact lanes and validators; reconcile input/output/failure
 counts; sample evidence-span resolution and conflict grouping; rerun unchanged and capture rule/model
 cache decisions.
 - Acceptance gates: Every emitted fact passes shape and evidence validation or remains a typed
 failure; conflicts and review states are preserved; present-type metrics and coverage are reported;
-unchanged rerun does not invoke heavy extraction; proof checksums and fingerprints validate.
-The bundle stays under the configured roots and nothing source-derived is committed or staged for
-commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
-checksums and contract conformance in place.
+unchanged rerun does not invoke heavy extraction; ordinary artifact manifests and checksums validate.
+Only ordinary pipeline artifacts stay under configured roots; nothing source-derived is committed
+or staged for commit. Record the run id, artifact roots, manifests, and checksums checked in place.
 - Documentation target: `docs/impl/current/knowledge-extraction.md`
 - Review checkpoint: `review-knowledge-and-identity-integrity`.
 
@@ -934,10 +893,10 @@ publication; unchanged reruns reuse ids; CLI/API and manifest/SQL registries agr
 #### prove-domain-investigation-artifacts-on-provided-archive
 
 Generate every applicable relationship, BOM, supply-chain, and invoice/payment artifact family from
-the supplied archive and publish its proof bundle.
+the supplied archive through an explicit integration test.
 
 - Serves: `domain-investigation-artifacts` --
-[Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
+[Provided-archive integration runs](../design/spec.md#provided-archive-integration-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `register-and-expose-domain-artifacts`;
 `prove-identity-ontology-graph-on-provided-archive`.
@@ -958,17 +917,16 @@ view, its table/graph files, evidence coverage, conflicts, review policy, and pr
 - Scope boundary: Generate only evidence-supported bounded views; accept contract-valid `empty` or
 `partial` families and never manufacture relations to make a graphical artifact non-empty.
 - Data and artifact paths: `$ARCHIVE_DIR` used without modification,
-`$RESULTS_DIR/normalized/domain-artifacts/`, and
-`$RESULTS_DIR/proofs/domain-investigation-artifacts/<proof-id>/`.
+`$RESULTS_DIR/normalized/domain-artifacts/`, and test logs below
+`$DATA_DIR/integration/domain-investigation-artifacts/`.
 - Execution path: Forecast; build all configured artifact families; validate arithmetic,
 table-to-graph parity, source links, renders, registry rows, and checksums; rerun unchanged and record
 projection/render cache hits.
 - Acceptance gates: Every configured family is honestly `produced`, `partial`, or `empty` with a
 valid reason; no failed output is registered as successful; evidence and policy resolve for every
 element; identical rerun performs no heavy extraction, projection, or rendering.
-The bundle stays under the configured roots and nothing source-derived is committed or staged for
-commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
-checksums and contract conformance in place.
+Only ordinary pipeline artifacts stay under configured roots; nothing source-derived is committed
+or staged for commit. Record the run id, artifact roots, manifests, and checksums checked in place.
 - Documentation target: `docs/impl/current/domain-investigation-artifacts.md`
 - Review checkpoint: `review-investigation-and-report-integrity`.
 
@@ -1104,8 +1062,8 @@ result, with per-detector coverage and an interpretable review workload.
 - Scope boundary: No claims of wrongdoing or anomaly-free data; only bounded authorized source
 scope and
 predeclared final evaluation, without tuning on the final split.
-- Data and artifact paths: `$RESULTS_DIR/proofs/anomaly-analysis/<proof-id>/`, frozen detector profiles,
-review labels and normal finding artifacts.
+- Data and artifact paths: Frozen detector profiles, review labels, normal finding artifacts, and
+test logs below `$DATA_DIR/integration/anomaly-analysis/`.
 - Execution path: Forecast; run constraints and eligible cohort detectors; verify citations and input
 snapshots; score per-detector precision/recall and precision at review budget; rerun unchanged
 and capture cache hits, time and memory; report retain-constraints or not-selected where justified.
@@ -1113,9 +1071,8 @@ and capture cache hits, time and memory; report retain-constraints or not-select
 verdict; hard
 negatives, cohort leakage and review burden are reported; findings/empty outputs validate; no
 heavy work on the identical rerun and no private source content in repository summaries.
-The bundle stays under the configured roots and nothing source-derived is committed or staged for
-commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
-checksums and contract conformance in place.
+Only ordinary pipeline artifacts stay under configured roots; nothing source-derived is committed
+or staged for commit. Record the run id, artifact roots, manifests, and checksums checked in place.
 - Documentation target: `docs/impl/current/anomaly-analysis.md`
 - Review checkpoint: `review-investigation-and-report-integrity`.
 
@@ -1266,10 +1223,10 @@ provisioned definition; graph profile absence degrades cleanly.
 #### prove-discovery-and-visualization-on-provided-archive
 
 Run topic discovery, search/report scenarios, exports, and configured local views against supplied
-archive artifacts and publish the discovery proof bundle.
+archive artifacts through an explicit integration test.
 
 - Serves: `discovery-visualization` --
-[Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
+[Provided-archive integration runs](../design/spec.md#provided-archive-integration-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `build-search-graph-and-report-interfaces`;
 `prove-domain-investigation-artifacts-on-provided-archive`; `prove-anomaly-analysis-on-provided-archive`;
@@ -1289,18 +1246,17 @@ graphs, and domain reports through bounded interfaces whose displayed evidence c
 publicly, require an optional UI/AGE profile with a valid fallback, or claim usability acceptance for
 scenarios not executed.
 - Data and artifact paths: `$ARCHIVE_DIR` used without modification,
-topic/query/report/export artifacts, and
-`$RESULTS_DIR/proofs/discovery-visualization/<proof-id>/`.
+topic/query/report/export artifacts, and test logs below
+`$DATA_DIR/integration/discovery-visualization/`.
 - Execution path: Forecast; run topics, company/product/person catalogs, anomaly views and
 entry report generation; execute scripted lexical and available
 hybrid, object/fact, graph, BOM, supply-chain, and invoice/payment scenarios; validate citations,
 limits, exports, dashboards/views, and unchanged-rerun cache decisions.
 - Acceptance gates: Every executed scenario resolves to bounded, policy-labelled source evidence;
 exports and configured views validate; unavailable optional profiles have working fallbacks;
-unchanged rerun avoids heavy topic/report recomputation; unresolved failures keep proof open.
-The bundle stays under the configured roots and nothing source-derived is committed or staged for
-commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
-checksums and contract conformance in place.
+unchanged rerun avoids heavy topic/report recomputation; unresolved failures keep the task open.
+Only ordinary pipeline artifacts stay under configured roots; nothing source-derived is committed
+or staged for commit. Record the run id, artifact roots, manifests, and checksums checked in place.
 - Documentation target: `docs/impl/current/discovery-visualization.md`
 - Review checkpoint: `review-investigation-and-report-integrity`.
 
@@ -1322,10 +1278,10 @@ model upgrade, scope expansion or deferred replacement for each producer task's 
 Adding tests for important stabilized integrity, correctness, and business-logic cases in this
 stage is in scope; concluding that existing tests already cover them is valid. Restoring a
 numeric coverage floor is not.
-Use deterministic integration evidence and inspect provided-archive proofs when available;
+Use deterministic integration evidence and inspect provided-archive runs when available;
 this verdict permits fixture implementation, not real-data or CUDA promotion.
 - Data and artifact paths: Accepted producer records under `docs/impl/records/`, current-state pages,
-existing test/proof artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
+existing test/run artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
 - Execution path: Read full task snapshots and source changes; trace company/product/person catalogs,
 invoice allocations, BOM units/revisions, supply roles,
 anomaly cohorts/ranks, graph-table parity, one-generation reports and source drill-down;
@@ -1430,11 +1386,11 @@ and atomic results agree logically. README availability changes only after the c
 
 #### publish-provided-archive-end-to-end-proof
 
-Run evaluation and reporting over the supplied archive and publish one proof index covering every
-usable pipeline stage and artifact family.
+Run evaluation and reporting over the supplied archive through one end-to-end integration test
+covering every usable pipeline stage and artifact family.
 
 - Serves: `evaluation-evidence` --
-[Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
+[Provided-archive integration runs](../design/spec.md#provided-archive-integration-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `implement-directory-to-knowledge-base-acceptance`;
 `prove-archive-classification-on-provided-archive`; `prove-discovery-and-visualization-on-provided-archive`;
@@ -1451,23 +1407,22 @@ supplied file silos, which artifacts they produced, which optional branches were
 how every result resolves to evidence.
 - Scope boundary: Evaluate and index bounded proof outputs; do not substitute this test archive for
 representative-scale authorization or conceal failed, stale, blocked, or absent stages.
-- Data and artifact paths: `$ARCHIVE_DIR` used without modification, prior proof bundles, and
-`$RESULTS_DIR/proofs/evaluation-evidence/<proof-id>/` containing evaluation/report outputs and the
-end-to-end proof index.
+- Data and artifact paths: `$ARCHIVE_DIR` used without modification, ordinary evaluation/report
+outputs, and test logs below `$DATA_DIR/integration/evaluation-evidence/`.
 - Execution path: Set the authorized bounded archive scope and selected local inference lane in
 `.env`; run `make setup` with edits/retries until ready, then bare `make pipeline` on one CUDA host.
 Retain the automatic preflight/forecast and setup evidence; verify required
-outputs, entry report and exact source anchors; capture actual device/model resources; join current
-stage proofs for quality context, rerun unchanged and publish the coverage/provenance matrix.
-- Acceptance gates: Every required usable stage has a current `passed` or valid-empty proof and
+outputs, entry report and exact source anchors; capture actual device/model resources; inspect the
+ordinary stage manifests for quality context, rerun unchanged, and validate the coverage/provenance
+matrix.
+- Acceptance gates: Every required usable stage has a current `passed` or valid-empty result and
 checksum-valid artifacts; every required output resolves through one knowledge-base generation;
 optional disabled
 branches cite selection reasons and fallbacks (measured verdicts for comparative claims); the end-to-end
 report exposes all failures/coverage gaps; unchanged evaluation/report work is reused; private paths
 and corpus content are absent from repository documentation.
-The bundle stays under the configured roots and nothing source-derived is committed or staged for
-commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
-checksums and contract conformance in place.
+Only ordinary pipeline artifacts stay under configured roots; nothing source-derived is committed
+or staged for commit. Record the run id, artifact roots, manifests, and checksums checked in place.
 - Documentation target: `docs/impl/current/evaluation.md`
 - Review checkpoint: `review-production-readiness-and-recovery`.
 
@@ -1695,7 +1650,7 @@ Adding tests for important stabilized integrity, correctness, and business-logic
 stage is in scope; concluding that existing tests already cover them is valid. Restoring a
 numeric coverage floor is not.
 - Data and artifact paths: Accepted producer records under `docs/impl/records/`, current-state pages,
-existing test/proof artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
+existing test/run artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
 - Execution path: Read full task snapshots and source changes; trace one-CUDA-host model/resource
 evidence, no-egress boundaries, backup completeness, decision
 retention, source lookup, restore parity, cancellation and disk/WAL/rebuild headroom;
@@ -1770,11 +1725,11 @@ visible; fallback addition requires a failed mandatory gate and its own integrat
 
 #### prove-semantic-retrieval-on-provided-archive
 
-Run the selected semantic/hybrid branch on a bounded supplied-archive tier and publish its proof or
-measured not-selected verdict.
+Run the selected semantic/hybrid branch on a bounded supplied-archive tier through an integration
+test, or retain a measured not-selected verdict.
 
 - Serves: `semantic-retrieval` --
-[Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
+[Provided-archive integration runs](../design/spec.md#provided-archive-integration-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `compare-pgvector-paradedb-native-and-fallback-seam`;
 `prove-lexical-retrieval-on-provided-archive`; [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md).
@@ -1783,17 +1738,15 @@ resource cost, and citations, or see why the branch remains disabled with lexica
 - Scope boundary: Use only the forecast-approved selected tier and configured local models; do not
 embed the complete supplied archive or treat an unavailable/failed branch as successful proof.
 - Data and artifact paths: `$ARCHIVE_DIR` used without modification, embedding/vector
-artifacts, and
-`$RESULTS_DIR/proofs/semantic-retrieval/<proof-id>/`.
+artifacts, and test logs below `$DATA_DIR/integration/semantic-retrieval/`.
 - Execution path: Forecast model and index resources; run selected embedding/load/query profiles;
 validate vector identities, counts, paired retrieval evidence, and fallback; rerun unchanged and
 record that model inference and index build are reused.
 - Acceptance gates: A usable branch has checksum-valid vectors/indexes, cited queries, measured
 quality/cost verdict, and no heavy work on identical rerun. `not-selected` is valid only with the
 declared measured negative result and verified lexical fallback; other failures keep the task open.
-The bundle stays under the configured roots and nothing source-derived is committed or staged for
-commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
-checksums and contract conformance in place.
+Only ordinary pipeline artifacts stay under configured roots; nothing source-derived is committed
+or staged for commit. Record the run id, artifact roots, manifests, and checksums checked in place.
 - Documentation target: `docs/impl/current/semantic-retrieval.md`
 - Review checkpoint: `review-semantic-branch-integrity`.
 
@@ -1815,7 +1768,7 @@ Adding tests for important stabilized integrity, correctness, and business-logic
 stage is in scope; concluding that existing tests already cover them is valid. Restoring a
 numeric coverage floor is not.
 - Data and artifact paths: Accepted producer records under `docs/impl/records/`, current-state pages,
-existing test/proof artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
+existing test/run artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
 - Execution path: Read full task snapshots and source changes; trace vector/profile isolation,
 conditional model loading, no default all-corpus embeddings,
 paired relevance evidence, resource lifecycle, citation validity and lexical fallback;
@@ -1921,8 +1874,9 @@ model, search, or graph services.
 - Scope boundary: Dry-run only on the provided archive; execute/resume/rollback solely on
 disposable copies.
 No acceptance of this utility is a prerequisite for the pipeline.
-- Data and artifact paths: Classification/source manifests, `$RESULTS_DIR/proofs/archive-organization/<proof-id>/`,
-and `$RESULTS_DIR/proof-work/archive-organization/`.
+- Data and artifact paths: Classification/source manifests, ordinary organization plans below
+`$RUNS_DIR/<run-id>/archive-reorganization/`, and test logs below
+`$DATA_DIR/integration/archive-organization/`.
 - Execution path: Validate exported fingerprints offline; generate both mode plans; test verified independent
 copies, same-filesystem moves, journal recovery and idempotent ledger import on disposable roots;
 edit a placed file and prove rollback refuses to remove it.
@@ -1930,9 +1884,8 @@ edit a placed file and prove rollback refuses to remove it.
 collision handling;
 no provided source changes; no model/database dependency; source hashes, lookup, and recovery
 match the contract; missing backup blocks move application without blocking copy planning.
-The bundle stays under the configured roots and nothing source-derived is committed or staged for
-commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
-checksums and contract conformance in place.
+Only ordinary utility artifacts stay under configured roots; nothing source-derived is committed or
+staged for commit. Record the run id, artifact roots, manifests, and checksums checked in place.
 - Documentation target: `docs/impl/current/archive-organization.md`
 - Review checkpoint: `review-archive-organization-integrity`.
 
@@ -1964,7 +1917,7 @@ Adding tests for important stabilized integrity, correctness, and business-logic
 stage is in scope; concluding that existing tests already cover them is valid. Restoring a
 numeric coverage floor is not.
 - Data and artifact paths: Accepted producer records under `docs/impl/records/`, current-state pages,
-existing test/proof artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
+existing test/run artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
 - Execution path: Read full task snapshots and source changes; trace artifact-only execution,
 complete classification accounting, source/destination identity,
 independent copies, protected roots, durable move journal, edited-target rollback refusal and lookup;

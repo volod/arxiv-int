@@ -128,5 +128,5 @@ and it is not a new one.
 
 All acceptance gates pass. Next action: none. Indexed in the [record index](README.md). Plan counts
 unchanged at 62 tasks (52 agent, 10 human); next agent task remains
-[prove-corpus-foundation-on-provided-archive](../plan.md#prove-corpus-foundation-on-provided-archive).
+[prove-corpus-foundation-on-provided-archive](0068-corpus-prove-corpus-foundation-on-provided-archive.md).
 Capability change: none.

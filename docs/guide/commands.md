@@ -51,10 +51,9 @@ from `--help` rather than silently doing nothing.
 | `arxiv-int pipeline forecast --run-id RUN_ID` | available | Read-only time and storage forecast with device free-space refusal; exit 3 when the requested scope is blocked. |
 | `arxiv-int pipeline run` | available | Walk the selected profile DAG. It refuses explicitly while required later stages are unregistered. |
 | `arxiv-int pipeline update\|rebuild\|invalidate` | available | Reconcile a changed archive into a new generation, rebuild in isolation, or mark reuse keys stale. |
-| `arxiv-int stage STAGE --run-id RUN_ID` | available | Run one registered stage. `preflight`, `inventory`, `extract`, `normalize`, `dedupe`, `chunk` and `evaluate` are shipped runners; other stages fail as unregistered. |
+| `arxiv-int stage STAGE --run-id RUN_ID` | available | Run one registered stage. `preflight`, `inventory`, `extract`, `normalize`, `dedupe`, and `chunk` are shipped runners; other stages fail as unregistered. |
 | `arxiv-int inspect DATASET\|RUN\|latest [--limit N] [--json]` | available | Summarize published artifacts, quality, lineage, anchors, quarantines and failures without recomputing them. |
 | `arxiv-int artifacts prune --stale` | available | Plan derived-artifact maintenance. `--apply --plan PLAN_ID` is a separate confirmation and refuses to delete a sole recovery copy. |
-| `arxiv-int evaluation --help` | available | Score frozen fixtures and publish or verify capability proofs. |
 | `arxiv-int inference --help` | available | Call the configured local Ollama or vLLM endpoint. |
 
 The ordered chain, the stage dependency closure and the remaining planned stages are in the

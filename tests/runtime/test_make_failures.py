@@ -86,5 +86,5 @@ def test_make_test_preserves_cache_root_with_spaces(tmp_path: Path) -> None:
         "-o",
         f"cache_dir={cache_root}/cache/pytest",
         "-m",
-        "not heavy",
+        "not heavy and not archive",
     ]

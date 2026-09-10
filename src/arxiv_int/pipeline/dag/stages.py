@@ -162,7 +162,6 @@ def production_specs() -> tuple[StageSpec, ...]:
 
 def production_registry() -> StageRegistry:
     """Bind shipped runners onto production specs; others remain unregistered."""
-    from arxiv_int.evaluation.evaluate.stage import EvaluateStage
     from arxiv_int.extraction.stage import ExtractionStage
     from arxiv_int.pipeline.chunk.stage import ChunkStage
     from arxiv_int.pipeline.dedupe.stage import DedupeStage
@@ -178,5 +177,4 @@ def production_registry() -> StageRegistry:
         .with_runner("normalize", NormalizeStage())
         .with_runner("dedupe", DedupeStage())
         .with_runner("chunk", ChunkStage())
-        .with_runner("evaluate", EvaluateStage())
     )

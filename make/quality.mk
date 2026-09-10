@@ -1,6 +1,6 @@
 # Formatting, lint, tests, and composed CI/quality gates.
 ##@ Quality
-.PHONY: format format-check lint typecheck test test-heavy coverage \
+.PHONY: format format-check lint typecheck test test-heavy test-archive coverage \
 	complexity-gate shell-lint-gate lint-md lint-doc-links lint-spec-plan \
 	plan-status ci-checks ci ci-github build quality code-quality quality-report
 
@@ -18,13 +18,16 @@ typecheck: ## Run mypy over production code
 	@"$(VENV)/bin/mypy" --python-version "$(PYTHON_VERSION)"
 
 test: ## Run deterministic unit tests (excludes heavy Docker/host checks)
-	@"$(PY)" -m pytest $(PYTEST_CACHE) -m "not heavy"
+	@"$(PY)" -m pytest $(PYTEST_CACHE) -m "not heavy and not archive"
 
 test-heavy: ## Run Docker and other host-service tests marked heavy
 	@"$(PY)" -m pytest $(PYTEST_CACHE) -m heavy
 
+test-archive: ## Run the corpus integration test against configured archive roots
+	@$(load_env) && "$(PY)" -m pytest $(PYTEST_CACHE) tests/integration/corpus/test_archive_pipeline.py
+
 coverage: ## Run tests and report coverage (diagnostic; no percentage floor)
-	@"$(PY)" -m pytest $(PYTEST_CACHE) -m "not heavy" --cov=arxiv_int --cov-report=term-missing
+	@"$(PY)" -m pytest $(PYTEST_CACHE) -m "not heavy and not archive" --cov=arxiv_int --cov-report=term-missing
 
 complexity-gate: ## Fail on Radon D-or-worse or cognitive complexity above 15
 	@output="$$($(VENV)/bin/radon cc src tests -s -n D)"; \
@@ -53,7 +56,7 @@ lint-spec-plan: ## Check capability registry, task structure, status, and orderi
 plan-status: ## Count tasks by lane/status and show the next eligible work
 	@"$(VENV)/bin/arxiv-int-plan" --root "$(PROJECT_ROOT)"
 
-ci-checks: format-check lint typecheck complexity-gate shell-lint-gate lint-doc-links lint-spec-plan contracts-check contracts-evolution db-check ontology-check inference-schemas-check evaluation-fixtures-check
+ci-checks: format-check lint typecheck complexity-gate shell-lint-gate lint-doc-links lint-spec-plan contracts-check contracts-evolution db-check ontology-check inference-schemas-check
 
 ci: ci-checks test ## Run the required local and GitHub CI gate
 
@@ -71,4 +74,3 @@ code-quality: quality ## Alias for the full local quality suite
 quality-report: ## Report Python/shell files over the 250-line soft limit
 	@find src tests scripts -type f \( -name '*.py' -o -name '*.sh' \) -print0 | \
 		xargs -0 -r wc -l | awk '$$2 != "total" && $$1 > 250 {print}' | sort -nr
-

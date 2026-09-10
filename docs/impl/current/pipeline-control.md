@@ -4,10 +4,10 @@ Typed stage, source, and artifact references, a generic run ledger, serialized p
 logging with bounded resource telemetry, a fixture-first DAG CLI, a registered preflight
 readability worker, a read-only pre-run forecast, profile-declared knowledge-base publication,
 read-only stage artifact inspection, incremental source reconciliation, two-phase stale prune,
-read-only citation/source location lookup, and a provided-archive pipeline-control proof are
-available. Concrete corpus stages through `chunk` are registered;
+and read-only citation/source location lookup are available. Concrete corpus stages through `chunk`
+are registered;
 classification and later investigation stages remain
-[planned](../plan.md#corpus-foundation----corpus-foundation).
+[planned](../plan.md#archive-classification----archive-classification).
 
 See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface-contracts.md),
 [record 0041](../records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md),
@@ -65,8 +65,8 @@ generation. Distinct generations of one partition are different refs and must lo
 paths. Partition and option maps are frozen after construction. A failed or not-run validation
 cannot be `publishable`; only a transformation run with status `ok` can be `activatable`.
 
-`EvaluateStage` and Polars document preparation use this `StageContext` / `StageResult` /
-`DatasetRef` shape.
+Polars document preparation uses this `StageContext` / `StageResult` / `DatasetRef` shape. The
+planned evaluation runner will use it once it consumes actual upstream outputs.
 
 ## Conditional feature requirements
 
@@ -318,31 +318,16 @@ refusal leaves each tree whole and deletion never follows a link out of `RUNS_DI
 checksums under `$RUNS_DIR/pruned/` and compact lineage; it never deletes archive sources. The
 prune event records measured `bytes_removed` alongside `directories_removed`.
 
-## Provided-archive control proof
+## Integration coverage
 
-`make proof CAPABILITY=pipeline-control RUN_ID=...` copies a bounded file set from `ARCHIVE_DIR`
-into `$RESULTS_DIR/proof-work/pipeline-control/<proof-id>/` and publishes
-`$RESULTS_DIR/proofs/pipeline-control/<proof-id>/`. The copy is at most eight files, 4 MiB each,
-and 16 MiB total. Add/change/rename/remove, fingerprint bump, rebuild, and prune-apply run only
-on that copy. The supplied archive is not written. Then-usable stages are registered `preflight`
-plus the fixture DAG; inventory and later corpus stages are not part of this proof.
-
-The bundle stays under `RESULTS_DIR` and is reviewed there. It holds `proof-manifest.json`,
-`summary.txt`, `gates.json`, `scenario.json`, `forecast-summary.json` and a `fingerprint.json`
-recording the raw fingerprint of its own manifest, so a reviewer can confirm the bundle a record
-names. Required gates are zero workers on a no-op rerun, exact affected/unaffected shards
-for each delta, tombstones and active rows, targeted code invalidation, simulated free-space
-refusal before allocation, rebuild checksum parity, sole-recovery prune refusal, and an
-unmodified source snapshot. The current bundle is host proof `0056-host`, published after the
-reconciliation and prune repair and recorded in
-[record 0056](../records/0056-pipeline-reprove-pipeline-control-after-reconciliation-repair.md);
-it supersedes `0053-host-2` in
-[record 0053](../records/0053-pipeline-prove-pipeline-control-on-provided-archive.md), which stays
-the account of the code it proved. Both runs report the same scenario counts on the same archive.
-Both were published in the superseded bundle shape, whose `export.json` and identity-policy
-`policy.json` were retired by
-[record 0057](../records/0057-eval-found-retire-committed-proof-export.md); their scenario counts
-now live in `scenario.json` and the `no_export` gate is gone with the export path.
+Pipeline control is exercised directly through tests under `tests/pipeline/`. They cover cache-hit
+replay, resume, add/change/rename/remove reconciliation, source retraction, invalidation, rebuild,
+forecast refusal, and protected prune behavior against isolated fixture roots. The earlier bounded
+archive-copy scenario in records [0053](../records/0053-pipeline-prove-pipeline-control-on-provided-archive.md)
+and [0056](../records/0056-pipeline-reprove-pipeline-control-after-reconciliation-repair.md) was a
+milestone experiment over a fixture DAG. Its production scenario and publication modules were
+retired by [record 0069](../records/0069-govern-retire-milestone-evaluation-scaffolding.md); they did
+not validate the later corpus stages.
 
 ## Stage artifact inspection
 
@@ -536,19 +521,14 @@ shared merge/split evidence, rebuild checksum parity, quality-gated activation, 
 lineage, and revision `0001` reconcile alignment. Prune tests in `tests/pipeline/prune/` cover
 sole-recovery refusal, protected kinds, refusal of a symlinked escape from the runs root, measured
 removed bytes, and superseded-attempt deletion that leaves live cache
-entries. Pipeline-control proof tests in `tests/evaluation/proof/test_pipeline_control.py` cover
-the named gates, dispatcher/CLI publish and check, unreadable archives, copy budgets, and
-path-free no-export bundles. Fixtures do not prove real-archive extraction quality or
-CUDA worker fit.
+entries. Fixture coverage does not prove real-archive extraction quality or CUDA worker fit; the
+separate corpus archive integration test covers the shipped ordinary corpus closure.
 
 Checkpoint 0046 validates fixture publication and reuse, with live disposable SQL lease/crash checks
-and a CUDA-host resource probe. Record 0053 publishes the provided-archive control proof for
-then-usable stages. Checkpoint 0054 reviews the producers accepted after 0046 -- inspection,
+and a CUDA-host resource probe. Checkpoint 0054 reviews the producers accepted after 0046 -- inspection,
 reconciliation, prune, package layout, evidence lookup and the frozen store revision -- and repair
-0055 fixes the reconciliation and prune defects it found; record 0056 republishes the
-provided-archive bundle on the repaired code, so `0056-host` is the current real-archive evidence.
-A removal that is not the last occurrence is outside that scenario's reach and stays
-fixture-covered. Source link policy
+0055 fixes the reconciliation and prune defects it found. The historical 0053/0056 scenario did not
+cover a removal that is not the last occurrence; that behavior stays fixture-covered. Source link policy
 is implemented by [streaming inventory](../records/0060-corpus-implement-streaming-inventory.md).
 Checkpoint [0063](../records/0063-corpus-review-corpus-and-control-integrity.md) reviews the
 integrated corpus and control milestone; repair

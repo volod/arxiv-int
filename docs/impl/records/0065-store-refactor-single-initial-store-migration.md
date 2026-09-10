@@ -122,6 +122,6 @@ All acceptance gates pass except the explicitly not-run live apply. Next action:
 the [record index](README.md); current-state update in
 [canonical store](../current/canonical-store.md). Plan counts unchanged at 62 tasks (52 agent,
 10 human); next agent task remains
-[prove-corpus-foundation-on-provided-archive](../plan.md#prove-corpus-foundation-on-provided-archive).
+[prove-corpus-foundation-on-provided-archive](0068-corpus-prove-corpus-foundation-on-provided-archive.md).
 Capability change: none; the canonical store's shape is unchanged apart from the two tables now
 following the same partition and staging convention as their peers.

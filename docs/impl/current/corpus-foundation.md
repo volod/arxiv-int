@@ -2,9 +2,9 @@
 
 Streaming inventory, tiered text extraction, normalization, reversible duplicate overlays, and
 structure-aware chunking are available through the normal stage interface. The integration
-checkpoint has passed and released these stages to lexical loading, classification and Russian NLP;
-the [provided-archive corpus proof](../plan.md#corpus-foundation----corpus-foundation) remains
-planned. Implementation and acceptance
+checkpoint has passed and released these stages to lexical loading, classification and Russian NLP.
+The [provided-archive integration test](evaluation-foundation.md#archive-integration) validates this
+bounded closure. Implementation and acceptance
 evidence: [record 0060](../records/0060-corpus-implement-streaming-inventory.md),
 [record 0061](../records/0061-corpus-integrate-tiered-text-extraction.md),
 [record 0062](../records/0062-corpus-implement-normalization-dedupe-and-chunking.md),
@@ -87,6 +87,8 @@ sidecar records how many repeated characters that added. Generated Pandera check
 cross-partition identity uniqueness run before publication. Unchanged inputs reuse validated
 snapshots; a changed reviewed language profile recomputes `normalize`, `dedupe` and `chunk` and
 leaves `inventory` and `extract` cached. These stages use CPU and storage; CUDA is not required.
+Extraction reuse also hashes the names and bytes of actual files below `$MODEL_CACHE_DIR/docling/`;
+a model-file change invalidates extraction and its consumers even when CLI versions are unchanged.
 
 A bounded fixture Make run on this host published 14 normalized documents, four duplicate groups
 with nine memberships and three suppressed members, and 91 chunks (one table, ninety text) over ten
@@ -94,7 +96,7 @@ representatives. Redacted counts live in
 [record 0062](../records/0062-corpus-implement-normalization-dedupe-and-chunking.md), and the
 checkpoint replay that re-verified every published chunk offset against the extracted artifacts is in
 [checkpoint 0063](../records/0063-corpus-review-corpus-and-control-integrity.md). That result
-does not establish provided-archive quality; the corpus proof remains open.
+is fixture evidence. The provided-archive integration check is described below.
 
 ## Identities, coverage and storage
 
@@ -181,4 +183,28 @@ The [quality conclusion](../records/0060-corpus-implement-streaming-inventory.md
 records inventory acceptance and its limits.
 Normalization, grouping and chunking fixture evidence is in
 [record 0062](../records/0062-corpus-implement-normalization-dedupe-and-chunking.md).
-[Provided-archive corpus proof](../plan.md#prove-corpus-foundation-on-provided-archive) remains open.
+
+## Provided-archive integration
+
+`make test-archive` creates an ordinary run ending at `chunk` against the configured archive. The
+test applies the normal forecast and corpus runners, then independently rechecks generated Pandera
+contracts, attempt and snapshot checksums, source occurrence and quarantine accounting, source
+anchors, normalized views, offset maps, duplicate representatives, and every chunk's source
+reconstruction. It rehashes physical source files after the run and requires a second execution to
+be entirely cache hits with zero worker calls. All extra cross-check code lives below
+`tests/integration/corpus/`.
+
+The earlier `0068-host-v2` milestone run accounted for 568 occurrences from
+546 physical files: 447 mapped to 414 documents and 121 quarantined. It validated 48,986 spans,
+414 normalized documents, 87 duplicate/edition groups and 70,550 chunks over 377 representatives.
+All source hashes, contracts and offsets passed. The unchanged replay invoked zero workers and took
+1.23 seconds. This is historical evidence; the production proof publisher and its secondary
+manifest were retired by
+[record 0069](../records/0069-govern-retire-milestone-evaluation-scaffolding.md).
+
+Duplicate suppression affected 37 documents (8.94 percent); the largest suppressing component had
+four members. The overall maximum of ten includes edition groups. The measured slice does not
+justify changing the reversible grouping policy. These checks establish structural integrity,
+not human-adjudicated extraction or dedupe accuracy, later-stage quality, scale or placement approval.
+Quarantine details, timing limits and the complete gate evidence are retained in
+[record 0068](../records/0068-corpus-prove-corpus-foundation-on-provided-archive.md).

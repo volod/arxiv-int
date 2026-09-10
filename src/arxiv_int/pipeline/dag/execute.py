@@ -2,6 +2,7 @@
 
 import json
 from collections.abc import Callable, Mapping
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
@@ -11,6 +12,7 @@ from arxiv_int.pipeline.control.artifacts import ArtifactPublishError, validate_
 from arxiv_int.pipeline.control.executor import ShardDecision, ShardExecutor
 from arxiv_int.pipeline.control.fingerprints import ReuseIdentity, reuse_key
 from arxiv_int.pipeline.control.model import ShardWork
+from arxiv_int.pipeline.control.model_assets import docling_asset_fingerprint
 from arxiv_int.pipeline.control.owned import owned_fingerprints
 from arxiv_int.pipeline.control.quality import activation_decision
 from arxiv_int.pipeline.dag.registry import StageRegistry, StageSpec
@@ -61,6 +63,11 @@ def stage_identity(
     spec: StageSpec, context: RunContext, upstream_keys: tuple[str, ...]
 ) -> ReuseIdentity:
     """Bind one stage shard to frozen configuration and upstream reuse keys."""
+    if spec.name == "extract":
+        cache = Path(stage_context(context, spec.name).options["model_cache_dir"])
+        spec = replace(
+            spec, models={**spec.models, "docling-assets": docling_asset_fingerprint(cache)}
+        )
     shard_id = context.parameters.get("document_id", "default")
     inputs: tuple[str, ...]
     if not spec.depends_on:

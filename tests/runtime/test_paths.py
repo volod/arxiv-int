@@ -85,7 +85,6 @@ def test_valid_paths_create_the_documented_layout_and_record_devices(tmp_path: P
     assert {path.name for path in created} >= {
         "normalized",
         "quarantine",
-        "proofs",
         "exports",
         "runs",
         "services",

@@ -32,8 +32,10 @@ Add `Human review handoff` to every agent task that produces or assembles human-
 use the [handoff contract](#human-review-handoffs) below. The field is a forward handoff, not a
 dependency on the approval it enables.
 
-Proof/dataset tasks name the configured roots their artifacts occupy and the bundle fingerprint a
-reviewer checks. They commit no source-derived fixture, label, answer, figure or metadata; see
+Archive integration and dataset tasks name the configured roots their ordinary artifacts occupy,
+the integration test, and the run/manifest fingerprints a reviewer checks. Extra cross-checks stay
+under `tests/integration/`; do not add a production proof publisher or parallel manifest. Tasks
+commit no source-derived fixture, label, answer, figure or metadata; see
 [published proof and evaluation data](../design/spec.md#published-proof-and-evaluation-data).
 Name the implementation prerequisite, the presence/checksum/contract checks a reviewer runs in place,
 and the resulting fingerprint. Committed fixtures are synthetic and must preserve the pinned
@@ -52,11 +54,11 @@ archive content.
 ### Human review handoffs
 
 Mark every producer of a human task's required artifacts, including draft contributors and the
-proof/checkpoint that assembles the final packet. Use explicit human task links; the human task's
-`Dependencies` lists the producer ids and all required earlier human decisions. An agent proof
-must not depend on approval of the packet it creates. Fixture builders may use visibly proposed
-policies; promotion, accepted-output proof, scale or placement consumers carry the actual approval
-dependency. Conditional viewer/semantic/move requirements stay explicit.
+integration/checkpoint task that assembles the final packet. Use explicit human task links; the
+human task's `Dependencies` lists the producer ids and all required earlier human decisions. An
+integration task must not depend on approval of the packet it creates. Fixture builders may use
+visibly proposed policies; promotion, accepted-output integration, scale or placement consumers
+carry the actual approval dependency. Conditional viewer/semantic/move requirements stay explicit.
 
 Each `Human review handoff` names:
 
@@ -180,9 +182,10 @@ cases in the stage when existing tests do not already cover them. A numeric cove
 not an acceptance signal. Existing happy-path and main-corner coverage is a valid
 no-additional-tests conclusion.
 
-Early checkpoints use deterministic integration evidence; inspect real-data proofs when available.
+Early checkpoints use deterministic integration evidence; inspect real-data integration results
+when available.
 Their fixture verdict enables implementation, not real-corpus/CUDA promotion or physical placement.
-Keep proof/human gates separate; missing private labels do not block independent fixture work.
+Keep integration/human gates separate; missing private labels do not block independent fixture work.
 
 Create a bounded review round for changed public contracts, duplicated policy, repeated regressions,
 or integration risk after a checkpoint closes. Use a new id, explicit inputs/gates and a prior-record

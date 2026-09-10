@@ -61,7 +61,7 @@ def test_production_investigation_names_unregistered_required_stages() -> None:
     assert "dedupe" not in missing
     assert "chunk" not in missing
     assert "classify" in missing
-    assert registry.get("evaluate").runner is not None
+    assert "evaluate" in missing
     assert registry.get("preflight").runner is not None
 
 

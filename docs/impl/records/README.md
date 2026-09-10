@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0063` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0069` after the rows
 below).
 
 | Record | Scope | Result |
@@ -79,3 +79,5 @@ below).
 | [0065 Single initial store migration](0065-store-refactor-single-initial-store-migration.md) | Collapse the second pre-release revision into `0001` and restore the partition/staging convention | Accepted |
 | [0066 README and command reference refresh](0066-govern-refactor-readme-and-command-reference.md) | Quick start reflects the shipped corpus chain; command and organization details move to guide pages | Accepted |
 | [0067 Optional Tika CI typecheck](0067-foundation-fix-optional-tika-ci-typecheck.md) | Type-check the isolated worker without installing the native extraction stack in GitHub | Accepted |
+| [0068 Provided-archive corpus proof](0068-corpus-prove-corpus-foundation-on-provided-archive.md) | Corpus proof execution, model-content identities and immutable verification | Accepted; 568 occurrences accounted for, 70550 chunks, zero-worker replay and CI pass |
+| [0069 Retire milestone evaluation scaffolding](0069-govern-retire-milestone-evaluation-scaffolding.md) | Remove test-like evaluation runners and milestone proof/disposable experiment code; retain reusable primitives and archive checks as integration tests | Accepted; archive integration, CI, coverage, Markdown, and package builds pass |

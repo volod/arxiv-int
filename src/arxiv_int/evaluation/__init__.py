@@ -1,4 +1,4 @@
-"""Dependency-free evaluation primitives, fixtures, bundles, and capability proofs."""
+"""Reusable evaluation metrics and immutable result bundles."""
 
 from arxiv_int.evaluation.bundles import (
     BundleSpec,
@@ -13,13 +13,7 @@ from arxiv_int.evaluation.bundles.errors import (
     BundleLayoutError,
     BundleManifestError,
 )
-from arxiv_int.evaluation.evaluate.errors import (
-    MissingEvidenceError,
-    ProofExistsError,
-    ProofUnknownCapabilityError,
-)
-from arxiv_int.evaluation.evaluate.run import EvaluateRequest, run_evaluate
-from arxiv_int.evaluation.evaluate.stage import EvaluateStage
+from arxiv_int.evaluation.scoring.errors import MissingEvidenceError
 from arxiv_int.evaluation.scoring.linkage import LinkageLabel, LinkageMetrics, score_linkage
 from arxiv_int.evaluation.scoring.metrics import ExtractionMetrics, extraction_metrics, text_metrics
 from arxiv_int.evaluation.scoring.paired import (
@@ -36,22 +30,17 @@ __all__ = [
     "BundleLayoutError",
     "BundleManifestError",
     "BundleSpec",
-    "EvaluateRequest",
-    "EvaluateStage",
     "ExtractionMetrics",
     "LinkageLabel",
     "LinkageMetrics",
     "MissingEvidenceError",
     "PairedComparison",
     "PairedVerdict",
-    "ProofExistsError",
-    "ProofUnknownCapabilityError",
     "PublishedBundle",
     "extraction_metrics",
     "paired_comparison",
     "paired_verdict",
     "publish_run_bundle",
-    "run_evaluate",
     "score_linkage",
     "text_metrics",
     "verify_run_bundle",

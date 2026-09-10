@@ -80,8 +80,8 @@ The investigation profile requires every baseline output in the specification. A
 stage executes its dependency closure or validates exact existing upstream artifacts. `--from`
 does not excuse missing/stale inputs; `--to` includes only the selected endpoint's closure. Disabled
 optional branches are explicit `not-selected` records. Missing required runners or failed validators
-cannot be silently skipped. Registry order in the plan expresses priority; cross-group proof
-dependencies are allowed and are not runtime cycles.
+cannot be silently skipped. Registry order in the plan expresses priority; cross-group integration
+task dependencies are allowed and are not runtime cycles.
 
 ## Module ownership and durable interfaces
 
@@ -149,9 +149,10 @@ selected for the baseline; mocked model responses test error paths but cannot pr
 
 Bare `make pipeline` with the fixture's `.env` must produce the complete manifest and portable report;
 the documented atomic chain must yield equivalent logical outputs and quality states. Running
-the same source bytes twice must reuse heavy outputs. Then prove the selected local model on one
-CUDA device with bounded real inference and publish the authorized provided-archive proof. The proof
-captures resources, quality limits, output checksums, source immutability, and error/empty states.
+the same source bytes twice must reuse heavy outputs. Then exercise the selected local model on one
+CUDA device with bounded real inference through an explicit provided-archive integration test. The
+ordinary run artifacts retain resources, quality limits, output checksums, source immutability, and
+error/empty states.
 Directory-to-report acceptance is independent of vector comparisons, AGE, UI services, and archive
 organization. Required gates and future work are owned by the [specification](spec.md#required-acceptance-gates)
 and [plan](../impl/plan.md), not duplicated here as a second backlog.

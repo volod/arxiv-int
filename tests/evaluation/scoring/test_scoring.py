@@ -7,13 +7,6 @@ from arxiv_int.data_quality.engine.model import (
     ToolFingerprint,
     ValidationLimits,
 )
-from arxiv_int.evaluation.evaluate.errors import MissingEvidenceError
-from arxiv_int.evaluation.fixtures.kinds import (
-    DATA_CLASS_RAW,
-    DATA_CLASS_TRANSFORMED,
-    METRIC_CLASS_HELD_OUT,
-    METRIC_CLASS_STRUCTURAL,
-)
 from arxiv_int.evaluation.scoring import (
     metric_class_for,
     refuse_empty_metrics,
@@ -25,6 +18,13 @@ from arxiv_int.evaluation.scoring.accuracy import (
     score_extraction_item,
 )
 from arxiv_int.evaluation.scoring.anomaly import review_budget_precision, score_anomaly
+from arxiv_int.evaluation.scoring.constants import (
+    DATA_CLASS_RAW,
+    DATA_CLASS_TRANSFORMED,
+    METRIC_CLASS_HELD_OUT,
+    METRIC_CLASS_STRUCTURAL,
+)
+from arxiv_int.evaluation.scoring.errors import MissingEvidenceError
 from arxiv_int.evaluation.scoring.geo import score_geotemporal, score_ontology
 
 

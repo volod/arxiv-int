@@ -4,8 +4,8 @@ import math
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 
-from arxiv_int.evaluation.evaluate.errors import MissingEvidenceError
-from arxiv_int.evaluation.fixtures.kinds import EXCEPTIONAL_CLASSES, LATENCY_P95, RETRIEVAL_K
+from arxiv_int.evaluation.scoring.constants import EXCEPTIONAL_CLASSES, LATENCY_P95, RETRIEVAL_K
+from arxiv_int.evaluation.scoring.errors import MissingEvidenceError
 from arxiv_int.evaluation.scoring.metrics import extraction_metrics
 from arxiv_int.evaluation.scoring.payload import as_int, as_maps, as_str, as_strings
 from arxiv_int.retrieval.metrics import (
