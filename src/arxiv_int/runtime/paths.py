@@ -15,7 +15,7 @@ from arxiv_int.runtime.filesystem import (
 )
 from arxiv_int.runtime.path_model import PathValidation, RootPlacement, runtime_placements
 
-_RESULTS_CHILDREN = ("normalized", "quarantine", "proofs", "exports")
+_RESULTS_CHILDREN = ("normalized", "quarantine", "exports")
 _DERIVED_VARIABLES = {
     "RUNS_DIR",
     "SERVICE_STATE_DIR",

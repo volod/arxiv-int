@@ -16,7 +16,6 @@ ROOT = Path(__file__).parents[3]
         ["setup", "--help"],
         ["features"],
         ["inference", "--help"],
-        ["evaluation", "--help"],
         ["archive", "--help"],
     ],
 )

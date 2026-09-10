@@ -1,18 +1,18 @@
-"""Cross-stage occurrence, document, quarantine and duplicate accounting."""
+"""Cross-stage corpus accounting checks for the provided-archive integration test."""
 
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
-from arxiv_int.evaluation.proof.corpus_artifacts import require, rows
 from arxiv_int.pipeline.control.artifacts import hash_file
 from arxiv_int.pipeline.inventory.walk import open_source
 from arxiv_int.pipeline.lake.artifacts import read_jsonl
 from arxiv_int.pipeline.run.context import RunContext
+from tests.integration.corpus.artifacts import require, rows
 
 
 def check_sources(path: Path, context: RunContext) -> dict[str, dict[str, Any]]:
-    """Verify every hashed physical occurrence still matches the read-only source bytes."""
+    """Verify every hashed physical occurrence against the source bytes after the run."""
     import hashlib
     import os
 
@@ -26,7 +26,7 @@ def check_sources(path: Path, context: RunContext) -> dict[str, dict[str, Any]]:
         with os.fdopen(
             open_source(sources[extra["silo_id"]], extra["relative_path"]), "rb"
         ) as handle:
-            while block := handle.read(1048576):
+            while block := handle.read(1_048_576):
                 digest.update(block)
         require(
             digest.hexdigest() == extra["content_hash"], "source content changed since inventory"
@@ -47,7 +47,7 @@ def quarantine(root: Path, key: str) -> dict[str, str]:
 def account_extraction(
     inventory: dict[str, dict[str, Any]], summary: dict[str, Any]
 ) -> tuple[dict[str, dict[str, Any]], dict[str, Any]]:
-    """Every inventory item becomes exactly one document occurrence or quarantine."""
+    """Require each inventory item to become one document occurrence or quarantine."""
     roots = {key: Path(value) for key, value in summary["roots"].items()}
     documents: dict[str, dict[str, Any]] = {}
     for row, extra in rows(roots["documents"], "document_id"):
@@ -89,7 +89,7 @@ def account_extraction(
 def account_normalization(
     documents: dict[str, Any], summary: dict[str, Any]
 ) -> dict[str, dict[str, Any]]:
-    """Every extracted document is normalized or explicitly quarantined."""
+    """Require every extracted document to be normalized or quarantined."""
     normalized: dict[str, dict[str, Any]] = {}
     for row, extra in rows(
         Path(summary["roots"]["normalized-documents"]), "normalized_document_id"
@@ -110,7 +110,7 @@ def account_normalization(
 def account_duplicates(
     normalized: dict[str, Any], summary: dict[str, Any]
 ) -> tuple[set[str], dict[str, Any]]:
-    """Check representatives and report component sizes without approving semantic equivalence."""
+    """Check representatives and component sizes without approving semantic equivalence."""
     groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
     suppressed: set[str] = set()
     memberships = 0
@@ -120,29 +120,16 @@ def account_duplicates(
         memberships += 1
         if row["suppressed"]:
             suppressed.add(row["document_id"])
-    suppressing_sizes: list[int] = []
     for group in groups.values():
         representatives = [row for row in group if row["role"] == "representative"]
         require(len(representatives) == 1, "duplicate group needs exactly one representative")
         require(not representatives[0]["suppressed"], "duplicate representative is suppressed")
-        if any(row["suppressed"] for row in group):
-            require(
-                representatives[0]["document_id"] not in suppressed,
-                "suppressed group has no retained representative",
-            )
-            suppressing_sizes.append(len(group))
     require(len(groups) == summary["duplicate_groups"], "duplicate group count mismatch")
     require(memberships == summary["duplicate_memberships"], "duplicate membership count mismatch")
     require(len(suppressed) == summary["suppressed_documents"], "suppression count mismatch")
     return suppressed, {
-        "largest_suppressing_component": max(suppressing_sizes, default=0),
         "groups": len(groups),
         "memberships": memberships,
-        "largest_component": max((len(group) for group in groups.values()), default=0),
-        "component_sizes": {
-            str(size): count
-            for size, count in Counter(len(group) for group in groups.values()).items()
-        },
         "suppressed": len(suppressed),
-        "suppressed_share": len(suppressed) / max(1, len(normalized)),
+        "component_sizes": dict(Counter(len(group) for group in groups.values())),
     }

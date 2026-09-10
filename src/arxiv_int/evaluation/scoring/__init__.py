@@ -1,51 +1,16 @@
-"""Dispatch frozen items to metrics and refuse verdicts without evidence."""
+"""Reusable evaluation metrics and evidence guards."""
 
 import math
 from collections.abc import Mapping
-from typing import Any
 
-from arxiv_int.evaluation.evaluate.errors import MissingEvidenceError
-from arxiv_int.evaluation.fixtures.kinds import (
-    KIND_ANOMALY,
-    KIND_CATALOG,
-    KIND_CLASSIFICATION,
-    KIND_DOMAIN_ARTIFACT,
-    KIND_DOMAIN_NEGATIVE,
-    KIND_ENTITY,
-    KIND_EXTRACTION,
-    KIND_FACT,
-    KIND_GEOTEMPORAL,
-    KIND_GRAPH,
-    KIND_ONTOLOGY,
-    KIND_REPORTING,
-    KIND_RUSSIAN_RETRIEVAL,
-    KIND_SEMANTIC,
+from arxiv_int.evaluation.scoring.constants import (
     METRIC_CLASS_HELD_OUT,
     METRIC_CLASS_STRUCTURAL,
 )
-from arxiv_int.evaluation.fixtures.model import EvaluationItem
-from arxiv_int.evaluation.scoring.accuracy import (
-    score_classification,
-    score_extraction_item,
-    score_retrieval,
-)
-from arxiv_int.evaluation.scoring.anomaly import score_anomaly
-from arxiv_int.evaluation.scoring.domain import (
-    score_catalog,
-    score_domain_artifact,
-    score_domain_negative,
-    score_graph,
-)
-from arxiv_int.evaluation.scoring.geo import score_geotemporal, score_ontology
+from arxiv_int.evaluation.scoring.errors import MissingEvidenceError
 from arxiv_int.evaluation.scoring.linkage import LinkageLabel, score_linkage
 from arxiv_int.evaluation.scoring.paired import PairedComparison, paired_verdict
 from arxiv_int.evaluation.scoring.payload import as_float, as_items
-
-
-def _mean(values: Mapping[str, float]) -> float:
-    if not values:
-        raise MissingEvidenceError("metric vector is empty")
-    return sum(values.values()) / len(values)
 
 
 def score_entity(gold: Mapping[str, object], prediction: Mapping[str, object]) -> dict[str, float]:
@@ -99,66 +64,6 @@ def score_reporting(
     if gold.get("cited") is True and not cited_pred:
         coverage = 0.0
     return {"cited": cited, "coverage_match": coverage}
-
-
-def _anomaly_metrics(
-    gold: Mapping[str, object], prediction: Mapping[str, object]
-) -> dict[str, float]:
-    score = score_anomaly(gold, prediction)
-    return {
-        "flagged_match": score.flagged_match,
-        "insufficient_match": score.insufficient_match,
-        "leakage_refused": score.leakage_refused,
-        "not_false_positive": 1.0 - score.false_positive,
-        "review_needed_match": score.review_needed_match,
-    }
-
-
-def _classification_metrics(
-    gold: Mapping[str, object], prediction: Mapping[str, object]
-) -> dict[str, float]:
-    score = score_classification(gold, prediction)
-    return {
-        "exact": score.exact,
-        "exceptional": score.exceptional,
-        "hierarchical_precision": score.hierarchical_precision,
-        "hierarchical_recall": score.hierarchical_recall,
-    }
-
-
-SCORERS: dict[str, Any] = {
-    KIND_ANOMALY: _anomaly_metrics,
-    KIND_CATALOG: score_catalog,
-    KIND_CLASSIFICATION: _classification_metrics,
-    KIND_DOMAIN_ARTIFACT: score_domain_artifact,
-    KIND_DOMAIN_NEGATIVE: score_domain_negative,
-    KIND_ENTITY: score_entity,
-    KIND_EXTRACTION: score_extraction_item,
-    KIND_FACT: score_fact,
-    KIND_GEOTEMPORAL: score_geotemporal,
-    KIND_GRAPH: score_graph,
-    KIND_ONTOLOGY: score_ontology,
-    KIND_REPORTING: score_reporting,
-    KIND_RUSSIAN_RETRIEVAL: score_retrieval,
-    KIND_SEMANTIC: score_retrieval,
-}
-
-
-def score_item(item: EvaluationItem, prediction: Mapping[str, object] | None) -> dict[str, float]:
-    """Score one item or refuse when the prediction is missing."""
-    if prediction is None:
-        raise MissingEvidenceError(f"item {item.item_id} has no prediction")
-    scorer = SCORERS.get(item.item_kind)
-    if scorer is None:
-        raise MissingEvidenceError(f"no scorer for item_kind {item.item_kind}")
-    return dict(scorer(item.gold, prediction))
-
-
-def polarity_scores(item: EvaluationItem) -> tuple[float, float]:
-    """Return mean scores for the frozen positive and negative predictions."""
-    positive = _mean(score_item(item, item.positive))
-    negative = _mean(score_item(item, item.negative))
-    return positive, negative
 
 
 def refuse_empty_metrics(metrics: Mapping[str, float]) -> Mapping[str, float]:

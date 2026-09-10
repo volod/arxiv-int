@@ -2,9 +2,9 @@
 
 Streaming inventory, tiered text extraction, normalization, reversible duplicate overlays, and
 structure-aware chunking are available through the normal stage interface. The integration
-checkpoint has passed and released these stages to lexical loading, classification and Russian NLP;
-the [provided-archive corpus proof](../records/0068-corpus-prove-corpus-foundation-on-provided-archive.md)
-validates this bounded closure. Implementation and acceptance
+checkpoint has passed and released these stages to lexical loading, classification and Russian NLP.
+The [provided-archive integration test](evaluation-foundation.md#archive-integration) validates this
+bounded closure. Implementation and acceptance
 evidence: [record 0060](../records/0060-corpus-implement-streaming-inventory.md),
 [record 0061](../records/0061-corpus-integrate-tiered-text-extraction.md),
 [record 0062](../records/0062-corpus-implement-normalization-dedupe-and-chunking.md),
@@ -96,7 +96,7 @@ representatives. Redacted counts live in
 [record 0062](../records/0062-corpus-implement-normalization-dedupe-and-chunking.md), and the
 checkpoint replay that re-verified every published chunk offset against the extracted artifacts is in
 [checkpoint 0063](../records/0063-corpus-review-corpus-and-control-integrity.md). That result
-is fixture evidence. The provided-archive integrity proof is described below.
+is fixture evidence. The provided-archive integration check is described below.
 
 ## Identities, coverage and storage
 
@@ -184,39 +184,23 @@ records inventory acceptance and its limits.
 Normalization, grouping and chunking fixture evidence is in
 [record 0062](../records/0062-corpus-implement-normalization-dedupe-and-chunking.md).
 
-## Provided-archive proof
+## Provided-archive integration
 
-`make proof CAPABILITY=corpus-foundation RUN_ID=<run-id> PROOF_ID=<proof-id>` validates an ordinary
-run created with a closure ending at `chunk`. `PROOF_ID` is optional and defaults to the run id;
-use a new proof id to re-prove an existing run without replacing its historical bundle.
-`make pipeline TO=chunk` produces this closure. Its investigation finalizer reports `partial` and
-exits 2 because the later profile stages were intentionally excluded; check that all requested
-stages succeeded and `halted=false` before publishing the corpus proof.
+`make test-archive` creates an ordinary run ending at `chunk` against the configured archive. The
+test applies the normal forecast and corpus runners, then independently rechecks generated Pandera
+contracts, attempt and snapshot checksums, source occurrence and quarantine accounting, source
+anchors, normalized views, offset maps, duplicate representatives, and every chunk's source
+reconstruction. It rehashes physical source files after the run and requires a second execution to
+be entirely cache hits with zero worker calls. All extra cross-check code lives below
+`tests/integration/corpus/`.
 
-The publisher executes generated Pandera contracts, complete identity checks, source occurrence and
-quarantine accounting, source anchors, normalized views, offset maps, duplicate representatives and
-every chunk's source offsets. It rehashes the physical source files and all sealed artifacts, then
-runs a fresh forecast and repeats the closure. Publication requires a complete cache hit with zero
-workers. Missing evidence, stale producer identities or a failed check refuses publication.
-
-The immutable bundle contains `proof-manifest.json`, its `fingerprint.json`, a checksum registry for
-external artifacts, per-stage producer identities, forecast evidence, validation metrics and first/
-replay progress histories. The enclosing bundle manifest checks every payload. Source-derived
-artifacts remain under the configured roots. Inspect the published proof in place:
-
-```bash
-source scripts/shared/common.sh
-arxiv_int_load_env
-.venv/bin/arxiv-int evaluation proof check \
-  --proof-dir "$RESULTS_DIR/proofs/corpus-foundation/0068-host-v2"
-```
-
-Proof `0068-host-v2`, run `run-77943af6b23e4fb995907fe4c7f072bc`, accounted for 568 occurrences from
+The earlier `0068-host-v2` milestone run accounted for 568 occurrences from
 546 physical files: 447 mapped to 414 documents and 121 quarantined. It validated 48,986 spans,
 414 normalized documents, 87 duplicate/edition groups and 70,550 chunks over 377 representatives.
 All source hashes, contracts and offsets passed. The unchanged replay invoked zero workers and took
-1.23 seconds. Its fingerprint is
-`9cada31e97b846dd60508d05796ae894c1ff7216b86d85382ef4d0e080539c12`.
+1.23 seconds. This is historical evidence; the production proof publisher and its secondary
+manifest were retired by
+[record 0069](../records/0069-govern-retire-milestone-evaluation-scaffolding.md).
 
 Duplicate suppression affected 37 documents (8.94 percent); the largest suppressing component had
 four members. The overall maximum of ten includes edition groups. The measured slice does not

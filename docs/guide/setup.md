@@ -24,7 +24,7 @@ locked `extraction` Python extra, including Docling and the native `iscc-tika` b
 Edit `.env` when requested, then rerun `make setup`. At minimum, `.env` needs a readable
 `ARCHIVE_DIR`, a writable `RESULTS_DIR`, a PostgreSQL-compatible `PGDATA_DIR`, and a
 non-placeholder `POSTGRES_PASSWORD`. During development, point `ARCHIVE_DIR` at the authorized
-representative slice and use ordinary pipeline or stage commands for proof runs. Compose runs the
+representative slice and use ordinary pipeline or stage commands for integration runs. Compose runs the
 database and
 other artifact-writing services as the invoking user's UID/GID so those directories stay
 host-writable. Archive directories may have ordinary host write permissions; the

@@ -122,8 +122,8 @@ The governing principles are:
    only when representative held-out evaluations justify their cost.
 9. **Source identity outlives location.** Content identity and captured evidence never depend on a
    file remaining at one path; every authorized physical move is precomputed and recorded.
-10. **Usable stages prove themselves on archive data.** A stage group is not complete when only
-    fixtures pass; it must publish a validated proof bundle from the operator-provided test archive.
+10. **Usable stages pass archive integration.** A stage group is not complete when only fixtures
+    pass; its ordinary pipeline outputs must pass an explicit operator-archive integration test.
 
 Ontology classes, predicates, and analyst-facing graph labels follow
 [Ontology design](#ontology-design).
@@ -158,7 +158,7 @@ The first production-shaped release includes:
   manifests, and operator reports;
 - content- and implementation-aware incremental updates, targeted invalidation, safe stale-artifact
   pruning, full rebuild generations, and a pre-run time/storage/free-space forecast;
-- read-only proof runs over an operator-provided test archive after each usable pipeline stage group;
+- explicit integration runs over an operator-provided test archive after each usable pipeline stage group;
 - deterministic unit/contract/integration tests plus representative corpus evaluations.
 
 The initial release does not promise:
@@ -310,7 +310,7 @@ arxiv-int/
     query/
     reporting/
     security/
-    evaluation/                 # bundles, fixtures, families, proof, evaluate, scoring
+    evaluation/                 # reusable result bundles and scoring
     quality/
   tests/                        # mirrors src/arxiv_int subpackages
   docs/
@@ -360,7 +360,7 @@ The operator configures three roots, one per job:
 | Root            | Holds                                                                              | Access             |
 | --------------- | ---------------------------------------------------------------------------------- | ------------------ |
 | `ARCHIVE_DIR`   | The source silos: the operator's own files, untouched                              | Pipeline read-only |
-| `RESULTS_DIR`   | Everything the pipeline produces: normalized datasets, runs, logs, reports, proofs  | Read-write         |
+| `RESULTS_DIR`   | Everything the pipeline produces: normalized datasets, runs, logs, reports, exports | Read-write         |
 | `PGDATA_DIR`    | The one PostgreSQL data directory: canonical tables and every lexical, vector, and graph index | Operator UID (`RUNTIME_UID`); exclusive to the database process |
 
 Nothing else is required to start. The remaining variables are overrides with documented defaults
@@ -377,7 +377,7 @@ preflight classifies every configured path against the class its consumer requir
 | Class           | Written by            | Access pattern                          | Device and filesystem requirement                                              | Locations                                             |
 | --------------- | --------------------- | --------------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------- |
 | `source`        | Not by the pipeline   | Large sequential reads, one full pass per inventory | Any readable directory; host write permission and rotational storage are acceptable | `ARCHIVE_DIR` silos |
-| `bulk`          | Pipeline stages       | Large sequential writes, occasional full scans | Capacity first; rotational and non-native filesystems are acceptable    | `RESULTS_DIR` and its `normalized`, `runs`, `proofs`, `exports`, `quarantine` trees |
+| `bulk`          | Pipeline stages       | Large sequential writes, occasional full scans | Capacity first; rotational and non-native filesystems are acceptable    | `RESULTS_DIR` and its `normalized`, `runs`, `exports`, `quarantine` trees |
 | `database`      | PostgreSQL only       | Small random reads and writes with ordered `fsync` | PostgreSQL-supported filesystem, real per-file ownership, exclusive use; rotational disks acceptable | `PGDATA_DIR`, optional `PG_WAL_DIR`, optional tablespace roots |
 | `scratch`       | Pipeline workers      | High-churn random writes, deleted after the stage | Writable storage with bounded free space; rotational disks acceptable | `TMP_DIR` |
 | `model`         | Model runtimes        | Large random reads at load, then read-mostly | Sufficient capacity and access permissions; rotational disks acceptable | `MODEL_CACHE_DIR` |
@@ -483,7 +483,6 @@ $RESULTS_DIR/
   quarantine/   inputs that could not be processed, by reason
   runs/         one directory per run: journal, logs, manifests, telemetry, evaluation, reports
   decisions/    backed-up review, identity, policy, and path-ledger exports; never disposable
-  proofs/       provided-archive proof bundles, by capability and proof id
   exports/      operator-requested portable outputs, including rendered graphs and reports
   services/     local service runtime state, unless SERVICE_STATE_DIR points elsewhere
   models/       model cache, unless MODEL_CACHE_DIR points elsewhere
@@ -532,9 +531,9 @@ differs is placement, because a development machine usually has one fast disk ho
 one large slow disk for output:
 
 - point `ARCHIVE_DIR` at the authorized representative slice during development, or at the real
-  archive silo for a production-like run, so ordinary pipeline, forecast, and proof commands read
-  one source without modifying it; there is no second proof-only source root;
-- point `RESULTS_DIR` at the bulk output disk and let `RUNS_DIR`, `exports/`, and `proofs/` derive
+  archive silo for a production-like run, so ordinary pipeline, forecast, and integration checks
+  read one source without modifying it; there is no second test-only source root;
+- point `RESULTS_DIR` at the bulk output disk and let `RUNS_DIR` and `exports/` derive
   from it, so every pipeline result lands in one inspectable tree;
 - choose `PGDATA_DIR`, `TMP_DIR`, and `MODEL_CACHE_DIR` for sufficient capacity; rotational disks
   are acceptable. PostgreSQL still requires its supported filesystem and ownership semantics, and
@@ -1083,8 +1082,8 @@ families), `2` for partial results, `1` for failure, `3` for precondition/resour
 for interrupted work. A partial run writes a diagnostic entry report but cannot silently replace the
 last complete knowledge-base pointer. Evidence validation runs without gold labels; quality claims
 require the separate reviewed final evaluation. Completion requires an actual single-command
-archive-to-report run, source-link verification, and a no-change cache-hit rerun, not only a union
-of independently produced stage proofs.
+archive-to-report run, source-link verification, and a no-change cache-hit rerun, rather than a
+union of independently produced milestone results.
 
 ## Hierarchical archive classification and optional reorganization
 
@@ -1351,7 +1350,7 @@ sync failure, cached/offline runs, missing host services, slow startup, model fa
 concurrency and cancellation. Fixture tests compare Make and CLI defaults, aggregate/atomic phase
 traces, and run-generation results; they prove unsafe or incomplete setup cannot launch workers and
 that schema readiness checks the intended service. A declared disposable host smoke verifies setup,
-followed by the existing mixed-fixture and authorized archive proofs using bare `make pipeline`.
+followed by mixed-fixture checks and the authorized archive integration test using the ordinary pipeline.
 Until those owners pass, README labels these targets planned and links the available manual path.
 
 ### Command reference
@@ -1413,9 +1412,9 @@ make services-down         make services-reset       make services-status
 make logs
 make run-create            make forecast RUN_ID=...   make run-finalize RUN_ID=...
 make inspect RUN_ID=...    make archive-locate DOCUMENT_ID=...    make update
-make proof CAPABILITY=...  make stage STAGE=...       make resume RUN_ID=...
+make test-archive           make stage STAGE=...       make resume RUN_ID=...
 make search QUERY=...      make graph-up              make ui-up
-make eval                  make test                  make integration-test
+make test                  make test-heavy            make integration-test
 make ci                    make backup                make restore-check
 ```
 
@@ -1443,9 +1442,10 @@ there are no development-only path aliases, stage wrappers, or output trees. The
 
 Deterministic CI remains fixture-based and never reads the configured archive. A real-data run is an
 implementation feedback signal, not acceptance evidence: it does not replace the capability's
-evaluation or proof bundle, and no corpus content or machine-specific path enters Git.
-Missing private access or reviewed labels keeps the proof/human task open, rather than blocking deterministic
-implementation and fixture checks. A fixture pass never claims real-corpus acceptance.
+declared integration and evaluation checks, and no corpus content or machine-specific path enters
+Git. Missing private access or reviewed labels keeps the integration or human task open, rather than
+blocking deterministic implementation and fixture checks. A fixture pass never claims real-corpus
+acceptance.
 
 ## Resumability, idempotency, and provenance
 
@@ -1888,12 +1888,12 @@ sharing them, points the corresponding variables at the published location. The 
 carries a copy, a sample, an excerpt, or a location of specific data. Producing and publishing a
 dataset for analysis is the operator's separate activity, not a project deliverable.
 
-A reviewer checks an implementation in place. With those roots configured, the ordinary read-only
-commands report whether the expected artifacts exist, whether their checksums, contracts and
-validator results hold, and how they trace back to source occurrences, without copying anything into
-a repository. Presence and integrity of database-backed results are checked the same way against the
-configured store. A proof bundle records its own fingerprint so a reviewer can confirm the bundle
-they hold is the one a record names.
+A reviewer checks an implementation in place. With those roots configured, ordinary pipeline,
+inspection, and validation commands report whether expected artifacts exist, whether their
+checksums, contracts and validator results hold, and how they trace back to source occurrences,
+without copying anything into a repository. Presence and integrity of database-backed results are
+checked the same way against the configured store. Task records identify the ordinary run and
+artifact-manifest fingerprints that were checked.
 
 The repository holds code, contracts, ontology assets, configuration, documentation, and fixtures
 authored for tests. A committed fixture must be synthetic: written to exercise a rule, never derived
@@ -1902,20 +1902,20 @@ ordinary secret and path rules.
 
 Design documents, plan tasks and records name roots, contracts, stages and fingerprints. They do not
 name specific archives, corpora, collections, entities, or datasets, and they do not embed source
-text. Current-state pages and records may cite proof ids, fingerprints, counts, validation summaries
-and verdicts; machine-specific paths, source content and real identities stay out of Git.
+text. Current-state pages and records may cite run ids, manifest fingerprints, counts, validation
+summaries and verdicts; machine-specific paths, source content and real identities stay out of Git.
 
-### Provided-archive proof runs
+### Provided-archive integration runs
 
 Configured archive silos (`ARCHIVE_DIR` and optional `ARCHIVE_SILO_<ID>_DIR`) are the file-silo
-source for integration proof. There is no second proof-only source root. After the required
+source for integration checks. There is no second test-only source root. After the required
 implementation tasks for each artifact-producing capability group, a final `RUN NEEDED` task
 executes every then-usable stage in that group against those silos using the ordinary pipeline or
-stage commands. A later behavior change that alters a stage or its inputs must regenerate the
-impacted proof before that change is complete; an older bundle remains historical evidence but is
-marked stale by fingerprint.
+stage commands and an explicit integration test under `tests/integration/`. A later behavior change
+that alters a stage or its inputs must rerun the impacted integration check before that change is
+complete; older task records remain historical evidence.
 
-| Capability group | Proof scope |
+| Capability group | Integration scope |
 | --- | --- |
 | `corpus-foundation` | `inventory`, `extract`, `normalize`, `dedupe`, and `chunk` artifacts |
 | `pipeline-control` | forecast, cache hit, resume, delta update, invalidation, rebuild, and prune planning |
@@ -1928,23 +1928,23 @@ marked stale by fingerprint.
 | `domain-investigation-artifacts` | relationship, BOM, supply-chain, invoice/payment, and registry outputs |
 | `anomaly-analysis` | detector coverage, findings, baselines, review replay, and bounded graphs |
 | `discovery-visualization` | topics, three catalogs, search/report scenarios, exports, and configured local views |
-| `evaluation-evidence` | `evaluate`, `report`, and an end-to-end proof index over all prior bundles |
+| `evaluation-evidence` | `evaluate`, `report`, and end-to-end reconciliation over ordinary stage manifests |
 
-Each task first runs the forecast and refuses a blocked scope. It records a proof bundle under
-`$RESULTS_DIR/proofs/<capability-id>/<proof-id>/` containing the redacted command/configuration,
-source-manifest hash, code/contract/dependency/model fingerprints, forecast, stage and shard ledger,
-artifact registry with checksums, validator results, errors/quarantines, resource/timing metrics, and
-an overall verdict. The proof reruns the unchanged scope and demonstrates that heavy stages are cache
-hits. Incremental-control proof uses a bounded disposable copy or overlay under the data root to test
-add/change/rename/remove cases and never mutates the configured archive silos.
+Each task first runs the forecast and refuses a blocked scope. The integration test exercises the
+working pipeline and validates its ordinary run context, stage/shard ledger, sealed artifact
+manifests and checksums, contracts, source anchors, errors/quarantines, and relevant resource/timing
+evidence. It reruns the unchanged scope and demonstrates that heavy stages are cache hits. Extra
+cross-checks live only in the integration-test tree; production code does not publish a parallel
+proof manifest or maintain a capability-proof registry. Incremental-control checks use bounded test
+fixtures or an isolated overlay under the data root and never mutate configured archive silos.
 
 A required usable stage passes only with validated artifacts or a contract-defined valid empty
-result. Failure, missing evidence, or resource refusal keeps its proof task open. An optional branch
+result. Failure, missing evidence, or resource refusal keeps its integration task open. An optional branch
 may record `not-selected` with an explicit selection reason and working fallback; comparative
 promotion or rejection claims additionally require a measured verdict. Repository
-current-state documentation records proof ids, fingerprints, artifact paths, validation summaries,
-and results. It commits no source-derived content and never copies machine-specific archive paths
-into Git; a reviewer reads the bundle itself under the configured roots.
+current-state documentation records run ids, manifest fingerprints, artifact paths, validation
+summaries, and results. It commits no source-derived content and never copies machine-specific
+archive paths into Git; a reviewer reads ordinary artifacts under the configured roots.
 
 ### Required acceptance gates
 
@@ -1959,9 +1959,9 @@ into Git; a reviewer reads the bundle itself under the configured roots.
 | Idempotency       | Re-running an unchanged successful shard writes no duplicate canonical rows or artifacts and reports a cache hit; interrupted stages resume from completed shards.                               |
 | Incremental state | Added/changed/renamed/removed sources and stage-owned implementation changes invalidate only their lineage closure; active views retract stale outputs and retain audit evidence.                 |
 | Forecast          | Time/size ranges cite evidence, all target devices and peak scratch/rebuild needs are counted, and insufficient free space blocks before heavy allocation.                                        |
-| Published proof data | Proof, gold and dataset artifacts stay under the configured roots; no archive-derived file is committed or staged for commit; a reviewer validates presence, checksums and contracts in place. |
+| Published evaluation data | Gold, dataset and result artifacts stay under configured roots; no archive-derived file is committed or staged for commit; a reviewer validates presence, checksums and contracts in place. |
 | Ontology/geotemporal integrity | Pinned ontology evolution, source-valid versus recorded time, place/CRS uncertainty, revision/effectivity and domain non-implication fixtures pass across validators, SQL, graph and reports. |
-| Proof bundles     | Every usable artifact-producing stage group has a current provided-archive proof whose outputs, checksums, validators, cache-hit rerun, and fingerprint are complete.                              |
+| Archive integration | Every usable artifact-producing stage group has a current provided-archive integration result whose ordinary outputs, checksums, validators, and cache-hit rerun are complete.          |
 | Provenance        | Every sampled search result, mention, fact, topic assignment, graph edge, and report row resolves to source evidence and a complete transformation fingerprint.                                  |
 | Extraction        | Per-format text/table/anchor coverage and quarantine reasons meet thresholds declared before the full run.                                                                                       |
 | Classification    | Hierarchical accuracy, calibration, exceptional outcomes, reproducibility, and path-ledger safety gates pass; uncertain files are not forced into ordinary classes.                              |
@@ -2010,7 +2010,7 @@ based on tested backup plus projection rebuild, not an assumed replica.
 
 ## Delivery strategy
 
-Registry order is implementation priority, not a requirement to finish every proof in one group
+Registry order is implementation priority, not a requirement to finish every integration run in one group
 before starting another. Follow explicit task dependencies across groups. Build control interfaces
 with fixture stages first, then register corpus stages; seal base ontology and domain contracts
 before extracting facts. Identity anchors precede facts; graph projection follows validated facts.
@@ -2019,9 +2019,9 @@ Research and human acceptance never substitute for deterministic implementation 
 | Milestone | Required usable result | Exit signal |
 | --- | --- | --- |
 | Foundation | Portable runtime, contracts, canonical store, inference seam, evaluation fixtures, stage control | Fresh-copy and fixture-only DAG/contract/store smoke |
-| Searchable archive | Inventory through chunks, lexical search, complete classification, resume and forecast | Bounded directory-to-search run and corpus/control/classification proofs |
+| Searchable archive | Inventory through chunks, lexical search, complete classification, resume and forecast | Bounded directory-to-search and corpus/control/classification integration runs |
 | Investigation baseline | Mentions, identity anchors, facts, topics, three catalogs, domain views, anomaly constraints, portable report | One `investigation` command publishes every required family or justified empty/partial state |
-| Production acceptance | Held-out quality, single-CUDA capacity, update/recovery, and two staged pilots | End-to-end proof, restore/failure evidence, and explicit full-corpus authorization |
+| Production acceptance | Held-out quality, single-CUDA capacity, update/recovery, and two staged pilots | End-to-end integration, restore/failure evidence, and explicit full-corpus authorization |
 | Optional branches | Selected vectors, generative answers, AGE/viewers, or archive placement | Branch-specific evidence or explicit non-selection; core pipeline remains usable |
 
 The runtime dependency graph and the first complete vertical slice are specified in the
@@ -2041,9 +2041,9 @@ evidence exist. Registry order is the implementation line used by `plan.md`.
 | 3 | `contract-governance` | shipped | ODCS generation/evolution, Alembic revision checks, shared dataset-quality checks and ontology gates pass; live schema upgrade/adoption is recorded under canonical-store | [Contracts](../impl/current/contracts.md) |
 | 4 | `canonical-store` | shipped | Disposable extension compatibility, initial schema/adoption, dbt validation/publication and projection rebuild/cleanup pass the foundation checkpoint; operator recovery remains a separate capability | [Canonical store](../impl/current/canonical-store.md); [Checkpoint](../impl/records/0027-store-review-foundation-and-store-boundaries.md) |
 | 5 | `local-inference` | shipped | Ollama/vLLM conformance, structured outputs, model-fit, host-wide GPU lease, and local-only endpoint gates pass | [Local inference](../impl/current/local-inference.md) |
-| 6 | `evaluation-foundation` | shipped | Frozen synthetic fixtures, replayable metrics, split guards, paired verdicts, and immutable locally published bundles/proofs pass the inference/evaluation checkpoint | [Evaluation foundation](../impl/current/evaluation-foundation.md); [Checkpoint](../impl/records/0038-eval-found-review-inference-and-evaluation-boundaries.md) |
+| 6 | `evaluation-foundation` | shipped | Reusable metrics, evidence guards, and immutable checksum-verified result bundles pass focused tests | [Evaluation foundation](../impl/current/evaluation-foundation.md); [Checkpoint](../impl/records/0038-eval-found-review-inference-and-evaluation-boundaries.md) |
 | 7 | `pipeline-control` | shipped | Fixture-first DAG, output manifest, resume, generation activation, delta, forecast, and progress gates pass | [Pipeline control](../impl/current/pipeline-control.md) |
-| 8 | `corpus-foundation` | shipped | Synthetic corpus checks and provided-archive source/artifact integrity proof pass; held-out gold quality remains a production promotion gate | [Corpus foundation](../impl/current/corpus-foundation.md); [Proof](../impl/records/0068-corpus-prove-corpus-foundation-on-provided-archive.md) |
+| 8 | `corpus-foundation` | shipped | Synthetic corpus checks and the provided-archive pipeline integration test cover source/artifact integrity; held-out gold quality remains a production promotion gate | [Corpus foundation](../impl/current/corpus-foundation.md); [Historical run](../impl/records/0068-corpus-prove-corpus-foundation-on-provided-archive.md) |
 | 9 | `lexical-retrieval` | planned | Held-out Russian relevance, latency, index size, and rebuild gates pass | [Open work](../impl/plan.md#lexical-retrieval----lexical-retrieval) |
 | 10 | `archive-classification` | planned | Hierarchical gold labels, calibrated exceptions, complete source accounting, and reproducibility pass | [Open work](../impl/plan.md#archive-classification----archive-classification) |
 | 11 | `russian-nlp` | planned | Language, morphology, terminology, and NER metrics pass per type | [Open work](../impl/plan.md#russian-nlp----russian-nlp) |
@@ -2070,8 +2070,8 @@ outcome, optional physical moves remain traceable to the initial path, and every
 supply-chain, relationship, and invoice/payment view is registered with evidence and review state.
 Unchanged inputs reuse validated heavy results, archive and implementation deltas update only their
 lineage closure, stale derived data can be safely pruned or fully rebuilt, and forecasts refuse work
-that cannot fit available storage. Every usable stage group has a current proof bundle from the
-provided archive and the full investigation profile is proven by one executable run. Independent
+that cannot fit available storage. Every usable stage group has a current integration result from
+the provided archive and the full investigation profile passes one executable run. Independent
 copy/in-place organization consumes classification exports without joining the pipeline DAG.
 The PostgreSQL architecture remains in place only while measured quality,
 scale, and recovery evidence supports it.

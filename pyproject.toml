@@ -124,6 +124,7 @@ show_error_codes = true
 testpaths = ["tests"]
 addopts = "-q"
 markers = [
+  "archive: runs the ordinary pipeline against operator-provided archive roots; excluded from default tests",
   "heavy: starts Docker or other host services; excluded from make test, make ci, and GitHub",
 ]
 

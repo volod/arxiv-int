@@ -3,9 +3,9 @@
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 
-from arxiv_int.evaluation.evaluate.errors import MissingEvidenceError
-from arxiv_int.evaluation.fixtures.kinds import THRESHOLD_REVIEW_BUDGET
 from arxiv_int.evaluation.scoring.accuracy import percentile
+from arxiv_int.evaluation.scoring.constants import THRESHOLD_REVIEW_BUDGET
+from arxiv_int.evaluation.scoring.errors import MissingEvidenceError
 from arxiv_int.evaluation.scoring.payload import as_float, as_int, as_items
 
 

@@ -62,7 +62,7 @@ workflow and full task template live in
 [Planning workflow](../../guide/planning-workflow.md).
 
 The [checkpoint and handoff revision](../records/0034-foundation-strengthen-checkpoints-and-human-proof-handoffs.md)
-adds earlier bounded reviews before pipeline consumers, archive quality proofs, report integration
+adds earlier bounded reviews before pipeline consumers, archive integration checks, report integration
 and scale pilots. Remaining tasks carry explicit approval dependencies and `Human review handoff`
 fields identifying draft/final packet producers. AGENTS and the workflow require the completing
 agent to report the human task, ready/pending state, packet/inspection path, decision and blocked
@@ -70,11 +70,11 @@ consumer. `make plan-status` resolves dependency readiness; it does not itself j
 or print these completion handoffs. Human judgment is not replaced by the structural checker.
 
 The specification defines pinned dynamic ontology/geotemporal/domain semantics and forbids
-committing any archive-derived artifact: proof, gold and dataset files stay under the configured
+committing any archive-derived artifact: run evidence, gold and dataset files stay under the configured
 roots and are reviewed in place. The export path of
 [record 0035](../records/0035-eval-found-implement-committed-proof-identity-obfuscation.md) has been
 retired with its packaged identity policy; no command, Make target or packaged asset can turn
-source-derived proof data into repository files
+source-derived data into repository files
 ([record 0057](../records/0057-eval-found-retire-committed-proof-export.md)).
 Ontology/geotemporal contracts remain planned. Accepted records 0029-0033 and their runtime
 behavior are preserved.
@@ -117,7 +117,7 @@ artifact publication, source lookup, and first complete vertical slice.
 | Source lookup existed only with the organizer | Shared read-only citation/source resolver scheduled under pipeline control, with portable path-event import |
 | Archive placement was mixed into pipeline proofs and operational acceptance | Separate `archive-organization` capability, artifact-only operation, independent copy/move plans, and human-lane real placement |
 | Hardlink copies and rollback could undermine source/edit preservation | Independent copied contents, safe duplicate-name policy, per-action checks, durable journals, and refusal to remove subsequently edited targets |
-| All results were described as regenerable; proof paths disagreed | Retained/backed-up decision and path ledgers; one `$RESULTS_DIR/proofs/` convention; partial scans cannot retract missing evidence |
+| All results were described as regenerable; milestone evidence paths disagreed | The old secondary proof path was retired; ordinary run/result manifests now carry integration evidence, while partial scans cannot retract missing evidence |
 | Optional extensions/model choices could obstruct the baseline | Core image can run without AGE; vectors/viewers/generative answers are conditional; selected model fit needs actual one-device context/batch evidence |
 
 Recorded upstream pins remain reference context, not fresh compatibility approval. The audit
@@ -172,5 +172,5 @@ not established by that run. The
 [quality baseline repair](../records/0003-foundation-restore-quality-gate-baseline.md) has since
 fixed both; `make ci` and `make quality` now pass and both complexity subchecks run. These baseline
 findings do not become new product capabilities or deferred audit tasks. Runtime/CUDA and
-provided-archive proofs remain forward tasks. No services, model processes, ports, or external
+provided-archive integration runs remain forward tasks. No services, model processes, ports, or external
 resources were started by this audit.

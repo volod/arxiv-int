@@ -239,9 +239,6 @@ def build_parser() -> argparse.ArgumentParser:
     from arxiv_int.inference.cli import add_inference_parser
 
     add_inference_parser(subcommands)
-    from arxiv_int.evaluation.cli import add_evaluation_parser
-
-    add_evaluation_parser(subcommands)
     from arxiv_int.inspect.cli import add_inspect_parser
 
     add_inspect_parser(subcommands)
@@ -588,10 +585,6 @@ def _run_package_command(args: argparse.Namespace) -> int:
         from arxiv_int.inference.commands import run_inference_command
 
         return run_inference_command(args)
-    if args.command == "evaluation":
-        from arxiv_int.evaluation.evaluate.commands import run_evaluate_cli
-
-        return run_evaluate_cli(args)
     if args.command == "inspect":
         from arxiv_int.inspect.commands import run_inspect_command
 

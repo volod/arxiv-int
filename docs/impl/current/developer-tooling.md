@@ -18,19 +18,21 @@ Its functions use the `arxiv_int_` namespace; direct uv investigations begin wit
 ## Quality gates
 
 The root `Makefile` includes grouped fragments under `make/` (`bootstrap`, `services`,
-`contracts`, `transform`, `inference`, `eval`, `pipeline`, `quality`) with `##@` help sections.
+`contracts`, `transform`, `inference`, `pipeline`, `quality`) with `##@` help sections.
 `make help` lists those targets. The composed workflows are:
 
 - `make ci` runs formatting, linting, typing, Radon and cognitive complexity, shell parsing and
   ShellCheck, documentation links, spec-plan integrity, contract generation drift, evolution policy
   without disposable Postgres, the migration revision graph (`make db-check`), ontology checks,
-  structured-output schema drift, evaluation-fixture drift, and deterministic
-  tests (`make test` passes `-m "not heavy"`). It does not start Docker.
+  structured-output schema drift, and deterministic tests (`make test` excludes both `heavy` and
+  `archive`). It does not start Docker or read operator archives.
 - `make test-heavy` runs tests marked `heavy`: live Compose `docker compose config` rendering,
   disposable Postgres apply of baseline SQL, and declared store/dbt/projection/image suites.
+- `make test-archive` loads `.env` and runs the ordinary corpus pipeline plus independent integrity
+  cross-checks against the configured archive.
 - `make contracts-evolution-live` applies generated `baseline.sql` on disposable Postgres.
-- `make quality` adds a diagnostic coverage report (also excluding `heavy`), Markdown lint, and
-  source/wheel builds. A numeric coverage percentage is not an acceptance gate
+- `make quality` adds a diagnostic coverage report (also excluding `heavy` and `archive`),
+  Markdown lint, and source/wheel builds. A numeric coverage percentage is not an acceptance gate
   ([behavior-first test policy](../records/0026-foundation-adopt-behavior-first-test-policy.md)).
 
 GitHub Actions runs `make ci-github`, the same required gate with a lighter dependency profile,

@@ -1,20 +1,20 @@
-"""Source anchor and canonical/source offset conformance for every published row."""
+"""Source-anchor and offset cross-checks for provided-archive corpus results."""
 
 from pathlib import Path
 from typing import Any
 
-from arxiv_int.evaluation.proof.corpus_accounting import quarantine
-from arxiv_int.evaluation.proof.corpus_artifacts import require, rows
 from arxiv_int.pipeline.control.artifacts import hash_file
 from arxiv_int.pipeline.normalize.artifacts import view_path
 from arxiv_int.pipeline.normalize.text import canonical_view, load_offset_map, search_view
 from arxiv_int.pipeline.run.persist import load_json
+from tests.integration.corpus.accounting import quarantine
+from tests.integration.corpus.artifacts import require, rows
 
 
 def check_spans(
     documents: dict[str, dict[str, Any]], summary: dict[str, Any], inventory: dict[str, Any]
 ) -> int:
-    """Require every span to resolve to an extracted document and inventory source anchor."""
+    """Require each span to resolve to a document and exact inventory source anchor."""
     count = 0
     for row, extra in rows(Path(summary["roots"]["spans"]), "span_id"):
         document = documents.get(row["document_id"])
@@ -40,7 +40,7 @@ def check_spans(
 def check_views(
     normalized: dict[str, dict[str, Any]], extraction: dict[str, Any], normalization: dict[str, Any]
 ) -> None:
-    """Replay the canonical/search transforms and the full stored offset maps one document at a time."""
+    """Replay canonical/search transforms and complete offset maps for every document."""
     root = Path(normalization["roots"]["normalized-documents"])
     original_root = Path(extraction["roots"]["documents"]) / "text"
     for document, row in normalized.items():
@@ -79,7 +79,7 @@ def check_chunk_row(
     offsets: dict[str, Any],
     original_chars: int,
 ) -> None:
-    """Validate source bounds and recover the exact canonical body plus any repeated table header."""
+    """Recover the exact canonical body and any repeated table header from source bounds."""
     start, end = extra["canonical_start"], extra["canonical_end"]
     require(0 <= start < end <= len(text), "chunk canonical bounds invalid")
     mapping = load_offset_map(offsets["canonical_from_original"])
@@ -111,7 +111,7 @@ def check_chunks(
     summary: dict[str, Any],
     normalization: dict[str, Any],
 ) -> int:
-    """Account for all retained/suppressed/refused documents and check every chunk offset."""
+    """Account for every retained, suppressed, or refused document and verify chunk offsets."""
     root = Path(normalization["roots"]["normalized-documents"])
     represented: set[str] = set()
     count = 0

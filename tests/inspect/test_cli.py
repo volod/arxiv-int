@@ -1,16 +1,12 @@
-"""CLI, Make, and evaluate-stage inspection."""
+"""CLI, Make, and run-artifact inspection."""
 
 from pathlib import Path
 
 import pytest
 
 from arxiv_int.cli import build_parser, main
-from arxiv_int.evaluation.evaluate.stage import EvaluateStage
-from arxiv_int.inspect.model import KIND_RUN
-from arxiv_int.inspect.summarize import inspect_run
 from arxiv_int.pipeline.dag.actions import fixture_plan
 from arxiv_int.pipeline.dag.orchestrate import Orchestrator
-from arxiv_int.pipeline.dag.registry import ResourceEstimate, StageRegistry, StageSpec
 from arxiv_int.pipeline.run.fixtures import (
     FIXTURE_OPTIONAL,
     FIXTURE_PROFILE_STAGES,
@@ -113,34 +109,6 @@ def test_inspect_cli_refuses_local(tmp_path: Path, caplog, monkeypatch: pytest.M
     )
     assert code == 1
     assert "developer alias" in caplog.text
-
-
-def test_inspect_evaluate_stage_artifacts(tmp_path: Path, monkeypatch) -> None:
-    monkeypatch.setenv("DATA_DIR", str(tmp_path / "data"))
-    from dataclasses import replace
-
-    context = replace(make_context(tmp_path), project_root=find_project_root())
-    from arxiv_int.pipeline.run.persist import save_context
-
-    save_context(context)
-    estimate = ResourceEstimate()
-    registry = StageRegistry(
-        (StageSpec("evaluate", "1", (), (), (), estimate, (), (), EvaluateStage()),)
-    )
-    plan = fixture_plan(registry, profile_stages=("evaluate",))
-    result = Orchestrator(registry, context.runs_dir).execute_plan(context, plan)
-    assert not result.halted
-    summary = inspect_run(
-        context.runs_dir,
-        context.run_id,
-        results_dir=context.results_dir,
-        project_root=find_project_root(),
-    )
-    assert summary.kind == KIND_RUN
-    evaluate = next(item for item in summary.stages if item.stage == "evaluate")
-    assert evaluate.outcome == "produced"
-    assert evaluate.tree_valid
-    assert evaluate.files
 
 
 def _clear_operator_roots(monkeypatch: pytest.MonkeyPatch) -> None:
