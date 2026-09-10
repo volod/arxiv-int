@@ -2,11 +2,13 @@
 
 The short workflow in [README](../../README.md#quick-start) is the target interface.
 `make setup` is available. DAG create/run/stage/status/resume/update/rebuild/invalidate/prune,
-forecast, and `run finalize` commands exist; they refuse unimplemented required stages. A
-complete knowledge base still waits on corpus runners. [Current implementation](../impl/current.md)
-records available capabilities; the
+forecast, and `run finalize` commands exist; they refuse unimplemented required stages. The corpus
+chain from `preflight` to `chunk` is available end to end; a complete knowledge base still waits on
+the retrieval, classification, NLP and knowledge runners.
+[Current implementation](../impl/current.md) records available capabilities; the
 [operator specification](../design/spec.md#retryable-setup-and-default-pipeline-command) defines
-defaults and acceptance. This guide provides the explicit command chain for diagnosis and development.
+defaults and acceptance. The [command reference](commands.md) lists every command and its
+availability. This guide provides the explicit command chain for diagnosis and development.
 
 ## Host prerequisites and checkout
 
@@ -16,6 +18,9 @@ needs the evaluated NVIDIA driver/CUDA host; vLLM also needs NVIDIA container su
 missing host prerequisites but does not install OS packages, modify systemd or change permissions.
 
 ```bash
+sudo apt update
+sudo apt install tesseract-ocr tesseract-ocr-rus tesseract-ocr-eng \
+  tesseract-ocr-deu tesseract-ocr-ukr
 git clone https://github.com/volod/arxiv-int.git
 cd arxiv-int
 uv --version
@@ -24,6 +29,11 @@ docker compose version
 docker info
 nvidia-smi
 ```
+
+The extraction profile requires all four Tesseract language packs. `make setup` verifies them and
+names this exact remediation when one is absent; it never invokes `sudo`. Setup installs the locked
+Docling and `iscc-tika` Python dependencies and, when `SETUP_DOWNLOADS=1`, downloads the Docling
+layout and table models into `$MODEL_CACHE_DIR/docling/` for offline worker execution.
 
 Skip cloning for an existing checkout. Run commands from that checkout. For host Ollama, follow its
 [Linux installation instructions](https://docs.ollama.com/linux) and start/check the service with
@@ -63,7 +73,7 @@ handlers in order. A successful infrastructure audit does not mean the archive p
    source scripts/shared/common.sh
    arxiv_int_load_env
    uv sync --locked --extra dev --extra contracts --extra lake --extra store \
-     --extra inference --extra graph --extra data-quality --extra transform
+     --extra inference --extra graph --extra data-quality --extra transform --extra extraction
    make features
    ```
 
@@ -166,7 +176,7 @@ Kubernetes scheduler. CLI values override process environment, then `.env`, then
 defaults. Make does not pass `--run-id local` or a hardcoded `--profile investigation` on
 `pipeline` / `run-create`.
 
-The default investigation profile still names unimplemented corpus stages. `make pipeline`
+The default investigation profile still names unimplemented later stages. `make pipeline`
 therefore fails explicitly until those runners ship. `stage STAGE=preflight` is a registered
 readability worker; aggregate commands still run an archive-readability preflight
 handler before forecast. `run finalize` writes `$RUNS_DIR/<run-id>/knowledge-base.json` and
@@ -179,7 +189,6 @@ For a diagnostic execution, first create the run and copy its returned id into `
 make run-create
 RUN_ID='replace-with-returned-run-id'
 make run-status RUN_ID="$RUN_ID"
-make forecast RUN_ID="$RUN_ID"
 ```
 
 `run-create` records resolved roots, profile and secret-free configuration evidence under
@@ -187,24 +196,7 @@ make forecast RUN_ID="$RUN_ID"
 fallback. All following commands use that same context. Run each command separately, inspect its
 status, and stop on failure.
 
-```bash
-make stage STAGE=evaluate RUN_ID="$RUN_ID"
-make resume RUN_ID="$RUN_ID"
-make pipeline
-make update
-make rebuild
-make invalidate STAGE=evaluate RUN_ID="$RUN_ID"
-make prune
-```
-
-`evaluate`, `preflight` and `inventory` are shipped production runners.
-Other investigation stages fail as
-unregistered until their capabilities land. `make prune` is a dry-run; `APPLY=1 PLAN_ID=...` is a
-separate confirmation and refuses to delete the sole recovery copy.
-
-The target diagnostic order below is one valid linear expansion of the baseline registry, not a
-second executable DAG definition. `run-finalize`, `STAGE=preflight` and `STAGE=inventory` are
-available; extraction and later corpus stages remain planned. A forecast precedes atomic stages:
+A forecast precedes atomic stages, and the available corpus chain runs in this order:
 
 ```bash
 make forecast RUN_ID="$RUN_ID"
@@ -214,6 +206,39 @@ make stage STAGE=extract RUN_ID="$RUN_ID"
 make stage STAGE=normalize RUN_ID="$RUN_ID"
 make stage STAGE=dedupe RUN_ID="$RUN_ID"
 make stage STAGE=chunk RUN_ID="$RUN_ID"
+make stage STAGE=evaluate RUN_ID="$RUN_ID"
+make run-finalize RUN_ID="$RUN_ID"
+```
+
+`preflight`, `inventory`, `extract`, `normalize`, `dedupe`, `chunk` and `evaluate` are shipped
+production runners. `preflight` refuses unreadable silos. `inventory` streams a checksum-validated
+source-occurrence snapshot; `extract` runs the tiered text lanes; `normalize` writes canonical and
+search views with a reversible offset map; `dedupe` proposes reversible duplicate and edition
+overlays; `chunk` writes structure-aware chunks that keep source character offsets. Their artifact
+layouts and limits are in [corpus foundation](../impl/current/corpus-foundation.md).
+
+Refresh `make forecast` before repeating a completed stage, because the cache plan has changed. An
+unchanged rerun reuses validated snapshots and invokes no heavy work. An interrupted `inventory`
+retains completed file transactions and resumes after metadata verification.
+
+Run maintenance and aggregate commands separately, inspecting status and stopping on failure:
+
+```bash
+make resume RUN_ID="$RUN_ID"
+make pipeline
+make update
+make rebuild
+make invalidate STAGE=chunk RUN_ID="$RUN_ID"
+make prune
+```
+
+`make prune` is a dry-run; `APPLY=1 PLAN_ID=...` is a separate confirmation and refuses to delete
+the sole recovery copy. `make update` reconciles a changed archive into a new generation.
+
+The remaining investigation stages below are one valid linear expansion of the baseline registry,
+not a second executable DAG definition. They fail as unregistered until their capabilities land:
+
+```bash
 make stage STAGE=classify RUN_ID="$RUN_ID"
 make stage STAGE=load-lexical RUN_ID="$RUN_ID"
 make stage STAGE=nlp RUN_ID="$RUN_ID"
@@ -221,13 +246,8 @@ make stage STAGE=topics RUN_ID="$RUN_ID"
 make stage STAGE=entities RUN_ID="$RUN_ID"
 make stage STAGE=ontology RUN_ID="$RUN_ID"
 make stage STAGE=facts RUN_ID="$RUN_ID"
-make stage STAGE=validate-facts RUN_ID="$RUN_ID"
 make stage STAGE=domain-artifacts RUN_ID="$RUN_ID"
-make stage STAGE=catalogs RUN_ID="$RUN_ID"
-make stage STAGE=anomalies RUN_ID="$RUN_ID"
-make stage STAGE=evaluate RUN_ID="$RUN_ID"
 make stage STAGE=report RUN_ID="$RUN_ID"
-make run-finalize RUN_ID="$RUN_ID"
 ```
 
 Use the same registered handlers for aggregate and atomic calls, with the same dependency, lease,
@@ -247,7 +267,7 @@ invalidation/resume policy.
 
 The returned run id identifies the result today. Finalize writes
 `$RUNS_DIR/<run-id>/knowledge-base.json` and diagnostic `reports/index.html`. A production
-investigation run still fails before a complete generation because corpus stages are
+investigation run still fails before a complete generation because later investigation stages are
 unregistered. Product artifacts use configured operator roots, never developer `DATA_DIR`.
 Compare aggregate and atomic results by logical ids, checksums, lineage, quality and completion
 state; run ids and timestamps may differ.

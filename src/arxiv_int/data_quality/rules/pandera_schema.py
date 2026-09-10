@@ -3,6 +3,7 @@
 from importlib import import_module
 from typing import Any
 
+from arxiv_int.contracts.catalog.normalize import is_floating
 from arxiv_int.data_quality.engine.model import (
     KIND_NULLABILITY,
     KIND_TYPE,
@@ -39,6 +40,8 @@ def polars_dtype(rule: QualityRule) -> Any:
     polars = polars_module()
     logical = rule.logical_type or "string"
     if logical == "number":
+        if is_floating(rule.physical_type):
+            return polars.Float64
         precision = rule.precision or 38
         scale = rule.scale or 9
         return polars.Decimal(precision=precision, scale=scale)
@@ -49,13 +52,18 @@ def polars_dtype(rule: QualityRule) -> Any:
 
 
 def schema_for(catalog: RuleCatalog) -> Any:
-    """Build a strict Pandera schema from non-number type rules."""
+    """Build a strict Pandera schema for non-decimal columns.
+
+    Decimal columns stay out of the Pandera schema. Pandera's Decimal engine
+    asserts on Float64 inputs instead of returning a schema error, so those
+    checks run through the typed batch handlers instead.
+    """
     polars_api = pandera_polars()
     columns: dict[str, Any] = {}
     for rule in catalog.rules:
         if rule.kind != KIND_TYPE or rule.column is None:
             continue
-        if rule.logical_type == "number":
+        if rule.logical_type == "number" and not is_floating(rule.physical_type):
             continue
         nullable = any(
             item.kind == KIND_NULLABILITY and item.column == rule.column for item in catalog.rules

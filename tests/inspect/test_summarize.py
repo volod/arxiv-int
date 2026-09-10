@@ -201,7 +201,7 @@ def test_redacts_secrets_paths_and_refuses_developer_alias(tmp_path: Path) -> No
 
     def noisy(stage_context: StageContext) -> StageResult:
         del stage_context
-        detail = 'password=super-secret /home/vola/archive/doc.pdf "' + ("corpus " * 80) + '"'
+        detail = 'password=super-secret /home/operator/archive/doc.pdf "' + ("corpus " * 80) + '"'
         return StageResult("alpha", "failed", detail)
 
     runners["alpha"].run = noisy
@@ -216,7 +216,7 @@ def test_redacts_secrets_paths_and_refuses_developer_alias(tmp_path: Path) -> No
     alpha = next(item for item in summary.stages if item.stage == "alpha")
     assert all("super-secret" not in detail for detail in alpha.failures)
     assert "super-secret" not in rendered
-    assert "/home/vola" not in rendered
+    assert "/home/operator" not in rendered
     assert "corpus " not in rendered or "<redacted" in rendered
     assert summary.run_id != "local"
     try:
@@ -296,3 +296,25 @@ def test_bounded_source_anchors() -> None:
     assert rows[0].page == 2
     assert rows[1].sheet == "Budget"
     assert "/" not in rows[0].silo_id
+
+
+def test_superseded_attempt_never_borrows_the_accepted_attempt_identity(tmp_path: Path) -> None:
+    registry, _runners = fixture_registry()
+    context = make_context(tmp_path)
+    orchestrator = Orchestrator(registry, context.runs_dir)
+    assert not orchestrator.execute_plan(context, _plan(registry)).halted
+    assert not orchestrator.execute_plan(context, _plan(registry), force=True).halted
+    summary = inspect_run(
+        context.runs_dir,
+        context.run_id,
+        results_dir=context.results_dir,
+        project_root=find_project_root(),
+    )
+    rows = [row for row in summary.stages if row.stage == FIXTURE_PROFILE_STAGES[0]]
+    assert len(rows) == 2
+    by_directory = {row.directory.rsplit("/", 1)[-1]: row for row in rows}
+    assert set(by_directory) == {"attempt-1", "attempt-2"}
+    assert by_directory["attempt-2"].attempt == 2
+    assert by_directory["attempt-2"].status == "succeeded"
+    assert by_directory["attempt-1"].attempt == 1
+    assert by_directory["attempt-1"].status == "unknown"

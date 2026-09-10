@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "contract_version": {
+      "type": "string"
+    },
+    "document_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "generation_id": {
+      "type": "string"
+    },
+    "language": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "language_confidence": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "normalized_document_id": {
+      "primaryKey": true,
+      "type": "string"
+    },
+    "normalized_sha256": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "normalizer_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "text_chars": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "normalized_document_id",
+    "generation_id",
+    "contract_version"
+  ],
+  "type": "object"
+}

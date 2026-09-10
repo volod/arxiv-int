@@ -3,6 +3,7 @@
 from collections.abc import Callable
 from typing import Any
 
+from arxiv_int.contracts.catalog.normalize import is_floating
 from arxiv_int.data_quality.engine.model import (
     BACKEND_PANDERA,
     KIND_ACCEPTED_VALUES,
@@ -75,8 +76,10 @@ def result(
 
 
 def dtype_ok(actual: Any, expected: Any, rule: QualityRule) -> bool:
-    """Compare dtypes, treating any Polars Decimal as matching number columns."""
+    """Compare dtypes, accepting any Decimal width for declared decimal columns."""
     if rule.logical_type == "number" or rule.kind == KIND_DECIMAL:
+        if is_floating(rule.physical_type):
+            return str(actual) == str(expected)
         return "Decimal" in str(actual)
     return str(actual) == str(expected)
 

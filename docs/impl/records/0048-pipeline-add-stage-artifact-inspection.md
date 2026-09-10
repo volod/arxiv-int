@@ -79,7 +79,7 @@ Current-state page: [Pipeline control](../current/pipeline-control.md).
 | Make wrapper | `tests/pipeline/orchestration/test_make.py::test_make_inspect_is_read_only_and_requires_created_run_id` | pass |
 | Optional imports | `tests/inspect/test_optional_imports.py`; `tests/runtime/setup/test_optional_imports.py` | pass; no pandera/dbt/sqlalchemy/pyarrow at module import; base CLI `-S` help stays light |
 | CUDA host snapshot | `nvidia-smi`; host JSON under `$DATA_DIR/pipeline-inspect/0048/` | pass on host (NVIDIA GeForce RTX 4060 Ti, 16380 MiB, driver 595.84, CUDA 13.2) |
-| Host fixture inspect | `arxiv-int inspect RUN_ID --json` after fixture DAG `alpha/beta/gamma` | pass; schema `arxiv-int.inspect.v1`; checksums unchanged; 4851-byte JSON; no `/home/vola`; cache-hit directories stay `$RUNS_DIR`-relative |
+| Host fixture inspect | `arxiv-int inspect RUN_ID --json` after fixture DAG `alpha/beta/gamma` | pass; schema `arxiv-int.inspect.v1`; checksums unchanged; 4851-byte JSON; no operator home path; cache-hit directories stay `$RUNS_DIR`-relative |
 | Host evaluate inspect | inspect after registered `EvaluateStage` | pass; `run-b67d786ecabc405c98aa7125a3a1db97`; `outcome=produced` |
 | Formatting and required CI | `make format`; `DATA_DIR=/tmp/arxiv-int-inspect-0048 make ci` | pass; 1082 passed, 50 heavy deselected |
 | Documentation links and plan integrity | `make lint-doc-links`; `make lint-spec-plan`; `make plan-status` | pass; 69 tasks (59 agent, 10 human); next `implement-streaming-inventory` |

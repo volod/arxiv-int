@@ -152,6 +152,38 @@ CREATE TABLE corpus.document_path_event (
 );
 COMMENT ON TABLE corpus.document_path_event IS 'Portable path events that record initial, renamed, copied, and imported locations for canonical documents.';
 COMMENT ON COLUMN corpus.document_path_event.bucket IS 'Declared physical partition key from x-arxiv-int.partitionKey.';
+CREATE TABLE corpus.duplicate_groups (
+	duplicate_membership_id TEXT NOT NULL,
+	group_id TEXT,
+	document_id TEXT,
+	method TEXT,
+	role TEXT,
+	score DOUBLE PRECISION,
+	suppressed BOOLEAN,
+	generation_id TEXT NOT NULL,
+	contract_version TEXT NOT NULL,
+	bucket TEXT,
+	CONSTRAINT pk_duplicate_groups PRIMARY KEY (duplicate_membership_id),
+	CONSTRAINT fk_duplicate_groups_document_id FOREIGN KEY(document_id) REFERENCES corpus.documents (document_id)
+);
+COMMENT ON TABLE corpus.duplicate_groups IS 'Reversible duplicate and edition group memberships proposed over normalized documents.';
+COMMENT ON COLUMN corpus.duplicate_groups.bucket IS 'Declared physical partition key from x-arxiv-int.partitionKey.';
+CREATE TABLE corpus.normalized_documents (
+	normalized_document_id TEXT NOT NULL,
+	document_id TEXT,
+	normalizer_id TEXT,
+	language TEXT,
+	language_confidence DOUBLE PRECISION,
+	normalized_sha256 TEXT,
+	text_chars BIGINT,
+	generation_id TEXT NOT NULL,
+	contract_version TEXT NOT NULL,
+	bucket TEXT,
+	CONSTRAINT pk_normalized_documents PRIMARY KEY (normalized_document_id),
+	CONSTRAINT fk_normalized_documents_document_id FOREIGN KEY(document_id) REFERENCES corpus.documents (document_id)
+);
+COMMENT ON TABLE corpus.normalized_documents IS 'Canonical normalized text views, detected language, and reversible offset maps.';
+COMMENT ON COLUMN corpus.normalized_documents.bucket IS 'Declared physical partition key from x-arxiv-int.partitionKey.';
 CREATE TABLE corpus.spans (
 	span_id TEXT NOT NULL,
 	document_id TEXT,

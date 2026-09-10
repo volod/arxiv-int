@@ -47,7 +47,7 @@ in agreement in both directions.
 | `transform` | populated | `dbt-core` (Apache-2.0), `dbt-postgres` (Apache-2.0) |
 | `embeddings` | reserved for `semantic-retrieval` | none yet |
 | `evaluation` | reserved for `evaluation-foundation` | none yet |
-| `extraction` | reserved for `corpus-foundation` | none yet |
+| `extraction` | implemented for `corpus-foundation` | Docling and `iscc-tika` |
 | `gpu` | reserved for `local-inference` | none yet |
 | `nlp` | reserved for `russian-nlp` | none yet |
 | `ui` | reserved for `discovery-visualization` | none yet |

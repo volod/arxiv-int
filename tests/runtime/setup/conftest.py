@@ -112,6 +112,8 @@ def _fake_runner(sync_ok: bool) -> Callable[..., CompletedProcess[str]]:
             executable.write_text("#!/bin/sh\n", encoding="utf-8")
             executable.chmod(0o755)
             return completed(0)
+        if command == ("tesseract", "--list-langs"):
+            return completed(0, stdout="List of available languages:\ndeu\neng\nosd\nrus\nukr\n")
         if "info" in command:
             return completed(0, stdout="arxiv-int 0.1.0 (arxiv_int)")
         if command[:1] == ("ollama",):

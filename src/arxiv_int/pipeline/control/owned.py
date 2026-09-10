@@ -23,6 +23,20 @@ _SHARED_CODE = (
     "pipeline/run",
     "pipeline/quality",
     "interfaces",
+    # Executed by every stage through the run context, feature gating, contract catalog
+    # and source-set snapshot; a change here changes what any stage may publish.
+    "contracts/catalog",
+    "contracts/generate",
+    "contracts/sqlalchemy",
+    "features",
+    "metadata.py",
+    "pipeline/inventory/model.py",
+    "pipeline/inventory/snapshot.py",
+    "pipeline/inventory/walk.py",
+    "pipeline/stage_paths.py",
+    "resources/paths.py",
+    "runtime/config_model.py",
+    "runtime/containment.py",
 )
 _DECLARATIONS = frozenset({"pipeline/dag/stages.py", "pipeline/run/fixtures.py"})
 _SCHEMA_KINDS = {

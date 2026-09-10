@@ -1,0 +1,86 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:canonical:normalized-document:1.0.0
+name: normalized_document
+status: active
+schema:
+  - name: normalized_document
+    logicalType: object
+    properties:
+      - name: normalized_document_id
+        logicalType: string
+        required: true
+        primaryKey: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: normalized_document.normalizedDocumentId
+                semanticTerm: "urn:arxiv-int:term:normalized-document-id"
+      - name: document_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: normalized_document.documentId
+                semanticTerm: "urn:arxiv-int:term:document-id"
+      - name: normalizer_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: normalized_document.normalizerId
+                semanticTerm: "urn:arxiv-int:term:normalizer-id"
+      - name: language
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: normalized_document.language
+                semanticTerm: "urn:arxiv-int:term:language"
+      - name: language_confidence
+        logicalType: number
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: normalized_document.languageConfidence
+                semanticTerm: "urn:arxiv-int:term:confidence"
+      - name: normalized_sha256
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: normalized_document.normalizedSha256
+                semanticTerm: "urn:arxiv-int:term:checksum"
+      - name: text_chars
+        logicalType: integer
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: normalized_document.textChars
+                semanticTerm: "urn:arxiv-int:term:text-chars"
+      - name: generation_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: normalized_document.generationId
+                semanticTerm: "urn:arxiv-int:term:generation-id"
+      - name: contract_version
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: normalized_document.contractVersion
+                semanticTerm: "urn:arxiv-int:term:contract-version"

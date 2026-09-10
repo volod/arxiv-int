@@ -57,6 +57,33 @@ def test_missing_host_tool_blocks_before_sync(tmp_path: Path) -> None:
     assert all(item.status == "skipped" for item in report.phases[1:])
 
 
+def test_missing_tesseract_language_pack_reports_exact_install_command(tmp_path: Path) -> None:
+    root = checkout(tmp_path)
+    environment = operator_env(tmp_path, root)
+    adapters = make_adapters(root)
+    run = adapters.run
+
+    def missing_russian(command, **kwargs):
+        if command == ("tesseract", "--list-langs"):
+            return type(run(command, **kwargs))(
+                command,
+                0,
+                "List of available languages:\ndeu\neng\nukr\n",
+                "",
+            )
+        return run(command, **kwargs)
+
+    adapters.run = missing_russian
+    report = run_setup(project_root=root, environment=environment, adapters=adapters)
+
+    assert report.phases[0].status == "blocked"
+    assert report.phases[0].detail.endswith("rus")
+    assert report.phases[0].action == (
+        "sudo apt install tesseract-ocr tesseract-ocr-rus tesseract-ocr-eng "
+        "tesseract-ocr-deu tesseract-ocr-ukr, then make setup"
+    )
+
+
 def test_failed_sync_stops_dependent_phases(tmp_path: Path) -> None:
     root = checkout(tmp_path)
     environment = operator_env(tmp_path, root)

@@ -33,22 +33,28 @@ The root `Makefile` includes grouped fragments under `make/` (`bootstrap`, `serv
   source/wheel builds. A numeric coverage percentage is not an acceptance gate
   ([behavior-first test policy](../records/0026-foundation-adopt-behavior-first-test-policy.md)).
 
-GitHub Actions runs `make ci-github`, an explicit alias of the same required gate, on Python 3.12
-and 3.13 after `uv sync --locked --extra dev --extra contracts --extra graph --extra store
+GitHub Actions runs `make ci-github`, the same required gate with a lighter dependency profile,
+on Python 3.12 and 3.13 after `uv sync --locked --extra dev --extra contracts --extra graph --extra store
 --extra lake --extra data-quality --extra inference --extra transform`. The `store` extra carries
 Alembic, which owns the migration revision graph checked by `make ci`. The `lake` and
 `data-quality` extras carry Polars/PyArrow and Pandera for contract-derived dataset checks. The
 `transform` extra carries dbt Core and `dbt-postgres` for isolated derived-model runs, including
-projection input models. Every
-syncing Make target shares one `SYNC_EXTRAS` set so consecutive targets cannot uninstall each
-other's dependencies.
+projection input models. Local syncing Make targets share one `SYNC_EXTRAS` set so consecutive
+targets cannot uninstall each other's dependencies. `ci-github` removes `extraction` from that set
+for all its prerequisite syncs, preserving the workflow's dependency profile throughout the gate.
+
+GitHub omits the optional `extraction` extra, so the native Tika test skips there. The isolated
+worker import supports type checking with the backend absent or installed without typing metadata;
+lightweight regression checks hide site packages for both Python targets
+([CI import repair](../records/0067-foundation-fix-optional-tika-ci-typecheck.md)).
 
 Tests under `tests/quality/` exercise failure cases for the documentation checks rather than only
 asserting the repository passes. `make quality-report` reports source and shell files over the
 250-line soft limit; generated Alembic revisions under `src/arxiv_int/migrations/versions/` are
 frozen review evidence and are excluded from Ruff formatting so a formatter upgrade cannot rewrite an
 applied revision. Generated Pydantic adapters under
-`src/arxiv_int/resources/contracts/generated/pydantic/` are excluded for the same reason. Those revision files and `migrations/env.py` are also omitted from branch coverage
+`src/arxiv_int/resources/contracts/generated/pydantic/` are excluded for the same reason. Those
+revision files and `migrations/env.py` are also omitted from branch coverage
 because they execute only against a live database; the declared schema suite covers them.
 Configuration tests exercise missing-template copying, append-only declaration
 sync, idempotency, and preservation of operator values.

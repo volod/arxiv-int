@@ -134,7 +134,7 @@ same whole-file read. It belongs to the earlier run-context producers rather tha
 reviewed here, and is resolved by
 [bounded archive snapshots](0059-pipeline-bound-archive-snapshot-hashing.md). Incoming
 notes: none were routed to this round; `AUD-review-pipeline-publication-and-reuse-boundaries-2`
-stays with the [corpus/control checkpoint](../plan.md#review-corpus-and-control-integrity) because
+stays with the [corpus/control checkpoint](0063-corpus-review-corpus-and-control-integrity.md) because
 it explicitly waits on concrete corpus producers, which do not exist yet.
 
 | Note | Finding / owner / disposition |
@@ -178,7 +178,7 @@ pass. Both plan tasks are removed and dependents link these records; `implement-
 now depends on this accepted round and carries note 2. Counts moved from 66 to 68 tasks while both
 tasks were open, then back to 66 (56 agent, 10 human unchanged) on acceptance. No capability changed
 status: `pipeline-control` keeps its planned corpus stages and the
-[corpus/control checkpoint](../plan.md#review-corpus-and-control-integrity), whose own
+[corpus/control checkpoint](0063-corpus-review-corpus-and-control-integrity.md), whose own
 `AUD-review-pipeline-publication-and-reuse-boundaries-2` still waits on concrete corpus producers.
 Next agent work: `implement-streaming-inventory`. This verdict permits fixture implementation only;
 it promotes no real-data, CUDA or human gate. No review-owned service was started or left running.

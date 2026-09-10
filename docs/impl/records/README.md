@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0054` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0063` after the rows
 below).
 
 | Record | Scope | Result |
@@ -72,3 +72,10 @@ below).
 | [0058 Owned stage fingerprints](0058-pipeline-bind-real-owned-stage-fingerprints.md) | Bind stage reuse to declared contract, rule, dbt, code, dependency, tool, model and prompt assets | Accepted |
 | [0059 Bounded archive snapshot hashing](0059-pipeline-bound-archive-snapshot-hashing.md) | Chunked content snapshots and explicit metadata drift checks | Accepted |
 | [0060 Streaming inventory](0060-corpus-implement-streaming-inventory.md) | Restartable content-addressed archive inventory | Accepted |
+| [0061 Tiered text extraction](0061-corpus-integrate-tiered-text-extraction.md) | Evidence-preserving Tika, Docling and OCR extraction | Accepted |
+| [0062 Normalization, dedupe and chunking](0062-corpus-implement-normalization-dedupe-and-chunking.md) | NFC views, reversible duplicate overlays, and structure-aware chunks | Accepted |
+| [0063 Corpus and control integrity review](0063-corpus-review-corpus-and-control-integrity.md) | Integrated corpus and control checkpoint before lexical, classification and NLP consumers | Accepted; proceed with nonblocking notes |
+| [0064 Corpus stage identity and source offset repair](0064-corpus-repair-corpus-stage-identity-and-source-offsets.md) | Focused integrity prerequisite for 0063 | Accepted |
+| [0065 Single initial store migration](0065-store-refactor-single-initial-store-migration.md) | Collapse the second pre-release revision into `0001` and restore the partition/staging convention | Accepted |
+| [0066 README and command reference refresh](0066-govern-refactor-readme-and-command-reference.md) | Quick start reflects the shipped corpus chain; command and organization details move to guide pages | Accepted |
+| [0067 Optional Tika CI typecheck](0067-foundation-fix-optional-tika-ci-typecheck.md) | Type-check the isolated worker without installing the native extraction stack in GitHub | Accepted |

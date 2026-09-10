@@ -5,8 +5,8 @@ logging with bounded resource telemetry, a fixture-first DAG CLI, a registered p
 readability worker, a read-only pre-run forecast, profile-declared knowledge-base publication,
 read-only stage artifact inspection, incremental source reconciliation, two-phase stale prune,
 read-only citation/source location lookup, and a provided-archive pipeline-control proof are
-available. Concrete corpus
-stages remain
+available. Concrete corpus stages through `chunk` are registered;
+classification and later investigation stages remain
 [planned](../plan.md#corpus-foundation----corpus-foundation).
 
 See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface-contracts.md),
@@ -24,8 +24,10 @@ See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface
 [checkpoint 0054](../records/0054-pipeline-review-control-integration-boundaries.md),
 [repair 0055](../records/0055-pipeline-repair-source-reconciliation-and-prune-safety.md), and
 [record 0056](../records/0056-pipeline-reprove-pipeline-control-after-reconciliation-repair.md), and
-[record 0058](../records/0058-pipeline-bind-real-owned-stage-fingerprints.md), and
-[record 0059](../records/0059-pipeline-bound-archive-snapshot-hashing.md).
+[record 0058](../records/0058-pipeline-bind-real-owned-stage-fingerprints.md),
+[record 0059](../records/0059-pipeline-bound-archive-snapshot-hashing.md),
+[checkpoint 0063](../records/0063-corpus-review-corpus-and-control-integrity.md), and
+[repair 0064](../records/0064-corpus-repair-corpus-stage-identity-and-source-offsets.md).
 
 ## Stage, source, and artifact seams
 
@@ -117,7 +119,7 @@ there is no placeholder fallback. Moving an unchanged asset tree leaves its iden
 
 | Owned field | Source |
 | --- | --- |
-| `code_fingerprint` | Bytes of shared control/DAG/run/quality/interfaces modules, the runner source file and declared `code_paths`; stage declaration modules are excluded from the shared set because their selected values are hashed separately |
+| `code_fingerprint` | Bytes of the shared module set, the runner source file and declared `code_paths`; the shared set covers control/DAG/run/quality/interfaces plus the contract catalog, generation and SQLAlchemy binding, feature gating, package metadata, stage paths, resource resolution, runtime config/containment and the source-set snapshot walker, because every stage executes them; stage declaration modules are excluded from the shared set because their selected values are hashed separately |
 | `dependency_fingerprint` | Installed distribution name/version and selected requirement metadata, Python version, uv lock format and selected package records with transitive dependencies; PyYAML is shared, validators add Pandera/Polars, real dbt models add dbt Core/Postgres |
 | `contract_fingerprint` | Selected `FileRegistry` entries plus their referenced ODCS and mapping file bytes |
 | `schema_fingerprint` | Selected generated JSON Schema, Parquet, Avro, PostgreSQL (including extension DDL) and Pydantic schemas |
@@ -137,10 +139,16 @@ stage and field. Fixture stages declare their actual runner, feature and outcome
 unused model/prompt sets are empty. `with_runner()` preserves all declarations. Old placeholder
 identities intentionally miss once; accepted artifacts remain intact.
 
-Stage owners declare the complete asset dependency set, including helper modules, upstream dbt
-models and source/test YAML used by the selected transformation. This binder does not interpret
-Jinja or implement another dbt selector engine. Declare shared files only where they are consumed;
-shared project/macro edits affect every declared dbt producer. The existing fixture quality adapter
+Stage owners declare the complete asset dependency set, including helper modules, packaged data
+assets, upstream dbt models and source/test YAML used by the selected transformation.
+`tests/pipeline/dag/test_stage_declarations.py` enforces this: it walks the transitive first-party
+import closure of each registered runner and fails when a stage executes a module it does not own,
+so an incomplete declaration cannot silently reuse stale artifacts. Declarations stay per-file where
+the dependency is narrow, so an inventory-only edit does not recompute chunking. A module reached
+only through a runtime string import is outside that closure and still needs a manual declaration.
+This binder does not interpret Jinja or implement another dbt selector engine. Declare shared
+files only where they are consumed; shared project/macro edits affect every declared dbt
+producer. The existing fixture quality adapter
 uses synthetic dbt selections without real models. Real producer tasks must bind actual model,
 input and rule paths when replacing it. Tool/model/prompt declarations must contain public immutable
 identities, never credentials. Hashing these declarations imports no backend or model.
@@ -255,7 +263,7 @@ CLI values override process environment, then `.env`, then documented defaults. 
 hardcoded `--profile investigation` or `--run-id local` on `pipeline` / `run-create`. `STAGE` and
 `RUN_ID` for atomic commands must be the created run id.
 
-The investigation profile still names unregistered corpus stages. `make pipeline` therefore fails
+The investigation profile still names unregistered later stages. `make pipeline` therefore fails
 explicitly until those runners ship. Fixture DAGs in `tests/pipeline/dag/` cover range,
 skip, invalid dependency, aggregate versus atomic equivalence, failure halt, resume, force,
 invalidate, update, rebuild, prune dry-run, quality not-run/fail, and signal cancel. Declared
@@ -355,6 +363,11 @@ checksum validity, contract conformance, quarantines, and failures. Directories 
 transformations or published `run_results.json`, never from a live transform. Empty, partial,
 quarantined, failed, and schema-drifted trees still produce a stable summary. Inspection
 rechecks checksums in place and leaves bytes unchanged.
+
+Each ledger row is bound to the attempt directory it names. A retried stage therefore reports its
+accepted attempt with the ledger status and cache decision, and each superseded attempt directory
+with its own attempt number and an `unknown` status, because no ledger row claims it. A ledger row
+whose tree is unreadable still appears with its recorded fields and a placeholder path.
 
 ## Evidence and source location lookup
 
@@ -535,9 +548,12 @@ reconciliation, prune, package layout, evidence lookup and the frozen store revi
 0055 fixes the reconciliation and prune defects it found; record 0056 republishes the
 provided-archive bundle on the repaired code, so `0056-host` is the current real-archive evidence.
 A removal that is not the last occurrence is outside that scenario's reach and stays
-fixture-covered. Concrete producer fingerprints,
-validators, database activation and remaining corpus stages stay with the
-[corpus/control checkpoint](../plan.md#review-corpus-and-control-integrity). Source link policy
+fixture-covered. Source link policy
 is implemented by [streaming inventory](../records/0060-corpus-implement-streaming-inventory.md).
-The local lock is
-intentionally coarse; the review does not establish parallel corpus throughput or power-loss recovery.
+Checkpoint [0063](../records/0063-corpus-review-corpus-and-control-integrity.md) reviews the
+integrated corpus and control milestone; repair
+[0064](../records/0064-corpus-repair-corpus-stage-identity-and-source-offsets.md) completes the
+executed-asset declarations, makes document-text reads and writes byte-exact, and binds each ledger
+row to the attempt directory it names. Database activation for corpus artifacts stays with the
+retrieval and classification round. The local lock is intentionally coarse; no review here
+establishes parallel corpus throughput or power-loss recovery.

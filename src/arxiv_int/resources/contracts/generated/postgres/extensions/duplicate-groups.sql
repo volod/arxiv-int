@@ -1,0 +1,5 @@
+-- arxiv-int postgres extensions for duplicate-groups
+-- source: urn:arxiv-int:contract:duplicate-groups:1.0.0@1.0.0
+-- table columns and constraints are owned by corpus.duplicate_groups metadata revisions
+-- HASH partition template for corpus.duplicate_groups USING (bucket)
+-- CREATE TABLE corpus.duplicate_groups_p0 PARTITION OF corpus.duplicate_groups FOR VALUES WITH (MODULUS 16, REMAINDER 0);

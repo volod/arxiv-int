@@ -26,113 +26,6 @@ and name ready/pending human decisions and the dependent work that must wait at 
 
 ### Corpus foundation -- `corpus-foundation`
 
-#### integrate-tiered-text-extraction
-
-Compose Tika, Docling, and OCR/layout fallbacks behind one evidence-preserving extractor interface.
-
-- Serves: `corpus-foundation` --
-[Russian-language and document analysis](../design/spec.md#russian-language-and-document-analysis)
-- Agent status: RUN NEEDED
-- Dependencies: [Streaming inventory](records/0060-corpus-implement-streaming-inventory.md);
-[Deterministic schema generation](records/0011-contract-gov-implement-deterministic-schema-generation.md).
-- User-visible outcome: Supported documents become normalized source spans with page/table/offset
-evidence; failures are quarantined with actionable reasons.
-- Scope boundary: Integrate existing engines and selection policy; do not build a new parser or
-promise every proprietary format.
-- Data and artifact paths: `$RESULTS_DIR/normalized/documents/`, `$RESULTS_DIR/normalized/spans/`,
-`$RESULTS_DIR/quarantine/`, `src/arxiv_int/extraction/`, and representative format fixtures.
-- Execution path: Run Tika as breadth baseline; route layout/table PDFs to Docling and scanned PDFs
-to OCR; preserve tool versions, page/table/bounding-box and spreadsheet sheet/cell anchors,
-container/member paths, raw hashes, and extraction quality; never execute macros or active content;
-bound temp files,
-child processes, timeouts, and decompression; register `extract` with the normal stage interface and
-run it against a bounded authorized archive when available after deterministic checks pass.
-Validate emitted document/span batches with shared Pandera schemas and existing source-anchor
-checks; preserve explicit quarantine and incomplete-coverage results.
-- Acceptance gates: The reviewed extraction fixture reports per-format text, table, and anchor
-coverage; corrupt/encrypted/oversized inputs fail safely; repeated content hashes reuse outputs;
-source files remain unchanged; the normal `make stage STAGE=extract` run produces inspectable
-artifacts on the declared fixture or authorized archive, and its redacted result is recorded in current-state
-documentation.
-- Documentation target: `docs/impl/current/corpus-foundation.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
-
-#### implement-normalization-dedupe-and-chunking
-
-Normalize extracted text, group exact/near duplicates and editions, and emit source-aligned chunks
-without destructive corpus edits.
-
-- Serves: `corpus-foundation` -- [Normalized data lake](../design/spec.md#normalized-data-lake)
-- Agent status: RUN NEEDED
-- Dependencies: `integrate-tiered-text-extraction`.
-- User-visible outcome: Each unique document has searchable, table/structure-aware chunks and
-reversible duplicate/edition overlays.
-- Scope boundary: Normalize and propose duplicate groups; do not merge entities or delete
-source/extracted records.
-- Data and artifact paths: `$RESULTS_DIR/normalized/documents/`, `spans/`, `chunks/`, duplicate overlays,
-`src/arxiv_int/pipeline/normalize/`, and `src/arxiv_int/pipeline/chunk/`.
-- Execution path: Preserve original text; create NFC/casefold/search views; map
-original-to-normalized offsets; detect language; run exact, normalized, MinHash/lexical, and
-edition grouping; implement bounded structure/table/sentence chunkers with source breadcrumbs;
-register the normal stage commands and run them against a bounded authorized archive when available.
-Express tabular normalization and grouping with typed Polars expressions and PyArrow batches;
-keep text/span algorithms in focused Python functions. Run generated Pandera checks, cross-partition
-identity checks and bounded-memory tests before publishing.
-- Acceptance gates: Golden offsets and table headers survive chunking; unchanged input yields stable
-ids; dedupe precision is measured on labels; no suppression occurs without an overlay; out-of-core
-memory and shard-resume tests pass; the declared fixture commands produce inspectable artifacts
-whose redacted results are recorded in current-state documentation.
-- Documentation target: `docs/impl/current/corpus-foundation.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
-
-#### review-corpus-and-control-integrity
-
-Review the integrated milestone before lexical loading, classification and NLP consumers.
-
-- Serves: `corpus-foundation` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
-- Agent status: CLEAR
-- Task kind: checkpoint
-- Dependencies: `implement-normalization-dedupe-and-chunking`;
-[Owned stage fingerprints](records/0058-pipeline-bind-real-owned-stage-fingerprints.md);
-[Bounded archive snapshots](records/0059-pipeline-bound-archive-snapshot-hashing.md);
-[Control integration checkpoint](records/0054-pipeline-review-control-integration-boundaries.md);
-[Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md);
-[Investigation profile and output manifest](records/0045-pipeline-implement-investigation-profile-and-output-manifest.md);
-[Progress logging and resource telemetry](records/0043-pipeline-add-progress-logging-and-resource-telemetry.md);
-[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
-[Publication/reuse checkpoint](records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md);
-[Incremental reconciliation and stale pruning](records/0049-pipeline-implement-incremental-reconciliation-and-stale-pruning.md).
-- Audit inputs: [AUD-review-pipeline-publication-and-reuse-boundaries-2](records/0046-pipeline-review-pipeline-publication-and-reuse-boundaries.md#audit-handoff);
-[AUD-retire-committed-proof-export-1](records/0057-eval-found-retire-committed-proof-export.md#audit-handoff).
-- User-visible outcome: An evidence-based checkpoint decides proceed, proceed-with-nonblocking-notes,
-or blocked
-for the named consumers; no-refactoring-needed is a valid conclusion.
-- Scope boundary: Review the named milestone and routed notes only; no speculative rewrite, automatic
-model upgrade, scope expansion or deferred replacement for each producer task's own checks.
-Adding tests for important stabilized integrity, correctness, and business-logic cases in this
-stage is in scope; concluding that existing tests already cover them is valid. Restoring a
-numeric coverage floor is not.
-Use deterministic integration evidence and inspect provided-archive proofs when available;
-this verdict permits fixture implementation, not real-data or CUDA promotion.
-- Data and artifact paths: Accepted producer records under `docs/impl/records/`, current-state pages,
-existing test/proof artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
-- Execution path: Read full task snapshots and source changes; trace source immutability,
-complete-scan semantics, cell/member coordinates, shard/generation
-identity, cache invalidation, atomic publication, forecast/reserve refusal and bounded queues;
-replay representative existing tests/validators; add tests for important integrity, correctness,
-and business-logic cases that the stage's now-stable interfaces still miss; reconcile every
-routed note; record concrete findings with evidence, severity, affected consumers and one
-disposition each.
-- Acceptance gates: Every producer requirement and open note has an evidence-backed disposition;
-verify the
-listed invariants and make ci. Important stabilized cases in this stage have tests or an
-evidence-backed conclusion that existing tests already cover them; a coverage percentage is not
-a gate. Create a focused prerequisite refactor task for any blocking finding
-and keep this checkpoint open until it passes; preserve valid negative results and nonblocking
-follow-ups in the checkpoint record without claiming a wider audit.
-- Documentation target: `docs/impl/current/corpus-foundation.md`
-- Review checkpoint: none; this task is the bounded checkpoint. Route follow-ups to explicit task ids.
-
 #### prove-corpus-foundation-on-provided-archive
 
 Run the completed corpus stages against the operator-provided archive and publish their first
@@ -141,11 +34,15 @@ current proof bundle.
 - Serves: `corpus-foundation` --
 [Provided-archive proof runs](../design/spec.md#provided-archive-proof-runs)
 - Agent status: RUN NEEDED
-- Dependencies: `review-corpus-and-control-integrity`; `implement-normalization-dedupe-and-chunking`;
+- Dependencies: [Checkpoint 0063](records/0063-corpus-review-corpus-and-control-integrity.md);
+[Normalization, dedupe and chunking](records/0062-corpus-implement-normalization-dedupe-and-chunking.md);
 [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md);
 [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md);
 [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md);
 [Representative corpus approval](records/0023-corpus-approve-representative-corpus-and-gold.md).
+- Audit inputs: [AUD-review-corpus-and-control-integrity-6](records/0063-corpus-review-corpus-and-control-integrity.md#audit-handoff);
+[AUD-review-corpus-and-control-integrity-8](records/0063-corpus-review-corpus-and-control-integrity.md#audit-handoff);
+[AUD-review-corpus-and-control-integrity-9](records/0063-corpus-review-corpus-and-control-integrity.md#audit-handoff).
 - User-visible outcome: The supplied file silos have inspectable inventory, extraction,
 normalization, duplicate, and chunk artifacts backed by one reproducible proof id.
 - Scope boundary: Read `ARCHIVE_DIR` without mutation and stop after `chunk`; do not infer
@@ -162,7 +59,8 @@ The bundle stays under the configured roots and nothing source-derived is commit
 commit. Record the artifact roots and the bundle fingerprint so a reviewer can confirm presence,
 checksums and contract conformance in place.
 - Documentation target: `docs/impl/current/corpus-foundation.md`
-- Review checkpoint: `review-corpus-and-control-integrity`.
+- Review checkpoint: `review-corpus-and-control-integrity`, accepted as
+[record 0063](records/0063-corpus-review-corpus-and-control-integrity.md).
 
 ### Lexical retrieval -- `lexical-retrieval`
 
@@ -176,7 +74,7 @@ facets, and identifier lookup.
 - Agent status: RUN NEEDED
 - Dependencies: [0025](records/0025-store-implement-rebuildable-search-and-graph-projections.md);
 [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md).
-`review-corpus-and-control-integrity`.
+[Corpus and control integrity checkpoint](records/0063-corpus-review-corpus-and-control-integrity.md).
 - User-visible outcome: The full normalized corpus or chosen partition is searchable with
 evidence-bearing results and stable filter behavior.
 - Scope boundary: Establish the lexical path and lifecycle; semantic fusion is separate.
@@ -299,9 +197,10 @@ UDC-derived classes or one explicit exceptional outcome.
 - Agent status: RUN NEEDED
 - Research: yes
 - Dependencies: `establish-versioned-udc-derived-scheme`;
-`implement-normalization-dedupe-and-chunking`; [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md).
+[Normalization, dedupe and chunking](records/0062-corpus-implement-normalization-dedupe-and-chunking.md);
+[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md).
 Reviewed real-corpus quality is accepted by the separate proof/human tasks.
-`review-corpus-and-control-integrity`.
+[Corpus and control integrity checkpoint](records/0063-corpus-review-corpus-and-control-integrity.md).
 - Human review handoff:
 [approve-classification-policy](#approve-classification-policy)
 vocabulary, thresholds and exception examples.
@@ -338,9 +237,11 @@ Review searchable/classifiable corpus accounting before archive quality and poli
 - Serves: `archive-classification` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
 - Agent status: CLEAR
 - Task kind: checkpoint
-- Dependencies: `review-corpus-and-control-integrity`; `calibrate-russian-tokenization-and-bm25`;
+- Dependencies: [Checkpoint 0063](records/0063-corpus-review-corpus-and-control-integrity.md);
+`calibrate-russian-tokenization-and-bm25`;
 `establish-versioned-udc-derived-scheme`; `implement-hierarchical-file-classification`;
 [Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
+- Audit inputs: [AUD-review-corpus-and-control-integrity-7](records/0063-corpus-review-corpus-and-control-integrity.md#audit-handoff).
 - User-visible outcome:
 Retrieval and classification proofs consume coherent source, vocabulary and query identities.
 - Scope boundary:
@@ -414,9 +315,9 @@ versioned dictionaries without changing source evidence.
 - Serves: `russian-nlp` --
 [Russian-language and document analysis](../design/spec.md#russian-language-and-document-analysis)
 - Agent status: RUN NEEDED
-- Dependencies: `implement-normalization-dedupe-and-chunking`;
+- Dependencies: [Normalization, dedupe and chunking](records/0062-corpus-implement-normalization-dedupe-and-chunking.md);
 [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md).
-`review-corpus-and-control-integrity`.
+[Corpus and control integrity checkpoint](records/0063-corpus-review-corpus-and-control-integrity.md).
 - User-visible outcome: Russian and mixed-language documents expose normalized terms, lemmas where
 useful, abbreviations, and corpus terminology for search and extraction.
 - Scope boundary: Produce analysis views and mappings only; original text and offsets remain
@@ -498,7 +399,8 @@ Bind evolving ontology and source-asserted place/time semantics to reproducible 
 - Agent status: CLEAR
 - Dependencies: [Versioned ontology assets](records/0013-contract-gov-establish-versioned-ontology-assets.md);
 [Domain contracts](records/0014-contract-gov-define-domain-investigation-contracts-and-ontology.md);
-[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md); [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
+[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md);
+[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 - Human review handoff:
 [approve-entity-merge-and-ontology-policy](#approve-entity-merge-and-ontology-policy)
 ontology/geotemporal candidate semantics and compatibility examples;
@@ -516,7 +418,8 @@ preserves asserted time/place uncertainty; new terms can be reviewed without cha
 and typed geotemporal contracts/validators. Reuse Location and domain terms; no autonomous axiom
 acceptance, remote geocoder, GIS platform or extra database extension. Published vocabulary stays
 separate from candidates; unknown terms stay proposed/unmapped until human review.
-- Data and artifact paths: `src/arxiv_int/resources/ontology/`, `src/arxiv_int/resources/contracts/`, `src/arxiv_int/ontology/`, mirrored tests,
+- Data and artifact paths: `src/arxiv_int/resources/ontology/`,
+`src/arxiv_int/resources/contracts/`, `src/arxiv_int/ontology/`, mirrored tests,
 additive Alembic revisions where required, `$RUNS_DIR/<run-id>/{ontology,review/ontology}/`.
 - Execution path: Seal term/mapping/shape/policy fingerprints; retain prior snapshots and explicit
 replacement/deprecation mappings; bind ontology identity into validation and projection reuse keys.
@@ -1226,7 +1129,7 @@ Build CPU-first topic discovery and drift tracking with an optional bounded embe
 [Analysis, graph, and visualization behavior](../design/spec.md#analysis-graph-and-visualization-behavior)
 - Agent status: RUN NEEDED
 - Research: yes
-- Dependencies: `implement-normalization-dedupe-and-chunking`;
+- Dependencies: [Normalization, dedupe and chunking](records/0062-corpus-implement-normalization-dedupe-and-chunking.md);
 `build-russian-language-morphology-and-terminology-lane`; optional
 `implement-selective-embedding-pipeline` for the embedding lane.
 - User-visible outcome: The archive exposes stable topics, representative documents, terms,
@@ -1478,7 +1381,9 @@ current-state evidence references.
 - Serves: `evaluation-evidence` --
 [Implementation boundaries](../design/spec.md#implementation-boundaries)
 - Agent status: CLEAR
-- Dependencies: [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md); [Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md).
+- Dependencies:
+[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md);
+[Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md).
 - User-visible outcome: A stale run cannot continue to support a changed published claim.
 - Scope boundary: Build ongoing evidence validation; routine review of each change remains part of that
 change, not a deferred audit. Do not invent missing benchmarks.
@@ -1535,7 +1440,8 @@ usable pipeline stage and artifact family.
 `prove-archive-classification-on-provided-archive`; `prove-discovery-and-visualization-on-provided-archive`;
 `prove-anomaly-analysis-on-provided-archive`;
 [Model resource scheduler](records/0032-inference-implement-model-resource-scheduler.md);
-[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md). Semantic proof is required only for a selected vector branch.
+[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
+Semantic proof is required only for a selected vector branch.
 `review-investigation-and-report-integrity`.
 `approve-classification-policy`; `approve-entity-merge-and-ontology-policy`;
 `approve-fact-review-and-publication-policy`; `approve-domain-artifact-semantics-and-inclusion`;
@@ -1702,6 +1608,8 @@ index, and stale lease behavior before full-corpus authorization.
 [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md);
 [Incremental reconciliation and stale pruning](records/0049-pipeline-implement-incremental-reconciliation-and-stale-pruning.md).
 Organizer failure injection is separate.
+- Audit inputs: [AUD-review-corpus-and-control-integrity-4](records/0063-corpus-review-corpus-and-control-integrity.md#audit-handoff);
+[AUD-review-corpus-and-control-integrity-5](records/0063-corpus-review-corpus-and-control-integrity.md#audit-handoff).
 - Human review handoff:
 [accept-recovery-and-security-posture](#accept-recovery-and-security-posture)
 seal
@@ -1936,7 +1844,8 @@ organization in both copy-to-target and in-place move modes.
 [Separate archive organization utility](../design/spec.md#separate-archive-organization-utility)
 - Agent status: CLEAR
 - Dependencies: `implement-hierarchical-file-classification`;
-[Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md); `implement-backup-restore-and-rebuild-runbook`
+[Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md);
+`implement-backup-restore-and-rebuild-runbook`
 for move recovery semantics; use disposable roots for acceptance.
 [Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
 

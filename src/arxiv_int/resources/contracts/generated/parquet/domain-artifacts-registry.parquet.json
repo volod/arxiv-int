@@ -80,7 +80,7 @@
       "primaryKey": false
     },
     {
-      "arrowType": "float64",
+      "arrowType": "decimal128(38, 9)",
       "name": "evidence_coverage",
       "nullable": true,
       "primaryKey": false

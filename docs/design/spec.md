@@ -607,7 +607,8 @@ The Postgres derivative image must:
 
 ### Source of truth
 
-ODCS `3.1.0` YAML under `src/arxiv_int/resources/contracts/` is the authoritative description of datasets, fields,
+ODCS `3.1.0` YAML under `src/arxiv_int/resources/contracts/` is the authoritative description of
+datasets, fields,
 relationships, quality expectations, ownership, versions, and physical bindings. Avro is a generated
 serialization schema and compatibility aid, not a competing source of truth.
 
@@ -918,7 +919,8 @@ and domain views; they do not add a separate capability.
 
 ### Ontology design
 
-Pinned Turtle/SHACL assets under `src/arxiv_int/resources/ontology/` are the formal vocabulary. AGE, catalogs, and reports
+Pinned Turtle/SHACL assets under `src/arxiv_int/resources/ontology/` are the formal vocabulary. AGE,
+catalogs, and reports
 project that vocabulary; they do not invent parallel class systems. Ontology evolution stays
 additive under the existing contract/ontology evolution policy: a new meaning is a new term or
 shape, and rewriting an active IRI in place is breaking.

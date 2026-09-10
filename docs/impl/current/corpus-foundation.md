@@ -1,9 +1,15 @@
 # Corpus Foundation
 
-Streaming inventory is available through `arxiv-int stage inventory` and
-`make stage STAGE=inventory`. Extraction, normalization, deduplication outputs and chunking remain
-[planned](../plan.md#corpus-foundation----corpus-foundation).
-Implementation and acceptance evidence: [record 0060](../records/0060-corpus-implement-streaming-inventory.md).
+Streaming inventory, tiered text extraction, normalization, reversible duplicate overlays, and
+structure-aware chunking are available through the normal stage interface. The integration
+checkpoint has passed and released these stages to lexical loading, classification and Russian NLP;
+the [provided-archive corpus proof](../plan.md#corpus-foundation----corpus-foundation) remains
+planned. Implementation and acceptance
+evidence: [record 0060](../records/0060-corpus-implement-streaming-inventory.md),
+[record 0061](../records/0061-corpus-integrate-tiered-text-extraction.md),
+[record 0062](../records/0062-corpus-implement-normalization-dedupe-and-chunking.md),
+[checkpoint 0063](../records/0063-corpus-review-corpus-and-control-integrity.md), and
+[repair 0064](../records/0064-corpus-repair-corpus-stage-identity-and-source-offsets.md).
 
 ## Operator workflow
 
@@ -15,6 +21,10 @@ make run-create
 make forecast RUN_ID="$RUN_ID"
 make stage STAGE=preflight RUN_ID="$RUN_ID"
 make stage STAGE=inventory RUN_ID="$RUN_ID"
+make stage STAGE=extract RUN_ID="$RUN_ID"
+make stage STAGE=normalize RUN_ID="$RUN_ID"
+make stage STAGE=dedupe RUN_ID="$RUN_ID"
+make stage STAGE=chunk RUN_ID="$RUN_ID"
 make inspect RUN_ID="$RUN_ID" JSON=1
 ```
 
@@ -24,6 +34,67 @@ metadata verification. Source changes require `make update` or a new run. A chan
 policy uses a separate checkpoint. The source archive is never modified, links are never followed,
 and members are never extracted into source paths. Inventory uses CPU and storage, with no CUDA
 worker or inference service.
+
+## Tiered extraction
+
+The `extract` stage consumes a checksum-validated inventory snapshot, including a reused upstream
+snapshot from another run. It extracts each unique content hash once and maps duplicate physical
+occurrences to that document. Plain text uses bounded codecs; the breadth lane runs Apache Tika
+3.3.x through `iscc-tika` in an isolated subprocess; Docling supplies PDF/spreadsheet layout and
+table cells; scanned PDFs opt into Tika's Tesseract OCR strategy; PNG/JPEG images use Tesseract TSV
+word coordinates. Baseline and failed-lane reasons remain in tool metadata.
+
+The stage writes immutable snapshots below `$RESULTS_DIR/normalized/{documents,spans,extraction}/`
+and `$RESULTS_DIR/quarantine/extract/`. Documents retain raw/text hashes, extractor/version metadata
+and quality counters. Spans retain offsets plus available page, sheet, row/column, cell range and
+bounding-box anchors. Manifests report per-media-type text, anchor and table-cell coverage, and
+rehash every referenced artifact before cache reuse. Generated Pandera document/span schemas and
+source-anchor checks run before publication.
+
+Inputs, extracted text, span counts, child execution time and captured output are bounded. Inventory
+decompression limits still apply to members; macros and active Office content remain disabled.
+Corrupt, encrypted, unsupported, empty and oversized inputs are quarantined with actionable reasons.
+A completed extract that published documents is `produced` even when some inputs were quarantined,
+so `normalize` consumes the snapshot. Incomplete scans remain `partial` and still halt.
+
+For a new CUDA host, install Tesseract and the `rus`, `eng`, `deu`, and `ukr` language packs before
+`make setup`; see [Workstation setup](../../guide/setup.md). Setup verifies those packs, installs the
+locked extraction extra, and prefetches Docling layout/table assets under
+`$MODEL_CACHE_DIR/docling/`. Extraction currently uses CPU/RAM; CUDA is available to later lanes but
+is not required by this stage.
+
+## Normalization, grouping and chunking
+
+The `normalize` stage consumes a checksum-validated extraction snapshot and writes immutable views
+below `$RESULTS_DIR/normalized/normalized-documents/` and `$RESULTS_DIR/quarantine/normalize/`.
+Original extracted text is preserved. Canonical NFC text, a search/casefold view, and a reversible
+offset map are stored per document. Language is scored against packaged offline profiles; short or
+mixed snippets may remain `und`. Empty canonical text is quarantined without a content payload.
+
+The `dedupe` stage proposes exact, normalized, MinHash/lexical, and edition groups into
+`$RESULTS_DIR/normalized/duplicate-groups/` without deleting source or extracted records. One
+representative is elected per group. Members may be suppressed from chunking only when the overlay
+names that representative. Byte-identical files already collapse during extraction, so exact-hash
+groups can be empty on a fixture that reuses content hashes.
+
+The `chunk` stage reads normalized views and the duplicate overlay, skips suppressed members, and
+writes `$RESULTS_DIR/normalized/chunks/`. Structure, table, and sentence chunkers keep source
+character offsets: published `start_char`/`end_char` address the extracted text artifact, and the
+chunk sidecar retains the canonical offsets beside them. Document text is read and written as bytes
+at every stage seam, so a carriage return in an extracted document keeps its own position instead of
+collapsing into the canonical view. Table chunks repeat the header in every row group, and the
+sidecar records how many repeated characters that added. Generated Pandera checks and
+cross-partition identity uniqueness run before publication. Unchanged inputs reuse validated
+snapshots; a changed reviewed language profile recomputes `normalize`, `dedupe` and `chunk` and
+leaves `inventory` and `extract` cached. These stages use CPU and storage; CUDA is not required.
+
+A bounded fixture Make run on this host published 14 normalized documents, four duplicate groups
+with nine memberships and three suppressed members, and 91 chunks (one table, ninety text) over ten
+representatives. Redacted counts live in
+[record 0062](../records/0062-corpus-implement-normalization-dedupe-and-chunking.md), and the
+checkpoint replay that re-verified every published chunk offset against the extracted artifacts is in
+[checkpoint 0063](../records/0063-corpus-review-corpus-and-control-integrity.md). That result
+does not establish provided-archive quality; the corpus proof remains open.
 
 ## Identities, coverage and storage
 
@@ -81,9 +152,9 @@ materializes source occurrences; this does not establish bounded-memory reconcil
 
 Magic signatures recognize ZIP, TAR, gzip, PDF, OLE, RAR, 7z, PNG and JPEG. Text detection recognizes
 ASCII, UTF-8 and Unicode BOMs, with bounded `charset-normalizer` candidates for Windows-1251 and
-KOI8-R. Encoding detection is heuristic; ambiguous samples remain unknown. There is no language
-classification or text extraction. A PDF encryption marker is a conservative quarantine signal,
-not a complete PDF parser.
+KOI8-R. Encoding detection is heuristic; ambiguous samples remain unknown. Inventory does not
+classify language; extraction records normalized text without claiming language identification. A
+PDF encryption marker is a conservative quarantine signal, not a complete PDF parser.
 
 ZIP stored/deflated members and streaming TAR/TAR.gz members are inspected recursively. Limits per
 physical container are 10,000 members, three nesting levels, 64 MiB per member, 256 MiB expanded
@@ -107,5 +178,7 @@ multi-terabyte throughput or GPU fit. Validate each deployment against its own c
 using the operator workflow above; historical run artifacts are not required.
 
 The [quality conclusion](../records/0060-corpus-implement-streaming-inventory.md#archive-inventory-quality-conclusion)
-records acceptance and its limits.
+records inventory acceptance and its limits.
+Normalization, grouping and chunking fixture evidence is in
+[record 0062](../records/0062-corpus-implement-normalization-dedupe-and-chunking.md).
 [Provided-archive corpus proof](../plan.md#prove-corpus-foundation-on-provided-archive) remains open.

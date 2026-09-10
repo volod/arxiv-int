@@ -43,7 +43,7 @@ def env_result(
 def _package(
     project_root: Path,
     _settings: SetupSettings,
-    _requirements: ProfileRequirements,
+    requirements: ProfileRequirements,
     environment: Mapping[str, str] | None,
     adapters: SetupAdapters,
     verified: dict[str, str],
@@ -126,7 +126,7 @@ def _images(
 def _models(
     _project_root: Path,
     settings: SetupSettings,
-    _requirements: ProfileRequirements,
+    requirements: ProfileRequirements,
     _environment: Mapping[str, str] | None,
     adapters: SetupAdapters,
     verified: dict[str, str],
@@ -141,6 +141,7 @@ def _models(
             runner=adapters.run,
             listed=adapters.listed_models,
             verified=verified,
+            extraction_required="extraction" in requirements.feature_groups,
         ),
         "unavailable",
     )

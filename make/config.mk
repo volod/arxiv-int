@@ -19,7 +19,7 @@ WRITE_GATE ?= 0
 KIND ?= all
 COMMON_SH := $(PROJECT_ROOT)/scripts/shared/common.sh
 # One extra set for every syncing target so consecutive targets cannot uninstall each other.
-SYNC_EXTRAS := --extra dev --extra contracts --extra graph --extra store --extra lake --extra data-quality --extra inference --extra transform
+SYNC_EXTRAS := --extra dev --extra contracts --extra extraction --extra graph --extra store --extra lake --extra data-quality --extra inference --extra transform
 PROFILE_ARGS := $(if $(SERVICE_PROFILES),--profiles "$(SERVICE_PROFILES)",)
 DATA_ROOT := $(shell $(if $(DATA_DIR),DATA_DIR='$(DATA_DIR)') bash -c '. "$$0"; arxiv_int_data_root' '$(COMMON_SH)')
 PYTEST_CACHE := -o "cache_dir=$(DATA_ROOT)/cache/pytest"

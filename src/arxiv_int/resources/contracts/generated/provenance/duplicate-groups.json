@@ -1,0 +1,28 @@
+{
+  "apiVersion": "v3.1.0",
+  "artifacts": {
+    "avro/duplicate-groups.avsc": "f52f025bf93ec54a3c93bab089940069cbad35bd369f0b9b8a5aa4decaddf9e0",
+    "dbt/duplicate-groups.yml": "6066a25f388f9ad74a4fbcedb17be38d93e2b3a260f8eb579a1e3cb05f53e376",
+    "jsonschema/duplicate-groups.schema.json": "1a1c7d1169a58a22cfa573097fdbe69742bc84f955c166e4622ed3104a5cb2db",
+    "parquet/duplicate-groups.parquet.json": "b8fc736f1fe7f8930909bd15b07c40ae2b470f52dffd37f2d59392acc7cf579c",
+    "postgres/duplicate-groups.sql": "ceafa9189b697b38480545a2a8363920be04312de0defda0d9bd7a8d1b1a2ed8",
+    "postgres/extensions/duplicate-groups.sql": "a63a1fe4500c4c02b0bddc59a6d25582c8bc6f8cd3c2852ee60416bd982d4dc0",
+    "pydantic/duplicate-groups.py": "c27f63885b8dc0f3b5ff25e5233211ba96437357acab33a63159f073a7809438",
+    "quality/duplicate-groups.rules.json": "a8dde8a8d7bd9c07f1223fc0aad82fd1487c0f83438f0fb9b3ce80a45f4df3de"
+  },
+  "canonicalEntity": null,
+  "contractId": "duplicate-groups",
+  "customExtensionKeys": [
+    "partitionKey",
+    "schema",
+    "table"
+  ],
+  "odcsId": "urn:arxiv-int:contract:duplicate-groups:1.0.0",
+  "odcsVersion": "1.0.0",
+  "postgres": {
+    "partitionKey": "bucket",
+    "schema": "corpus",
+    "table": "duplicate_groups"
+  },
+  "semanticMetadataHash": "d4193c56fcaca0c0a8756bf932f8ce79e019e28f6fcd8c27f647522b026b3146"
+}

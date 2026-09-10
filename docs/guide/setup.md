@@ -8,8 +8,18 @@ and `run finalize` are available; a complete knowledge base still waits on corpu
 Install Git, Make, uv, Docker with the Compose plugin, and Python 3.12 or newer. From a checkout:
 
 ```bash
+sudo apt update
+sudo apt install tesseract-ocr tesseract-ocr-rus tesseract-ocr-eng \
+  tesseract-ocr-deu tesseract-ocr-ukr
 make setup
 ```
+
+Setup does not invoke `sudo` or mutate host packages. For a profile containing extraction, its
+configuration phase verifies the Tesseract executable and Russian, English, German, and Ukrainian
+language data, then reports the command above if any are missing. Its environment phase installs the
+locked `extraction` Python extra, including Docling and the native `iscc-tika` binding. With
+`SETUP_DOWNLOADS=1`, the models phase also prefetches Docling layout and TableFormer assets beneath
+`$MODEL_CACHE_DIR/docling/`; with downloads disabled, those assets must already be present.
 
 Edit `.env` when requested, then rerun `make setup`. At minimum, `.env` needs a readable
 `ARCHIVE_DIR`, a writable `RESULTS_DIR`, a PostgreSQL-compatible `PGDATA_DIR`, and a

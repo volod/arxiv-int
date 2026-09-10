@@ -1,0 +1,85 @@
+sources:
+  - description: Canonical corpus relations owned by Alembic.
+    name: corpus
+    schema: corpus
+    tables:
+      - columns:
+          - description: duplicate_membership_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - duplicate-groups.duplicate_membership_id.type
+                - duplicate-groups.duplicate_membership_id.nullability
+                - duplicate-groups.duplicate_membership_id.batch_unique
+                - duplicate-groups.duplicate_membership_id.unique
+            name: duplicate_membership_id
+            tests:
+              - not_null
+              - unique
+          - description: group_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - duplicate-groups.group_id.type
+            name: group_id
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - duplicate-groups.document_id.type
+                - duplicate-groups.document_id.relationship
+            name: document_id
+            tests:
+              - relationships:
+                  arguments:
+                    field: document_id
+                    to: "source('corpus', 'documents')"
+          - description: method must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - duplicate-groups.method.type
+            name: method
+          - description: role must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - duplicate-groups.role.type
+            name: role
+          - description: score must match logical type number.
+            meta:
+              arxiv_int_rule_ids:
+                - duplicate-groups.score.type
+            name: score
+          - description: suppressed must match logical type boolean.
+            meta:
+              arxiv_int_rule_ids:
+                - duplicate-groups.suppressed.type
+            name: suppressed
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - duplicate-groups.generation_id.type
+                - duplicate-groups.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - duplicate-groups.contract_version.type
+                - duplicate-groups.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - duplicate-groups.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: duplicate-groups
+        description: Reversible duplicate and edition group memberships proposed over normalized documents.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:duplicate-groups:1.0.0"
+          primary_key:
+            - duplicate_membership_id
+          rule_catalog_version: 1.0.0
+        name: duplicate_groups
+version: 2

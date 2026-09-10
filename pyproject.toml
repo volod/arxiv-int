@@ -67,6 +67,10 @@ transform = [
   "dbt-core==1.12.3",
   "dbt-postgres==1.10.2",
 ]
+extraction = [
+    "docling==2.126.0",
+    "iscc-tika==0.6.0",
+]
 
 [project.scripts]
 arxiv-int = "arxiv_int.cli:main"
@@ -141,6 +145,10 @@ exclude_also = [
 
 [[tool.mypy.overrides]]
 module = ["dbt.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["iscc_tika"]
 ignore_missing_imports = true
 
 [tool.pymarkdown]

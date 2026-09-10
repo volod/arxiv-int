@@ -9,6 +9,10 @@ from arxiv_int.runtime.setup.model import RETRY_COMMAND, PhaseResult, reused_or_
 from arxiv_int.runtime.setup.state import fingerprint_for
 
 CommandRunner = Callable[..., CompletedProcess[str]]
+DOCLING_MODEL_DIRS = (
+    "docling-project--docling-layout-heron",
+    "docling-project--docling-models",
+)
 
 
 def parse_ollama_list(stdout: str) -> set[str]:
@@ -26,6 +30,39 @@ def configured_models(config: RuntimeConfig) -> tuple[str, ...]:
     values = dict(config.values)
     names = ("EMBEDDING_MODEL", "GENERATION_MODEL", "RERANK_MODEL")
     return tuple(values[name].strip() for name in names if values.get(name, "").strip())
+
+
+def _prepare_docling(
+    config: RuntimeConfig, downloads: bool, runner: CommandRunner
+) -> PhaseResult | None:
+    root = config.model_cache_dir / "docling"
+    if all((root / name).is_dir() for name in DOCLING_MODEL_DIRS):
+        return None
+    command = (
+        str(config.project_root / ".venv/bin/docling-tools"),
+        "models",
+        "download",
+        "layout",
+        "tableformer",
+        "--output-dir",
+        str(root),
+    )
+    if not downloads:
+        return PhaseResult(
+            "models",
+            "blocked",
+            "offline cache miss: Docling layout and table models",
+            action="set SETUP_DOWNLOADS=1, then make setup",
+        )
+    completed = runner(command, cwd=config.project_root)
+    if completed.returncode != 0:
+        return PhaseResult(
+            "models",
+            "blocked",
+            "Docling model prefetch failed",
+            action="check model network/cache access, then " + RETRY_COMMAND,
+        )
+    return None
 
 
 def _list_available(
@@ -82,8 +119,13 @@ def run_models_phase(
     runner: CommandRunner,
     listed: set[str] | None = None,
     verified: dict[str, str] | None = None,
+    extraction_required: bool = False,
 ) -> PhaseResult:
-    """Pull missing Ollama tags or require a vLLM cache hit."""
+    """Prefetch extraction assets and pull or cache-check inference models."""
+    if extraction_required:
+        docling = _prepare_docling(config, downloads, runner)
+        if docling is not None:
+            return docling
     backend = selected_backend(dict(config.values))
     wanted = configured_models(config)
     digest = fingerprint_for(backend, *wanted)

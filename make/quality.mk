@@ -57,7 +57,9 @@ ci-checks: format-check lint typecheck complexity-gate shell-lint-gate lint-doc-
 
 ci: ci-checks test ## Run the required local and GitHub CI gate
 
-ci-github: ci ## Explicit GitHub Actions entrypoint
+# Prerequisite syncs must retain the workflow's lightweight dependency profile.
+ci-github: SYNC_EXTRAS := $(subst --extra extraction,,$(SYNC_EXTRAS))
+ci-github: ci ## GitHub gate without the native extraction stack
 
 build: ## Build source and wheel distributions
 	@source "$(COMMON_SH)" && arxiv_int_load_env && uv build

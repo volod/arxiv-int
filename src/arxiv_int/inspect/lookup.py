@@ -62,20 +62,29 @@ def relative_posix(path: Path, root: Path) -> str:
 
 def attempt_locations(runs_dir: Path, run_id: str) -> tuple[Path, ...]:
     """Return attempt directories from status.json, then a manifests walk."""
-    seen: list[Path] = []
-    status_path = runs_dir / run_id / STATUS_NAME
-    if status_path.is_file():
-        status = load_status(runs_dir, run_id)
-        for item in status.executions:
-            directory = _execution_directory(item, runs_dir)
-            if directory is not None and directory not in seen:
-                seen.append(directory)
+    seen: list[Path] = list(ledger_attempts(runs_dir, run_id))
     manifests = runs_dir / run_id / "manifests"
     if manifests.is_dir():
         for path in sorted(manifests.glob("*/*/attempt-*")):
             if path.is_dir() and (path / "manifest.json").is_file() and path not in seen:
                 seen.append(path)
     return tuple(seen)
+
+
+def ledger_attempts(runs_dir: Path, run_id: str) -> dict[Path, StageExecution]:
+    """Map each readable attempt directory onto the ledger row that actually claims it.
+
+    Superseded attempts stay absent, so a retried stage never reports an earlier
+    attempt with the accepted attempt's number, status, or cache decision.
+    """
+    claimed: dict[Path, StageExecution] = {}
+    if not (runs_dir / run_id / STATUS_NAME).is_file():
+        return claimed
+    for item in load_status(runs_dir, run_id).executions:
+        directory = _execution_directory(item, runs_dir)
+        if directory is not None:
+            claimed[directory] = item
+    return claimed
 
 
 def _execution_directory(item: StageExecution, runs_dir: Path) -> Path | None:

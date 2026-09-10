@@ -32,7 +32,7 @@
       "primaryKey": false
     },
     {
-      "arrowType": "float64",
+      "arrowType": "decimal128(38, 9)",
       "name": "score",
       "nullable": true,
       "primaryKey": false

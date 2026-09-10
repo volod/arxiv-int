@@ -65,9 +65,23 @@ FEATURE_GROUPS: tuple[FeatureGroup, ...] = (
         name="extraction",
         summary="Tika, layout, and OCR lanes for text and structure extraction",
         owner="corpus-foundation",
+        requirements=(
+            Requirement(
+                "docling",
+                "docling",
+                "MIT",
+                "extract PDF layout, reading order, tables, and bounding boxes",
+            ),
+            Requirement(
+                "iscc-tika",
+                "iscc_tika",
+                "Apache-2.0",
+                "run Apache Tika 3.3.x through isolated native Python bindings",
+            ),
+        ),
         system_dependencies=(
-            "a reachable Apache Tika server for the baseline lane",
-            "tesseract-ocr and ocrmypdf for the scanned-PDF lane",
+            "tesseract-ocr plus tesseract-ocr-rus, tesseract-ocr-eng, tesseract-ocr-deu, and "
+            "tesseract-ocr-ukr language packs",
         ),
     ),
     FeatureGroup(

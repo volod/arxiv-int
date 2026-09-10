@@ -14,7 +14,7 @@
       "primaryKey": false
     },
     {
-      "arrowType": "float64",
+      "arrowType": "decimal128(38, 9)",
       "name": "amount",
       "nullable": true,
       "primaryKey": false

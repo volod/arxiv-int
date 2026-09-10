@@ -1,0 +1,182 @@
+{
+  "contractId": "normalized-documents",
+  "fieldIdentity": "schema-qualified",
+  "fields": {
+    "normalized_documents.contract_version": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "normalized_documents.document_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "normalized_documents.generation_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "normalized_documents.language": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "normalized_documents.language_confidence": {
+      "logicalType": "number",
+      "physicalType": "double",
+      "required": false
+    },
+    "normalized_documents.normalized_document_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "normalized_documents.normalized_sha256": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "normalized_documents.normalizer_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "normalized_documents.text_chars": {
+      "logicalType": "integer",
+      "physicalType": "",
+      "required": false
+    }
+  },
+  "fingerprints": {
+    "avroSha256": "7b7539a32a0ed8260eef3a90854f9d3cae6fe9b19ec6c1a41395c16e16bc71ca",
+    "generatorVersion": "2.1.0",
+    "postgresSha256": "f3b63f8204758e4e0e2bfa4f5bb39e886f7ed61d39e9faf754c2df8fff72345f",
+    "semanticMetadataHash": "d511e35c8f10bde8b949c2ae9bb71043bb6d0ce3d86f4b5979453e96544832c9"
+  },
+  "history": [
+    {
+      "contractId": "normalized-documents",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "normalized_documents.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "normalized_documents.document_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "normalized_documents.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "normalized_documents.language": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "normalized_documents.language_confidence": {
+          "logicalType": "number",
+          "physicalType": "",
+          "required": false
+        },
+        "normalized_documents.normalized_document_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "normalized_documents.normalized_sha256": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "normalized_documents.normalizer_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "normalized_documents.text_chars": {
+          "logicalType": "integer",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "3e64e0940423330476e2e0b948c53e8ec8a2534134a755ecd128051552e975b4",
+        "generatorVersion": "2.1.0",
+        "postgresSha256": "0fa7cbc41ed0c81f1e0d9f1f1bc4711f779809dcf5ae9a386d4283bd0faee4ca",
+        "semanticMetadataHash": "d511e35c8f10bde8b949c2ae9bb71043bb6d0ce3d86f4b5979453e96544832c9"
+      },
+      "odcsId": "urn:arxiv-int:contract:normalized-documents:1.0.0",
+      "projections": {},
+      "version": "1.0.0"
+    },
+    {
+      "contractId": "normalized-documents",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "normalized_documents.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "normalized_documents.document_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "normalized_documents.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "normalized_documents.language": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "normalized_documents.language_confidence": {
+          "logicalType": "number",
+          "physicalType": "double",
+          "required": false
+        },
+        "normalized_documents.normalized_document_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "normalized_documents.normalized_sha256": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "normalized_documents.normalizer_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "normalized_documents.text_chars": {
+          "logicalType": "integer",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "7b7539a32a0ed8260eef3a90854f9d3cae6fe9b19ec6c1a41395c16e16bc71ca",
+        "generatorVersion": "2.1.0",
+        "postgresSha256": "f3b63f8204758e4e0e2bfa4f5bb39e886f7ed61d39e9faf754c2df8fff72345f",
+        "semanticMetadataHash": "d511e35c8f10bde8b949c2ae9bb71043bb6d0ce3d86f4b5979453e96544832c9"
+      },
+      "odcsId": "urn:arxiv-int:contract:normalized-documents:1.0.0",
+      "projections": {},
+      "version": "1.0.0"
+    }
+  ],
+  "odcsId": "urn:arxiv-int:contract:normalized-documents:1.0.0",
+  "projections": {},
+  "version": "1.0.0"
+}

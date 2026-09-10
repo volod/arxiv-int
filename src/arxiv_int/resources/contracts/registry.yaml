@@ -11,6 +11,18 @@ contracts:
     canonicalEntity: span
     fingerprints:
       semanticMetadataHash: 499653b788b2a74e7afa78eb2cc3e082fd9cad7cd2a3fdd7c3bd23901902307b
+  normalized-documents:
+    odcs: datasets/normalized-documents.odcs.yaml
+    mapping: mappings/normalized-documents.mapping.yaml
+    canonicalEntity: normalized_document
+    fingerprints:
+      semanticMetadataHash: d511e35c8f10bde8b949c2ae9bb71043bb6d0ce3d86f4b5979453e96544832c9
+  duplicate-groups:
+    odcs: datasets/duplicate-groups.odcs.yaml
+    mapping: mappings/duplicate-groups.mapping.yaml
+    canonicalEntity: duplicate_group
+    fingerprints:
+      semanticMetadataHash: d4193c56fcaca0c0a8756bf932f8ce79e019e28f6fcd8c27f647522b026b3146
   chunks:
     odcs: datasets/chunks.odcs.yaml
     mapping: mappings/chunks.mapping.yaml

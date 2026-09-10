@@ -18,20 +18,39 @@ def _sql() -> str:
 def test_offline_upgrade_sql_is_deterministic_and_schema_qualified() -> None:
     first = _sql()
     assert first == _sql()
-    assert "CREATE SCHEMA IF NOT EXISTS corpus" in first
-    assert "CREATE TABLE corpus.documents (" in first
-    assert "CONSTRAINT pk_documents PRIMARY KEY (document_id)" in first
-    assert "REFERENCES corpus.documents (document_id)" in first
+    for statement in (
+        "CREATE SCHEMA IF NOT EXISTS corpus",
+        "CREATE SCHEMA IF NOT EXISTS derived",
+        "CREATE TABLE corpus.documents (",
+        "CONSTRAINT pk_documents PRIMARY KEY (document_id)",
+        "REFERENCES corpus.documents (document_id)",
+        "CREATE TABLE ctl.run (",
+        "CREATE TABLE ctl.stage_progress (",
+        "CREATE TABLE ctl.source_tombstone (",
+        "PARTITION BY HASH",
+        "ck_facts_object_xor_literal",
+    ):
+        assert statement in first
+    assert "ALTER TABLE corpus.document_path_event ADD CONSTRAINT" not in first
+
+
+def test_one_initial_revision_creates_every_owned_corpus_table() -> None:
+    """One stamp, no follow-up revision: every contract table lands in the initial DDL."""
+    first = _sql()
     assert "INSERT INTO alembic_version (version_num) VALUES ('0001')" in first
     assert "INSERT INTO alembic_version (version_num) VALUES ('0002')" not in first
-    assert "CREATE TABLE corpus.document_path_event (" in first
-    assert "CREATE TABLE ctl.run (" in first
-    assert "CREATE TABLE ctl.stage_progress (" in first
-    assert "CREATE TABLE ctl.source_tombstone (" in first
-    assert "ALTER TABLE corpus.document_path_event ADD CONSTRAINT" not in first
-    assert "PARTITION BY HASH" in first
-    assert "ck_facts_object_xor_literal" in first
-    assert "CREATE SCHEMA IF NOT EXISTS derived" in first
+    for table in (
+        "document_path_event",
+        "documents",
+        "duplicate_groups",
+        "normalized_documents",
+        "source_occurrences",
+        "chunks",
+        "spans",
+    ):
+        assert f"CREATE TABLE corpus.{table} (" in first
+        assert f"CREATE UNLOGGED TABLE staging.{table} (" in first
+        assert f"CREATE TABLE corpus.{table}_p00 PARTITION OF corpus.{table}" in first
 
 
 def test_offline_sql_matches_the_generated_baseline_tables() -> None:

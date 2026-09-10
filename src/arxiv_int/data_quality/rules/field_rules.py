@@ -1,6 +1,10 @@
 """Structural field rules derived from normalized contract columns."""
 
-from arxiv_int.contracts.sqlalchemy.normalize import NormalizedColumn, NormalizedTable
+from arxiv_int.contracts.sqlalchemy.normalize import (
+    NormalizedColumn,
+    NormalizedTable,
+    is_floating,
+)
 from arxiv_int.data_quality.engine.model import (
     BACKEND_DBT,
     BACKEND_DISK,
@@ -38,6 +42,7 @@ def column_rules(
             ),
             column=column.name,
             logical_type=column.logical_type,
+            physical_type=column.physical_type,
             dbt_test="dbt_type",
         )
     ]
@@ -72,7 +77,7 @@ def column_rules(
                 dbt_test="dbt_max_length",
             )
         )
-    if column.logical_type == "number":
+    if column.logical_type == "number" and not is_floating(column.physical_type):
         precision_text = (
             f" with precision {column.precision} and scale {column.scale}."
             if column.precision is not None

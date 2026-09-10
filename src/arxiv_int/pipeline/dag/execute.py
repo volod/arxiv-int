@@ -1,7 +1,7 @@
 """Run one registered stage through the shard executor and reuse index."""
 
 import json
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any
 
@@ -20,6 +20,14 @@ from arxiv_int.pipeline.run.errors import QualityBoundaryError, UnregisteredStag
 from arxiv_int.pipeline.run.persist import StageExecution
 from arxiv_int.pipeline.run.reuse_index import ReuseEntry
 
+UPSTREAM_POINTERS: Mapping[str, str] = {
+    "source-occurrences": "inventory",
+    "documents": "extraction",
+    "normalized-documents": "normalization",
+    "duplicate-groups": "dedupe",
+    "chunks": "chunking",
+}
+
 
 def stage_context(context: RunContext, stage: str) -> StageContext:
     """Build the typed stage context from a frozen run."""
@@ -28,6 +36,9 @@ def stage_context(context: RunContext, stage: str) -> StageContext:
     options["source_drift_policy"] = context.source_drift_policy
     options["source_metadata_snapshot"] = context.source_metadata_snapshot or ""
     options["tmp_dir"] = context.secret_free.get("TMP_DIR", str(context.results_dir / "tmp"))
+    options["model_cache_dir"] = context.secret_free.get(
+        "MODEL_CACHE_DIR", str(context.results_dir / "models")
+    )
     options["protected_roots"] = json.dumps(
         [
             value
@@ -74,9 +85,8 @@ def try_reuse(entry: ReuseEntry | None, *, force: bool) -> StageExecution | None
     directory = Path(entry.directory)
     try:
         validate_attempt(directory, reuse_key=entry.reuse_key, attempt=entry.attempt)
-        from arxiv_int.pipeline.inventory.reuse import validate_inventory_output
-
-        validate_inventory_output(directory)
+        for validate in _output_validators():
+            validate(directory)
     except (ArtifactPublishError, OSError, ValueError, KeyError, TypeError):
         return None
     if load_stage_outcome(directory) not in {"produced", "empty"}:
@@ -98,6 +108,23 @@ def try_reuse(entry: ReuseEntry | None, *, force: bool) -> StageExecution | None
         False,
         entry.bytes,
         load_stage_outcome(directory),
+    )
+
+
+def _output_validators() -> tuple[Callable[[Path], None], ...]:
+    """Return every producer-owned validator that guards one cached attempt."""
+    from arxiv_int.extraction.reuse import validate_extraction_output
+    from arxiv_int.pipeline.chunk.reuse import validate_chunk_output
+    from arxiv_int.pipeline.dedupe.reuse import validate_dedupe_output
+    from arxiv_int.pipeline.inventory.reuse import validate_inventory_output
+    from arxiv_int.pipeline.normalize.reuse import validate_normalization_output
+
+    return (
+        validate_inventory_output,
+        validate_extraction_output,
+        validate_normalization_output,
+        validate_dedupe_output,
+        validate_chunk_output,
     )
 
 
@@ -158,7 +185,14 @@ def execute_stage(
         from dataclasses import replace
 
         scoped = stage_context(context, spec.name)
-        scoped = replace(scoped, options={**scoped.options, "producer_identity": key})
+        scoped = replace(
+            scoped,
+            options={
+                **scoped.options,
+                **_upstream_options(upstream_keys, index),
+                "producer_identity": key,
+            },
+        )
         result = runner.run(scoped)
         if result.stage != spec.name or any(
             item.generation_id != context.generation_id for item in result.outputs
@@ -180,6 +214,30 @@ def execute_stage(
     return _from_decision(
         spec.name, identity.shard_id, key, executor.execute(work, worker, force=force)
     )
+
+
+def _upstream_options(
+    upstream_keys: tuple[str, ...], index: Mapping[str, ReuseEntry]
+) -> dict[str, str]:
+    """Expose validated upstream artifact pointers to dependent stage runners."""
+    options: dict[str, str] = {}
+    for key in upstream_keys:
+        entry = index.get(key)
+        if entry is None:
+            continue
+        payload: Any = json.loads(
+            (Path(entry.directory) / "stage.json").read_text(encoding="utf-8")
+        )
+        for output in payload.get("outputs", []) if isinstance(payload, dict) else ():
+            if not isinstance(output, dict):
+                continue
+            pointer = UPSTREAM_POINTERS.get(str(output.get("dataset")))
+            partition = output.get("partition")
+            if pointer is None or not isinstance(partition, dict):
+                continue
+            options[f"{pointer}_manifest"] = str(partition.get("manifest", ""))
+            options[f"{pointer}_manifest_sha256"] = str(partition.get("sha256", ""))
+    return options
 
 
 def execution_to_entry(

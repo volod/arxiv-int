@@ -175,14 +175,24 @@ def _one_phase(
     pipeline: ProviderStatus = "unavailable"
     if name == "config":
         result, loaded = run_config_phase(
-            project_root, which=adapters.which, environment=environment, verified=verified
+            project_root,
+            which=adapters.which,
+            environment=environment,
+            verified=verified,
+            runner=adapters.run,
+            require_extraction="extraction" in requirements.feature_groups,
         )
         return result, loaded or config, pipeline
     if name == "env":
         return env_result(project_root, settings, environment, adapters, verified), config, pipeline
     if config is None and name in NEEDS_CONFIG:
         loaded_result, loaded = run_config_phase(
-            project_root, which=adapters.which, environment=environment, verified=verified
+            project_root,
+            which=adapters.which,
+            environment=environment,
+            verified=verified,
+            runner=adapters.run,
+            require_extraction="extraction" in requirements.feature_groups,
         )
         if loaded is None:
             return (

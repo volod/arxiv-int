@@ -9,6 +9,7 @@ This directory separates product intent, forward work, current behavior, and con
 - [Forward implementation plan](impl/plan.md) contains only work that remains.
 - [Current implementation](impl/current.md) indexes behavior available in the repository.
 - [Planning workflow](guide/planning-workflow.md) explains task lanes and the capability lifecycle.
+- [Command reference](guide/commands.md) lists every command group and its availability.
 - [Development guide](guide/development.md) lists setup and quality workflows.
 - [Project rules](../AGENTS.md) govern agent and contributor behavior.
 

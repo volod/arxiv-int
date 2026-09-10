@@ -28,12 +28,13 @@ make features STAGE=extract
 
 `make features` lists every group with its status, the pipeline stages that activate it, its
 install command, the licence and purpose of each declared distribution, and the system dependencies
-it expects. Populated groups are `contracts`, `data-quality`, `graph`, `inference`, `lake`,
-`store`, and `transform`. The `embeddings`, `evaluation`, `extraction`, `gpu`, `nlp`, and `ui`
-groups are declared and reserved for the capability that will choose their components.
+it expects. Populated groups are `contracts`, `data-quality`, `extraction`, `graph`, `inference`,
+`lake`, `store`, and `transform`. The `embeddings`, `evaluation`, `gpu`, `nlp`, and `ui` groups are
+declared and reserved for the capability that will choose their components.
 
-System dependencies are not installed by an extra. The `extraction` group expects a reachable
-Apache Tika server plus `tesseract-ocr` and `ocrmypdf` for the scanned-PDF lane, `store` expects a
+System dependencies are not installed by an extra. The `extraction` group expects `tesseract-ocr`
+with Russian, English, German, and Ukrainian language packs; Apache Tika runs through the native
+`iscc-tika` binding and Docling is a locked Python dependency. `store` expects a
 reachable PostgreSQL service, `transform` expects that same service with the `derived` schema and
 dbt role, `inference` expects an Ollama system service or the optional vLLM profile, `gpu` expects
 a matching NVIDIA driver and CUDA runtime, and `ui` expects Docker. The `gpu` group is

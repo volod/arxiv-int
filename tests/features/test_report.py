@@ -58,4 +58,8 @@ def test_group_lines_wrap_long_stage_lists() -> None:
 def test_system_dependencies_are_reported() -> None:
     text = "\n".join(inventory_lines("extract"))
 
-    assert "system: tesseract-ocr and ocrmypdf for the scanned-PDF lane" in text
+    assert "requires: docling (MIT)" in text
+    assert "requires: iscc-tika (Apache-2.0)" in text
+    assert "tesseract-ocr-rus" in text
+    assert "tesseract-ocr-deu" in text
+    assert "tesseract-ocr-ukr" in text

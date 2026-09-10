@@ -21,7 +21,8 @@ def test_path_event_revision_matches_contract_and_store_constants() -> None:
     model = load_schema_model_from_root(contracts_root())
     contract = model.metadata.tables["corpus.document_path_event"]
     authored = frozen.tables["corpus.document_path_event"]
-    assert HEAD_REVISION == INITIAL_REVISION == "0001"
+    assert INITIAL_REVISION == "0001"
+    assert HEAD_REVISION == "0001"
     assert ("corpus", "document_path_event") in OWNED_TABLES
     assert ("corpus", "document_path_event", "event_id") in PARTITIONED_TABLES
     assert PRIMARY_KEY_COLUMNS["corpus.document_path_event"] == ("event_id",)
