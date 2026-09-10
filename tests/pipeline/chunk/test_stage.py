@@ -96,3 +96,24 @@ def test_manifest_rejects_a_tampered_chunk_batch(tmp_path: Path) -> None:
     parquet.write_bytes(parquet.read_bytes() + b"\x00")
     with pytest.raises(ValueError, match="checksum"):
         validate_manifest(manifest, hash_file(manifest)[0])
+
+
+def test_source_offsets_address_carriage_returns_in_the_extracted_artifact(
+    chain: ChainRun,
+) -> None:
+    documents = Path(str(_summary(chain, "extract")["roots"]["documents"])) / "text"
+    chunks = {str(row["chunk_id"]): row for row in _rows(chain, "chunk", "chunks")}
+    shifted = [
+        item
+        for item in _metadata(chain)
+        if int(item["canonical_start"]) != int(item["original_start"])
+    ]
+    assert shifted, "the chain must retain a document whose canonical view shifts source offsets"
+    for item in shifted:
+        row = chunks[str(item["chunk_id"])]
+        original = (documents / f"{item['document_id']}.txt").read_bytes().decode("utf-8")
+        assert "\r" in original
+        segment = original[int(row["start_char"]) : int(row["end_char"])]
+        assert segment.replace("\r\n", "\n") == str(row["text"])
+        assert int(row["start_char"]) == int(item["original_start"])
+        assert int(row["end_char"]) == int(item["original_end"])

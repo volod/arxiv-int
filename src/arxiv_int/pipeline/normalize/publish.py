@@ -145,7 +145,7 @@ class NormalizationPublisher:
 
     def _write_view(self, identity: str, view: str, text: str) -> Path:
         path = view_path(self.documents, view, identity)
-        path.write_text(text, encoding="utf-8")
+        path.write_bytes(text.encode("utf-8"))
         self.snapshot.record(DOCUMENTS_KIND, path)
         return path
 

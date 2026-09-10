@@ -101,7 +101,7 @@ class DedupeStage:
         path = item.search_path
         if path.is_symlink() or not path.is_file():
             raise ValueError(f"normalized search view is missing for {item.document_id}")
-        return path.read_text(encoding="utf-8")
+        return path.read_bytes().decode("utf-8")
 
     def _publish(self, publisher: DedupePublisher, plan: GroupingPlan) -> None:
         publisher.add_members(plan.duplicates, DUPLICATE_FAMILY)

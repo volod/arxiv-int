@@ -7,14 +7,14 @@ def test_redact_text_strips_secrets_prompts_paths_and_long_quotes() -> None:
     raw = (
         "password=super-secret token=abcd DATABASE_URL=postgresql://u:hunter2@127.0.0.1/db "
         "prompt=the full operator prompt goes here "
-        "/home/vola/archive/doc.pdf "
+        "/home/operator/archive/doc.pdf "
         '"' + ("corpus " * 60) + '"'
     )
     redacted = redact_text(raw, extra_secrets=("super-secret",))
     assert "super-secret" not in redacted
     assert "hunter2" not in redacted
     assert "the full operator prompt" not in redacted
-    assert "/home/vola" not in redacted
+    assert "/home/operator" not in redacted
     assert "corpus " not in redacted or "<redacted" in redacted
     assert "<redacted>" in redacted
     assert "<path>" in redacted

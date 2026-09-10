@@ -121,7 +121,7 @@ The coverage gap named in
 is addressed by this task. Existing source-link inventory policy remains owned by
 [streaming inventory](0060-corpus-implement-streaming-inventory.md). The metadata guard's documented
 filesystem/race limits remain an input to
-[the corpus/control checkpoint](../plan.md#review-corpus-and-control-integrity).
+[the corpus/control checkpoint](0063-corpus-review-corpus-and-control-integrity.md).
 
 ## Close or resume
 

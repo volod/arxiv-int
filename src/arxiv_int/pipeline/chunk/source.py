@@ -103,7 +103,7 @@ def canonical_text(item: ChunkInput) -> str:
     """Read one canonical view, refusing symlinked or missing artifacts."""
     if item.canonical_path.is_symlink() or not item.canonical_path.is_file():
         raise ValueError(f"canonical view is missing for {item.document_id}")
-    return item.canonical_path.read_text(encoding="utf-8")
+    return item.canonical_path.read_bytes().decode("utf-8")
 
 
 def original_offsets(item: ChunkInput) -> OffsetMap:

@@ -60,7 +60,13 @@ def test_assets_are_portable_and_documentation_is_unowned(tmp_path: Path) -> Non
 def test_owned_code_edit_does_not_change_another_stage(tmp_path: Path, monkeypatch) -> None:
     registry, _ = fixture_registry()
     for reference in owned._SHARED_CODE:
-        shutil.copytree(owned.PACKAGE_ROOT / reference, tmp_path / reference)
+        source = owned.PACKAGE_ROOT / reference
+        target = tmp_path / reference
+        if source.is_dir():
+            shutil.copytree(source, target)
+            continue
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
     (tmp_path / "worker.py").write_text("VALUE = 1\n")
     monkeypatch.setattr(owned, "PACKAGE_ROOT", tmp_path)
     alpha = registry.get("alpha")

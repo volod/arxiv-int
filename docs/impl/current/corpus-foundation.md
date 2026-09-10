@@ -2,11 +2,14 @@
 
 Streaming inventory, tiered text extraction, normalization, reversible duplicate overlays, and
 structure-aware chunking are available through the normal stage interface. The integration
-checkpoint and provided-archive corpus proof remain
-[planned](../plan.md#corpus-foundation----corpus-foundation). Implementation and acceptance
+checkpoint has passed and released these stages to lexical loading, classification and Russian NLP;
+the [provided-archive corpus proof](../plan.md#corpus-foundation----corpus-foundation) remains
+planned. Implementation and acceptance
 evidence: [record 0060](../records/0060-corpus-implement-streaming-inventory.md),
-[record 0061](../records/0061-corpus-integrate-tiered-text-extraction.md), and
-[record 0062](../records/0062-corpus-implement-normalization-dedupe-and-chunking.md).
+[record 0061](../records/0061-corpus-integrate-tiered-text-extraction.md),
+[record 0062](../records/0062-corpus-implement-normalization-dedupe-and-chunking.md),
+[checkpoint 0063](../records/0063-corpus-review-corpus-and-control-integrity.md), and
+[repair 0064](../records/0064-corpus-repair-corpus-stage-identity-and-source-offsets.md).
 
 ## Operator workflow
 
@@ -76,14 +79,21 @@ groups can be empty on a fixture that reuses content hashes.
 
 The `chunk` stage reads normalized views and the duplicate overlay, skips suppressed members, and
 writes `$RESULTS_DIR/normalized/chunks/`. Structure, table, and sentence chunkers keep source
-character offsets. Table chunks repeat the header in every row group. Generated Pandera checks and
+character offsets: published `start_char`/`end_char` address the extracted text artifact, and the
+chunk sidecar retains the canonical offsets beside them. Document text is read and written as bytes
+at every stage seam, so a carriage return in an extracted document keeps its own position instead of
+collapsing into the canonical view. Table chunks repeat the header in every row group, and the
+sidecar records how many repeated characters that added. Generated Pandera checks and
 cross-partition identity uniqueness run before publication. Unchanged inputs reuse validated
-snapshots. These stages use CPU and storage; CUDA is not required.
+snapshots; a changed reviewed language profile recomputes `normalize`, `dedupe` and `chunk` and
+leaves `inventory` and `extract` cached. These stages use CPU and storage; CUDA is not required.
 
 A bounded fixture Make run on this host published 14 normalized documents, four duplicate groups
 with nine memberships and three suppressed members, and 91 chunks (one table, ninety text) over ten
 representatives. Redacted counts live in
-[record 0062](../records/0062-corpus-implement-normalization-dedupe-and-chunking.md). That result
+[record 0062](../records/0062-corpus-implement-normalization-dedupe-and-chunking.md), and the
+checkpoint replay that re-verified every published chunk offset against the extracted artifacts is in
+[checkpoint 0063](../records/0063-corpus-review-corpus-and-control-integrity.md). That result
 does not establish provided-archive quality; the corpus proof remains open.
 
 ## Identities, coverage and storage

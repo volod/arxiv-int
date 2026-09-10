@@ -75,7 +75,7 @@ class ExtractionPublisher:
     ) -> None:
         """Write source text and queue its canonical rows and rich anchor sidecars."""
         text_path = self.documents / "text" / f"{document_id}.txt"
-        text_path.write_text(document.text, encoding="utf-8")
+        text_path.write_bytes(document.text.encode("utf-8"))
         record_file(self._files, "documents", text_path, self.documents)
         quality = document_quality(document)
         row: dict[str, object] = {

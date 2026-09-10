@@ -112,7 +112,8 @@ service-state placements remain degraded warnings.
 `arxiv_int.runtime.inspect_filesystem()` records the resolved path, filesystem type, device id,
 rotational flag when the operating system exposes it, accessible free bytes, ownership capability,
 and read-only mount state. This evidence is retained with every configured placement and is exposed
-to readiness, the pipeline forecast, and later run-manifest work. `arxiv_int.runtime.path_model` owns the typed
+to readiness, the pipeline forecast, and later run-manifest work. `arxiv_int.runtime.path_model`
+owns the typed
 association between each variable, resolved path, and storage class.
 
 After a report has no blocking findings, `create_results_layout()` creates the fixed

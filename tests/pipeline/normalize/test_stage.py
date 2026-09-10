@@ -39,11 +39,13 @@ def test_published_offset_maps_reproduce_the_original_slice(chain: ChainRun) -> 
     checked = 0
     for offsets_path in sorted((root / "offsets").glob("*.json")):
         payload = json.loads(offsets_path.read_text(encoding="ascii"))
-        canonical = (root / "canonical" / f"{payload['normalized_document_id']}.txt").read_text(
-            encoding="utf-8"
-        )
-        original = (extraction / "text" / f"{payload['document_id']}.txt").read_text(
-            encoding="utf-8"
+        # Byte-exact reads: universal newlines would hide the carriage returns the
+        # published offset map is built to address.
+        canonical = (
+            (root / "canonical" / f"{payload['normalized_document_id']}.txt").read_bytes()
+        ).decode("utf-8")
+        original = ((extraction / "text" / f"{payload['document_id']}.txt").read_bytes()).decode(
+            "utf-8"
         )
         offsets = load_offset_map(payload["canonical_from_original"])
         for index in (0, len(canonical) // 2, max(len(canonical) - 1, 0)):

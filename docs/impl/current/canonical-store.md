@@ -2,10 +2,10 @@
 
 The local database service is a project-owned ParadeDB Community derivative that keeps one
 PostgreSQL major, `pg_search`, pgvector, and a pinned Apache AGE build together. Relational schema
-application is in place: the irreversible initial Alembic revision `0001` owns contract tables,
-HASH partitions including `corpus.document_path_event`, provenance constraints, roles, staging,
-the empty `derived` schema, versioned projection metadata, the run ledger, stage progress,
-and reconcile control tables. Head is `0001`. A local dbt project
+application is in place: the irreversible initial Alembic revision `0001` owns every contract
+table, including `corpus.normalized_documents` and `corpus.duplicate_groups`, their HASH partitions
+and staging clones, provenance constraints, roles, the empty `derived` schema, versioned projection
+metadata, the run ledger, stage progress, and reconcile control tables. Head is `0001`. A local dbt project
 builds isolated derived generations
 and projection inputs. Search, vector, and graph projections are rebuildable and are never
 canonical.
@@ -79,13 +79,15 @@ beside it. Missing image or URL is `not-run`, never a pass.
 ## Canonical schema
 
 `src/arxiv_int/migrations/versions/0001_initial_store.py` is the only revision. Head is `0001`.
-The operator authorized 0001 consolidation before any
-deployed database or public release. The revision freezes SQLAlchemy definitions and narrow
-PostgreSQL-specific SQL, without importing current contracts or runtime DDL copies.
-`revision_manifest.json` pins checksums; `head_state.json` tracks the contract state used by
-future revision generation. After deployment, schema changes require new reviewed revisions.
-Initial teardown explicitly refuses destructive 0001 downgrade. Repeat-at-head preserves rows,
-and failed application rolls back transactionally.
+The operator authorized consolidating development-era revisions into `0001` before any deployed
+database or public release, so an empty database applies one readable CREATE-time schema rather
+than a development history. Every contract table that declares a partition key is created
+HASH-partitioned with a staging clone; no contract table is added by a later overlay. The revision
+freezes SQLAlchemy definitions and narrow PostgreSQL-specific SQL, without importing current
+contracts or runtime DDL copies. `revision_manifest.json` pins checksums; `head_state.json` tracks
+the contract state used by future revision generation. After deployment, schema changes require
+new reviewed revisions. Initial teardown explicitly refuses destructive 0001 downgrade.
+Repeat-at-head preserves rows, and failed application rolls back transactionally.
 
 No generated catalog JSON snapshots are committed. Contract metadata and the frozen initial
 revision are the comparison authorities. Live inspection checks owned columns, key order and
@@ -124,7 +126,8 @@ reconcile tables; setup then applies head, which is already `0001`.
 A local dbt Core project lives under `src/arxiv_int/resources/dbt/`. Optional extra `transform` pins
 `dbt-core==1.12.3` and `dbt-postgres==1.10.2`. The typed runner in
 `src/arxiv_int/transformations/` copies that project under `$DATA_DIR/dbt/<run-id>/project/`,
-injects generated `src/arxiv_int/resources/contracts/generated/dbt/sources.yml`, and invokes parse, compile, build, or
+injects generated `src/arxiv_int/resources/contracts/generated/dbt/sources.yml`, and invokes parse,
+compile, build, or
 test. Profiles use `env_var` placeholders only. Credentials come from
 `ARXIV_INT_TRANSFORM_DATABASE_URL` or, when that is unset, `ARXIV_INT_MIGRATION_DATABASE_URL`.
 Build and test without a URL are `not-run` (exit 2), never a pass.
@@ -161,7 +164,8 @@ The initial revision creates `ctl.projections`, `ctl.projection_active`, `ctl.pr
 `ctl.projection_cleanup`. Those rows are lifecycle metadata, not canonical documents or facts. The
 pipeline role may create objects in `search`; dbt still cannot write projection metadata.
 
-dbt models under `src/arxiv_int/resources/dbt/models/projections/` use tag `projections` (outside the default
+dbt models under `src/arxiv_int/resources/dbt/models/projections/` use tag `projections` (outside
+the default
 `tag:fixture tag:quality` select). They materialize isolated
 `derived.<model>__g_<generation>` relations with `source`/`ref` and uniqueness/relationship tests.
 Version tokens reuse the dbt generation sanitizer so input table names match.

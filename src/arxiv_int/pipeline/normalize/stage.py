@@ -101,7 +101,9 @@ class NormalizeStage:
                 "document-size-limit",
                 f"extracted text exceeds the {self.policy.max_document_chars} character budget",
             )
-        text = item.text_path.read_text(encoding="utf-8")
+        # Universal newlines would silently drop CR, so every later source offset
+        # would address a shorter view than the published extraction artifact.
+        text = item.text_path.read_bytes().decode("utf-8")
         if len(text) > self.policy.max_document_chars:
             raise NormalizationError(
                 "document-size-limit",

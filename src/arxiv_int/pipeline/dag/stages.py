@@ -34,7 +34,19 @@ GPU_STAGES: frozenset[str] = frozenset({"embed", "facts"})
 
 _QUALITY_PATHS: tuple[str, ...] = ("data_quality/rules", "data_quality/engine")
 _LAKE_PACKAGES: tuple[str, ...] = ("pyarrow", "polars", "pandera", "sqlalchemy")
-_LAKE_PATHS: tuple[str, ...] = ("pipeline/lake", *_QUALITY_PATHS)
+# The lake publisher reuses the inventory publication, validation and probing helpers,
+# so every lake stage executes them and must own their identity.
+_LAKE_PUBLISH_PATHS: tuple[str, ...] = (
+    "pipeline/inventory/archives.py",
+    "pipeline/inventory/checkpoint.py",
+    "pipeline/inventory/counts.py",
+    "pipeline/inventory/detect.py",
+    "pipeline/inventory/probe.py",
+    "pipeline/inventory/publish.py",
+    "pipeline/inventory/read.py",
+    "pipeline/inventory/validate.py",
+)
+_LAKE_PATHS: tuple[str, ...] = ("pipeline/lake", *_LAKE_PUBLISH_PATHS, *_QUALITY_PATHS)
 
 
 @dataclass(frozen=True, slots=True)
@@ -57,28 +69,48 @@ STAGE_OVERRIDES: Mapping[str, StageOverride] = {
     "extract": StageOverride(
         contracts=("documents", "spans"),
         validators=("documents", "spans"),
-        code_paths=("extraction", *_LAKE_PATHS),
+        code_paths=("extraction", "pipeline/inventory/stage.py", *_LAKE_PATHS),
         dependency_packages=("iscc-tika", *_LAKE_PACKAGES),
     ),
     "normalize": StageOverride(
         contracts=("normalized-documents",),
         validators=("normalized-documents",),
-        code_paths=("pipeline/normalize", *_LAKE_PATHS),
+        code_paths=(
+            "pipeline/normalize",
+            "extraction/artifacts.py",
+            "extraction/model.py",
+            "resources/language",
+            *_LAKE_PATHS,
+        ),
         dependency_packages=_LAKE_PACKAGES,
     ),
     "dedupe": StageOverride(
         contracts=("duplicate-groups",),
         validators=("duplicate-groups",),
-        code_paths=("pipeline/dedupe", *_LAKE_PATHS),
+        code_paths=("pipeline/dedupe", "pipeline/normalize/artifacts.py", *_LAKE_PATHS),
         dependency_packages=_LAKE_PACKAGES,
     ),
     "chunk": StageOverride(
         contracts=("chunks",),
         validators=("chunks",),
-        code_paths=("pipeline/chunk", *_LAKE_PATHS),
+        code_paths=(
+            "pipeline/chunk",
+            "pipeline/dedupe/artifacts.py",
+            "pipeline/normalize/artifacts.py",
+            "pipeline/normalize/text.py",
+            *_LAKE_PATHS,
+        ),
         dependency_packages=_LAKE_PACKAGES,
     ),
-    "evaluate": StageOverride(code_paths=("evaluation",)),
+    "evaluate": StageOverride(
+        code_paths=(
+            "evaluation",
+            "retrieval",
+            "runtime/config_schema.py",
+            "runtime/inference_config.py",
+            "runtime/project_root.py",
+        )
+    ),
 }
 
 

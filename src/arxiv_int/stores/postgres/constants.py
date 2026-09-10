@@ -23,6 +23,8 @@ PARTITIONED_TABLES: tuple[tuple[str, str, str], ...] = (
     ("corpus", "chunks", "chunk_id"),
     ("corpus", "document_path_event", "event_id"),
     ("corpus", "documents", "document_id"),
+    ("corpus", "duplicate_groups", "duplicate_membership_id"),
+    ("corpus", "normalized_documents", "normalized_document_id"),
     ("corpus", "source_occurrences", "occurrence_id"),
     ("corpus", "spans", "span_id"),
     ("kg", "aliases", "alias_id"),
@@ -75,7 +77,7 @@ FACT_STATUSES: tuple[str, ...] = (
 
 EMBEDDING_PROFILES_TABLE = "search.embedding_profiles"
 ALEMBIC_VERSION_TABLE = "alembic_version"
-HEAD_REVISION = "0002"
+HEAD_REVISION = "0001"
 INITIAL_REVISION = "0001"
 PROJECTION_METADATA_TABLES: tuple[str, ...] = (
     "projections",

@@ -9,6 +9,7 @@ from arxiv_int.inspect.lookup import (
     InspectError,
     InspectionTarget,
     attempt_locations,
+    ledger_attempts,
 )
 from arxiv_int.inspect.model import (
     DEFAULT_LIMIT,
@@ -115,22 +116,25 @@ def _stage_rows(
     limit: int,
     dataset: str,
 ) -> tuple[StageSummary, ...]:
-    executions = {item.stage: item for item in status.executions} if status else {}
+    claimed = ledger_attempts(runs_dir, run_id)
     stages: list[StageSummary] = []
+    covered: set[str] = set()
     for directory in attempt_locations(runs_dir, run_id):
-        stage_name = directory.parent.parent.name
+        item = claimed.get(directory)
         summary = stage_summary(
             directory,
             runs_dir,
-            executions.get(stage_name),
+            item,
             versions,
             limit,
             dataset,
-            stage_name,
+            directory.parent.parent.name,
         )
-        if summary is not None:
-            stages.append(summary)
-    covered = {row.stage for row in stages}
+        if summary is None:
+            continue
+        stages.append(summary)
+        if item is not None:
+            covered.add(item.stage)
     for item in status.executions if status else ():
         if item.stage in covered:
             continue

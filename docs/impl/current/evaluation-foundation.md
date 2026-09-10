@@ -60,7 +60,8 @@ make eval RUN_ID=...
 
 ## Proof dispatcher
 
-`src/arxiv_int/resources/configs/proofs/capabilities.json` maps each capability to usable stages and required
+`src/arxiv_int/resources/configs/proofs/capabilities.json` maps each capability to usable stages and
+required
 validators. `arxiv-int evaluation proof discover` lists them. Unknown capabilities fail.
 `evaluation-foundation` can publish a fixture proof and `pipeline-control` can publish a
 provided-archive proof; other capabilities refuse until their usable stages are validated.

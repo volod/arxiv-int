@@ -6,8 +6,10 @@ and produce searchable knowledge, catalogs, graphs, anomaly findings and evidenc
 on one CUDA host.
 
 Configuration, readiness checks, local service management, typed foundation primitives,
-quality gates, a fixture DAG orchestrator, and serialized progress logs exist today.
-The archive-to-knowledge pipeline is **not complete**: most corpus stages remain in the
+quality gates, the run ledger and stage DAG, and serialized progress logs exist today. The corpus
+foundation is shipped: an archive can be inventoried, extracted, normalized, deduplicated and
+chunked into validated, source-anchored artifacts. The archive-to-knowledge pipeline is **not
+complete**: retrieval, classification, NLP, knowledge extraction and reporting remain in the
 [forward plan](docs/impl/plan.md). See [current implementation](docs/impl/current.md)
 for available behavior and the [specification](docs/design/spec.md) and
 [architecture](docs/design/architecture.md) for the target.
@@ -29,77 +31,68 @@ work on retries, and reports what still needs attention. Edit `.env`; `.venv` is
 automatically. No activation or manual exports are required. Storage requirements are in the
 [setup guide](docs/guide/setup.md).
 
-Infrastructure-ready is not pipeline-ready. Concrete corpus stages remain unimplemented.
+Infrastructure-ready is not pipeline-ready. The corpus stages below are available; the later
+investigation stages are not.
 
-### 2. Archive to analyst results -- orchestration only
+### 2. Archive to analyst results -- corpus stages available
 
-After setup, the DAG commands allocate a unique run id and walk the selected profile. The default
-investigation profile still names unimplemented stages, so `make pipeline` fails explicitly rather
-than activating a complete knowledge base. `make run-finalize RUN_ID=...` seals the run's
-`knowledge-base.json`; only a succeeded profile replaces `$RUNS_DIR/active-generation.json`.
+After setup, the DAG commands allocate a unique run id and walk the selected profile. The corpus
+chain from an untouched archive to validated chunks runs end to end today:
 
 ```bash
 make run-create
-make pipeline
+# Set RUN_ID to the run-<hex> id printed above.
+make forecast RUN_ID="$RUN_ID"
+make stage STAGE=preflight RUN_ID="$RUN_ID"
+make stage STAGE=inventory RUN_ID="$RUN_ID"
+make stage STAGE=extract RUN_ID="$RUN_ID"
+make stage STAGE=normalize RUN_ID="$RUN_ID"
+make stage STAGE=dedupe RUN_ID="$RUN_ID"
+make stage STAGE=chunk RUN_ID="$RUN_ID"
+make inspect RUN_ID="$RUN_ID"
 ```
 
-`make run-create` prints a `run-<hex>` id. Use that id with `make forecast`, `make stage`,
-`make run-status`, `make resume`, and `make run-finalize`; do not pass Make's developer
-`RUN_ID=local` fallback.
-Outputs use configured operator roots. Resource limits and archive-scope authorization still
-apply.
+`preflight`, `inventory`, `extract`, `normalize`, `dedupe`, `chunk` and `evaluate` are shipped
+runners. The default investigation profile still names unimplemented later stages, so the aggregate
+`make pipeline` fails explicitly rather than activating an incomplete knowledge base.
+`make run-finalize RUN_ID=...` seals the run's `knowledge-base.json`; only a succeeded profile
+replaces `$RUNS_DIR/active-generation.json`.
 
-See the [step-by-step operator workflow](docs/guide/operator-workflow.md) for the atomic command
-chain, what is available now, and the remaining planned stages. The aggregate targets reuse those
-same command handlers and checks.
+Do not pass Make's developer `RUN_ID=local` fallback. The source archive is read without
+modification; outputs use configured operator roots. Refresh `make forecast` before repeating a
+completed stage, and use `make update` or a new run after source changes. Resource limits and
+archive-scope authorization still apply.
+
+See the [step-by-step operator workflow](docs/guide/operator-workflow.md) for the full command
+chain, recovery commands, and the remaining planned stages. The aggregate targets reuse those same
+command handlers and checks.
 
 ### 3. Organize an archive -- separate planned utility
 
 Organization consumes accepted classification artifacts and never runs automatically after analysis.
-Replace `CLASSIFICATION_PATH`, `SILO_ID`, `TARGET_DIR`, and `PLAN_PATH` with reviewed values.
+It previews a plan first and leaves the source archive intact:
 
-| Step | Target command | Result |
-| --- | --- | --- |
-| 1. Preview copies | `arxiv-int archive reorganize --classification CLASSIFICATION_PATH --silo SILO_ID --mode copy --target TARGET_DIR` | Dry-run plan with hierarchical directory/file names, unresolved cases, collisions and capacity checks; source files remain intact. |
-| 2. Or preview in-place placement | `arxiv-int archive reorganize --classification CLASSIFICATION_PATH --silo SILO_ID --mode move` | Alternative plan for moving files within the selected silo; review the proposed path changes. |
-| 3. Apply the authorized plan | `arxiv-int archive reorganize --apply --plan PLAN_PATH` | Journaled placement with source-location updates; inspect the journal and sample resulting paths. Resume/rollback use the recorded plan id and documented preconditions. |
+```bash
+arxiv-int archive reorganize --classification CLASSIFICATION_PATH --silo SILO_ID \
+  --mode copy --target TARGET_DIR
+```
+
+See [archive organization](docs/guide/archive-organization.md) for placement modes, the apply,
+resume and rollback steps, and the safety boundaries. The command is **planned**; today
+`arxiv-int archive` offers only `locate` and `import-ledger`.
 
 After the session, the **available** `make services-down` stops containers and preserves service
 data. It does not stop host Ollama; use the host service manager when that is desired.
 
 ## Available commands
 
-```text
-arxiv-int info
-arxiv-int features [--stage STAGE]
-arxiv-int config show --redact
-arxiv-int setup [--phase PHASE]
-arxiv-int readiness [--profiles PROFILES] [--timeout SECONDS]
-arxiv-int services --help
-arxiv-int contracts --help
-arxiv-int data-quality check DATASET --run-id RUN_ID --input PATH
-arxiv-int transform parse|compile|build|test --run-id RUN_ID
-arxiv-int store projections-build|status|cleanup --run-id RUN_ID
-arxiv-int run create|status|resume|finalize|artifacts
-arxiv-int pipeline forecast|run|update|rebuild|invalidate
-arxiv-int stage STAGE --run-id RUN_ID
-arxiv-int inspect DATASET|RUN|latest [--limit N] [--json]
-arxiv-int artifacts prune --stale
+```bash
+make help
 ```
 
-`info` is a packaging and executable-path smoke test. `features` lists optional dependency groups,
-install status and commands, distribution licences, and expected system dependencies.
-`data-quality check` validates one contract dataset and writes secret-free evidence; a missing or
-unexecuted required check cannot look publishable. `transform` parses, compiles, builds, or tests
-isolated derived dbt models; a failed or unexecuted required live check cannot look like a pass.
-`store projections-*` builds, switches, and cleans ParadeDB/pgvector/AGE projections without making
-them canonical; a failed build cannot replace an active pointer.
-`run` / `pipeline` / `stage` / `inspect` / `artifacts prune` freeze a unique run id and walk or
-maintain the selected DAG. `inspect` summarizes published artifacts without recomputing them.
-A default investigation run refuses unimplemented required stages. Fixture knowledge-base
-publication writes `$RUNS_DIR/<run-id>/knowledge-base.json` and activates only a complete
-requested profile.
-Domain commands arrive as their specified capabilities are implemented.
+`make help` lists every target with its purpose, grouped by area. The
+[command reference](docs/guide/commands.md) explains the CLI surface behind those targets and marks
+each command available or planned.
 
 ## Development
 

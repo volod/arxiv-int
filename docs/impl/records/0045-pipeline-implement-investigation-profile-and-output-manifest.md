@@ -17,7 +17,9 @@ Publish an explicit requested profile and coherent knowledge-base generation wit
 
 - Serves: `pipeline-control` -- [End-to-end run and output contract](../design/spec.md#end-to-end-run-and-output-contract)
 - Agent status: CLEAR
-- Dependencies: [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md); [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md).
+- Dependencies:
+[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md);
+[Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md).
 - User-visible outcome: The default investigation command names every required output and report
 entry point; a
 lexical-only request is visibly a smaller profile.
