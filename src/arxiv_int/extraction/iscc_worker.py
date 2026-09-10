@@ -14,7 +14,7 @@ def main() -> int:
     source = Path(sys.argv[1])
     output_bytes = int(sys.argv[2])
     ocr_enabled = sys.argv[3] == "ocr"
-    from iscc_tika import (  # type: ignore[import-untyped]
+    from iscc_tika import (
         Extractor,
         OfficeParserConfig,
         PdfOcrStrategy,

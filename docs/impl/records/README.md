@@ -78,3 +78,4 @@ below).
 | [0064 Corpus stage identity and source offset repair](0064-corpus-repair-corpus-stage-identity-and-source-offsets.md) | Focused integrity prerequisite for 0063 | Accepted |
 | [0065 Single initial store migration](0065-store-refactor-single-initial-store-migration.md) | Collapse the second pre-release revision into `0001` and restore the partition/staging convention | Accepted |
 | [0066 README and command reference refresh](0066-govern-refactor-readme-and-command-reference.md) | Quick start reflects the shipped corpus chain; command and organization details move to guide pages | Accepted |
+| [0067 Optional Tika CI typecheck](0067-foundation-fix-optional-tika-ci-typecheck.md) | Type-check the isolated worker without installing the native extraction stack in GitHub | Accepted |

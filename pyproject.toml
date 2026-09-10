@@ -147,6 +147,10 @@ exclude_also = [
 module = ["dbt.*"]
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = ["iscc_tika"]
+ignore_missing_imports = true
+
 [tool.pymarkdown]
 extensions.markdown-tables.enabled = true
 plugins.MD013.line_length = 100
