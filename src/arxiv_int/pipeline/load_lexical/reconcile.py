@@ -30,11 +30,16 @@ class Reconciliation:
 
     @property
     def ok(self) -> bool:
-        """Return whether every required load reconciliation check passed."""
+        """Return whether every required load reconciliation check passed.
+
+        Every load retracts to its complete snapshot, so the canonical store must
+        equal the loaded set: ``partial`` scope is drift, never a pass.
+        """
         return (
             self.unindexed_chunks == 0
             and self.projection_rows == self.canonical_chunks
-            and (self.checksum_scope != FULL_SCOPE or self.checksum_match)
+            and self.checksum_scope == FULL_SCOPE
+            and self.checksum_match
         )
 
     def as_json_dict(self) -> dict[str, object]:
@@ -79,20 +84,20 @@ def reconcile(
         checksum_scope=scope,
         checksum_match=match,
         retracted_chunks=retracted_chunks,
-        detail=_detail(chunks, projection_rows, unindexed, scope, match),
+        detail=_detail(loaded_chunks, chunks, projection_rows, unindexed, match),
     )
     return result
 
 
-def _detail(chunks: int, projection_rows: int, unindexed: int, scope: str, match: bool) -> str:
+def _detail(loaded: int, chunks: int, projection_rows: int, unindexed: int, match: bool) -> str:
     if unindexed:
         return f"{unindexed} canonical chunk(s) are missing from the lexical projection"
     if projection_rows != chunks:
         return f"projection holds {projection_rows} rows for {chunks} canonical chunks"
-    if scope == FULL_SCOPE and not match:
+    if loaded != chunks:
+        return f"canonical store holds {chunks} chunks but this snapshot loaded {loaded}"
+    if not match:
         return "loaded chunk checksum does not match the projection checksum"
-    if scope == PARTIAL_SCOPE:
-        return "projection covers earlier generations beyond this load"
     return "canonical corpus and lexical projection reconcile"
 
 

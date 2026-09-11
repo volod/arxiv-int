@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0073` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0076` after the rows
 below).
 
 | Record | Scope | Result |
@@ -86,3 +86,4 @@ below).
 | [0072 Russian lexical calibration second opinion](0072-lexical-review-and-deepen-russian-lexical-calibration.md) | Independently challenge record 0071 and rerun a frozen, preregistered comparison with precision, collision and repeated-cost evidence | Accepted; guarded Russian query profile adopted without reindex |
 | [0073 Lexical retrieval provided-archive integration](0073-lexical-prove-lexical-retrieval-on-provided-archive.md) | Forecast, load, reconcile, query, cite, and cache-hit replay of the selected lexical projection on the configured archive | Accepted; 70598 projection rows, recall@10 1.0 on eight live known-item probes, cache-hit replay |
 | [0074 Lexical snapshot chunk retraction](0074-lexical-retract-superseded-lexical-chunks.md) | Retract canonical chunks absent from a complete load-lexical snapshot in the same upsert transaction | Accepted; 48 ghosts removed, 70550 rows, checksumScope=full |
+| [0075 Lexical store-wide load lock](0075-lexical-serialize-concurrent-lexical-loads.md) | Serialize load-lexical runs that share one store across load, retract, build and verify | Accepted; a second load is refused live and the projection catalog lock stays available |

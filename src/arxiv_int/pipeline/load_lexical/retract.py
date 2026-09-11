@@ -14,10 +14,7 @@ _KEEP_SQL = (
     f"CREATE TEMP TABLE {require_ident(KEEP_TABLE)} (chunk_id text PRIMARY KEY) ON COMMIT DROP"
 )
 _INSERT_SQL = f"INSERT INTO {require_ident(KEEP_TABLE)} (chunk_id) VALUES (:chunk_id)"
-_ABSENT_COUNT_SQL = (
-    "SELECT count(*) FROM corpus.chunks AS c WHERE NOT EXISTS ("
-    f"SELECT 1 FROM {require_ident(KEEP_TABLE)} AS k WHERE k.chunk_id = c.chunk_id)"
-)
+_DELETE_ALL_SQL = "DELETE FROM corpus.chunks"
 _ABSENT_DELETE_SQL = (
     "DELETE FROM corpus.chunks AS c WHERE NOT EXISTS ("
     f"SELECT 1 FROM {require_ident(KEEP_TABLE)} AS k WHERE k.chunk_id = c.chunk_id)"
@@ -38,22 +35,13 @@ def retract_absent_chunks(connection: Connection, loaded_ids: Sequence[str]) -> 
     commit. An empty snapshot clears ``corpus.chunks``.
     """
     keep = keep_chunk_ids(loaded_ids)
-    if not keep:
-        count = _count(connection, "SELECT count(*) FROM corpus.chunks")
-        if count:
-            connection.execute(text("DELETE FROM corpus.chunks"))
-        _LOG.info("load-lexical retracted empty_snapshot=true count=%d", count)
-        return count
-    connection.execute(text(_KEEP_SQL))
-    for start in range(0, len(keep), _INSERT_BATCH):
-        batch = keep[start : start + _INSERT_BATCH]
-        connection.execute(text(_INSERT_SQL), [{"chunk_id": item} for item in batch])
-    count = _count(connection, _ABSENT_COUNT_SQL)
-    if count:
-        connection.execute(text(_ABSENT_DELETE_SQL))
+    statement = _DELETE_ALL_SQL
+    if keep:
+        connection.execute(text(_KEEP_SQL))
+        for start in range(0, len(keep), _INSERT_BATCH):
+            batch = keep[start : start + _INSERT_BATCH]
+            connection.execute(text(_INSERT_SQL), [{"chunk_id": item} for item in batch])
+        statement = _ABSENT_DELETE_SQL
+    count = connection.execute(text(statement)).rowcount
     _LOG.info("load-lexical retracted superseded_chunks=%d kept=%d", count, len(keep))
     return count
-
-
-def _count(connection: Connection, statement: str) -> int:
-    return int(connection.execute(text(statement)).scalar() or 0)

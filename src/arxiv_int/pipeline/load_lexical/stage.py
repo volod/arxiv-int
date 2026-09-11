@@ -19,6 +19,7 @@ from arxiv_int.pipeline.load_lexical.artifacts import (
     search_root,
 )
 from arxiv_int.pipeline.load_lexical.loader import LoadCounts, load_contract, schema_model
+from arxiv_int.pipeline.load_lexical.lock import exclusive_lexical_load
 from arxiv_int.pipeline.load_lexical.publish import load_summary, publish_summary
 from arxiv_int.pipeline.load_lexical.reconcile import Reconciliation, reconcile
 from arxiv_int.pipeline.load_lexical.retract import retract_absent_chunks
@@ -50,7 +51,7 @@ class LoadLexicalStage:
     depends_on: tuple[str, ...] = ("chunk",)
 
     def run(self, context: StageContext) -> StageResult:
-        """Load and index one generation under a single publication lock."""
+        """Load and index one generation under the run and store-wide load locks."""
         root = lexical_root(context)
         root.mkdir(parents=True, exist_ok=True)
         with pipeline_lock(root):
@@ -61,11 +62,14 @@ class LoadLexicalStage:
         chain = corpus_chain(context)
         url = store_database_url(project_root)
         validator = SnapshotValidator(project_root, LOADED_CONTRACTS)
-        loads, retracted = self._load(chain, project_root, url, validator)
-        check_cancelled()
-        build = self._build(context, project_root, url)
-        chunks = next(item for item in loads if item.contract == CHUNKS_CONTRACT)
-        reconciliation, sizes = self._verify(url, build, chunks, retracted)
+        # Another run's retract would delete this snapshot's rows between our commit
+        # and verify, so the whole store phase is owned by one run at a time.
+        with exclusive_lexical_load(url):
+            loads, retracted = self._load(chain, project_root, url, validator)
+            check_cancelled()
+            build = self._build(context, project_root, url)
+            chunks = next(item for item in loads if item.contract == CHUNKS_CONTRACT)
+            reconciliation, sizes = self._verify(url, build, chunks, retracted)
         if not reconciliation.ok:
             raise LexicalLoadError(f"lexical load did not reconcile: {reconciliation.detail}")
         summary = load_summary(

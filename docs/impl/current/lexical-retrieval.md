@@ -8,8 +8,9 @@ not implemented; see [semantic retrieval](../plan.md#semantic-retrieval----seman
 See [record 0070](../records/0070-lexical-build-paradedb-lexical-load-and-query-path.md),
 [record 0071](../records/0071-lexical-calibrate-russian-tokenization-and-bm25.md),
 [record 0072](../records/0072-lexical-review-and-deepen-russian-lexical-calibration.md),
-[record 0073](../records/0073-lexical-prove-lexical-retrieval-on-provided-archive.md) and
-[record 0074](../records/0074-lexical-retract-superseded-lexical-chunks.md). The projection
+[record 0073](../records/0073-lexical-prove-lexical-retrieval-on-provided-archive.md),
+[record 0074](../records/0074-lexical-retract-superseded-lexical-chunks.md) and
+[record 0075](../records/0075-lexical-serialize-concurrent-lexical-loads.md). The projection
 lifecycle, versioned tables and activation pointers belong to the
 [canonical store](canonical-store.md); the stage contract and reuse rules belong to
 [pipeline control](pipeline-control.md).
@@ -33,20 +34,29 @@ The stage then calls the shared projection lifecycle for the lexical kind, which
 `derived.proj_lexical_rows__g_<version>` input, creates the versioned covering table and its BM25
 index, validates the build and switches the active pointer. Identifier tokens follow PostgreSQL's
 63-byte unquoted name limit so a uuid-style `run-<hex>` generation can name that dbt table.
-Everything runs under one publication lock below `$RUNS_DIR/<run-id>/search/`.
+Everything runs under one publication lock below `$RUNS_DIR/<run-id>/search/`. That lock is per
+run, so `arxiv_int.pipeline.load_lexical.lock` also serializes runs that share one store: a
+PostgreSQL session advisory try-lock (`ARXL`) on a dedicated autocommit connection is held from the
+load transaction through build and verify. A second run fails fast with `LexicalLoadBusyError`
+before it writes, and process death releases the lock with the session. The key differs from the
+projection catalog's `ARXP`, which the build still takes from its own session.
 
 ## Reconciliation and evidence
 
+After the snapshot upsert, the same transaction deletes `corpus.chunks` rows whose `chunk_id` is not
+in this snapshot, so a re-chunked document cannot leave superseded spans in the live table. Unchanged
+ids stay via `ON CONFLICT`. Concurrent readers still see the previous generation until that
+transaction commits; the BM25 covering table is then rebuilt from the retracted store. An empty
+snapshot clears `corpus.chunks`. Documents are never deleted; the 37 unchunked duplicate documents
+remain document rows without chunks. `kg.facts` and `kg.mentions` reference `corpus.chunks` without
+cascade, so once they cite a superseded chunk the load fails and rolls back rather than delete that
+evidence.
+
 A load is only publishable when no canonical chunk is missing from the covering table, the projection
-row count equals the canonical chunk count, and, when this load covered the whole corpus, the loaded
-chunk checksum equals the projection checksum. After the snapshot upsert, the same transaction
-deletes `corpus.chunks` rows whose `chunk_id` is not in this snapshot, so a re-chunked document
-cannot leave superseded spans in the live table. Unchanged ids stay via `ON CONFLICT`. Concurrent
-readers still see the previous generation until that transaction commits; the BM25 covering table is
-then rebuilt from the retracted store. An empty snapshot clears `corpus.chunks`. An incremental load
-whose projection legitimately covers earlier generations reports `partial` scope and does not require
-checksum equality. Failing reconciliation raises and no manifest is published. The 37 unchunked
-duplicate documents remain document rows without chunks.
+row count equals the canonical chunk count, the canonical chunk count equals the loaded snapshot
+(`checksumScope=full`), and the loaded chunk checksum equals the projection checksum. Because every
+load retracts to its complete snapshot, a store that still differs reports `partial` scope and is
+refused; there is no incremental load. Failing reconciliation raises and no manifest is published.
 
 `$RUNS_DIR/<run-id>/search/lexical.json` records the schema id, generation, load counts and
 checksums per contract, projection identity, quality status, row count, index and covering-table
@@ -204,12 +214,19 @@ available but unused: BM25 calibration is CPU and database work.
 Deterministic tests cover the tokenizer and query profiles, bounded aliases/layout/transliteration,
 parameter binding against injection-shaped input,
 field and facet refusals, statement shape, request validation, result and citation JSON, load
-reconciliation across full and partial scope, manifest publication and tamper refusal, reuse
-validation, language enrichment, batch streaming, staging type binding, and stage registration.
+reconciliation including refusal of a store wider than the snapshot, the retraction keep set across
+insert batches, manifest publication and tamper refusal, reuse validation, language enrichment,
+batch streaming, staging type binding, and stage registration.
 `tests/integration/lexical/test_live_lexical.py` is the declared live check: it applies revisions to
 a disposable pinned store, refuses before activation, loads, builds, then asserts ranked hits,
-snippets, facets, filters, identifier lookup, the ParadeDB plan and resolved citations. It is marked
-`heavy` and needs `ARXIV_INT_RUN_LEXICAL=1`, so `make ci` does not start containers.
+snippets, facets, filters, identifier lookup, the ParadeDB plan and resolved citations. Its
+retraction case proves that a failure before commit keeps the previous generation, that a
+re-chunked document keeps only loaded ids while a document left without chunks keeps its row, and
+that the rebuilt projection reconciles at `full` scope. `test_live_load_lock.py` proves a second
+load is refused while the load lock is held, the projection catalog lock stays available, and the
+lock is released after a failed load. Both are marked `heavy` and need `ARXIV_INT_RUN_LEXICAL=1`,
+so `make ci` does not start containers. Deterministic tests also check that the stage runs load,
+build and verify inside the lock and loads nothing when refused.
 
 On the operator archive the stage loaded 414 documents and 70550 chunks, built a 27 MiB BM25 index
 over a 65 MiB covering table, reconciled with zero unindexed chunks, and served filtered Russian

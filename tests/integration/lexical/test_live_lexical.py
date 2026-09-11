@@ -6,13 +6,13 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from sqlalchemy import create_engine, text
+from sqlalchemy import Engine, create_engine, text
 
 from arxiv_int.contracts.lint import contracts_root_for
 from arxiv_int.contracts.sqlalchemy.model import load_schema_model_from_root
 from arxiv_int.pipeline.lake.validate import SnapshotValidator
 from arxiv_int.pipeline.load_lexical.loader import load_contract
-from arxiv_int.pipeline.load_lexical.reconcile import reconcile
+from arxiv_int.pipeline.load_lexical.reconcile import FULL_SCOPE, reconcile
 from arxiv_int.pipeline.load_lexical.retract import retract_absent_chunks
 from arxiv_int.quality.project_root import discover_project_root
 from arxiv_int.retrieval.citations import resolve_citations, unresolved_citations
@@ -25,6 +25,7 @@ from arxiv_int.retrieval.projection import (
 from arxiv_int.stores.postgres.apply import apply_revisions
 from arxiv_int.stores.postgres.disposable import disposable_store, image_present
 from arxiv_int.stores.postgres_image.pins import load_image_pins
+from arxiv_int.stores.projections.ids import logical_checksum
 from arxiv_int.stores.projections.lifecycle import build_projections
 from arxiv_int.stores.projections.model import KIND_LEXICAL, ProjectionRequest
 
@@ -207,19 +208,48 @@ def test_live_lexical_retracts_superseded_chunk_ids(
                         "'stale span', 'sent-1', 10, 20, 1)"
                     )
                 )
-                dropped = retract_absent_chunks(
-                    connection, [str(item["chunk_id"]) for item in CHUNKS]
-                )
-                remaining = (
-                    connection.execute(text("SELECT chunk_id FROM corpus.chunks ORDER BY chunk_id"))
-                    .scalars()
-                    .all()
-                )
+            # doc-1 keeps chunk-1 and loses chunk-old; doc-2 loses its only chunk.
+            kept = [str(CHUNKS[0]["chunk_id"])]
+            with pytest.raises(RuntimeError, match="before commit"), engine.begin() as connection:
+                retract_absent_chunks(connection, kept)
+                raise RuntimeError("failure before commit")
+            assert _chunk_ids(engine) == ["chunk-1", "chunk-2", "chunk-old"]
+            with engine.begin() as connection:
+                dropped = retract_absent_chunks(connection, kept)
+            assert dropped == 2
+            assert _chunk_ids(engine) == kept
+            with engine.connect() as connection:
                 documents = connection.execute(
                     text("SELECT count(*) FROM corpus.documents")
                 ).scalar()
+            assert documents == len(DOCUMENTS)
+            result = build_projections(
+                ProjectionRequest(
+                    run_id="lex-r",
+                    project_root=_root(),
+                    database_url=store.url,
+                    kinds=(KIND_LEXICAL,),
+                    activate=True,
+                )
+            )
+            assert result.status == "ok", result.detail
+            build = result.kinds[0]
+            with engine.connect() as connection:
+                reconciliation = reconcile(
+                    connection,
+                    table=build.engine_object.split(":")[0],
+                    loaded_chunks=len(kept),
+                    loaded_checksum=logical_checksum(kept),
+                    projection_checksum=build.checksum,
+                    retracted_chunks=dropped,
+                )
         finally:
             engine.dispose()
-        assert dropped == 1
-        assert remaining == ["chunk-1", "chunk-2"]
-        assert documents == len(DOCUMENTS)
+        assert reconciliation.checksum_scope == FULL_SCOPE
+        assert reconciliation.ok, reconciliation.detail
+
+
+def _chunk_ids(engine: Engine) -> list[str]:
+    with engine.connect() as connection:
+        rows = connection.execute(text("SELECT chunk_id FROM corpus.chunks ORDER BY chunk_id"))
+        return [str(item) for item in rows.scalars()]
