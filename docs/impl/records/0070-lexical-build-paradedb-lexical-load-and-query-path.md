@@ -110,7 +110,7 @@ revision was needed; the projection tables are created by the lifecycle, not by 
 | Deterministic unit tests | `make ci` | pass; 1290 passed, 52 deselected |
 | Declared live integration test | `ARXIV_INT_RUN_LEXICAL=1 pytest tests/integration/lexical -m heavy` | pass; 1 passed on disposable `arxiv-int/postgres:17-0.25.6-age1.7.0` |
 | Static gates | `make format`, `make lint`, `make typecheck`, `make lint-md`, `make lint-doc-links`, `make lint-spec-plan` | pass; 481 source files typechecked, 0 findings |
-| Full-archive relevance quality | not attempted | not-run; owned by `calibrate-russian-tokenization-and-bm25` and `prove-lexical-retrieval-on-provided-archive` |
+| Full-archive relevance quality | not attempted | not-run; structural provided-archive load/query is [0073](0073-lexical-prove-lexical-retrieval-on-provided-archive.md); judged archive-wide gold remains a production promotion gate |
 
 The operator store was empty of project data, so the stale pre-0065 Alembic stamp was repaired with
 the user's authorization by dropping the eight owned schemas plus `public.alembic_version` and

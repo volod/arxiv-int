@@ -17,6 +17,7 @@ def _reconciliation(**overrides: object) -> Reconciliation:
         "unindexed_chunks": 0,
         "checksum_scope": FULL_SCOPE,
         "checksum_match": True,
+        "retracted_chunks": 0,
         "detail": "",
     }
     values.update(overrides)
@@ -55,5 +56,6 @@ def test_json_evidence_reports_the_decision_and_scope() -> None:
         "detail": "reconciled",
         "ok": True,
         "projectionRows": 10,
+        "retractedChunks": 0,
         "unindexedChunks": 0,
     }

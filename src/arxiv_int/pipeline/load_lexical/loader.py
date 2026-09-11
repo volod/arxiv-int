@@ -33,6 +33,7 @@ class LoadCounts:
     rows: int
     batches: int
     checksum: str
+    identities: tuple[str, ...] = ()
 
     def as_json_dict(self) -> dict[str, object]:
         """Return a secret-free load summary."""
@@ -80,7 +81,14 @@ def load_contract(
         truncate_staging(connection, table.name)
         count += 1
     _LOG.info("load-lexical loaded contract=%s table=%s rows=%d", contract, qualified, rows)
-    return LoadCounts(contract, qualified, rows, count, logical_checksum(identities))
+    return LoadCounts(
+        contract,
+        qualified,
+        rows,
+        count,
+        logical_checksum(identities),
+        tuple(identities),
+    )
 
 
 def _prepared(qualified: str, batch: Iterable[Mapping[str, Any]]) -> list[dict[str, Any]]:

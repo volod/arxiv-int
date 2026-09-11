@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0071` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0073` after the rows
 below).
 
 | Record | Scope | Result |
@@ -84,3 +84,5 @@ below).
 | [0070 ParadeDB lexical load and query path](0070-lexical-build-paradedb-lexical-load-and-query-path.md) | Bulk-load the corpus projection, build the BM25 covering index, and expose filtered lexical search with snippets, facets, citations and diagnostics | Accepted; operator archive loaded 414 documents / 70550 chunks, live disposable test, CI, and diagnostics pass |
 | [0071 Russian tokenization and BM25 calibration](0071-lexical-calibrate-russian-tokenization-and-bm25.md) | Compare declared Russian lexical tokenizer and query profiles on a held-out set with paired quality and cost evidence | Accepted; superseded by 0072 (verdict relied on final-fitted aliases) |
 | [0072 Russian lexical calibration second opinion](0072-lexical-review-and-deepen-russian-lexical-calibration.md) | Independently challenge record 0071 and rerun a frozen, preregistered comparison with precision, collision and repeated-cost evidence | Accepted; guarded Russian query profile adopted without reindex |
+| [0073 Lexical retrieval provided-archive integration](0073-lexical-prove-lexical-retrieval-on-provided-archive.md) | Forecast, load, reconcile, query, cite, and cache-hit replay of the selected lexical projection on the configured archive | Accepted; 70598 projection rows, recall@10 1.0 on eight live known-item probes, cache-hit replay |
+| [0074 Lexical snapshot chunk retraction](0074-lexical-retract-superseded-lexical-chunks.md) | Retract canonical chunks absent from a complete load-lexical snapshot in the same upsert transaction | Accepted; 48 ghosts removed, 70550 rows, checksumScope=full |

@@ -12,9 +12,17 @@ from arxiv_int.stores.projections.adapters.graph import write_open_exports
 from arxiv_int.stores.projections.ids import (
     UnsafeIdentifierError,
     age_graph_name,
+    derived_relation,
     logical_checksum,
     require_ident,
     sanitize_version_id,
+    table_name,
+)
+from arxiv_int.stores.projections.inputs import (
+    MODEL_EDGES,
+    MODEL_LEXICAL,
+    MODEL_VECTOR,
+    MODEL_VERTICES,
 )
 from arxiv_int.stores.projections.lifecycle import build_projections
 from arxiv_int.stores.projections.model import (
@@ -51,6 +59,19 @@ def test_sanitize_version_and_checksum_are_stable() -> None:
     with pytest.raises(UnsafeIdentifierError):
         require_ident("DROP TABLE")
     assert age_graph_name("fix_1") == "g_fix_1"
+
+
+def test_uuid_run_derived_tables_fit_postgres_idents() -> None:
+    version = sanitize_version_id("run-0123456789abcdef0123456789abcdef")
+    models = (MODEL_LEXICAL, MODEL_VECTOR, MODEL_VERTICES, MODEL_EDGES)
+    for model in models:
+        table = derived_relation(model, version).split(".", 1)[1]
+        assert require_ident(table) == table
+        assert 48 < len(table) <= 63
+    covering = table_name(KIND_LEXICAL, version)
+    assert require_ident(covering) == covering
+    with pytest.raises(UnsafeIdentifierError):
+        require_ident("a" * 64)
 
 
 def test_quality_result_blocks_activation_on_failure() -> None:

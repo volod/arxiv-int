@@ -6,13 +6,14 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 
 from arxiv_int.contracts.lint import contracts_root_for
 from arxiv_int.contracts.sqlalchemy.model import load_schema_model_from_root
 from arxiv_int.pipeline.lake.validate import SnapshotValidator
 from arxiv_int.pipeline.load_lexical.loader import load_contract
 from arxiv_int.pipeline.load_lexical.reconcile import reconcile
+from arxiv_int.pipeline.load_lexical.retract import retract_absent_chunks
 from arxiv_int.quality.project_root import discover_project_root
 from arxiv_int.retrieval.citations import resolve_citations, unresolved_citations
 from arxiv_int.retrieval.lexical import LexicalRequest, explain, lookup, search
@@ -181,3 +182,44 @@ def _assert_search(connection: Any) -> None:
     assert citations[0].span.document_id == "doc-1"
     assert citations[0].span.end == CHUNKS[0]["end_char"]
     assert unresolved_citations(["chunk-1", "absent"], citations) == ("absent",)
+
+
+def test_live_lexical_retracts_superseded_chunk_ids(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    pins = load_image_pins(_root())
+    if not image_present(pins.local_image_ref):
+        pytest.skip(f"image {pins.local_image_ref} is not present; build it first")
+    monkeypatch.setenv("DATA_DIR", str(tmp_path / "data"))
+    with disposable_store(_root(), tmp_path / "pgdata-retract", pins=pins) as store:
+        assert apply_revisions(_root(), url=store.url, run_id="lex-retract", revision="head").ok
+        _seed(store.url)
+        engine = create_engine(store.url)
+        try:
+            with engine.begin() as connection:
+                connection.execute(
+                    text(
+                        "INSERT INTO corpus.chunks ("
+                        "chunk_id, document_id, generation_id, contract_version, "
+                        "text, chunker_id, start_char, end_char, ordinal"
+                        ") VALUES ("
+                        "'chunk-old', 'doc-1', 'gen-prior', '1.0.0', "
+                        "'stale span', 'sent-1', 10, 20, 1)"
+                    )
+                )
+                dropped = retract_absent_chunks(
+                    connection, [str(item["chunk_id"]) for item in CHUNKS]
+                )
+                remaining = (
+                    connection.execute(text("SELECT chunk_id FROM corpus.chunks ORDER BY chunk_id"))
+                    .scalars()
+                    .all()
+                )
+                documents = connection.execute(
+                    text("SELECT count(*) FROM corpus.documents")
+                ).scalar()
+        finally:
+            engine.dispose()
+        assert dropped == 1
+        assert remaining == ["chunk-1", "chunk-2"]
+        assert documents == len(DOCUMENTS)

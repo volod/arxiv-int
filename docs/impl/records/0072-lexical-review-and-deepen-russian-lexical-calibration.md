@@ -137,8 +137,8 @@ following.
   (`AUD-review-and-deepen-russian-lexical-calibration-2`).
 - OCR recovery runs only when a query otherwise finds nothing
   (`AUD-review-and-deepen-russian-lexical-calibration-3`).
-- These are synthetic cases, not proof of relevance on the provided archive; that proof remains
-  with `prove-lexical-retrieval-on-provided-archive`.
+- These are synthetic cases, not proof of relevance on the provided archive; that proof is
+  [record 0073](0073-lexical-prove-lexical-retrieval-on-provided-archive.md).
 - The CUDA device played no role: BM25 calibration is CPU and database work.
 
 ## Freeze ledger
@@ -338,7 +338,8 @@ inputs. The run started 2026-09-10T22:22:00Z and finished 22:27:30Z, with no ove
   the new default) and `test_live_second_opinion.py` passed on the pinned disposable store.
 - **Plan:**
   - The task was removed from the forward plan.
-  - Its three dependents (`prove-lexical-retrieval-on-provided-archive`,
+  - Its three dependents
+    ([0073](0073-lexical-prove-lexical-retrieval-on-provided-archive.md),
     `review-retrieval-and-classification-boundaries` and
     `build-search-graph-and-report-interfaces`) now link this record.
   - The checkpoint lists the three audit notes as inputs.
@@ -352,5 +353,5 @@ inputs. The run started 2026-09-10T22:22:00Z and finished 22:27:30Z, with no ove
   - `docs/impl/current.md`;
   - `docs/guide/commands.md`;
   - the record index.
-- **No human review handoff applies.** The provided-archive proof
-  (`prove-lexical-retrieval-on-provided-archive`) now waits only on its remaining prerequisites.
+- **No human review handoff applies.** The provided-archive proof is
+  [record 0073](0073-lexical-prove-lexical-retrieval-on-provided-archive.md).

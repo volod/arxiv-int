@@ -25,6 +25,7 @@ class Reconciliation:
     unindexed_chunks: int
     checksum_scope: str
     checksum_match: bool
+    retracted_chunks: int
     detail: str
 
     @property
@@ -46,6 +47,7 @@ class Reconciliation:
             "detail": self.detail,
             "ok": self.ok,
             "projectionRows": self.projection_rows,
+            "retractedChunks": self.retracted_chunks,
             "unindexedChunks": self.unindexed_chunks,
         }
 
@@ -57,6 +59,7 @@ def reconcile(
     loaded_chunks: int,
     loaded_checksum: str,
     projection_checksum: str,
+    retracted_chunks: int = 0,
 ) -> Reconciliation:
     """Compare canonical corpus counts with the covering table this run built."""
     relation = _qualified(table)
@@ -75,6 +78,7 @@ def reconcile(
         unindexed_chunks=unindexed,
         checksum_scope=scope,
         checksum_match=match,
+        retracted_chunks=retracted_chunks,
         detail=_detail(chunks, projection_rows, unindexed, scope, match),
     )
     return result

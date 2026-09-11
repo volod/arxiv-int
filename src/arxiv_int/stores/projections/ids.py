@@ -6,7 +6,11 @@ import re
 from arxiv_int.contracts.generate.normalize import sha256_text
 from arxiv_int.transformations.credentials import sanitize_generation_id
 
-_TOKEN = re.compile(r"^[a-z][a-z0-9_]{0,47}$")
+# PostgreSQL NAMEDATALEN is 64 including the terminator, so unquoted identifiers
+# are at most 63 bytes. dbt isolation names are ``<model>__g_<version>`` with a
+# 32-character generation suffix; ``proj_lexical_rows__g_<uuid-run>`` is 53.
+_MAX_IDENT_LEN = 63
+_TOKEN = re.compile(rf"^[a-z][a-z0-9_]{{0,{_MAX_IDENT_LEN - 1}}}$")
 
 
 class UnsafeIdentifierError(ValueError):
@@ -19,7 +23,7 @@ def sanitize_version_id(run_id: str) -> str:
 
 
 def require_ident(value: str) -> str:
-    """Return ``value`` when it is a safe SQL/Cypher identifier token."""
+    """Return ``value`` when it is a safe unquoted PostgreSQL identifier."""
     if not _TOKEN.match(value):
         raise UnsafeIdentifierError(f"unsafe identifier: {value!r}")
     return value

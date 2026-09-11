@@ -47,6 +47,7 @@ def _summary(*, ok: bool = True) -> dict[str, Any]:
         unindexed_chunks=0 if ok else 1,
         checksum_scope=FULL_SCOPE,
         checksum_match=True,
+        retracted_chunks=0,
         detail="reconciled" if ok else "drifted",
     )
     return load_summary(

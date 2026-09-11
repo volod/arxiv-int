@@ -26,35 +26,6 @@ checks in place.
 a prerequisite on the producer. Follow the [handoff workflow](../guide/planning-workflow.md#human-review-handoffs)
 and name ready/pending human decisions and the dependent work that must wait at task completion.
 
-### Lexical retrieval -- `lexical-retrieval`
-
-#### prove-lexical-retrieval-on-provided-archive
-
-Build and query the lexical projection for the supplied archive through an explicit integration test.
-
-- Serves: `lexical-retrieval` --
-[Provided-archive integration runs](../design/spec.md#provided-archive-integration-runs)
-- Agent status: RUN NEEDED
-- Dependencies: [Russian lexical calibration second opinion](records/0072-lexical-review-and-deepen-russian-lexical-calibration.md);
-[Pipeline-control provided-archive proof](records/0053-pipeline-prove-pipeline-control-on-provided-archive.md).
-`review-retrieval-and-classification-boundaries`.
-- User-visible outcome: Supplied documents are searchable through the selected Russian lexical
-profile, with filters, snippets, identifiers, and citations that resolve to source evidence.
-- Scope boundary: Prove lexical load/query behavior and declared evaluation queries; do not claim
-semantic retrieval or full-archive relevance from this test archive.
-- Data and artifact paths: `$ARCHIVE_DIR` used without modification, lexical tables/indexes, and
-`$RUNS_DIR/<run-id>/search/`, plus test logs below `$DATA_DIR/integration/lexical-retrieval/`.
-- Execution path: Forecast; load/build the selected lexical projection; reconcile counts/checksums;
-run archive-appropriate smoke and held-out queries; validate citations and limits; rerun unchanged
-and record load/index cache decisions.
-- Acceptance gates: Projection and source counts reconcile; required queries return valid evidence
-under declared metrics; index/query manifests validate; unchanged rerun does not rebuild or reload
-unchanged partitions; failures or missing citations keep the task open.
-Only ordinary pipeline artifacts stay under configured roots; nothing source-derived is committed
-or staged for commit. Record the run id, artifact roots, manifests, and checksums checked in place.
-- Documentation target: `docs/impl/current/lexical-retrieval.md`
-- Review checkpoint: `review-investigation-and-report-integrity`.
-
 ### Archive classification -- `archive-classification`
 
 #### establish-versioned-udc-derived-scheme
@@ -1183,7 +1154,7 @@ archive artifacts through an explicit integration test.
 - Agent status: RUN NEEDED
 - Dependencies: `build-search-graph-and-report-interfaces`;
 `prove-domain-investigation-artifacts-on-provided-archive`; `prove-anomaly-analysis-on-provided-archive`;
-`prove-lexical-retrieval-on-provided-archive`. Viewer smoke is conditional on selecting that profile.
+[Lexical retrieval provided-archive integration](records/0073-lexical-prove-lexical-retrieval-on-provided-archive.md). Viewer smoke is conditional on selecting that profile.
 - Human review handoff:
 [accept-operator-discovery-workflows](#accept-operator-discovery-workflows)
 executable scenario packet, results and issue ledger.
@@ -1685,7 +1656,7 @@ test, or retain a measured not-selected verdict.
 [Provided-archive integration runs](../design/spec.md#provided-archive-integration-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `compare-pgvector-paradedb-native-and-fallback-seam`;
-`prove-lexical-retrieval-on-provided-archive`; [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md).
+[Lexical retrieval provided-archive integration](records/0073-lexical-prove-lexical-retrieval-on-provided-archive.md); [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md).
 - User-visible outcome: Operators can inspect actual archive embeddings, vector/hybrid results,
 resource cost, and citations, or see why the branch remains disabled with lexical fallback working.
 - Scope boundary: Use only the forecast-approved selected tier and configured local models; do not

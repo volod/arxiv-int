@@ -93,8 +93,8 @@ Current state: [lexical retrieval](../current/lexical-retrieval.md).
 
 `none identified` after reviewing the query/index boundary, source preservation, candidate isolation,
 bound parameters, publication immutability, costs and the retained inflection miss. The final run is
-a synthetic held-out calibration, not evidence for provided-archive relevance; that proof remains
-owned by `prove-lexical-retrieval-on-provided-archive`.
+a synthetic held-out calibration, not evidence for provided-archive relevance; that proof is
+[record 0073](0073-lexical-prove-lexical-retrieval-on-provided-archive.md).
 
 ## Close or resume
 

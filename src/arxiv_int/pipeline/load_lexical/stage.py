@@ -21,6 +21,7 @@ from arxiv_int.pipeline.load_lexical.artifacts import (
 from arxiv_int.pipeline.load_lexical.loader import LoadCounts, load_contract, schema_model
 from arxiv_int.pipeline.load_lexical.publish import load_summary, publish_summary
 from arxiv_int.pipeline.load_lexical.reconcile import Reconciliation, reconcile
+from arxiv_int.pipeline.load_lexical.retract import retract_absent_chunks
 from arxiv_int.pipeline.load_lexical.source import (
     CorpusChain,
     chunk_batches,
@@ -60,11 +61,11 @@ class LoadLexicalStage:
         chain = corpus_chain(context)
         url = store_database_url(project_root)
         validator = SnapshotValidator(project_root, LOADED_CONTRACTS)
-        loads = self._load(chain, project_root, url, validator)
+        loads, retracted = self._load(chain, project_root, url, validator)
         check_cancelled()
         build = self._build(context, project_root, url)
         chunks = next(item for item in loads if item.contract == CHUNKS_CONTRACT)
-        reconciliation, sizes = self._verify(url, build, chunks)
+        reconciliation, sizes = self._verify(url, build, chunks, retracted)
         if not reconciliation.ok:
             raise LexicalLoadError(f"lexical load did not reconcile: {reconciliation.detail}")
         summary = load_summary(
@@ -85,7 +86,7 @@ class LoadLexicalStage:
         project_root: Path,
         url: str,
         validator: SnapshotValidator,
-    ) -> tuple[LoadCounts, ...]:
+    ) -> tuple[tuple[LoadCounts, ...], int]:
         model = schema_model(project_root)
         languages = document_languages(chain)
         engine = create_engine(url, pool_pre_ping=True)
@@ -108,9 +109,10 @@ class LoadLexicalStage:
                     key="chunk_id",
                     batches=chunk_batches(chain),
                 )
+                retracted = retract_absent_chunks(connection, chunks.identities)
         finally:
             engine.dispose()
-        return (documents, chunks)
+        return (documents, chunks), retracted
 
     def _build(self, context: StageContext, project_root: Path, url: str) -> KindBuild:
         result = build_projections(
@@ -131,7 +133,7 @@ class LoadLexicalStage:
         return result.kinds[0]
 
     def _verify(
-        self, url: str, build: KindBuild, chunks: LoadCounts
+        self, url: str, build: KindBuild, chunks: LoadCounts, retracted: int
     ) -> tuple[Reconciliation, Mapping[str, int]]:
         engine = create_engine(url, pool_pre_ping=True)
         try:
@@ -142,6 +144,7 @@ class LoadLexicalStage:
                     loaded_chunks=chunks.rows,
                     loaded_checksum=chunks.checksum,
                     projection_checksum=build.checksum,
+                    retracted_chunks=retracted,
                 )
                 return reconciliation, index_size(connection, active_target(connection))
         finally:
@@ -159,9 +162,10 @@ class LoadLexicalStage:
         rows = sum(item.rows for item in loads)
         outcome: StageOutcome = "produced" if reconciliation.projection_rows else "empty"
         _LOG.info(
-            "load-lexical loaded=%d chunks=%d indexed=%d unindexed=%d",
+            "load-lexical loaded=%d chunks=%d retracted=%d indexed=%d unindexed=%d",
             rows,
             reconciliation.canonical_chunks,
+            reconciliation.retracted_chunks,
             reconciliation.projection_rows,
             reconciliation.unindexed_chunks,
         )

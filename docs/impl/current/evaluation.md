@@ -15,8 +15,9 @@ checks; it is not full-corpus authorization. Human-gated policy tasks still own 
 archive gold, and no final evaluation split has been opened for tuning on this archive.
 
 Reusable metrics and result bundles are documented in
-[evaluation foundation](evaluation-foundation.md). The corpus archive integration test is documented
-there and in [corpus foundation](corpus-foundation.md#provided-archive-integration). Earlier
+[evaluation foundation](evaluation-foundation.md). The corpus and lexical archive integration tests
+are documented there, in [corpus foundation](corpus-foundation.md#provided-archive-integration), and
+in [lexical retrieval](lexical-retrieval.md#provided-archive-integration). Earlier
 pipeline-control and corpus proof bundles remain historical evidence in accepted records; their
 special-purpose production publishers and disposable experiment were removed by
 [record 0069](../records/0069-govern-retire-milestone-evaluation-scaffolding.md).

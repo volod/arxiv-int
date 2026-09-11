@@ -57,9 +57,12 @@ def test_make_tool_caches_follow_the_selected_data_dir() -> None:
 def test_make_test_excludes_heavy_checks_and_test_heavy_selects_them() -> None:
     unit = _dry_run("test")
     heavy = _dry_run("test-heavy")
+    archive = _dry_run("test-archive")
     assert '-m "not heavy and not archive"' in unit
     assert "-m heavy" in heavy
     assert "not heavy" not in heavy
+    assert "-m archive" in archive
+    assert "test_archive_pipeline.py" not in archive
     evolution = _dry_run("contracts-evolution")
     live = _dry_run("contracts-evolution-live")
     assert "--skip-live-sql" in evolution

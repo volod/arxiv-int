@@ -114,7 +114,7 @@ they are small, deterministic, safe to publish, and required for CI.
 | `make projections-cleanup` | Plan retired/failed projection drops (`APPLY=1` executes) |
 | `make test` | Run the deterministic unit test suite (`-m "not heavy"`) |
 | `make test-heavy` | Run Docker and other host-service tests marked `heavy` |
-| `make test-archive` | Run the corpus integration test against configured archive roots |
+| `make test-archive` | Run archive-marked corpus and lexical integration tests against configured roots |
 | `make coverage` | Run unit tests and report coverage (diagnostic, not a percentage floor) |
 | `make format` | Apply Ruff formatting |
 | `make ci` | Run required local and CI checks |

@@ -3,11 +3,13 @@
 The `load-lexical` stage bulk-loads the canonical corpus, rebuilds the ParadeDB BM25 projection, and
 `arxiv-int search lexical` serves calibrated Russian-aware ranked search, filters, snippets, facets,
 literal identifier lookup and diagnostics over the active projection. Semantic and hybrid fusion are
-not implemented; see the [forward plan](../plan.md).
+not implemented; see [semantic retrieval](../plan.md#semantic-retrieval----semantic-retrieval).
 
 See [record 0070](../records/0070-lexical-build-paradedb-lexical-load-and-query-path.md),
-[record 0071](../records/0071-lexical-calibrate-russian-tokenization-and-bm25.md) and
-[record 0072](../records/0072-lexical-review-and-deepen-russian-lexical-calibration.md). The projection
+[record 0071](../records/0071-lexical-calibrate-russian-tokenization-and-bm25.md),
+[record 0072](../records/0072-lexical-review-and-deepen-russian-lexical-calibration.md),
+[record 0073](../records/0073-lexical-prove-lexical-retrieval-on-provided-archive.md) and
+[record 0074](../records/0074-lexical-retract-superseded-lexical-chunks.md). The projection
 lifecycle, versioned tables and activation pointers belong to the
 [canonical store](canonical-store.md); the stage contract and reuse rules belong to
 [pipeline control](pipeline-control.md).
@@ -29,16 +31,22 @@ error.
 
 The stage then calls the shared projection lifecycle for the lexical kind, which builds the dbt
 `derived.proj_lexical_rows__g_<version>` input, creates the versioned covering table and its BM25
-index, validates the build and switches the active pointer. Everything runs under one publication
-lock below `$RUNS_DIR/<run-id>/search/`.
+index, validates the build and switches the active pointer. Identifier tokens follow PostgreSQL's
+63-byte unquoted name limit so a uuid-style `run-<hex>` generation can name that dbt table.
+Everything runs under one publication lock below `$RUNS_DIR/<run-id>/search/`.
 
 ## Reconciliation and evidence
 
 A load is only publishable when no canonical chunk is missing from the covering table, the projection
 row count equals the canonical chunk count, and, when this load covered the whole corpus, the loaded
-chunk checksum equals the projection checksum. An incremental load whose projection legitimately
-covers earlier generations reports `partial` scope and does not require checksum equality. Failing
-reconciliation raises and no manifest is published.
+chunk checksum equals the projection checksum. After the snapshot upsert, the same transaction
+deletes `corpus.chunks` rows whose `chunk_id` is not in this snapshot, so a re-chunked document
+cannot leave superseded spans in the live table. Unchanged ids stay via `ON CONFLICT`. Concurrent
+readers still see the previous generation until that transaction commits; the BM25 covering table is
+then rebuilt from the retracted store. An empty snapshot clears `corpus.chunks`. An incremental load
+whose projection legitimately covers earlier generations reports `partial` scope and does not require
+checksum equality. Failing reconciliation raises and no manifest is published. The 37 unchunked
+duplicate documents remain document rows without chunks.
 
 `$RUNS_DIR/<run-id>/search/lexical.json` records the schema id, generation, load counts and
 checksums per contract, projection identity, quality status, row count, index and covering-table
@@ -229,3 +237,30 @@ calibration relations.
 store. It checks that final execution is refused without preregistration or with overrides, that
 the bundle verifies, that every arm is reported, and that rollback leaves no relations. It asserts
 harness invariants, never the research verdict.
+
+## Provided-archive integration
+
+`tests/integration/lexical/test_archive_lexical.py` is the explicit provided-archive check. `make
+test-archive` loads configured roots and runs it with the corpus archive test. The test forecasts,
+walks the ordinary DAG through `load-lexical`, rechecks the published manifest and live
+reconciliation, runs declared query kinds against sampled live chunks with no committed gold file,
+then replays the same plan as cache hits with zero worker calls. Extra checks live only under
+`tests/integration/lexical/`. `make ci` does not read the operator archive.
+
+[Record 0073](../records/0073-lexical-prove-lexical-retrieval-on-provided-archive.md) run
+`run-b432670ba9974eac974e0ed36312ebb4` activated the selected `russian-guarded-v2` query profile over
+the unchanged `unicode-russian-v1` index. This load wrote 414 documents and 70,550 chunks; the live
+store then still held 70,598 chunks from earlier generations (`checksumScope=partial`). Eight
+known-item probes sampled from the live projection reached recall@10 1.0, span intactness 1.0,
+identifier exactness 1.0, MRR 0.9375, and p95 24.8 ms, with unresolved citations 0. The published
+`$RUNS_DIR/<run-id>/search/lexical.json` SHA-256 is
+`65d6108a99a85a0f0fd0105bcf6b75846abb7c5d2888a9712e7c9a038c98a445`. Unchanged replay invoked no
+workers. This is structural search integrity on the designated slice, not judged archive-wide
+relevance. The CUDA device was present and unused on the passing run: extract was a cache hit and
+BM25 load/query is CPU and database work.
+
+[Record 0074](../records/0074-lexical-retract-superseded-lexical-chunks.md) run
+`run-30d22e8991244b9ca002c640e12002c4` retracted the 48 superseded spans in the load transaction and
+rebuilt the covering table. Live `corpus.chunks` is 70,550 rows from one generation, 414 documents
+remain (37 unchunked duplicates), `checksumScope=full`, and the published manifest SHA-256 is
+`99a269665a860b8a52f0680f4461da018a23ad36ebf69f0af1a47641e01677a0`.
