@@ -48,14 +48,22 @@ records, occupied destinations, and competing publishers.
 
 ## Archive integration
 
-`tests/integration/corpus/test_archive_pipeline.py` is the explicit provided-archive check for the
-currently implemented corpus closure. `make test-archive` loads configured roots and runs it. The
-test creates an ordinary run through `chunk`, applies the normal forecast and stage implementations,
-then independently rechecks attempt and snapshot checksums, generated contracts, occurrence and
-quarantine accounting, document hashes, source anchors, normalization views, offset maps, duplicate
-representatives, and chunk source reconstruction. It rehashes physical source files after the run
-and requires an unchanged replay to use only cache hits with zero worker calls.
+`make test-archive` loads configured roots and runs every test marked `archive`. `make test`,
+`make ci`, coverage, and GitHub do not read operator archives. Extra cross-checks live only in
+`tests/integration/`; the tests do not publish a second manifest or capability registry.
 
-The test is marked `archive`, so `make test`, `make ci`, coverage, and GitHub do not read operator
-archives. Its artifacts remain ordinary pipeline results below `RESULTS_DIR` and `RUNS_DIR`; the test
-does not publish a second manifest or capability registry.
+`tests/integration/corpus/test_archive_pipeline.py` is the explicit provided-archive check for the
+currently implemented corpus closure. The test creates an ordinary run through `chunk`, applies the
+normal forecast and stage implementations, then independently rechecks attempt and snapshot
+checksums, generated contracts, occurrence and quarantine accounting, document hashes, source
+anchors, normalization views, offset maps, duplicate representatives, and chunk source
+reconstruction. It rehashes physical source files after the run and requires an unchanged replay to
+use only cache hits with zero worker calls.
+
+`tests/integration/lexical/test_archive_lexical.py` is the explicit provided-archive check for
+lexical load and query. The test creates an ordinary run through `load-lexical`, reconciles the
+active covering table, runs declared query kinds against sampled live chunks, requires resolved
+citations and honored limits, and requires an unchanged replay to use only cache hits with zero
+worker calls. Results and limits are in
+[lexical retrieval](lexical-retrieval.md#provided-archive-integration) and
+[record 0073](../records/0073-lexical-prove-lexical-retrieval-on-provided-archive.md).

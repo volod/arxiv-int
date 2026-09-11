@@ -38,7 +38,16 @@ LEXICAL_STAGES: tuple[str, ...] = (
 )
 IMPLEMENTED_FEATURES = frozenset(group.name for group in FEATURE_GROUPS if not group.reserved)
 IMPLEMENTED_STAGES = frozenset(
-    {"preflight", "inventory", "extract", "normalize", "dedupe", "chunk", "evaluate"}
+    {
+        "preflight",
+        "inventory",
+        "extract",
+        "normalize",
+        "dedupe",
+        "chunk",
+        "load-lexical",
+        "evaluate",
+    }
 )
 PROFILE_STAGES: dict[str, tuple[str, ...]] = {
     "investigation": INVESTIGATION_STAGES,

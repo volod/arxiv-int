@@ -28,8 +28,8 @@ The root `Makefile` includes grouped fragments under `make/` (`bootstrap`, `serv
   `archive`). It does not start Docker or read operator archives.
 - `make test-heavy` runs tests marked `heavy`: live Compose `docker compose config` rendering,
   disposable Postgres apply of baseline SQL, and declared store/dbt/projection/image suites.
-- `make test-archive` loads `.env` and runs the ordinary corpus pipeline plus independent integrity
-  cross-checks against the configured archive.
+- `make test-archive` loads `.env` and runs archive-marked integration tests (corpus through
+  `chunk`, lexical through `load-lexical`) against the configured archive.
 - `make contracts-evolution-live` applies generated `baseline.sql` on disposable Postgres.
 - `make quality` adds a diagnostic coverage report (also excluding `heavy` and `archive`),
   Markdown lint, and source/wheel builds. A numeric coverage percentage is not an acceptance gate

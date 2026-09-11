@@ -11,11 +11,15 @@ from arxiv_int.contracts.sqlalchemy.model import load_schema_model_from_root
 from arxiv_int.quality.project_root import discover_project_root
 from arxiv_int.stores.postgres.disposable import _build_url, _published_port, image_present
 from arxiv_int.stores.postgres.load import (
+    StagingRejectedError,
     copy_binary,
     load_canonical_batch,
+    staging_column_types,
     truncate_staging,
     upsert_rows,
 )
+
+TEXT_OID = 25
 
 
 def _root() -> Path:
@@ -26,6 +30,16 @@ def _documents_table():
     return load_schema_model_from_root(contracts_root_for(_root())).metadata.tables[
         "corpus.documents"
     ]
+
+
+def _declare_columns(connection: MagicMock, table, *, omit: str = "") -> None:
+    """Answer the staging type lookup with declared OIDs for every column."""
+    rows = [
+        SimpleNamespace(attname=column.name, atttypid=TEXT_OID)
+        for column in table.columns
+        if column.name != omit
+    ]
+    connection.execute.return_value.fetchall.return_value = rows
 
 
 def test_image_present_is_false_without_docker(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -73,6 +87,7 @@ def test_truncate_and_copy_and_upsert(monkeypatch: pytest.MonkeyPatch) -> None:
     connection = MagicMock()
     truncate_staging(connection, "documents")
     connection.execute.assert_called()
+    _declare_columns(connection, table)
     connection.connection.dbapi_connection = None
     with pytest.raises(RuntimeError, match="closed"):
         copy_binary(connection, table, [{"document_id": "doc-1"}])
@@ -89,9 +104,27 @@ def test_truncate_and_copy_and_upsert(monkeypatch: pytest.MonkeyPatch) -> None:
     raw.cursor.return_value = cursor_cm
     connection.connection.dbapi_connection = raw
     copy_binary(connection, table, [{"document_id": "doc-1"}])
+    writer.set_types.assert_called_once()
     writer.write_row.assert_called()
     assert upsert_rows(connection, table, []) == 0
     assert upsert_rows(connection, table, [{"document_id": "doc-1", "generation_id": "g"}]) == 1
+
+
+def test_binary_copy_binds_declared_types_in_column_order() -> None:
+    table = _documents_table()
+    connection = MagicMock()
+    names = tuple(column.name for column in table.columns)
+    _declare_columns(connection, table)
+    assert staging_column_types(connection, table.name, names) == tuple(TEXT_OID for _ in names)
+
+
+def test_binary_copy_refuses_a_staging_table_missing_a_column() -> None:
+    table = _documents_table()
+    connection = MagicMock()
+    names = tuple(column.name for column in table.columns)
+    _declare_columns(connection, table, omit="title")
+    with pytest.raises(StagingRejectedError, match="missing staging column"):
+        staging_column_types(connection, table.name, names)
 
 
 def test_load_canonical_batch_validates_then_copies(monkeypatch: pytest.MonkeyPatch) -> None:

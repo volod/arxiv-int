@@ -1,0 +1,104 @@
+{
+  "cohorts": {
+    "gate_identifier": [
+      "identifier_absent",
+      "identifier_exact"
+    ],
+    "gate_syntax": [
+      "syntax"
+    ],
+    "no_answer": [
+      "mixed_script_fp"
+    ],
+    "precision": [
+      "abbreviation",
+      "english_with_answer",
+      "homoglyph",
+      "identifier_match",
+      "mixed_script_fp",
+      "multi_term",
+      "numeric",
+      "stemming_collision"
+    ],
+    "quality": [
+      "abbreviation",
+      "e_yo",
+      "english_with_answer",
+      "homoglyph",
+      "identifier_match",
+      "inflection",
+      "keyboard_layout",
+      "mixed_language",
+      "multi_term",
+      "numeric",
+      "ocr_noise",
+      "stemming_collision",
+      "transliteration"
+    ]
+  },
+  "decision": {
+    "identifier_exactness": 1.0,
+    "latency_p95_increase_ms_max": 5.0,
+    "latency_p95_ms_max": 50.0,
+    "latency_p95_ratio_max": 2.0,
+    "min_decided_pairs": 20,
+    "no_answer_false_positive_increase_max": 0,
+    "non_inferiority_margin": 0.02,
+    "precision_metric": "returned_precision_at_5",
+    "quality_metric": "ndcg_at_10",
+    "rules": [
+      "A mandatory-gate failure (identifier exactness, new syntax errors, forbidden syntax hits, no-answer false-positive increase, latency) retains the baseline. The latency gate passes when the candidate p95 is at most latency_p95_ms_max and either at most latency_p95_ratio_max times the baseline p95 or at most latency_p95_increase_ms_max above it.",
+      "A paired quality or precision verdict of retain baseline retains the baseline.",
+      "Adopt requires an adopt verdict on quality with at least min_decided_pairs decided pairs and a precision delta lower bound of at least minus the margin, or an adopt verdict on precision with at least min_decided_pairs decided pairs and a quality delta lower bound of at least minus the margin.",
+      "Every other outcome is inconclusive.",
+      "The verdict is recomputed for every sensitivity seed; any disagreement makes the decision inconclusive.",
+      "Ranked hits must be identical across every repetition and query order; any difference makes the decision inconclusive."
+    ],
+    "syntax_forbidden_hits_max": 0,
+    "syntax_new_errors_max": 0
+  },
+  "execution": {
+    "build_repetitions": 5,
+    "order_seed": 17,
+    "query_repetitions": 30,
+    "warmup_queries": 1
+  },
+  "filler": {
+    "chunks": 70000,
+    "max_words": 100,
+    "min_words": 40,
+    "seed": 41,
+    "stopword_share": 0.3
+  },
+  "k": {
+    "precision": 5,
+    "quality": 10
+  },
+  "minimums": {
+    "decided_pairs": 20,
+    "identifier_checks": 12,
+    "no_answer_cases": 10,
+    "precision_cases": 40,
+    "quality_cases": 60,
+    "syntax_probes": 8
+  },
+  "paradedb_version": "0.25.6",
+  "schema": "arxiv-int.retrieval.lexical-second-opinion-protocol.v1",
+  "splits": {
+    "development": "17edf576c743a53446a1fd3f982b1aa87c3988c9162f60858310943e2bd3cdb2",
+    "filler": "bed36955f350802d0664d91fe298e578858710aff852d88b207452fdeb1fe9ac",
+    "final": "222ba2291d2429910bf2cfa9677847ed285af8089043f98fa924942330602cb6"
+  },
+  "statistics": {
+    "confidence": 0.95,
+    "primary_seed": 13,
+    "resamples": 2000,
+    "sensitivity_seeds": [
+      13,
+      29,
+      71,
+      101,
+      997
+    ]
+  }
+}

@@ -1,0 +1,265 @@
+{
+  "baseline_profile": "unicode-russian-v1",
+  "candidate_profile": "unicode-russian-safe-v1",
+  "confidence": 0.95,
+  "corpus": [
+    {
+      "body": "\u041f\u0430\u0441\u043f\u043e\u0440\u0442 \u043d\u0430\u0441\u043e\u0441\u043d\u043e\u0433\u043e \u043e\u0431\u043e\u0440\u0443\u0434\u043e\u0432\u0430\u043d\u0438\u044f.",
+      "chunk_id": "cal-final-inflection-1",
+      "document_id": "cal-doc-01",
+      "identifiers": "cal-final-inflection-1",
+      "language": "rus",
+      "title": "Pump equipment"
+    },
+    {
+      "body": "\u0420\u0430\u0431\u043e\u0442\u0430 \u0441 \u044d\u043b\u0435\u043a\u0442\u0440\u0438\u0447\u0435\u0441\u043a\u0438\u043c\u0438 \u0434\u0432\u0438\u0433\u0430\u0442\u0435\u043b\u044f\u043c\u0438.",
+      "chunk_id": "cal-final-inflection-2",
+      "document_id": "cal-doc-02",
+      "identifiers": "cal-final-inflection-2",
+      "language": "rus",
+      "title": "Motor service"
+    },
+    {
+      "body": "\u0411\u0435\u0441\u043f\u0438\u043b\u043e\u0442\u043d\u044b\u0439 \u043b\u0435\u0442\u0430\u0442\u0435\u043b\u044c\u043d\u044b\u0439 \u0430\u043f\u043f\u0430\u0440\u0430\u0442 \u0432\u044b\u043f\u043e\u043b\u043d\u044f\u0435\u0442 \u043e\u0441\u043c\u043e\u0442\u0440.",
+      "chunk_id": "cal-final-abbreviation-1",
+      "document_id": "cal-doc-03",
+      "identifiers": "cal-final-abbreviation-1",
+      "language": "rus",
+      "title": "Aircraft"
+    },
+    {
+      "body": "\u0421\u0438\u0441\u0442\u0435\u043c\u0430 \u0430\u0432\u0442\u043e\u043c\u0430\u0442\u0438\u0447\u0435\u0441\u043a\u043e\u0433\u043e \u0443\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u044f \u0440\u0435\u0433\u0443\u043b\u0438\u0440\u0443\u0435\u0442 \u0434\u0430\u0432\u043b\u0435\u043d\u0438\u0435.",
+      "chunk_id": "cal-final-abbreviation-2",
+      "document_id": "cal-doc-04",
+      "identifiers": "cal-final-abbreviation-2",
+      "language": "rus",
+      "title": "Automatic control"
+    },
+    {
+      "body": "\u0412 \u0441\u043a\u0430\u043d\u0435 \u0443\u043a\u0430\u0437\u0430\u043d \u044d\u043b\u0435\u043a\u0442\u0440\u043e\u0434\u0432\u0438\u0433\u0430\u0442\u0435\u043f\u044c \u0441 \u0434\u0435\u0444\u0435\u043a\u0442\u043e\u043c OCR.",
+      "chunk_id": "cal-final-ocr-1",
+      "document_id": "cal-doc-05",
+      "identifiers": "cal-final-ocr-1",
+      "language": "rus",
+      "title": "OCR motor"
+    },
+    {
+      "body": "\u0421\u0438\u0441\u0442\u0435\u043c\u0430 \u0421\u041a-5 \u043f\u0440\u043e\u0448\u043b\u0430 \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0443.",
+      "chunk_id": "cal-final-homoglyph-1",
+      "document_id": "cal-doc-06",
+      "identifiers": "cal-final-homoglyph-1",
+      "language": "rus",
+      "title": "System CK-5"
+    },
+    {
+      "body": "\u0422\u0440\u0451\u0445\u0444\u0430\u0437\u043d\u044b\u0439 \u043f\u0440\u0438\u0432\u043e\u0434 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0451\u043d \u043a \u0441\u0435\u0442\u0438.",
+      "chunk_id": "cal-final-yo-1",
+      "document_id": "cal-doc-07",
+      "identifiers": "cal-final-yo-1",
+      "language": "rus",
+      "title": "Three phase drive"
+    },
+    {
+      "body": "\u041a\u043e\u043c\u043f\u0440\u0435\u0441\u0441\u043e\u0440 \u043f\u043e\u0434\u0430\u0451\u0442 \u0441\u0436\u0430\u0442\u044b\u0439 \u0432\u043e\u0437\u0434\u0443\u0445.",
+      "chunk_id": "cal-final-keyboard-1",
+      "document_id": "cal-doc-08",
+      "identifiers": "cal-final-keyboard-1",
+      "language": "rus",
+      "title": "Compressor"
+    },
+    {
+      "body": "\u041f\u043e\u0434\u0448\u0438\u043f\u043d\u0438\u043a \u043a\u0430\u0447\u0435\u043d\u0438\u044f \u0442\u0440\u0435\u0431\u0443\u0435\u0442 \u0441\u043c\u0430\u0437\u043a\u0438.",
+      "chunk_id": "cal-final-transliteration-1",
+      "document_id": "cal-doc-09",
+      "identifiers": "cal-final-transliteration-1",
+      "language": "rus",
+      "title": "Bearing"
+    },
+    {
+      "body": "\u041a\u043e\u043d\u0442\u0440\u043e\u043b\u043b\u0435\u0440 Modbus \u0443\u043f\u0440\u0430\u0432\u043b\u044f\u0435\u0442 \u043d\u0430\u0441\u043e\u0441\u043e\u043c.",
+      "chunk_id": "cal-final-mixed-1",
+      "document_id": "cal-doc-10",
+      "identifiers": "cal-final-mixed-1",
+      "language": "rus",
+      "title": "Modbus controller"
+    },
+    {
+      "body": "\u041f\u0430\u0441\u043f\u043e\u0440\u0442 \u0430\u0433\u0440\u0435\u0433\u0430\u0442\u0430 TN-45/6.",
+      "chunk_id": "cal-final-identifier-1",
+      "document_id": "cal-doc-11",
+      "identifiers": "TN-45/6",
+      "language": "rus",
+      "title": "Unit TN-45/6"
+    },
+    {
+      "body": "\u041a\u0430\u0440\u0442\u0430 \u0438\u0437\u0434\u0435\u043b\u0438\u044f AB-12.7.",
+      "chunk_id": "cal-final-identifier-2",
+      "document_id": "cal-doc-12",
+      "identifiers": "AB-12.7",
+      "language": "rus",
+      "title": "Part AB-12.7"
+    }
+  ],
+  "k": 5,
+  "profiles": [
+    {
+      "id": "unicode-plain-v1",
+      "query_profile": "literal-v1",
+      "text_tokenizer": {
+        "type": "default"
+      }
+    },
+    {
+      "id": "unicode-russian-v1",
+      "query_profile": "literal-v1",
+      "text_tokenizer": {
+        "stemmer": "Russian",
+        "stopwords_language": "Russian",
+        "type": "default"
+      }
+    },
+    {
+      "id": "unicode-russian-safe-v1",
+      "query_profile": "russian-safe-v1",
+      "text_tokenizer": {
+        "stemmer": "Russian",
+        "stopwords_language": "Russian",
+        "type": "default"
+      }
+    },
+    {
+      "id": "icu-russian-safe-v1",
+      "query_profile": "russian-safe-v1",
+      "text_tokenizer": {
+        "stemmer": "Russian",
+        "stopwords_language": "Russian",
+        "type": "icu"
+      }
+    }
+  ],
+  "queries": [
+    {
+      "category": "inflection",
+      "id": "final-inflection-1",
+      "mode": "match",
+      "query": "\u043d\u0430\u0441\u043e\u0441\u044b",
+      "relevant_chunk_ids": [
+        "cal-final-inflection-1"
+      ],
+      "split": "final"
+    },
+    {
+      "category": "inflection",
+      "id": "final-inflection-2",
+      "mode": "match",
+      "query": "\u0434\u0432\u0438\u0433\u0430\u0442\u0435\u043b\u044c",
+      "relevant_chunk_ids": [
+        "cal-final-inflection-2"
+      ],
+      "split": "final"
+    },
+    {
+      "category": "abbreviation",
+      "id": "final-abbreviation-1",
+      "mode": "match",
+      "query": "\u0411\u041f\u041b\u0410",
+      "relevant_chunk_ids": [
+        "cal-final-abbreviation-1"
+      ],
+      "split": "final"
+    },
+    {
+      "category": "abbreviation",
+      "id": "final-abbreviation-2",
+      "mode": "match",
+      "query": "\u0421\u0410\u0423",
+      "relevant_chunk_ids": [
+        "cal-final-abbreviation-2"
+      ],
+      "split": "final"
+    },
+    {
+      "category": "ocr_noise",
+      "id": "final-ocr-1",
+      "mode": "match",
+      "query": "\u044d\u043b\u0435\u043a\u0442\u0440\u043e\u0434\u0432\u0438\u0433\u0430\u0442\u0435\u043b\u044c",
+      "relevant_chunk_ids": [
+        "cal-final-ocr-1"
+      ],
+      "split": "final"
+    },
+    {
+      "category": "homoglyph",
+      "id": "final-homoglyph-1",
+      "mode": "match",
+      "query": "C\u041a-5",
+      "relevant_chunk_ids": [
+        "cal-final-homoglyph-1"
+      ],
+      "split": "final"
+    },
+    {
+      "category": "e_yo",
+      "id": "final-yo-1",
+      "mode": "match",
+      "query": "\u0442\u0440\u0435\u0445\u0444\u0430\u0437\u043d\u044b\u0439",
+      "relevant_chunk_ids": [
+        "cal-final-yo-1"
+      ],
+      "split": "final"
+    },
+    {
+      "category": "keyboard_layout",
+      "id": "final-keyboard-1",
+      "mode": "match",
+      "query": "rjvghtccjh",
+      "relevant_chunk_ids": [
+        "cal-final-keyboard-1"
+      ],
+      "split": "final"
+    },
+    {
+      "category": "transliteration",
+      "id": "final-transliteration-1",
+      "mode": "match",
+      "query": "podshipnik",
+      "relevant_chunk_ids": [
+        "cal-final-transliteration-1"
+      ],
+      "split": "final"
+    },
+    {
+      "category": "mixed_language",
+      "id": "final-mixed-1",
+      "mode": "match",
+      "query": "Modbus \u043d\u0430\u0441\u043e\u0441",
+      "relevant_chunk_ids": [
+        "cal-final-mixed-1"
+      ],
+      "split": "final"
+    },
+    {
+      "category": "identifier",
+      "id": "final-identifier-1",
+      "mode": "identifier",
+      "query": "TN-45/6",
+      "relevant_chunk_ids": [
+        "cal-final-identifier-1"
+      ],
+      "split": "final"
+    },
+    {
+      "category": "identifier",
+      "id": "final-identifier-2",
+      "mode": "identifier",
+      "query": "AB-12.7",
+      "relevant_chunk_ids": [
+        "cal-final-identifier-2"
+      ],
+      "split": "final"
+    }
+  ],
+  "resamples": 2000,
+  "schema": "arxiv-int.retrieval.lexical-calibration.v1",
+  "seed": 13
+}

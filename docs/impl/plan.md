@@ -26,88 +26,6 @@ checks in place.
 a prerequisite on the producer. Follow the [handoff workflow](../guide/planning-workflow.md#human-review-handoffs)
 and name ready/pending human decisions and the dependent work that must wait at task completion.
 
-### Lexical retrieval -- `lexical-retrieval`
-
-#### build-paradedb-lexical-load-and-query-path
-
-Bulk-load selected document/chunk projection rows and implement lexical search, filters, snippets,
-facets, and identifier lookup.
-
-- Serves: `lexical-retrieval` --
-[Search and vector projections](../design/spec.md#search-and-vector-projections)
-- Agent status: RUN NEEDED
-- Dependencies: [0025](records/0025-store-implement-rebuildable-search-and-graph-projections.md);
-[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md).
-[Corpus and control integrity checkpoint](records/0063-corpus-review-corpus-and-control-integrity.md).
-- User-visible outcome: The full normalized corpus or chosen partition is searchable with
-evidence-bearing results and stable filter behavior.
-- Scope boundary: Establish the lexical path and lifecycle; semantic fusion is separate.
-- Data and artifact paths: `search.*` tables/indexes, `src/arxiv_int/retrieval/lexical.py`,
-`$RUNS_DIR/<run-id>/search/`, and retrieval fixtures.
-- Execution path: Binary-COPY staging rows; create one covering ParadeDB index per partition/table
-design; index Russian text plus literal ids and required filter fields; expose typed query and
-explain/diagnostic modes.
-Reuse dbt-tested projection inputs and Pandera batch validation; use psycopg binary COPY and
-bound SQLAlchemy queries. Keep ParadeDB index/search syntax in named engine assets and Alembic
-operations, separate from business transformations.
-- Acceptance gates: Load counts/checksums reconcile; result citations resolve to source spans;
-concurrent index build/rebuild remains observable; query and index failures have actionable
-diagnostics.
-- Documentation target: `docs/impl/current/lexical-retrieval.md`
-- Review checkpoint: `review-retrieval-and-classification-boundaries`.
-
-#### calibrate-russian-tokenization-and-bm25
-
-Compare Unicode and ICU segmentation, Russian stemming/stopwords, exact identifier fields, aliases,
-and query normalization on a held-out Russian query set.
-
-- Serves: `lexical-retrieval` --
-[Russian-language and document analysis](../design/spec.md#russian-language-and-document-analysis)
-- Agent status: RUN NEEDED
-- Research: yes
-- Dependencies: `build-paradedb-lexical-load-and-query-path`;
-[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
-- User-visible outcome: The default Russian lexical profile is backed by recall, MRR, evidence
-intactness, latency, and index-size evidence rather than an English default.
-- Scope boundary: Compare declared tokenizer/query profiles; do not tune on the final split or
-silently rewrite source text.
-- Data and artifact paths: `configs/retrieval/`, `eval.*`, `$RUNS_DIR/<run-id>/evaluation/lexical/`,
-and `docs/impl/current/lexical-retrieval.md`.
-- Execution path: Build comparable indexes on identical data; measure inflection, identifiers,
-abbreviations, OCR noise, homoglyphs, e/yo variants, keyboard layout, transliteration, and
-mixed-language cases; use paired bootstrap verdicts.
-- Acceptance gates: One profile receives `adopt`, `retain baseline`, or `inconclusive`; final
-metrics and costs cite immutable runs; profile changes name required reindex work.
-- Documentation target: `docs/impl/current/lexical-retrieval.md`
-- Review checkpoint: `review-retrieval-and-classification-boundaries`.
-
-#### prove-lexical-retrieval-on-provided-archive
-
-Build and query the lexical projection for the supplied archive through an explicit integration test.
-
-- Serves: `lexical-retrieval` --
-[Provided-archive integration runs](../design/spec.md#provided-archive-integration-runs)
-- Agent status: RUN NEEDED
-- Dependencies: `calibrate-russian-tokenization-and-bm25`;
-[Pipeline-control provided-archive proof](records/0053-pipeline-prove-pipeline-control-on-provided-archive.md).
-`review-retrieval-and-classification-boundaries`.
-- User-visible outcome: Supplied documents are searchable through the selected Russian lexical
-profile, with filters, snippets, identifiers, and citations that resolve to source evidence.
-- Scope boundary: Prove lexical load/query behavior and declared evaluation queries; do not claim
-semantic retrieval or full-archive relevance from this test archive.
-- Data and artifact paths: `$ARCHIVE_DIR` used without modification, lexical tables/indexes, and
-`$RUNS_DIR/<run-id>/search/`, plus test logs below `$DATA_DIR/integration/lexical-retrieval/`.
-- Execution path: Forecast; load/build the selected lexical projection; reconcile counts/checksums;
-run archive-appropriate smoke and held-out queries; validate citations and limits; rerun unchanged
-and record load/index cache decisions.
-- Acceptance gates: Projection and source counts reconcile; required queries return valid evidence
-under declared metrics; index/query manifests validate; unchanged rerun does not rebuild or reload
-unchanged partitions; failures or missing citations keep the task open.
-Only ordinary pipeline artifacts stay under configured roots; nothing source-derived is committed
-or staged for commit. Record the run id, artifact roots, manifests, and checksums checked in place.
-- Documentation target: `docs/impl/current/lexical-retrieval.md`
-- Review checkpoint: `review-investigation-and-report-integrity`.
-
 ### Archive classification -- `archive-classification`
 
 #### establish-versioned-udc-derived-scheme
@@ -201,10 +119,15 @@ Review searchable/classifiable corpus accounting before archive quality and poli
 - Agent status: CLEAR
 - Task kind: checkpoint
 - Dependencies: [Checkpoint 0063](records/0063-corpus-review-corpus-and-control-integrity.md);
-`calibrate-russian-tokenization-and-bm25`;
+[Russian lexical calibration second opinion](records/0072-lexical-review-and-deepen-russian-lexical-calibration.md);
 `establish-versioned-udc-derived-scheme`; `implement-hierarchical-file-classification`;
 [Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
-- Audit inputs: [AUD-review-corpus-and-control-integrity-7](records/0063-corpus-review-corpus-and-control-integrity.md#audit-handoff).
+- Audit inputs: [AUD-review-corpus-and-control-integrity-7](records/0063-corpus-review-corpus-and-control-integrity.md#audit-handoff);
+[AUD-build-paradedb-lexical-1](records/0070-lexical-build-paradedb-lexical-load-and-query-path.md#audit-handoff);
+[AUD-review-and-deepen-russian-lexical-calibration-1](records/0072-lexical-review-and-deepen-russian-lexical-calibration.md#audit-handoff);
+[AUD-review-and-deepen-russian-lexical-calibration-2](records/0072-lexical-review-and-deepen-russian-lexical-calibration.md#audit-handoff);
+[AUD-review-and-deepen-russian-lexical-calibration-3](records/0072-lexical-review-and-deepen-russian-lexical-calibration.md#audit-handoff);
+[AUD-build-paradedb-lexical-2](records/0070-lexical-build-paradedb-lexical-load-and-query-path.md#audit-handoff).
 - User-visible outcome:
 Retrieval and classification proofs consume coherent source, vocabulary and query identities.
 - Scope boundary:
@@ -1140,7 +1063,8 @@ company/product/person catalogs and the analyst entry report through CLI and a s
 
 - Serves: `discovery-visualization` -- [CLI and Make interface](../design/spec.md#cli-and-make-interface)
 - Agent status: CLEAR
-- Dependencies: `calibrate-russian-tokenization-and-bm25`; `build-and-validate-age-projection`;
+- Dependencies: [Russian lexical calibration second opinion](records/0072-lexical-review-and-deepen-russian-lexical-calibration.md);
+`build-and-validate-age-projection`;
 `register-and-expose-domain-artifacts`; `build-company-product-and-person-catalogs`;
 `implement-anomaly-review-and-triage-exports`;
 [Investigation profile and output manifest](records/0045-pipeline-implement-investigation-profile-and-output-manifest.md).
@@ -1230,7 +1154,7 @@ archive artifacts through an explicit integration test.
 - Agent status: RUN NEEDED
 - Dependencies: `build-search-graph-and-report-interfaces`;
 `prove-domain-investigation-artifacts-on-provided-archive`; `prove-anomaly-analysis-on-provided-archive`;
-`prove-lexical-retrieval-on-provided-archive`. Viewer smoke is conditional on selecting that profile.
+[Lexical retrieval provided-archive integration](records/0073-lexical-prove-lexical-retrieval-on-provided-archive.md). Viewer smoke is conditional on selecting that profile.
 - Human review handoff:
 [accept-operator-discovery-workflows](#accept-operator-discovery-workflows)
 executable scenario packet, results and issue ledger.
@@ -1681,7 +1605,7 @@ without embedding the entire archive by default.
 - Dependencies: [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md);
 [Local inference adapters](records/0031-inference-implement-local-inference-adapters.md);
 [Model resource scheduler](records/0032-inference-implement-model-resource-scheduler.md);
-`build-paradedb-lexical-load-and-query-path`.
+[ParadeDB lexical load and query path](records/0070-lexical-build-paradedb-lexical-load-and-query-path.md).
 - User-visible outcome: Operators can embed a bounded, explainable corpus slice and resume batches
 while preserving model/profile identity.
 - Scope boundary: Implement tier selection and stable pgvector baseline; do not promote a
@@ -1732,7 +1656,7 @@ test, or retain a measured not-selected verdict.
 [Provided-archive integration runs](../design/spec.md#provided-archive-integration-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `compare-pgvector-paradedb-native-and-fallback-seam`;
-`prove-lexical-retrieval-on-provided-archive`; [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md).
+[Lexical retrieval provided-archive integration](records/0073-lexical-prove-lexical-retrieval-on-provided-archive.md); [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md).
 - User-visible outcome: Operators can inspect actual archive embeddings, vector/hybrid results,
 resource cost, and citations, or see why the branch remains disabled with lexical fallback working.
 - Scope boundary: Use only the forecast-approved selected tier and configured local models; do not

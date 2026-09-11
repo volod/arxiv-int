@@ -23,8 +23,8 @@ test: ## Run deterministic unit tests (excludes heavy Docker/host checks)
 test-heavy: ## Run Docker and other host-service tests marked heavy
 	@"$(PY)" -m pytest $(PYTEST_CACHE) -m heavy
 
-test-archive: ## Run the corpus integration test against configured archive roots
-	@$(load_env) && "$(PY)" -m pytest $(PYTEST_CACHE) tests/integration/corpus/test_archive_pipeline.py
+test-archive: ## Run provided-archive integration tests against configured roots
+	@$(load_env) && "$(PY)" -m pytest $(PYTEST_CACHE) -m archive
 
 coverage: ## Run tests and report coverage (diagnostic; no percentage floor)
 	@"$(PY)" -m pytest $(PYTEST_CACHE) -m "not heavy and not archive" --cov=arxiv_int --cov-report=term-missing

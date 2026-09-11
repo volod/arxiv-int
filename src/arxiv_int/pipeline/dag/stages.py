@@ -102,6 +102,30 @@ STAGE_OVERRIDES: Mapping[str, StageOverride] = {
         ),
         dependency_packages=_LAKE_PACKAGES,
     ),
+    "load-lexical": StageOverride(
+        contracts=("documents", "chunks"),
+        validators=("documents", "chunks"),
+        code_paths=(
+            "pipeline/load_lexical",
+            "pipeline/chunk/artifacts.py",
+            "pipeline/normalize/artifacts.py",
+            # The load projects extracted rows, then builds the projection through dbt
+            # against the configured store, so it owns those adapters as well.
+            "contracts/lint",
+            "contracts/migrations",
+            "data_quality/generate",
+            "extraction",
+            "readiness/report.py",
+            "retrieval/projection.py",
+            "runtime",
+            "stores/postgres",
+            "stores/postgres_image",
+            "stores/projections",
+            "transformations",
+            *_LAKE_PATHS,
+        ),
+        dependency_packages=(*_LAKE_PACKAGES, "psycopg", "dbt-postgres"),
+    ),
     "evaluate": StageOverride(
         code_paths=(
             "evaluation",
@@ -166,6 +190,7 @@ def production_registry() -> StageRegistry:
     from arxiv_int.pipeline.chunk.stage import ChunkStage
     from arxiv_int.pipeline.dedupe.stage import DedupeStage
     from arxiv_int.pipeline.inventory.stage import InventoryStage
+    from arxiv_int.pipeline.load_lexical.stage import LoadLexicalStage
     from arxiv_int.pipeline.normalize.stage import NormalizeStage
     from arxiv_int.pipeline.publish.preflight import PreflightStage
 
@@ -177,4 +202,5 @@ def production_registry() -> StageRegistry:
         .with_runner("normalize", NormalizeStage())
         .with_runner("dedupe", DedupeStage())
         .with_runner("chunk", ChunkStage())
+        .with_runner("load-lexical", LoadLexicalStage())
     )

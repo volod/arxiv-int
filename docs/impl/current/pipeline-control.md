@@ -5,8 +5,8 @@ logging with bounded resource telemetry, a fixture-first DAG CLI, a registered p
 readability worker, a read-only pre-run forecast, profile-declared knowledge-base publication,
 read-only stage artifact inspection, incremental source reconciliation, two-phase stale prune,
 and read-only citation/source location lookup are available. Concrete corpus stages through `chunk`
-are registered;
-classification and later investigation stages remain
+are registered, as is `load-lexical`
+([lexical retrieval](lexical-retrieval.md)); classification and later investigation stages remain
 [planned](../plan.md#archive-classification----archive-classification).
 
 See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface-contracts.md),

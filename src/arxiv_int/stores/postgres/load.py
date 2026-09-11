@@ -83,15 +83,38 @@ def truncate_staging(connection: Connection, table_name: str) -> None:
     connection.execute(text(f"TRUNCATE {STAGING_SCHEMA}.{table_name}"))
 
 
+_STAGING_TYPES_SQL = (
+    "SELECT attname, atttypid FROM pg_attribute "
+    "WHERE attrelid = to_regclass(:relation) AND attnum > 0 AND NOT attisdropped"
+)
+
+
+def staging_column_types(
+    connection: Connection, table_name: str, names: Sequence[str]
+) -> tuple[int, ...]:
+    """Return the staging column type OIDs in ``names`` order for binary COPY."""
+    relation = f"{STAGING_SCHEMA}.{table_name}"
+    rows = connection.execute(text(_STAGING_TYPES_SQL), {"relation": relation}).fetchall()
+    declared = {str(row.attname): int(row.atttypid) for row in rows}
+    missing = [name for name in names if name not in declared]
+    if missing:
+        listed = ", ".join(sorted(missing))
+        raise StagingRejectedError(f"{relation} is missing staging column(s) {listed}")
+    return tuple(declared[name] for name in names)
+
+
 def copy_binary(connection: Connection, table: Table, rows: Sequence[Mapping[str, Any]]) -> None:
     """Stream rows into a staging table with PostgreSQL binary COPY."""
     names = _column_names(table)
     quoted = ", ".join(names)
     sql = f"COPY {STAGING_SCHEMA}.{table.name} ({quoted}) FROM STDIN WITH (FORMAT binary)"
+    # Binary COPY applies no cast rule, so the declared column types are mandatory.
+    types = staging_column_types(connection, table.name, names)
     raw: Any = connection.connection.dbapi_connection
     if raw is None:
         raise RuntimeError("database connection is closed")
     with raw.cursor() as cursor, cursor.copy(sql) as copy:
+        copy.set_types(types)
         for row in rows:
             copy.write_row(tuple(row.get(name) for name in names))
 

@@ -187,7 +187,8 @@ Normalization, grouping and chunking fixture evidence is in
 ## Provided-archive integration
 
 `make test-archive` creates an ordinary run ending at `chunk` against the configured archive. The
-test applies the normal forecast and corpus runners, then independently rechecks generated Pandera
+same target also runs the lexical archive check. The corpus test applies the normal forecast and
+corpus runners, then independently rechecks generated Pandera
 contracts, attempt and snapshot checksums, source occurrence and quarantine accounting, source
 anchors, normalized views, offset maps, duplicate representatives, and every chunk's source
 reconstruction. It rehashes physical source files after the run and requires a second execution to

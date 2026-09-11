@@ -8,11 +8,13 @@ on one CUDA host.
 Configuration, readiness checks, local service management, typed foundation primitives,
 quality gates, the run ledger and stage DAG, and serialized progress logs exist today. The corpus
 foundation is shipped: an archive can be inventoried, extracted, normalized, deduplicated and
-chunked into validated, source-anchored artifacts. The archive-to-knowledge pipeline is **not
-complete**: retrieval, classification, NLP, knowledge extraction and reporting remain in the
-[forward plan](docs/impl/plan.md). See [current implementation](docs/impl/current.md)
-for available behavior and the [specification](docs/design/spec.md) and
-[architecture](docs/design/architecture.md) for the target.
+chunked into validated, source-anchored artifacts. Lexical retrieval is also shipped: those chunks
+load into the canonical store and are searchable with filters, snippets, facets and citations.
+The archive-to-knowledge pipeline is **not complete**: semantic retrieval, classification, NLP,
+knowledge extraction and reporting remain in the [forward plan](docs/impl/plan.md). See
+[current implementation](docs/impl/current.md) for available behavior and the
+[specification](docs/design/spec.md) and [architecture](docs/design/architecture.md) for the
+target.
 
 ## Quick start
 
@@ -31,13 +33,13 @@ work on retries, and reports what still needs attention. Edit `.env`; `.venv` is
 automatically. No activation or manual exports are required. Storage requirements are in the
 [setup guide](docs/guide/setup.md).
 
-Infrastructure-ready is not pipeline-ready. The corpus stages below are available; the later
-investigation stages are not.
+Infrastructure-ready is not pipeline-ready. The corpus and lexical stages below are available; the
+later investigation stages are not.
 
-### 2. Archive to analyst results -- corpus stages available
+### 2. Archive to analyst results -- corpus and lexical stages available
 
-After setup, the DAG commands allocate a unique run id and walk the selected profile. The corpus
-chain from an untouched archive to validated chunks runs end to end today:
+After setup, the DAG commands allocate a unique run id and walk the selected profile. The chain from
+an untouched archive to a searchable lexical projection runs end to end today:
 
 ```bash
 make run-create
@@ -49,14 +51,19 @@ make stage STAGE=extract RUN_ID="$RUN_ID"
 make stage STAGE=normalize RUN_ID="$RUN_ID"
 make stage STAGE=dedupe RUN_ID="$RUN_ID"
 make stage STAGE=chunk RUN_ID="$RUN_ID"
+make stage STAGE=load-lexical RUN_ID="$RUN_ID"
+make search-lexical QUERY="..."
 make inspect RUN_ID="$RUN_ID"
 ```
 
-`preflight`, `inventory`, `extract`, `normalize`, `dedupe`, `chunk` and `evaluate` are shipped
-runners. The default investigation profile still names unimplemented later stages, so the aggregate
+`preflight`, `inventory`, `extract`, `normalize`, `dedupe`, `chunk`, `load-lexical` and `evaluate`
+are shipped runners. `make search-lexical QUERY=...` queries the active ParadeDB projection; see
+[lexical retrieval](docs/impl/current/lexical-retrieval.md).
+
+The default investigation profile still names unimplemented later stages, so the aggregate
 `make pipeline` fails explicitly rather than activating an incomplete knowledge base.
-`make run-finalize RUN_ID=...` seals the run's `knowledge-base.json`; only a succeeded profile
-replaces `$RUNS_DIR/active-generation.json`.
+`make run-finalize RUN_ID=...` seals the run's `knowledge-base.json`;
+only a succeeded profile replaces `$RUNS_DIR/active-generation.json`.
 
 Do not pass Make's developer `RUN_ID=local` fallback. The source archive is read without
 modification; outputs use configured operator roots. Refresh `make forecast` before repeating a

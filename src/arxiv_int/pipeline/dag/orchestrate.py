@@ -216,6 +216,10 @@ class Orchestrator:
             from arxiv_int.pipeline.chunk.boundary import ChunkQuality
 
             return ChunkQuality(context)
+        if name == "load-lexical":
+            from arxiv_int.pipeline.load_lexical.boundary import LoadLexicalQuality
+
+            return LoadLexicalQuality(context)
         return ProductionQuality()
 
     def invalidate(self, stage: str, *, document_id: str | None = None) -> tuple[str, ...]:
