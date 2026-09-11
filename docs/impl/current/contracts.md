@@ -13,8 +13,9 @@ physical-to-canonical mapping,
 a canonical entity, and a reviewed semantic metadata hash. Shipped datasets cover documents, spans,
 chunks, objects, aliases, mentions, facts, topics, ontology terms, embeddings, source occurrences,
 document path events,
-transactions, catalogs, anomaly findings, evaluation items, and domain investigation artifact
-families (relationship map, BOM, supply chain, invoice/payment, registry).
+transactions, catalogs, anomaly findings, evaluation items, classification scheme classes, and
+domain investigation artifact families (relationship map, BOM, supply chain, invoice/payment,
+registry).
 
 `make contracts` syncs the `contracts` extra and runs `arxiv-int contracts lint`, which:
 
@@ -111,9 +112,9 @@ retained only as per-run evidence under `DATA_DIR`, not as a second committed sc
 The [boundary repair](../records/0028-store-refactor-foundation-store-acceptance-boundaries.md)
 and [prerelease consolidation](../records/0052-store-refactor-prerelease-migration-consolidation.md)
 record the amendment. Historical task snapshots describe their original implementation; their
-superseded revision numbers are not upgrade requirements for this unreleased baseline. Head is
-`0001`. Overlay tables that were briefly authored as `0002`-`0005` during development now live in
-that initial revision, as documented in
+superseded revision numbers are not upgrade requirements for this unreleased baseline. Head
+is `0002`: additive revision `0002` creates `corpus.classification_classes`. Overlay tables
+briefly authored as development-era revisions now live in the initial revision, as documented in
 [Canonical store](canonical-store.md).
 
 Live initial schema, HASH partitions, roles, staging COPY, and disposable apply evidence are

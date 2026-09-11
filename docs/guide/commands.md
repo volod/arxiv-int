@@ -59,6 +59,19 @@ from `--help` rather than silently doing nothing.
 The ordered chain, the stage dependency closure and the remaining planned stages are in the
 [operator workflow](operator-workflow.md#pipeline-atomic-chain).
 
+## Classification vocabulary
+
+| Command | Availability | Purpose |
+| --- | --- | --- |
+| `arxiv-int classification build-scheme --run-id RUN_ID` | available | Validate the packaged MIT subject taxonomy (coverage, balance, captions, licence) and freeze a content-addressed snapshot plus a draft review packet; `make classification-scheme`. |
+| `arxiv-int classification check-scheme --run-id RUN_ID\|--scheme DIR [--expect-scheme-id ID]` | available | Re-verify checksums, closure, tokens, coverage and staleness; `make classification-check`. |
+| `arxiv-int classification show CLASS\|CODE --run-id RUN_ID\|--scheme DIR` | available | Print a class with its path, captions, crosswalk and scheme version; a deep code reports its truncation; `make classification-show`. |
+| `arxiv-int classification tree [--root CODE] [--depth N] [--run-id RUN_ID\|--scheme DIR]` | available | Print taxonomy codes and English captions, from the packaged taxonomy by default; `make classification-tree`. |
+| `arxiv-int classification freeze-labels --run-id RUN_ID --labels FILE --label-set ID` | available | Validate gold labels and freeze leakage-free evaluation splits; `make classification-labels`. |
+| `arxiv-int stage classify --run-id RUN_ID` | planned | Assign every inventoried file to the taxonomy or an exceptional outcome. |
+
+See [archive classification](../impl/current/archive-classification.md).
+
 ## Source lookup and archive organization
 
 | Command | Availability | Purpose |

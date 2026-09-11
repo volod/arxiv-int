@@ -5,7 +5,8 @@ PostgreSQL major, `pg_search`, pgvector, and a pinned Apache AGE build together.
 application is in place: the irreversible initial Alembic revision `0001` owns every contract
 table, including `corpus.normalized_documents` and `corpus.duplicate_groups`, their HASH partitions
 and staging clones, provenance constraints, roles, the empty `derived` schema, versioned projection
-metadata, the run ledger, stage progress, and reconcile control tables. Head is `0001`. A local dbt project
+metadata, the run ledger, stage progress, and reconcile control tables; additive revision
+`0002` creates `corpus.classification_classes`. Head is `0002`. A local dbt project
 builds isolated derived generations
 and projection inputs. Search, vector, and graph projections are rebuildable and are never
 canonical.
@@ -78,7 +79,8 @@ beside it. Missing image or URL is `not-run`, never a pass.
 
 ## Canonical schema
 
-`src/arxiv_int/migrations/versions/0001_initial_store.py` is the only revision. Head is `0001`.
+`src/arxiv_int/migrations/versions/0001_initial_store.py` is the initial revision; additive
+`0002_classification_scheme_classes.py` creates `corpus.classification_classes`. Head is `0002`.
 The operator authorized consolidating development-era revisions into `0001` before any deployed
 database or public release, so an empty database applies one readable CREATE-time schema rather
 than a development history. Every contract table that declares a partition key is created

@@ -28,56 +28,17 @@ and name ready/pending human decisions and the dependent work that must wait at 
 
 ### Archive classification -- `archive-classification`
 
-#### establish-versioned-udc-derived-scheme
-
-Establish the authorized UDC-derived hierarchy, project extension namespace, special outcomes, and
-evaluation labels used to classify archive files.
-
-- Serves: `archive-classification` --
-[Hierarchical archive classification and optional reorganization](../design/spec.md#hierarchical-archive-classification-and-optional-reorganization)
-- Agent status: RUN NEEDED
-- Research: yes
-- Dependencies: [Canonical contract registry](records/0010-contract-gov-establish-canonical-contract-registry.md);
-[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
-- Human review handoff:
-[approve-classification-policy](#approve-classification-policy)
-vocabulary, thresholds and exception examples.
-Packet: `$RUNS_DIR/<run-id>/review/classification/`.
-Draft contribution; the linked proof and other human prerequisites still apply.
-Blocked consumer:
-`publish-provided-archive-end-to-end-proof`
-and `approve-archive-organization-plan`.
-Report readiness using the human-handoff workflow; never self-approve.
-Decision: accept/revise the hierarchy, thresholds and exceptional outcomes, or retain unclassified.
-- User-visible outcome: Operators can inspect the exact hierarchy, captions, parent links, licence,
-local extensions, and version behind every file assignment.
-- Scope boundary: Use the distributable UDC Summary or an operator-provided licensed MRF snapshot;
-do not redistribute restricted schedules or label project extensions and exceptional outcomes as
-official UDC notation.
-- Data and artifact paths: `contracts/datasets/classification*.odcs.yaml`,
-`configs/classification/`, `src/arxiv_int/classification/vocabulary/`, synthetic classification
-fixtures, and `$RUNS_DIR/<run-id>/classification/`; reviewed gold labels stay under the operator's
-configured evaluation roots.
-- Execution path: Import and checksum the selected vocabulary; parse simple hierarchy, auxiliaries,
-and compound notation; define stable local extension ids plus `unclassified` and `unreadable`;
-freeze multilingual captions, parent closure, path-safe tokens, and evaluation splits.
-- Acceptance gates: Codes and parents round-trip; cycles, orphaned classes, namespace collisions,
-missing attribution, and stale snapshots fail validation; the Summary-only baseline works without a
-licence secret; unavailable deep schedules yield a documented Summary baseline rather than guessed
-classes.
-- Documentation target: `docs/impl/current/archive-classification.md`
-- Review checkpoint: `review-retrieval-and-classification-boundaries`.
-
 #### implement-hierarchical-file-classification
 
 Add a restartable stage that maps every inventoried physical file to primary and alternate
-UDC-derived classes or one explicit exceptional outcome.
+subject-taxonomy classes or one explicit exceptional outcome.
 
 - Serves: `archive-classification` --
 [Hierarchical archive classification and optional reorganization](../design/spec.md#hierarchical-archive-classification-and-optional-reorganization)
 - Agent status: RUN NEEDED
 - Research: yes
-- Dependencies: `establish-versioned-udc-derived-scheme`;
+- Dependencies: [Versioned classification scheme](records/0076-archive-cls-establish-versioned-udc-derived-scheme.md);
+[MIT subject taxonomy](records/0077-archive-cls-adopt-permissive-subject-taxonomy.md);
 [Normalization, dedupe and chunking](records/0062-corpus-implement-normalization-dedupe-and-chunking.md);
 [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md).
 Reviewed real-corpus quality is accepted by the separate proof/human tasks.
@@ -120,14 +81,17 @@ Review searchable/classifiable corpus accounting before archive quality and poli
 - Task kind: checkpoint
 - Dependencies: [Checkpoint 0063](records/0063-corpus-review-corpus-and-control-integrity.md);
 [Russian lexical calibration second opinion](records/0072-lexical-review-and-deepen-russian-lexical-calibration.md);
-`establish-versioned-udc-derived-scheme`; `implement-hierarchical-file-classification`;
+[Versioned classification scheme](records/0076-archive-cls-establish-versioned-udc-derived-scheme.md);
+[MIT subject taxonomy](records/0077-archive-cls-adopt-permissive-subject-taxonomy.md);
+`implement-hierarchical-file-classification`;
 [Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
 - Audit inputs: [AUD-review-corpus-and-control-integrity-7](records/0063-corpus-review-corpus-and-control-integrity.md#audit-handoff);
 [AUD-build-paradedb-lexical-1](records/0070-lexical-build-paradedb-lexical-load-and-query-path.md#audit-handoff);
 [AUD-review-and-deepen-russian-lexical-calibration-1](records/0072-lexical-review-and-deepen-russian-lexical-calibration.md#audit-handoff);
 [AUD-review-and-deepen-russian-lexical-calibration-2](records/0072-lexical-review-and-deepen-russian-lexical-calibration.md#audit-handoff);
 [AUD-review-and-deepen-russian-lexical-calibration-3](records/0072-lexical-review-and-deepen-russian-lexical-calibration.md#audit-handoff);
-[AUD-build-paradedb-lexical-2](records/0070-lexical-build-paradedb-lexical-load-and-query-path.md#audit-handoff).
+[AUD-build-paradedb-lexical-2](records/0070-lexical-build-paradedb-lexical-load-and-query-path.md#audit-handoff);
+[AUD-establish-versioned-udc-derived-scheme-1](records/0076-archive-cls-establish-versioned-udc-derived-scheme.md#audit-handoff).
 - User-visible outcome:
 Retrieval and classification proofs consume coherent source, vocabulary and query identities.
 - Scope boundary:
@@ -173,8 +137,8 @@ Blocked consumer:
 and `approve-archive-organization-plan`.
 Report readiness using the human-handoff workflow; never self-approve.
 Decision: accept/revise the hierarchy, thresholds and exceptional outcomes, or retain unclassified.
-- User-visible outcome: Every supplied file has a UDC-derived or explicit exceptional result, with hierarchy,
-confidence, evidence/failure reasons, and initial source lookup.
+- User-visible outcome: Every supplied file has a subject-taxonomy or explicit exceptional result,
+with hierarchy, confidence, evidence/failure reasons, and initial source lookup.
 - Scope boundary: Run classification and source-manifest validation only; archive placement and its dry-run
 are accepted independently under `archive-organization`.
 - Data and artifact paths: `$ARCHIVE_DIR` used without modification,
@@ -2089,7 +2053,7 @@ items return to the owning capability; Community ParadeDB HA limitations remain 
 
 #### approve-archive-organization-plan
 
-Review the UDC-derived vocabulary, classification operating point, directory vocabulary, placement
+Review the subject taxonomy, classification operating point, directory vocabulary, placement
 mode, and one complete dry-run before any real archive reorganization.
 
 - Serves: `archive-organization` --
@@ -2109,8 +2073,8 @@ classification evaluation, `$RUNS_DIR/<run-id>/archive-reorganization/plan.json`
 backup reference, and local decision ledger.
 - Execution path: Present class and ancestor errors, `unclassified`/`unreadable` samples, coverage,
 calibration, proposed ASCII paths, collisions/path lengths, placement counts/bytes, target free space
-for `copy` against archive rewrite risk for `move`, source lookup, rollback drill, and UDC
-attribution; record the exact accepted fingerprints, mode, and decision.
+for `copy` against archive rewrite risk for `move`, source lookup, rollback drill, and taxonomy
+licence; record the exact accepted fingerprints, mode, and decision.
 - Acceptance gates: Decision is `apply`, `mapping-only`, `revise`, or `stop`; `apply` names the exact
 classification and plan ids, mode, silo root and device, copy target or verified backup, stop
 conditions, and responsible operator; stale or unapproved plans remain non-writable.

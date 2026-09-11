@@ -1,0 +1,176 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:canonical:classification_class:1.0.0
+name: classification_class
+status: active
+schema:
+  - name: classification_class
+    logicalType: object
+    properties:
+      - name: scheme_class_id
+        logicalType: string
+        required: true
+        primaryKey: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: classification_class.schemeClassId
+                semanticTerm: "urn:arxiv-int:term:scheme-class-id"
+      - name: scheme_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: classification_class.schemeId
+                semanticTerm: "urn:arxiv-int:term:scheme-id"
+      - name: class_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: classification_class.classId
+                semanticTerm: "urn:arxiv-int:term:class-id"
+      - name: namespace
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: classification_class.namespace
+                semanticTerm: "urn:arxiv-int:term:class-namespace"
+      - name: code
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: classification_class.code
+                semanticTerm: "urn:arxiv-int:term:class-code"
+      - name: parent_class_id
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: classification_class.parentClassId
+                semanticTerm: "urn:arxiv-int:term:parent-class-id"
+      - name: ancestor_path
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: classification_class.ancestorPath
+                semanticTerm: "urn:arxiv-int:term:ancestor-path"
+      - name: depth
+        logicalType: integer
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: classification_class.depth
+                semanticTerm: "urn:arxiv-int:term:class-depth"
+      - name: class_kind
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: classification_class.classKind
+                semanticTerm: "urn:arxiv-int:term:kind"
+      - name: caption_en
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: classification_class.captionEn
+                semanticTerm: "urn:arxiv-int:term:caption-en"
+      - name: caption_ru
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: classification_class.captionRu
+                semanticTerm: "urn:arxiv-int:term:caption-ru"
+      - name: caption_uk
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: classification_class.captionUk
+                semanticTerm: "urn:arxiv-int:term:caption-uk"
+      - name: captions_json
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: classification_class.captionsJson
+                semanticTerm: "urn:arxiv-int:term:captions-json"
+      - name: crosswalk_json
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: classification_class.crosswalkJson
+                semanticTerm: "urn:arxiv-int:term:crosswalk-json"
+      - name: path_token
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: classification_class.pathToken
+                semanticTerm: "urn:arxiv-int:term:path-token"
+      - name: slug
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: classification_class.slug
+                semanticTerm: "urn:arxiv-int:term:slug"
+      - name: scheme_version
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: classification_class.schemeVersion
+                semanticTerm: "urn:arxiv-int:term:scheme-version"
+      - name: generation_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: classification_class.generationId
+                semanticTerm: "urn:arxiv-int:term:generation-id"
+      - name: contract_version
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: classification_class.contractVersion
+                semanticTerm: "urn:arxiv-int:term:contract-version"

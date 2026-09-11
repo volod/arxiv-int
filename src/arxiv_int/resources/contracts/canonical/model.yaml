@@ -17,6 +17,8 @@ semanticTerms:
     valueType: string
   urn:arxiv-int:term:amount:
     valueType: number
+  urn:arxiv-int:term:ancestor-path:
+    valueType: string
   urn:arxiv-int:term:anchor-kind:
     valueType: string
   urn:arxiv-int:term:artifact-id:
@@ -31,6 +33,14 @@ semanticTerms:
     valueType: integer
   urn:arxiv-int:term:byte-size:
     valueType: integer
+  urn:arxiv-int:term:caption-en:
+    valueType: string
+  urn:arxiv-int:term:caption-ru:
+    valueType: string
+  urn:arxiv-int:term:caption-uk:
+    valueType: string
+  urn:arxiv-int:term:captions-json:
+    valueType: string
   urn:arxiv-int:term:cardinality:
     valueType: string
   urn:arxiv-int:term:catalog-entry-id:
@@ -44,6 +54,14 @@ semanticTerms:
   urn:arxiv-int:term:chunk-id:
     valueType: string
   urn:arxiv-int:term:chunker-id:
+    valueType: string
+  urn:arxiv-int:term:class-code:
+    valueType: string
+  urn:arxiv-int:term:class-depth:
+    valueType: integer
+  urn:arxiv-int:term:class-id:
+    valueType: string
+  urn:arxiv-int:term:class-namespace:
     valueType: string
   urn:arxiv-int:term:cluster-id:
     valueType: string
@@ -60,6 +78,8 @@ semanticTerms:
   urn:arxiv-int:term:contract-version:
     valueType: string
   urn:arxiv-int:term:creation-status:
+    valueType: string
+  urn:arxiv-int:term:crosswalk-json:
     valueType: string
   urn:arxiv-int:term:currency:
     valueType: string
@@ -191,6 +211,8 @@ semanticTerms:
     valueType: integer
   urn:arxiv-int:term:page:
     valueType: integer
+  urn:arxiv-int:term:parent-class-id:
+    valueType: string
   urn:arxiv-int:term:parent-object-id:
     valueType: string
   urn:arxiv-int:term:party-object-id:
@@ -200,6 +222,8 @@ semanticTerms:
   urn:arxiv-int:term:path-event-id:
     valueType: string
   urn:arxiv-int:term:path-id:
+    valueType: string
+  urn:arxiv-int:term:path-token:
     valueType: string
   urn:arxiv-int:term:payment-date:
     valueType: timestamp
@@ -253,13 +277,19 @@ semanticTerms:
     valueType: string
   urn:arxiv-int:term:schema-version:
     valueType: string
+  urn:arxiv-int:term:scheme-class-id:
+    valueType: string
   urn:arxiv-int:term:scheme-id:
+    valueType: string
+  urn:arxiv-int:term:scheme-version:
     valueType: string
   urn:arxiv-int:term:score:
     valueType: number
   urn:arxiv-int:term:severity:
     valueType: string
   urn:arxiv-int:term:silo-id:
+    valueType: string
+  urn:arxiv-int:term:slug:
     valueType: string
   urn:arxiv-int:term:span-id:
     valueType: string
@@ -330,6 +360,8 @@ entities:
     contract: odcs/topic.odcs.yaml
   ontology_term:
     contract: odcs/ontology_term.odcs.yaml
+  classification_class:
+    contract: odcs/classification_class.odcs.yaml
   embedding:
     contract: odcs/embedding.odcs.yaml
   source_occurrence:

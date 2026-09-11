@@ -9,12 +9,12 @@ objects, provenance-bearing facts, and the
 search, graph, and investigation views built from them. Its Python distribution and import package
 are both `arxiv-int` / `arxiv_int`. The system inventories and normalizes an immutable archive,
 builds reproducible lexical and selected semantic indexes, discovers topics, extracts and resolves
-entities and facts, classifies source files in a UDC-derived hierarchy, projects a knowledge graph
-and evidence-backed domain artifacts, and supports local search, analysis, and visualization without
-requiring document or prompt egress. Required outputs include company, product, and person catalogs,
-explainable anomaly findings, and an analyst report linking summaries to exact evidence. Financial,
-bookkeeping, and product-description lanes support party relationships, supply chains, and
-evidence-backed bills of materials. An explicit, separately authorized maintenance command can
+entities and facts, classifies source files in a versioned subject taxonomy, projects a knowledge
+graph and evidence-backed domain artifacts, and supports local search, analysis, and visualization
+without requiring document or prompt egress. Required outputs include company, product, and person
+catalogs, explainable anomaly findings, and an analyst report linking summaries to exact evidence.
+Financial, bookkeeping, and product-description lanes support party relationships, supply chains,
+and evidence-backed bills of materials. An explicit, separately authorized maintenance command can
 reorganize the archive after classification -- copying the classified tree into a target directory,
 or moving the silo in place -- while preserving an auditable original-to-current path map.
 
@@ -46,7 +46,7 @@ project results.
 | [Apache AGE](https://github.com/apache/age/tree/0e30566226f017d53b7f52025803b38af3ad2b3f)                     | `0e30566`; README advertises AGE 1.8.0 and PostgreSQL 11-18 | AGE is feasible on the same PostgreSQL major, but the ParadeDB combination is not listed as an upstream-tested extension set and needs a project-owned image and compatibility gate.         |
 | [pgvector](https://github.com/pgvector/pgvector/tree/e48241b4dcc045b18902914f668d03d1d399dfbe)                | `e48241b`; README install pin `0.8.6`                       | Stable exact, HNSW, IVFFlat, half-vector, binary-quantization, and iterative-scan baseline; large HNSW builds remain memory and maintenance intensive.                                       |
 | [ODCS](https://github.com/bitol-io/open-data-contract-standard/tree/f5bfbb813fe2c0551e2c324913f330e7807885d8) | `f5bfbb8`; standard `3.1.0`                                 | ODCS is the human and machine-readable contract source of truth; its custom properties carry project generation hints that the standard does not define.                                     |
-| [UDC Consortium](https://udcc.org/index.php/site/page?view=about_structure) and [UDC Summary](https://udcsummary.info/php/index.php?lang=en) | Web references inspected 2026-09-04                        | UDC supplies a faceted, syntactically expressive hierarchy; the project must pin an authorized vocabulary snapshot and keep local outcomes/extensions distinguishable from official notation. |
+| [OpenAlex](https://docs.openalex.org/) domains, fields, subfields and topics | API snapshot 2026-09-11; data under CC0 | A modern research-literature subject hierarchy (4 domains, 26 fields, 252 subfields); it is the checked coverage crosswalk for the project-authored MIT subject taxonomy. The UDC Summary (CC BY-NC 4.0, uneven depth) was rejected for licence and balance reasons. |
 
 Relevant implementation constraints:
 
@@ -83,12 +83,12 @@ Relevant implementation constraints:
   structured output. See [Linux service setup](https://docs.ollama.com/linux),
   [embeddings](https://docs.ollama.com/api/embed), and
   [structured outputs](https://docs.ollama.com/capabilities/structured-outputs).
-- UDC notation is hierarchical and faceted: longer simple notations express narrower concepts, and
-  auxiliaries or connecting signs represent language, form, place, time, and relationships. The
-  freely reusable UDC Summary contains about 2,600 classes under CC BY-SA 3.0; software use of the
-  complete Master Reference File requires the applicable UDC Consortium licence. See the
-  [UDC Summary](https://udcsummary.info/php/index.php?lang=en) and
-  [UDC licence terms](https://udcc.org/index.php/site/page?view=licences).
+- Candidate subject vocabularies were compared for licence and balance on 2026-09-11. The UDC
+  Summary is CC BY-NC 4.0 with same-licence redistribution and very uneven depth; MSC2020 and ACM
+  CCS are not permissively licensed; no maintained MIT subject taxonomy fits. OpenAlex publishes its
+  domain, field, subfield and topic hierarchy as CC0 data, so it can serve as a coverage source for
+  a project-authored taxonomy. See [OpenAlex](https://docs.openalex.org/) and the
+  [UDC Summary conditions of use](https://udcsummary.info/about.htm).
 
 ## Design principles
 
@@ -136,7 +136,8 @@ The first production-shaped release includes:
   attribution, MIME/encoding/language detection, hashes, exact deduplication, and quarantines;
 - text and metadata extraction from common office, text, email, archive, image, and PDF formats,
   with OCR/layout lanes selected by policy;
-- versioned, multi-label hierarchical source classification derived from UDC, including explicit
+- versioned, multi-label hierarchical source classification over the project's MIT subject taxonomy,
+  including explicit
   `unclassified` and `unreadable` outcomes, plus a separately authorized archive-reorganization
   command that either copies the classified tree to a target directory or moves the silo in place,
   with a reversible path ledger;
@@ -1015,7 +1016,7 @@ orchestrator.
 | `normalize`    | UTF-8, Unicode normalization, boilerplate policy, language, metadata        | Canonical document records    |
 | `dedupe`       | Exact, normalized, lexical/MinHash, edition groups; no destructive deletion | Duplicate overlays            |
 | `chunk`        | Structure/table/sentence-aware chunks with overlap and source spans         | Chunk Parquet                 |
-| `classify`     | UDC-derived multi-label assignment, primary class, exceptional outcomes    | File-classification map       |
+| `classify`     | Subject-taxonomy multi-label assignment, primary class, exceptional outcomes | File-classification map       |
 | `load-lexical` | PostgreSQL bulk load and ParadeDB index build/refresh                       | Lexical search projection     |
 | `nlp`          | Russian morphology, NER, terminology, mention candidates                    | Mentions and term statistics  |
 | `embed`        | Selective embeddings and optional reranker candidates                       | Versioned embedding artifacts |
@@ -1089,17 +1090,25 @@ union of independently produced milestone results.
 
 Operators need a navigable subject view of source silos without losing ambiguous material or the
 path from a derived claim back to its original file. The `classify` stage assigns every inventoried
-physical file a versioned result from a hierarchy derived from Universal Decimal Classification
-(UDC). It is multi-label because UDC can express several subjects and facets, while one declared
-primary simple class and its ancestors determine a possible physical filing path. Compound UDC
-expressions, auxiliary facets, alternate candidates, captions, scores, evidence, classifier
-identity, vocabulary version, and review state remain in the mapping artifact rather than being
-encoded completely into directory names.
+physical file a versioned result from the arxiv-int Subject Taxonomy: a project-authored hierarchy
+of domains, fields and subfields with English, Russian and Ukrainian captions, released under the
+project's MIT licence. It is multi-label because a document can concern several subjects, while one
+declared primary class and its ancestors determine a possible physical filing path. Alternate
+candidates, captions, scores, evidence, classifier identity, taxonomy version, and review state
+remain in the mapping artifact rather than being encoded completely into directory names.
 
-The vocabulary source is explicit and checksummed. The CC BY-SA UDC Summary is the distributable
-baseline; an operator may configure a licensed MRF or authorized service snapshot for deeper
-coverage. Locally required subdivisions use a separate project namespace and parent link and never
-masquerade as official UDC codes. Two project outcomes are mandatory and are not UDC notations:
+The taxonomy ships with the code under one licence, so classification needs no operator licence,
+secret, or vocabulary download. It is balanced: every leaf is a subfield at depth three, branching
+is bounded, and no domain holds more than a configured share of subfields. Science, computing,
+engineering and construction are detailed first. The taxonomy is compiled against permissively
+licensed sources kept as checksummed snapshots beside it, initially the CC0 OpenAlex subfields and
+construction topics; every source item maps to exactly one taxonomy class, so coverage of the source
+topics is checked rather than assumed. Each scheme snapshot is content-addressed and records the
+taxonomy, source, policy and extension fingerprints. Class ids use disjoint namespaces: `tax:<code>`
+for taxonomy classes, `ext:<name>` for operator-local subdivisions with an explicit parent, and the
+bare outcomes below. A code below the available depth resolves to its nearest present ancestor with
+the truncation recorded; no deeper class is guessed. Two outcomes are mandatory and are not
+taxonomy classes:
 
 - `unclassified`: usable content exists, but no supported class clears the acceptance threshold or
   the material is random/non-substantive;
@@ -1113,7 +1122,7 @@ extraction/classifier/configuration fingerprints, and run id.
 Low-confidence cases remain `unclassified`; unreadability is determined from recorded inventory and
 extraction outcomes, not guessed from filename extensions. A valid negative result is a complete
 mapping with a high exceptional-outcome rate and a recommendation to improve extraction or labels;
-the pipeline must not force ordinary UDC assignments to improve coverage.
+the pipeline must not force ordinary taxonomy assignments to improve coverage.
 
 ### Separate archive organization utility
 

@@ -203,7 +203,7 @@ Alembic revision `0001` is frozen DDL for contract tables, HASH partitions inclu
 `corpus.document_path_event`, staging clones, projection metadata, `ctl.run`, `stage_run`,
 `shard_run`, `reuse_lease`, `checkpoint`, `shard_error`, `artifact_manifest`, `artifact_lineage`,
 `resource_lease`, `ctl.stage_progress`, `ctl.source_tombstone`, `ctl.prune_event`, and
-`ctl.artifact_pin`. Head is `0001`.
+`ctl.artifact_pin`. Head is `0002`.
 `ctl.resource_lease` exists for later
 SQL writers; inference still appends JSONL. `0001` teardown remains refused. Complete current
 overlays stamp `0001`. Partial catalogs are refused.
