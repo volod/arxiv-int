@@ -136,7 +136,7 @@ Accepted. Plan tasks: 58 before (48 agent, 10 human), 57 after (47 agent, 10 hum
 this record, and audit note 1 is routed to `review-retrieval-and-classification-boundaries`. Next
 eligible agent task: `implement-hierarchical-file-classification`.
 
-Human review handoff: task [approve-classification-policy](../plan.md#approve-classification-policy);
+Human review handoff: task [approve-classification-policy](0078-archive-cls-approve-classification-policy.md);
 packet `$RUNS_DIR/run-a36dcc2e9ca249059857b1dae09a9d46/review/classification/vocabulary.json`
 (scheme `udc-summary-be59351e5499`); readiness: draft vocabulary section only, pending thresholds and
 exception examples from the classify task and the provided-archive proof. Inspect with

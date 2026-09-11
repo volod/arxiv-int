@@ -44,15 +44,15 @@ subject-taxonomy classes or one explicit exceptional outcome.
 Reviewed real-corpus quality is accepted by the separate proof/human tasks.
 [Corpus and control integrity checkpoint](records/0063-corpus-review-corpus-and-control-integrity.md).
 - Human review handoff:
-[approve-classification-policy](#approve-classification-policy)
-vocabulary, thresholds and exception examples.
+[approve-classification-operating-point](#approve-classification-operating-point)
+thresholds and exception examples.
 Packet: `$RUNS_DIR/<run-id>/review/classification/`.
 Draft contribution; the linked proof and other human prerequisites still apply.
 Blocked consumer:
 `publish-provided-archive-end-to-end-proof`
 and `approve-archive-organization-plan`.
 Report readiness using the human-handoff workflow; never self-approve.
-Decision: accept/revise the hierarchy, thresholds and exceptional outcomes, or retain unclassified.
+Decision: accept/revise the thresholds and exceptional outcomes, or retain unclassified.
 - User-visible outcome: Each source file has a searchable, evidence-backed hierarchical assignment,
 while random text and extraction failures remain visibly `unclassified` or `unreadable`.
 - Scope boundary: Produce mappings and review candidates only; do not move source files, classify
@@ -128,15 +128,15 @@ Classify the supplied archive and validate its complete hierarchical mapping and
 [Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
 `review-retrieval-and-classification-boundaries`.
 - Human review handoff:
-[approve-classification-policy](#approve-classification-policy)
-final errors, calibration, coverage and policy decision packet.
+[approve-classification-operating-point](#approve-classification-operating-point)
+final errors, calibration, coverage and operating-point decision packet.
 Packet: `$RUNS_DIR/<run-id>/review/classification/`.
 Ready after this proof passes.
 Blocked consumer:
 `publish-provided-archive-end-to-end-proof`
 and `approve-archive-organization-plan`.
 Report readiness using the human-handoff workflow; never self-approve.
-Decision: accept/revise the hierarchy, thresholds and exceptional outcomes, or retain unclassified.
+Decision: accept/revise the thresholds and exceptional outcomes, or retain unclassified.
 - User-visible outcome: Every supplied file has a subject-taxonomy or explicit exceptional result,
 with hierarchy, confidence, evidence/failure reasons, and initial source lookup.
 - Scope boundary: Run classification and source-manifest validation only; archive placement and its dry-run
@@ -1287,7 +1287,7 @@ covering every usable pipeline stage and artifact family.
 [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 Semantic proof is required only for a selected vector branch.
 `review-investigation-and-report-integrity`.
-`approve-classification-policy`; `approve-entity-merge-and-ontology-policy`;
+`approve-classification-operating-point`; `approve-entity-merge-and-ontology-policy`;
 `approve-fact-review-and-publication-policy`; `approve-domain-artifact-semantics-and-inclusion`;
 `approve-anomaly-triage-policy`; `accept-operator-discovery-workflows`.
 - User-visible outcome: One command/report shows which pipeline stages have current proof on the
@@ -1827,25 +1827,27 @@ follow-ups in the checkpoint record without claiming a wider audit.
 
 ### Archive classification -- `archive-classification`
 
-#### approve-classification-policy
+#### approve-classification-operating-point
 
-Review the hierarchy and confidence/exception policy without authorizing any file placement.
+Accept the classifier operating point on the approved subject taxonomy without authorizing any file
+placement.
 
 - Serves: `archive-classification` -- [Hierarchical archive classification and optional reorganization](../design/spec.md#hierarchical-archive-classification-and-optional-reorganization)
 - Agent status: HUMAN-GATED
-- Dependencies: `prove-archive-classification-on-provided-archive`.
-- User-visible outcome: The owner accepts the classification operating point, vocabulary,
-exceptional outcomes,
-and coverage limits for use in archive browsing and future organization plans.
-- Scope boundary: Approve one versioned classification policy only; this neither chooses a
-destination nor
-authorizes copying or moving files.
-- Data and artifact paths: `configs/policy/classification.yaml`, vocabulary manifest, and
-`$RUNS_DIR/<run-id>/review/classification/`.
-- Execution path: Present hierarchical errors, ancestor metrics, ambiguous/exception samples, thresholds,
-calibration, attribution and review effort; record accept, revise, or retain-unclassified.
-- Acceptance gates: The exact vocabulary/profile/policy fingerprints and decision are recorded; low-confidence
-files remain exceptional; no filesystem mutation is requested.
+- Dependencies: `prove-archive-classification-on-provided-archive`;
+[Classification taxonomy approval](records/0078-archive-cls-approve-classification-policy.md).
+- User-visible outcome: The owner accepts the thresholds, calibration, exceptional-outcome handling
+and coverage limits used for archive browsing and future organization plans.
+- Scope boundary: Approve one versioned operating point on the approved taxonomy only; the taxonomy
+itself was accepted separately. This neither chooses a destination nor authorizes copying or moving
+files.
+- Data and artifact paths: `configs/policy/classification.yaml`, classifier profile, scheme
+manifest, and `$RUNS_DIR/<run-id>/review/classification/`.
+- Execution path: Present hierarchical errors, ancestor metrics, ambiguous/exception samples,
+thresholds, calibration and review effort; confirm the Russian and Ukrainian captions; record accept,
+revise, or retain-unclassified.
+- Acceptance gates: The exact scheme/profile/policy fingerprints and decision are recorded;
+low-confidence files remain exceptional; no filesystem mutation is requested.
 - Documentation target: `docs/impl/current/archive-classification.md`
 - Review checkpoint: `review-investigation-and-report-integrity`.
 
@@ -2003,7 +2005,7 @@ archive and which optional profiles are included.
 - Agent status: HUMAN-GATED
 - Dependencies: `run-representative-scale-pilots`; `test-failure-and-capacity-boundaries`;
 `accept-recovery-and-security-posture`; `accept-operator-discovery-workflows`;
-`approve-classification-policy`; `approve-fact-review-and-publication-policy`;
+`approve-classification-operating-point`; `approve-fact-review-and-publication-policy`;
 `approve-entity-merge-and-ontology-policy`; `approve-domain-artifact-semantics-and-inclusion`;
 `approve-anomaly-triage-policy`; `review-production-readiness-and-recovery`.
 `review-semantic-branch-integrity` only if the semantic branch is selected.
@@ -2060,7 +2062,7 @@ mode, and one complete dry-run before any real archive reorganization.
 [Separate archive organization utility](../design/spec.md#separate-archive-organization-utility)
 - Agent status: HUMAN-GATED
 - Dependencies: `prove-archive-organization-on-provided-artifacts`;
-`approve-classification-policy`; verified move backup from
+`approve-classification-operating-point`; verified move backup from
 `implement-backup-restore-and-rebuild-runbook` only when move mode is selected.
 `review-archive-organization-integrity`.
 - User-visible outcome: The owner explicitly accepts which assignments may determine paths, chooses

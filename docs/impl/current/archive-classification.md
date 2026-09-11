@@ -10,7 +10,8 @@ see
 
 See [record 0076](../records/0076-archive-cls-establish-versioned-udc-derived-scheme.md) (first
 scheme, built on the UDC Summary and superseded) and
-[record 0077](../records/0077-archive-cls-adopt-permissive-subject-taxonomy.md) (current taxonomy).
+[record 0077](../records/0077-archive-cls-adopt-permissive-subject-taxonomy.md) (current taxonomy) and
+[record 0078](../records/0078-archive-cls-approve-classification-policy.md) (taxonomy approval).
 
 ## Subject taxonomy
 
@@ -52,6 +53,17 @@ GitHub.
 `scheme.json` sets the limits: every taxonomy leaf at depth 3, every parent with 2 to 16 children,
 and no domain above 25% of subfields. The shipped taxonomy has fan-out 2 to 12 and a largest domain
 share of 21.1% (construction).
+
+## Approval
+
+On 2026-09-11 the operator reviewed the tree with `make classification-tree` and accepted taxonomy
+`arxiv-int-subjects` 1.0.0 (`taxonomy.json` sha256 `18ce5c7f...`, scheme `subjects-1c0d5213ec52`);
+see [record 0078](../records/0078-archive-cls-approve-classification-policy.md). The acceptance
+covers the hierarchy, English captions, source coverage and balance. A changed `taxonomy.json`
+needs a new taxonomy decision before downstream use. Thresholds, calibration, exception handling,
+coverage limits and the Russian and Ukrainian captions await
+[approve-classification-operating-point](../plan.md#approve-classification-operating-point), after
+the classifier and its provided-archive proof exist.
 
 ## Namespaces and outcomes
 
@@ -107,7 +119,7 @@ store belongs to the classify stage.
 [command reference](../../guide/commands.md#classification-vocabulary). `tree` prints codes and
 English captions of the packaged taxonomy without a run. `build-scheme` also writes a draft
 `$RUNS_DIR/<run-id>/review/classification/vocabulary.json` packet for
-`approve-classification-policy`; it is not an approval and carries no thresholds yet.
+`approve-classification-operating-point`; it is not an approval and carries no thresholds yet.
 
 ## Maintaining the taxonomy
 

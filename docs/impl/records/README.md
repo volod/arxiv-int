@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0078` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0079` after the rows
 below).
 
 | Record | Scope | Result |
@@ -89,3 +89,4 @@ below).
 | [0075 Lexical store-wide load lock](0075-lexical-serialize-concurrent-lexical-loads.md) | Serialize load-lexical runs that share one store across load, retract, build and verify | Accepted; a second load is refused live and the projection catalog lock stays available |
 | [0076 Versioned UDC-derived scheme](0076-archive-cls-establish-versioned-udc-derived-scheme.md) | Scheme policy, namespaces and outcomes, exact UDC notation parser, Summary import with licence probe, checksummed snapshots, staleness checks, class inspection and gold-label splits | Accepted; UDC Summary vocabulary superseded by 0077 for licence and balance reasons |
 | [0077 MIT subject taxonomy](0077-archive-cls-adopt-permissive-subject-taxonomy.md) | Replace the UDC Summary with a balanced, project-authored MIT taxonomy checked against CC0 OpenAlex sources | Accepted; 10 domains, 67 fields, 298 subfields, full source coverage, scheme `subjects-1c0d5213ec52` |
+| [0078 Classification taxonomy approval](0078-archive-cls-approve-classification-policy.md) | Operator review of the subject taxonomy with `make classification-tree` | Accepted for taxonomy 1.0.0 (`subjects-1c0d5213ec52`); operating point moved to `approve-classification-operating-point` |

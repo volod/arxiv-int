@@ -127,7 +127,7 @@ Accepted. Plan tasks unchanged at 57 (47 agent, 10 human); this was an ad hoc ta
 `archive-classification` stays planned. Dependents of the scheme now link records 0076 and 0077.
 Next eligible agent task: `implement-hierarchical-file-classification`.
 
-Human review handoff: task [approve-classification-policy](../plan.md#approve-classification-policy);
+Human review handoff: task [approve-classification-policy](0078-archive-cls-approve-classification-policy.md);
 packet `$RUNS_DIR/run-82735ffc69b34708b0e2971260b65280/review/classification/vocabulary.json`
 (scheme `subjects-1c0d5213ec52`); readiness: draft taxonomy section, pending thresholds and exception
 examples from the classify task and the provided-archive proof. Inspect with

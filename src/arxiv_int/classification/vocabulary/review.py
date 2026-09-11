@@ -1,8 +1,8 @@
 """Draft human-review packet content for the classification taxonomy.
 
-The packet is a draft contribution to ``approve-classification-policy``: it names the exact scheme,
-taxonomy version and licence, source coverage, balance statistics, outcomes and extensions. It
-carries no thresholds (the classifier task adds those) and it is never an approval.
+The packet is a draft contribution to ``approve-classification-operating-point``: it names the
+exact scheme, taxonomy version and licence, source coverage, balance statistics, outcomes and
+extensions. It carries no thresholds (the classifier task adds those) and it is never an approval.
 """
 
 from collections.abc import Sequence
@@ -10,9 +10,10 @@ from typing import Any
 
 from arxiv_int.classification.vocabulary.outcomes import NAMESPACE_EXTENSION, NAMESPACE_TAXONOMY
 
-HUMAN_TASK = "approve-classification-policy"
+HUMAN_TASK = "approve-classification-operating-point"
 DECISION = (
-    "accept/revise the hierarchy, thresholds and exceptional outcomes, or retain unclassified"
+    "accept/revise the thresholds and exceptional outcomes, or retain unclassified; a changed "
+    "taxonomy fingerprint needs a new taxonomy decision"
 )
 
 
