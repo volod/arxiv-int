@@ -564,6 +564,365 @@ or staged for commit. Record the run id, artifact roots, manifests, and checksum
 - Documentation target: `docs/impl/current/knowledge-extraction.md`
 - Review checkpoint: `review-knowledge-and-identity-integrity`.
 
+### Concept graph -- `concept-graph`
+
+#### build-concept-extraction-and-canonicalization
+
+Operators cannot browse or constrain the corpus by the subject matter it actually discusses, because
+methods, requirements, standards and failure modes are neither named entities nor topic labels.
+
+- Serves: `concept-graph` --
+[Concept extraction and canonicalization](../design/spec.md#concept-extraction-and-canonicalization)
+- Agent status: RUN NEEDED
+- Dependencies: `build-russian-language-morphology-and-terminology-lane`;
+`implement-probabilistic-entity-resolution`;
+`implement-ontology-snapshots-and-geotemporal-contracts`;
+[Normalization, dedupe and chunking](records/0062-corpus-implement-normalization-dedupe-and-chunking.md);
+[Local inference adapters](records/0031-inference-implement-local-inference-adapters.md);
+[Model resource scheduler](records/0032-inference-implement-model-resource-scheduler.md).
+- User-visible outcome: Inflected, abbreviated, transliterated and mixed-language mentions of one
+subject term resolve to one canonical concept that carries its aliases, an extractive definition or
+an explicit undefined state, counts, evidence and snapshot identities.
+- Scope boundary: Produce an instance-level concept lexicon under the pinned vocabulary. Propose
+unmapped terms and aliases for review; never publish an ontology class, predicate or shape, and
+never add a second merging mechanism beside the identity overlay.
+- Data and artifact paths: `src/arxiv_int/concepts/`, mirrored tests,
+`$RESULTS_DIR/normalized/concepts/`, `kg.object`, `kg.alias`, `kg.mention`,
+`configs/concepts/`, additive Alembic revisions where required, and
+`$RUNS_DIR/<run-id>/concepts/`.
+- Execution path: Register the `concepts` stage. Take candidates from the terminology and morphology
+views first, then dictionary and designation patterns, then bounded local structured extraction over
+chunks a declared selection policy admits. Build lemma-normalized head-phrase keys with e/yo and
+homoglyph folding on the key only; expand versioned abbreviations and standard designations as
+evidenced aliases; detect multiword expressions; language-tag Russian, Ukrainian and English surface
+forms. Block and compare candidates through the existing Splink seam and cluster-version overlay
+with concept-specific keys and features. Assemble definitions only from cited spans. Validate
+batches with contract-derived Pandera checks and express relational concept and alias projections as
+dbt models with grain, stable-key and relationship tests.
+- Acceptance gates: Fixtures prove one canonical concept for inflected, abbreviated, transliterated
+and mixed-script variants; separate concepts for same-string different-domain terms,
+Russian/Ukrainian homographs and near-synonyms with disjoint ontology types; an undefined state
+instead of an invented gloss; refusal of candidates with no resolvable evidence span; original
+surface forms and offsets unchanged; automatic merges only under the approved precision policy with
+uncertain pairs left separate; split restores the prior view; an unchanged rerun invokes no heavy
+extraction or linkage; contract, ontology, model and policy fingerprints are recorded.
+- Documentation target: `docs/impl/current/concept-graph.md`
+- Review checkpoint: `review-concept-layer-integrity`.
+
+#### extract-and-weight-concept-relations
+
+Concepts without typed, evidence-backed relations cannot constrain retrieval, ordering, or any later
+graph analysis.
+
+- Serves: `concept-graph` -- [Concept relations](../design/spec.md#concept-relations)
+- Agent status: RUN NEEDED
+- Dependencies: `build-concept-extraction-and-canonicalization`;
+`implement-provenance-bearing-fact-extraction`;
+`implement-fact-validation-conflict-and-review-overlays`.
+- User-visible outcome: Typed, directed concept-to-concept claims carry evidence spans on both
+sides, a reproducible declared weight, review state, and the same citation drill-down as any other
+fact.
+- Scope boundary: Assert only published predicates through the existing fact store and validators.
+No parallel relation table, weight store, validator or review queue, and no ontology change.
+- Data and artifact paths: `src/arxiv_int/concepts/relations/`, mirrored tests, `kg.fact`,
+`kg.fact_evidence`, `configs/concepts/relations/`, `$RESULTS_DIR/normalized/concept-relations/`,
+and `$RUNS_DIR/<run-id>/concepts/relations/`.
+- Execution path: Register the `concept-relations` stage writing into the fact contracts. Derive
+candidates from pattern and structure signals first, then bounded local structured extraction with
+schema-validated output. Require an evidence span from each side. Compute weight from a declared
+versioned formula over calibrated confidence, independent evidence count and predicate class,
+persisting the formula id with every edge. Route every claim through `validate-facts` unchanged.
+- Acceptance gates: Per-predicate precision, recall and direction correctness are reported against
+reviewed fixture pairs; identical inputs reproduce identical weights and the formula id is stored; a
+claim without a resolvable evidence span cannot reach an accepted state; writes whose types are
+disjoint from the declared domain and range are refused; bounded fixtures prove that co-occurrence,
+lexical or embedding similarity, a shared abbreviation, a shared topic and a shared community each
+fail to create a relation, an ordering or a prerequisite claim; a model self-reported score never
+appears as the published weight.
+- Documentation target: `docs/impl/current/concept-graph.md`
+- Review checkpoint: `review-concept-layer-integrity`.
+
+#### prove-concept-graph-on-provided-archive
+
+Run concept extraction and concept relations on the supplied archive through an explicit integration
+test.
+
+- Serves: `concept-graph` --
+[Provided-archive integration runs](../design/spec.md#provided-archive-integration-runs)
+- Agent status: RUN NEEDED
+- Dependencies: `extract-and-weight-concept-relations`;
+`prove-knowledge-extraction-on-provided-archive`;
+`prove-russian-nlp-on-provided-archive`.
+- Human review handoff:
+[approve-concept-lexicon-and-relation-policy](#approve-concept-lexicon-and-relation-policy)
+sealed concept operating-point, alias, definition and relation-weight review packet.
+Packet: `$RUNS_DIR/<run-id>/review/concepts/`.
+Ready after this proof and its named producer inputs pass.
+Blocked consumer:
+`prove-graph-analytics-on-provided-archive`.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: accept or revise the concept merge thresholds, alias and definition policy, admitted
+predicates and weight formula, or retain the branch unselected.
+- User-visible outcome: Supplied-archive concepts, aliases, definitions, unmapped proposals and
+typed relations are inspectable with evidence, review state and measured per-predicate summaries.
+- Scope boundary: Prove the configured concept profiles on available archive languages and types. Do
+not treat unreviewed concepts or relations as accepted, publish an ontology change, or infer quality
+for strata the archive does not contain.
+- Data and artifact paths: `$ARCHIVE_DIR` used without modification,
+`$RESULTS_DIR/normalized/{concepts,concept-relations}/`, concept and fact tables, and test logs
+below `$DATA_DIR/integration/concept-graph/`.
+- Execution path: Forecast the closure; run `concepts` and `concept-relations`; validate schemas,
+evidence resolution, alias and definition states, unmapped counts, per-predicate summaries, weight
+reproducibility and model fingerprints; rerun unchanged and record extraction and linkage cache
+hits; assemble the human review packet with positive, negative and ambiguous samples.
+- Acceptance gates: Every published concept and relation resolves to a source span; undefined and
+unmapped states are counted rather than filled; declared metrics are reported by present stratum;
+the identical rerun performs no heavy extraction, adjudication or linkage; incomplete evidence keeps
+the task open. Only ordinary pipeline artifacts stay under configured roots; nothing source-derived
+is committed or staged for commit. Record the run id, artifact roots, manifests, and checksums
+checked in place.
+- Documentation target: `docs/impl/current/concept-graph.md`
+- Review checkpoint: `review-concept-layer-integrity`.
+
+#### review-concept-layer-integrity
+
+Review the concept layer before any graph analysis consumes it.
+
+- Serves: `concept-graph` --
+[Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
+- Agent status: CLEAR
+- Task kind: checkpoint
+- Dependencies: `extract-and-weight-concept-relations`;
+`prove-concept-graph-on-provided-archive`.
+- User-visible outcome: An evidence-based checkpoint decides proceed,
+proceed-with-nonblocking-notes, or blocked for the named consumers; no-refactoring-needed is a valid
+result.
+- Scope boundary: Review the named producers, their cross-module invariants and routed notes only.
+Adding tests for important stabilized integrity, correctness, and business-logic cases in this stage
+is in scope; concluding that existing tests already cover them is valid. No speculative rewrite,
+model upgrade, ontology change or numeric coverage floor.
+- Data and artifact paths: Accepted producer records under `docs/impl/records/`, current-state
+pages, existing test and run artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
+- Execution path: Read the full task snapshots and source changes. Verify that concepts are
+instances and never ontology axioms, that merging goes through the single identity overlay, that
+concept relations use the shared fact contracts and validators, that morphological key folding never
+alters stored surface forms or offsets, that definitions stay extractive, that declared weights are
+reproducible, and that the non-implication fixtures hold. Replay representative existing tests and
+validators; add tests for important stabilized cases the stage still misses; reconcile every routed
+note with evidence, severity, affected consumers and one disposition each.
+- Acceptance gates: Every producer requirement and open note has an evidence-backed disposition; the
+listed invariants are verified and `make ci` passes. Any blocking finding gets a focused
+prerequisite repair task and keeps this checkpoint open until it passes; valid negative results and
+nonblocking follow-ups are recorded without claiming a wider audit.
+- Documentation target: `docs/impl/current/concept-graph.md`
+- Review checkpoint: none; this task is the bounded checkpoint. Route follow-ups to explicit task
+ids.
+
+### Graph analytics -- `graph-analytics`
+
+#### implement-two-pass-distant-link-refinder
+
+A chunk-local extractor never proposes relations whose two halves sit in different silos, so a large
+corpus loses exactly the long-range structure an investigation needs.
+
+- Serves: `graph-analytics` --
+[Two-pass distant-link discovery](../design/spec.md#two-pass-distant-link-discovery)
+- Agent status: RUN NEEDED
+- Research: yes
+- Dependencies: `review-concept-layer-integrity`;
+[ParadeDB lexical load and query path](records/0070-lexical-build-paradedb-lexical-load-and-query-path.md);
+[Model resource scheduler](records/0032-inference-implement-model-resource-scheduler.md).
+Use `implement-selective-embedding-pipeline` only when the semantic branch is selected; the lexical
+and alias candidate generator is the unconditional baseline.
+- User-visible outcome: Concept pairs that no single chunk states are proposed, adjudicated with
+evidence from both sides, and either recorded as proposed relations with their candidate provenance
+or retained as explicit no-relation and abstention verdicts.
+- Scope boundary: Register the `refinder` stage over existing retrieval projections. Add no vector
+service, no second index store and no accepted edge. Do not exceed the declared budgets or judge a
+pair twice.
+- Data and artifact paths: `src/arxiv_int/graph_analytics/refinder/`, mirrored tests,
+`configs/graph-analytics/refinder/`, `kg.fact`, `kg.fact_evidence`,
+`$RESULTS_DIR/normalized/refinder/`, and `$RUNS_DIR/<run-id>/graph-analytics/refinder/`.
+- Execution path: Select the concept tier from importance, bridge candidacy, cross-partition spread
+and under-connection. Run the forward pass through the declared candidate generator, then the
+backward pass that confirms reciprocal membership, adjudicating reciprocal candidates first and
+one-directional candidates only inside the residual budget. Adjudicate with bounded schema-validated
+local inference that must cite a span from each side and may return a published predicate,
+no-relation or abstention. Write accepted verdicts as proposed relations carrying the extractor
+identity, generator id, both ranks and both spans, through the shared fact validators. Persist every
+verdict, the deterministic candidate order and resumable budget counters. Build the planted-link and
+distractor fixtures and the forward-only ablation.
+- Acceptance gates: Planted long-range links whose surface forms differ by inflection, abbreviation,
+transliteration and language are recovered at the declared budget; judged-edge precision and the
+distractor false-link rate meet their predeclared thresholds; withheld evidence produces abstention
+rather than a relation; an identical rerun re-judges nothing and reproduces the identical verdict
+set; an interrupted run resumes without exceeding the declared per-concept and corpus budgets and an
+exhausted budget reports its coverage denominator; the two-pass and forward-only ablations are
+compared; prompt-injection fixtures prove document text cannot direct the adjudicator; refinder
+edges remain separable from other edges. A predeclared adopt, retain-baseline or inconclusive rule
+is applied to the held-out link-recall gate, and retaining the baseline is a valid recorded result.
+- Documentation target: `docs/impl/current/graph-analytics.md`
+- Review checkpoint: `review-graph-analytics-integrity`.
+
+#### implement-graph-community-detection
+
+A concept graph of any useful size is unreadable without thematic modules and without knowing which
+concepts hold those modules together.
+
+- Serves: `graph-analytics` -- [Communities and bridges](../design/spec.md#communities-and-bridges)
+- Agent status: RUN NEEDED
+- Research: yes
+- Dependencies: `review-concept-layer-integrity`;
+[Rebuildable search and graph projections](records/0025-store-implement-rebuildable-search-and-graph-projections.md);
+[Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
+Include `implement-two-pass-distant-link-refinder` edges only when that branch is selected.
+- User-visible outcome: The concept graph exposes a versioned partition with its algorithm,
+resolution, seed, modularity, multi-seed agreement, bridge concepts, and an explicit unstable or
+low-confidence verdict when the structure does not hold.
+- Scope boundary: Register the `graph-communities` stage as a rebuildable CPU projection over
+contracted edge tables. Communities are not ontology classes and not topics, and they never merge
+with or rename topic ids. No graph-algorithm execution inside AGE and no new database extension.
+- Data and artifact paths: `src/arxiv_int/graph_analytics/communities/`, mirrored tests,
+`configs/graph-analytics/communities/`, `ctl.projection`, community projection tables, additive
+Alembic revisions where required, `$RESULTS_DIR/normalized/communities/`, and
+`$RUNS_DIR/<run-id>/graph-analytics/communities/`.
+- Execution path: Export contracted edges with declared weights, run the Louvain baseline behind a
+narrow adapter with a fixed seed and deterministic node order, and compare the Leiden candidate on
+the same inputs. Repeat across declared seeds and orders and compute agreement. Compute bridge
+concepts from participation across communities and bounded betweenness on the reduced graph. Publish
+modularity, the resolution sweep, proposed and refinder edge shares, singleton and giant-component
+shares, and the stability verdict. Switch the active community pointer only after validation.
+Express relational community and bridge projections as dbt models with grain and relationship tests.
+- Acceptance gates: Planted-partition fixtures with known ground truth meet the declared agreement
+floor; identical inputs, seed and node order reproduce an identical partition; input row order
+changes nothing; an empty graph, an edgeless graph, one clique, a star hub, disconnected components,
+self-loops and duplicate edges each produce an explicit recorded result rather than a failure; a
+partition below the agreement threshold publishes as unstable with its disagreement evidence; an
+edge set dominated by proposed edges publishes as low-confidence; the resolution limit and sweep are
+reported; a failed build leaves the prior community version active; a predeclared Louvain-versus-Leiden
+adopt, retain or inconclusive rule is applied.
+- Documentation target: `docs/impl/current/graph-analytics.md`
+- Review checkpoint: `review-graph-analytics-integrity`.
+
+#### implement-graph-topology-and-effort-metrics
+
+Operators and later stages have no declared way to order what to read first or which concepts carry
+the deepest prerequisite chains.
+
+- Serves: `graph-analytics` --
+[Topology and effort metrics](../design/spec.md#topology-and-effort-metrics)
+- Agent status: CLEAR
+- Dependencies: `implement-graph-community-detection`.
+- User-visible outcome: Each concept exposes a weighted importance rank with its stability, a
+dependency depth measured on the condensed prerequisite graph, an effort score with its published
+formula and sensitivity, and every prerequisite cycle as a named data-quality finding.
+- Scope boundary: Register the `graph-metrics` stage as a rebuildable projection. Metrics order
+browsing and select work tiers only; they never rank analyst findings, establish that a claim is
+true, or mix accepted and proposed edge variants in one number.
+- Data and artifact paths: `src/arxiv_int/graph_analytics/metrics/`, mirrored tests,
+`configs/graph-analytics/metrics/`, metric projection tables, additive Alembic revisions where
+required, `$RESULTS_DIR/normalized/graph-metrics/`, and
+`$RUNS_DIR/<run-id>/graph-analytics/metrics/`.
+- Execution path: Compute weighted importance with declared damping, weight normalization,
+convergence tolerance and dangling-node policy over accepted edges, and publish the proposed-edge
+variant under its own label. Extract the prerequisite subgraph, condense strongly connected
+components, measure depth on the condensation, and emit every cycle with its member concepts and
+evidence. Compute the declared effort composite and its sensitivity report. Persist the metric
+profile id, formula ids and consumed snapshot ids, and bind them into reuse keys.
+- Acceptance gates: Closed-form fixtures match a reference importance implementation on small
+graphs; depth fixtures cover hand-built acyclic graphs, cycles, self-loops, disconnected components
+and sink and dangling nodes; every planted cycle is reported as a finding and no depth is claimed
+across an unreported cycle; ranks are deterministic for identical inputs and rank stability under
+the declared perturbation is published; a formula or damping change creates a new metric profile id
+rather than changing published values in place; a metrics run refuses to activate against a
+mismatched community, identity, fact or ontology snapshot; report fixtures prove metrics cannot
+reorder findings.
+- Documentation target: `docs/impl/current/graph-analytics.md`
+- Review checkpoint: `review-graph-analytics-integrity`.
+
+#### prove-graph-analytics-on-provided-archive
+
+Run distant-link discovery, community detection and topology metrics on the supplied archive through
+an explicit integration test.
+
+- Serves: `graph-analytics` --
+[Provided-archive integration runs](../design/spec.md#provided-archive-integration-runs)
+- Agent status: RUN NEEDED
+- Dependencies: `implement-graph-topology-and-effort-metrics`;
+`prove-concept-graph-on-provided-archive`;
+`prove-identity-ontology-graph-on-provided-archive`;
+`approve-concept-lexicon-and-relation-policy`.
+- Human review handoff:
+[approve-graph-analytics-operating-points](#approve-graph-analytics-operating-points)
+sealed refinder budget and gate result, community stability and resolution evidence, and metric
+formula packet.
+Packet: `$RUNS_DIR/<run-id>/review/graph-analytics/`.
+Ready after this proof and its named producer inputs pass.
+Blocked consumer:
+`prove-graph-constrained-agents-on-provided-archive`.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: accept or revise the refinder budgets and adjudication policy, the community algorithm and
+resolution, and the metric and effort formulas, or retain a measured not-selected verdict.
+- User-visible outcome: Real archive long-range candidates, verdicts, partitions, stability figures,
+bridge concepts, ranks, depths, cycles and costs are inspectable with their snapshot identities, or
+the not-selected verdict names the working baseline.
+- Scope boundary: Use only forecast-approved budgets and configured local models. Do not judge the
+whole pair space, publish an unstable partition as thematic structure, or treat a failed or
+unavailable branch as successful proof.
+- Data and artifact paths: `$ARCHIVE_DIR` used without modification,
+`$RESULTS_DIR/normalized/{refinder,communities,graph-metrics}/`, projection manifests, and test logs
+below `$DATA_DIR/integration/graph-analytics/`.
+- Execution path: Forecast adjudication and computation resources; run the selected refinder,
+community and metric profiles; validate verdict and partition identities, counts, evidence
+resolution for every sampled edge, agreement and sensitivity figures, cycle findings, and with- and
+without-refinder comparisons; rerun unchanged and record that adjudication and partition computation
+are reused; assemble the human review packet.
+- Acceptance gates: Every sampled proposed edge resolves to spans on both sides; the partition
+publishes its agreement, resolution sweep and proposed-edge share; metrics name their consumed
+snapshots; the identical rerun performs no adjudication and no partition recomputation; declared
+budgets are never exceeded and an exhausted budget reports its denominator; a not-selected verdict is
+valid only with the declared measured negative result and a verified baseline without these edges;
+other failures keep the task open. Only ordinary pipeline artifacts stay under configured roots;
+nothing source-derived is committed or staged for commit. Record the run id, artifact roots,
+manifests, and checksums checked in place.
+- Documentation target: `docs/impl/current/graph-analytics.md`
+- Review checkpoint: `review-graph-analytics-integrity`.
+
+#### review-graph-analytics-integrity
+
+Review the graph analysis milestone before a context builder or diagnostic consumes it.
+
+- Serves: `graph-analytics` --
+[Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
+- Agent status: CLEAR
+- Task kind: checkpoint
+- Dependencies: `implement-graph-topology-and-effort-metrics`;
+`prove-graph-analytics-on-provided-archive`.
+- User-visible outcome: An evidence-based checkpoint decides proceed,
+proceed-with-nonblocking-notes, or blocked for the named consumers; no-refactoring-needed is a valid
+result.
+- Scope boundary: Review the named producers, their cross-module invariants and routed notes only.
+Adding tests for important stabilized integrity, correctness, and business-logic cases in this stage
+is in scope; concluding that existing tests already cover them is valid. No speculative rewrite,
+algorithm swap outside the declared comparison, or numeric coverage floor.
+- Data and artifact paths: Accepted producer records under `docs/impl/records/`, current-state
+pages, existing test and run artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
+- Execution path: Read the full task snapshots and source changes. Verify that no refinder edge is
+written as accepted, that budgets and candidate ordering are deterministic and resumable, that
+partitions are seeded and reproducible with a published stability verdict, that communities never
+merge with topic ids or become graph labels, that depth is only claimed on a condensed acyclic graph
+with cycles reported, that accepted and proposed metric variants stay separate, and that no metric
+reorders findings. Replay representative existing tests and validators; add tests for important
+stabilized cases the stage still misses; reconcile every routed note with evidence, severity,
+affected consumers and one disposition each.
+- Acceptance gates: Every producer requirement and open note has an evidence-backed disposition; the
+listed invariants are verified and `make ci` passes. Any blocking finding gets a focused
+prerequisite repair task and keeps this checkpoint open until it passes; valid negative results and
+nonblocking follow-ups are recorded without claiming a wider audit.
+- Documentation target: `docs/impl/current/graph-analytics.md`
+- Review checkpoint: none; this task is the bounded checkpoint. Route follow-ups to explicit task
+ids.
+
 ### Domain investigation artifacts -- `domain-investigation-artifacts`
 
 #### build-party-and-transaction-artifacts
@@ -1602,6 +1961,218 @@ follow-ups in the checkpoint record without claiming a wider audit.
 - Documentation target: `docs/impl/current/semantic-retrieval.md`
 - Review checkpoint: none; this task is the bounded checkpoint. Route follow-ups to explicit task ids.
 
+### Graph-constrained agents -- `graph-constrained-agents`
+
+#### implement-graph-constrained-context-assembly
+
+Corpus text reaches a local model today only through ad hoc retrieval slices, so nothing guarantees
+that a prompt fits the model's declared context or that its evidence stayed whole and cited.
+
+- Serves: `graph-constrained-agents` --
+[Context assembly contract](../design/spec.md#context-assembly-contract)
+- Agent status: CLEAR
+- Dependencies: `review-graph-analytics-integrity`;
+`build-search-graph-and-report-interfaces`;
+[Local inference adapters](records/0031-inference-implement-local-inference-adapters.md);
+[Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
+- User-visible outcome: Any model-facing request over corpus content returns a reproducible context
+pack of graph nodes, accepted edges and whole cited evidence spans within the selected model
+profile's token budget, with everything it dropped and why stated.
+- Scope boundary: Build the budgeted assembly and pack identity only. No new answer product, no
+unbounded query, no filesystem path handed to a model, and no character-count token estimate.
+- Data and artifact paths: `src/arxiv_int/agents/context/`, mirrored tests,
+`configs/agents/context/`, `$RUNS_DIR/<run-id>/agents/context/`, and context-pack fixtures.
+- Execution path: Take pinned ontology, identity, fact, community and metric snapshots plus an entry
+set. Reserve instruction and output allowances, then fill the evidence budget by the declared
+deterministic traversal order under depth, fan-out, per-node and per-pack caps. Count tokens through
+the model profile's own tokenizer via the existing inference seam. Drop only whole cited items and
+record the cap that dropped each one with its coverage denominator. Refuse when the reserved
+allowances exceed the context length or no complete cited item fits. Identify each pack by snapshot
+ids, entry set, policy fingerprint, model profile and tokenizer revision.
+- Acceptance gates: Identical inputs produce an identical pack; a pack never exceeds the declared
+budget and never splits an evidence span or separates it from its citation; drops are reported with
+their cap and denominator; impossible requests are refused rather than silently truncated; an
+unknown or changed snapshot id refuses assembly; no pack carries a filesystem path or an executable
+instruction from source text; escaped snippet fixtures pass.
+- Documentation target: `docs/impl/current/graph-constrained-agents.md`
+- Review checkpoint: `review-agent-guardrail-integrity`.
+
+#### implement-methodologist-probe-generation
+
+Nothing currently produces reproducible, graph-anchored probes that exercise whether the published
+knowledge is actually reachable, so blind spots are found only by accident.
+
+- Serves: `graph-constrained-agents` --
+[Role-separated agent diagnostics](../design/spec.md#role-separated-agent-diagnostics)
+- Agent status: RUN NEEDED
+- Dependencies: `implement-graph-constrained-context-assembly`.
+- User-visible outcome: A bounded set of analytical probes names its target graph region, its
+required and bonus concepts by canonical id, and the evidence it expects, and regenerates
+identically from the same snapshot and seed.
+- Scope boundary: Generate diagnostic stress inputs over a pinned snapshot. A probe is never a gold
+label, never enters an evaluation gate as truth, and never introduces a concept or predicate absent
+from the snapshot.
+- Data and artifact paths: `src/arxiv_int/agents/methodologist/`, mirrored tests,
+`configs/agents/probes/`, `$RESULTS_DIR/normalized/agent-probes/`, and
+`$RUNS_DIR/<run-id>/agents/probes/`.
+- Execution path: Select a bounded region by community, bridge concept, importance and dependency
+depth. Generate probes with bounded schema-validated local inference over context packs, requiring
+every named concept to resolve to a snapshot id. Persist the region selection, seed, model
+fingerprint, probe schema version and the required and bonus concept sets.
+- Acceptance gates: Every probe's concepts resolve in the pinned snapshot and a hallucinated id is
+rejected rather than stored; identical snapshot, region, seed and model profile reproduce the
+identical probe set; probes stay inside the declared region and count limits; probe artifacts are
+labelled as diagnostic inputs and no gate in the specification consumes them as gold.
+- Documentation target: `docs/impl/current/graph-constrained-agents.md`
+- Review checkpoint: `review-agent-guardrail-integrity`.
+
+#### implement-constrained-analyst-sessions
+
+Without a session boundary that forces citation and abstention, a model asked to investigate the
+corpus produces confident unsupported prose that is indistinguishable from a finding.
+
+- Serves: `graph-constrained-agents` --
+[Role-separated agent diagnostics](../design/spec.md#role-separated-agent-diagnostics)
+- Agent status: RUN NEEDED
+- Dependencies: `implement-methodologist-probe-generation`.
+Reuse `add-cited-local-question-answering` only when that optional branch is selected.
+- User-visible outcome: Each probe attempt produces a session log of every context pack, query,
+budget outcome, cited claim and abstention, replayable from its recorded identities.
+- Scope boundary: Attempt probes through context packs and the bounded read-only query surface only.
+No accepted fact, no threshold change, no unbounded SQL, no filesystem access and no source edit.
+- Data and artifact paths: `src/arxiv_int/agents/analyst/`, mirrored tests,
+`configs/agents/analyst/`, `$RESULTS_DIR/normalized/agent-sessions/`, and
+`$RUNS_DIR/<run-id>/agents/sessions/`.
+- Execution path: Run each probe under declared step, pack, query and time caps. Require a source
+span citation for every claim through the ordinary evidence lookup, and require abstention when the
+packs contain no supporting evidence. Persist the full session log with pack ids, budget outcomes,
+model fingerprints and schema versions.
+- Acceptance gates: A claim without a resolvable citation is recorded as unsupported rather than
+published; withheld evidence produces abstention rather than an answer; step, pack, query and time
+caps are enforced and an exhausted cap ends the session with its state recorded; prompt-injection
+fixtures in probe text, document text and session history cannot grant an unbounded query, a
+filesystem path or any write; identical inputs, seeds and model profile reproduce the identical
+session log.
+- Documentation target: `docs/impl/current/graph-constrained-agents.md`
+- Review checkpoint: `review-agent-guardrail-integrity`.
+
+#### implement-concept-coverage-and-blind-spot-evaluator
+
+Operators have no report of which published concepts are unreachable, uncited or unusable through
+the real retrieval path, so coverage gaps stay invisible until an investigation fails.
+
+- Serves: `graph-constrained-agents` --
+[Role-separated agent diagnostics](../design/spec.md#role-separated-agent-diagnostics)
+- Agent status: CLEAR
+- Dependencies: `implement-constrained-analyst-sessions`.
+- User-visible outcome: Each session yields a coded score of required and bonus concept use, valid
+and invalid citations, unsupported claims, concepts unreachable inside the budget and concepts
+reachable but missed, aggregated into a graph and corpus coverage report.
+- Scope boundary: Score sessions and publish coverage in code. A local model may add clearly
+non-authoritative commentary. The evaluator may steer only which region the methodologist probes
+next; it may not change the ontology, a fact state, a threshold or a prompt policy, and its output
+feeds no acceptance gate.
+- Data and artifact paths: `src/arxiv_int/agents/evaluator/`, mirrored tests,
+`configs/agents/coverage/`, `$RESULTS_DIR/normalized/agent-coverage/`, and
+`$RUNS_DIR/<run-id>/agents/coverage/`.
+- Execution path: Register the `agent-diagnostics` stage covering probe, session and scoring
+artifacts. Resolve every citation through the ordinary source lookup; classify each required and
+bonus concept as used, missed or unreachable with the cap that blocked it; aggregate concepts with
+no retrievable evidence, communities unreachable inside the budget, predicates whose evidence never
+validates, and unattempted probes. Publish the report with its snapshot, policy and model
+fingerprints and an explicit statement of what it does not measure.
+- Acceptance gates: Scoring is produced by code and identical inputs reproduce an identical report;
+a fabricated or unresolvable citation scores as unsupported; unreachable and missed concepts are
+distinguished with the responsible cap; model commentary is separable and marked non-authoritative;
+fixtures prove the evaluator cannot write an ontology term, a fact state, a threshold or a prompt
+policy and that no specification gate consumes its output; the report states that it measures
+reachability and coverage, not archive truth or quality.
+- Documentation target: `docs/impl/current/graph-constrained-agents.md`
+- Review checkpoint: `review-agent-guardrail-integrity`.
+
+#### prove-graph-constrained-agents-on-provided-archive
+
+Run context assembly, probe generation, constrained sessions and coverage scoring on the supplied
+archive through an explicit integration test.
+
+- Serves: `graph-constrained-agents` --
+[Provided-archive integration runs](../design/spec.md#provided-archive-integration-runs)
+- Agent status: RUN NEEDED
+- Dependencies: `implement-concept-coverage-and-blind-spot-evaluator`;
+`prove-graph-analytics-on-provided-archive`;
+`prove-discovery-and-visualization-on-provided-archive`;
+`approve-graph-analytics-operating-points`.
+- Human review handoff:
+[accept-agent-diagnostic-scope](#accept-agent-diagnostic-scope)
+sealed context-budget, probe, session and coverage packet with the declared non-measurement
+statement.
+Packet: `$RUNS_DIR/<run-id>/review/agents/`.
+Ready after this proof and its named producer inputs pass.
+Blocked consumer:
+operator use of the diagnostic branch in a full-corpus run; no agent successor task depends on it.
+Report readiness using the human-handoff workflow; never self-approve.
+Decision: accept the diagnostic scope, budgets and reporting language, or retain the branch
+unselected.
+- User-visible outcome: Real archive context packs, probes, sessions, abstentions and the coverage
+report are inspectable with their budgets, drops, citations and snapshot identities, or the
+not-selected verdict names the working baseline.
+- Scope boundary: Prove the configured diagnostic profiles on one pinned generation. Do not present
+the report as archive quality evidence, feed it into any acceptance gate, or let a session change
+published data.
+- Data and artifact paths: `$ARCHIVE_DIR` used without modification,
+`$RESULTS_DIR/normalized/{agent-probes,agent-sessions,agent-coverage}/`, and test logs below
+`$DATA_DIR/integration/graph-constrained-agents/`.
+- Execution path: Forecast inference resources; assemble packs against the configured model profile;
+generate probes, run sessions and score coverage; validate pack budgets and drop accounting,
+citation resolution, abstention behavior, probe id resolution and report determinism; rerun
+unchanged and record inference cache hits; assemble the human review packet with positive, negative
+and ambiguous samples.
+- Acceptance gates: Every sampled pack respects the declared budget and reports its drops; every
+sampled cited claim resolves to a source span and every unresolvable one is scored unsupported;
+injection samples from real documents change no boundary; the identical rerun performs no new
+inference and reproduces the identical report; published data is unchanged by the run; a
+not-selected verdict is valid only with a declared measured negative result; other failures keep the
+task open. Only ordinary pipeline artifacts stay under configured roots; nothing source-derived is
+committed or staged for commit. Record the run id, artifact roots, manifests, and checksums checked
+in place.
+- Documentation target: `docs/impl/current/graph-constrained-agents.md`
+- Review checkpoint: `review-agent-guardrail-integrity`.
+
+#### review-agent-guardrail-integrity
+
+Review the agent guardrails before the diagnostic branch is offered to an operator.
+
+- Serves: `graph-constrained-agents` --
+[Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
+- Agent status: CLEAR
+- Task kind: checkpoint
+- Dependencies: `implement-concept-coverage-and-blind-spot-evaluator`;
+`prove-graph-constrained-agents-on-provided-archive`.
+- User-visible outcome: An evidence-based checkpoint decides proceed,
+proceed-with-nonblocking-notes, or blocked for the named consumers; no-refactoring-needed is a valid
+result.
+- Scope boundary: Review the named producers, their cross-module invariants and routed notes only.
+Adding tests for important stabilized integrity, correctness, and business-logic cases in this stage
+is in scope; concluding that existing tests already cover them is valid. No speculative rewrite, new
+agent role, or numeric coverage floor.
+- Data and artifact paths: Accepted producer records under `docs/impl/records/`, current-state
+pages, existing test and run artifacts, and `$DATA_DIR/architecture-review/<run-id>/`.
+- Execution path: Read the full task snapshots and source changes. Trace that every model-facing
+byte of corpus text arrives through a budgeted pack, that tokenization uses the profile tokenizer,
+that drops and refusals are accounted for, that probes cannot name absent concepts, that sessions
+cannot widen their surface under injection, that scoring is coded rather than model-judged, and that
+the feedback loop reaches nothing but probe-region selection. Confirm no specification gate consumes
+diagnostic output. Replay representative existing tests and validators; add tests for important
+stabilized cases the stage still misses; reconcile every routed note with evidence, severity,
+affected consumers and one disposition each.
+- Acceptance gates: Every producer requirement and open note has an evidence-backed disposition; the
+listed invariants are verified and `make ci` passes. Any blocking finding gets a focused
+prerequisite repair task and keeps this checkpoint open until it passes; valid negative results and
+nonblocking follow-ups are recorded without claiming a wider audit.
+- Documentation target: `docs/impl/current/graph-constrained-agents.md`
+- Review checkpoint: none; this task is the bounded checkpoint. Route follow-ups to explicit task
+ids.
+
 ### Separate archive organization -- `archive-organization`
 
 #### implement-audited-archive-reorganization
@@ -1840,6 +2411,66 @@ facts have explicit report treatment; policy version is included in query/report
 - Documentation target: `docs/impl/current/knowledge-extraction.md`
 - Review checkpoint: `review-knowledge-and-identity-integrity`.
 
+### Concept graph -- `concept-graph`
+
+#### approve-concept-lexicon-and-relation-policy
+
+Decide the concept merge thresholds, alias and definition policy, admitted predicates, and relation
+weight formula that shape every later graph view.
+
+- Serves: `concept-graph` --
+[Concept layer and semantic graph construction](../design/spec.md#concept-layer-and-semantic-graph-construction)
+- Agent status: HUMAN-GATED
+- Dependencies: `prove-concept-graph-on-provided-archive`;
+`approve-entity-merge-and-ontology-policy`;
+`approve-fact-review-and-publication-policy`.
+- User-visible outcome: The concept lexicon reflects the owner's domain meaning and precision
+tolerance, and unmapped proposals stay out of published vocabulary until separately reviewed.
+- Scope boundary: Approve one versioned concept operating point, alias and definition policy,
+admitted predicate set and weight formula. This publishes no ontology term and authorizes no
+distant-link adjudication spending.
+- Data and artifact paths: `configs/concepts/`, `configs/concepts/relations/`, concept and relation
+profile fingerprints, and `$RUNS_DIR/<run-id>/review/concepts/`.
+- Execution path: Inspect canonical concepts against their variant clusters, ambiguous and
+homograph samples, undefined and unmapped states, per-predicate samples with both evidence spans,
+and the weight formula with its inputs; confirm the Russian, Ukrainian and English labels; record
+accept, revise, or retain the branch unselected.
+- Acceptance gates: The exact concept, relation, model, ontology and policy fingerprints and the
+decision are recorded; uncertain merges stay unmerged; unmapped terms stay proposed; no ontology
+change is requested through this decision.
+- Documentation target: `docs/impl/current/concept-graph.md`
+- Review checkpoint: `review-concept-layer-integrity`.
+
+### Graph analytics -- `graph-analytics`
+
+#### approve-graph-analytics-operating-points
+
+Decide the distant-link adjudication budgets, the community algorithm and resolution, and the metric
+and effort formulas, including whether any of them is worth running.
+
+- Serves: `graph-analytics` --
+[Distant-link discovery, communities, and topology metrics](../design/spec.md#distant-link-discovery-communities-and-topology-metrics)
+- Agent status: HUMAN-GATED
+- Dependencies: `prove-graph-analytics-on-provided-archive`;
+`approve-concept-lexicon-and-relation-policy`.
+- User-visible outcome: The published partition, bridge concepts, ranks, depths and effort scores
+rest on operating points the owner accepted, with the adjudication cost and false-link tolerance
+stated.
+- Scope boundary: Approve budgets, algorithm and resolution selection, stability thresholds and
+metric formulas. This accepts no individual proposed edge and authorizes no full-corpus spending.
+- Data and artifact paths: `configs/graph-analytics/`, refinder, community and metric profile
+fingerprints, and `$RUNS_DIR/<run-id>/review/graph-analytics/`.
+- Execution path: Inspect the planted-link and archive refinder results with their precision,
+false-link and abstention figures and adjudication cost; the partition with its agreement,
+resolution sweep and proposed-edge share; sampled bridge concepts; the metric formulas, rank
+stability and prerequisite cycle findings; record accept, revise, or retain each branch unselected
+with the baseline named.
+- Acceptance gates: The exact profile, budget, seed, formula and snapshot fingerprints and the
+decision are recorded; an unstable partition is not approved as thematic structure; refinder edges
+stay proposed; a not-selected verdict names the working baseline.
+- Documentation target: `docs/impl/current/graph-analytics.md`
+- Review checkpoint: `review-graph-analytics-integrity`.
+
 ### Domain investigation artifacts -- `domain-investigation-artifacts`
 
 #### approve-domain-artifact-semantics-and-inclusion
@@ -1979,6 +2610,35 @@ separation, retention, and emergency stop/restart commands; record residual risk
 items return to the owning capability; Community ParadeDB HA limitations remain explicit.
 - Documentation target: `docs/impl/current/operations.md`
 - Review checkpoint: `review-production-readiness-and-recovery`.
+
+### Graph-constrained agents -- `graph-constrained-agents`
+
+#### accept-agent-diagnostic-scope
+
+Decide whether the graph-constrained diagnostic is worth offering, and fix the language that keeps
+its report from being read as archive quality evidence.
+
+- Serves: `graph-constrained-agents` --
+[Graph-constrained context and agent diagnostics](../design/spec.md#graph-constrained-context-and-agent-diagnostics)
+- Agent status: HUMAN-GATED
+- Dependencies: `prove-graph-constrained-agents-on-provided-archive`;
+`approve-graph-analytics-operating-points`;
+`accept-operator-discovery-workflows`.
+- User-visible outcome: The owner accepts the diagnostic scope, budgets and reporting language, or
+records that the branch stays unselected, with no ambiguity about what the coverage report measures.
+- Scope boundary: Approve the diagnostic scope and its stated limits. This accepts no probe as a
+gold question, no session claim as a fact, and no coverage figure as archive quality evidence.
+- Data and artifact paths: `configs/agents/`, context, probe, session and coverage profile
+fingerprints, and `$RUNS_DIR/<run-id>/review/agents/`.
+- Execution path: Inspect sampled context packs with their budgets and drops, probes against the
+snapshot, sessions with cited and abstained answers, injection samples, and the coverage report with
+its non-measurement statement; judge whether the report is useful and unmistakable; record accept,
+revise, or retain unselected.
+- Acceptance gates: The exact profile, budget, model and snapshot fingerprints and the decision are
+recorded; the accepted report language states what it does not measure; no acceptance gate in the
+specification is allowed to consume the diagnostic output.
+- Documentation target: `docs/impl/current/graph-constrained-agents.md`
+- Review checkpoint: `review-agent-guardrail-integrity`.
 
 ### Separate archive organization -- `archive-organization`
 

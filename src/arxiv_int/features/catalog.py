@@ -10,6 +10,16 @@ from arxiv_int.features.stages import STAGE_FEATURES
 
 FEATURE_GROUPS: tuple[FeatureGroup, ...] = (
     FeatureGroup(
+        name="agents",
+        summary="graph-constrained context packs, bounded probe sessions, and coverage scoring",
+        owner="graph-constrained-agents",
+    ),
+    FeatureGroup(
+        name="concepts",
+        summary="Russian concept canonicalization and bounded concept relation extraction",
+        owner="concept-graph",
+    ),
+    FeatureGroup(
         name="contracts",
         summary="ODCS contract loading, validation, typed loaders, and schema generation",
         owner="contract-governance",
@@ -102,6 +112,11 @@ FEATURE_GROUPS: tuple[FeatureGroup, ...] = (
                 "rdflib", "rdflib", "BSD-3-Clause", "read and write Turtle ontology assets"
             ),
         ),
+    ),
+    FeatureGroup(
+        name="graph-analytics",
+        summary="CPU community detection and centrality over the contracted concept graph",
+        owner="graph-analytics",
     ),
     FeatureGroup(
         name="inference",

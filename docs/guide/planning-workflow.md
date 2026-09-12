@@ -158,12 +158,15 @@ still shows capability group and stable task slug.
 | `russian-nlp` | `rus-nlp` |
 | `identity-ontology-graph` | `identity` |
 | `knowledge-extraction` | `knowledge` |
+| `concept-graph` | `concept` |
+| `graph-analytics` | `graph-an` |
 | `domain-investigation-artifacts` | `domain` |
 | `anomaly-analysis` | `anomaly` |
 | `discovery-visualization` | `discovery` |
 | `evaluation-evidence` | `eval-evid` |
 | `operational-recovery` | `ops` |
 | `semantic-retrieval` | `semantic` |
+| `graph-constrained-agents` | `agents` |
 | `archive-organization` | `archive-org` |
 | `governance` (meta / audit / instructions) | `govern` |
 
