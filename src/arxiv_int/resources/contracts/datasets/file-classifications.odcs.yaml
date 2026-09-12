@@ -1,0 +1,238 @@
+version: 1.0.0
+apiVersion: v3.1.0
+kind: DataContract
+id: urn:arxiv-int:contract:file-classifications:1.0.0
+name: file-classifications
+status: active
+domain: arxiv-int
+description:
+  purpose: >-
+    Complete, evidence-backed subject classification of physical archive files, including explicit
+    unclassified and unreadable outcomes and the fingerprints needed to reproduce each decision.
+team:
+  name: arxiv-int
+  members:
+    - username: contracts@arxiv-int.local
+      role: Owner
+servers:
+  - server: normalized-lake
+    type: local
+    description: Partitioned normalized lake under RESULTS_DIR
+    path: normalized/classifications
+    format: parquet
+customProperties:
+  - property: x-arxiv-int
+    value:
+      schema: corpus
+      table: file_classification
+      partitionKey: bucket
+schema:
+  - name: file_classification
+    physicalName: file_classification
+    logicalType: object
+    properties:
+      - name: classification_id
+        logicalType: string
+        primaryKey: true
+        primaryKeyPosition: 1
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: file_classification.classificationId
+                semanticTerm: "urn:arxiv-int:term:classification-id"
+      - name: occurrence_id
+        logicalType: string
+        required: true
+        relationships:
+          - type: foreignKey
+            to: source_occurrences.occurrence_id
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: file_classification.occurrenceId
+                semanticTerm: "urn:arxiv-int:term:occurrence-id"
+      - name: document_id
+        logicalType: string
+        relationships:
+          - type: foreignKey
+            to: documents.document_id
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: file_classification.documentId
+                semanticTerm: "urn:arxiv-int:term:document-id"
+      - name: silo_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: file_classification.siloId
+                semanticTerm: "urn:arxiv-int:term:silo-id"
+      - name: relative_path
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: file_classification.relativePath
+                semanticTerm: "urn:arxiv-int:term:relative-path"
+      - name: primary_class_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: file_classification.primaryClassId
+                semanticTerm: "urn:arxiv-int:term:class-id"
+      - name: alternate_class_ids_json
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: file_classification.alternateClassIdsJson
+                semanticTerm: "urn:arxiv-int:term:alternate-class-ids"
+      - name: ancestor_path
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: file_classification.ancestorPath
+                semanticTerm: "urn:arxiv-int:term:ancestor-path"
+      - name: confidence
+        logicalType: number
+        physicalType: double
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: file_classification.confidence
+                semanticTerm: "urn:arxiv-int:term:confidence"
+      - name: calibration_profile
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: file_classification.calibrationProfile
+                semanticTerm: "urn:arxiv-int:term:calibration-profile"
+      - name: scores_json
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: file_classification.scoresJson
+                semanticTerm: "urn:arxiv-int:term:class-scores"
+      - name: evidence_json
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: file_classification.evidenceJson
+                semanticTerm: "urn:arxiv-int:term:decisive-evidence"
+      - name: failure_reason
+        logicalType: string
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: file_classification.failureReason
+                semanticTerm: "urn:arxiv-int:term:failure-reason"
+      - name: extraction_fingerprint
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: file_classification.extractionFingerprint
+                semanticTerm: "urn:arxiv-int:term:producer-fingerprint"
+      - name: normalizer_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: file_classification.normalizerId
+                semanticTerm: "urn:arxiv-int:term:normalizer-id"
+      - name: classifier_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: file_classification.classifierId
+                semanticTerm: "urn:arxiv-int:term:classifier-id"
+      - name: configuration_sha256
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: file_classification.configurationSha256
+                semanticTerm: "urn:arxiv-int:term:checksum"
+      - name: scheme_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: file_classification.schemeId
+                semanticTerm: "urn:arxiv-int:term:scheme-id"
+      - name: review_state
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: file_classification.reviewState
+                semanticTerm: "urn:arxiv-int:term:review-state"
+      - name: run_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: file_classification.runId
+                semanticTerm: "urn:arxiv-int:term:run-id"
+      - name: generation_id
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: file_classification.generationId
+                semanticTerm: "urn:arxiv-int:term:generation-id"
+      - name: contract_version
+        logicalType: string
+        required: true
+        customProperties:
+          - property: x-arxiv-int
+            value:
+              canonicalBinding:
+                binding: file_classification.contractVersion
+                semanticTerm: "urn:arxiv-int:term:contract-version"

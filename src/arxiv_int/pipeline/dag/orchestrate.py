@@ -216,6 +216,10 @@ class Orchestrator:
             from arxiv_int.pipeline.chunk.boundary import ChunkQuality
 
             return ChunkQuality(context)
+        if name == "classify":
+            from arxiv_int.classification.boundary import ClassificationQuality
+
+            return ClassificationQuality(context)
         if name == "load-lexical":
             from arxiv_int.pipeline.load_lexical.boundary import LoadLexicalQuality
 

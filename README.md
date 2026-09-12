@@ -10,7 +10,7 @@ quality gates, the run ledger and stage DAG, and serialized progress logs exist 
 foundation is shipped: an archive can be inventoried, extracted, normalized, deduplicated and
 chunked into validated, source-anchored artifacts. Lexical retrieval is also shipped: those chunks
 load into the canonical store and are searchable with filters, snippets, facets and citations.
-The archive-to-knowledge pipeline is **not complete**: semantic retrieval, classification, NLP,
+The archive-to-knowledge pipeline is **not complete**: semantic retrieval, NLP,
 knowledge extraction and reporting remain in the [forward plan](docs/impl/plan.md). See
 [current implementation](docs/impl/current.md) for available behavior and the
 [specification](docs/design/spec.md) and [architecture](docs/design/architecture.md) for the

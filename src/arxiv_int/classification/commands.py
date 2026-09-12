@@ -6,6 +6,7 @@ import sys
 from collections import Counter
 from collections.abc import Sequence
 
+from arxiv_int.classification.evaluation_command import run_evaluate
 from arxiv_int.classification.label_command import run_freeze_labels
 from arxiv_int.classification.layout import (
     ClassificationLayout,
@@ -116,6 +117,7 @@ def _tree(args: argparse.Namespace) -> int:
 _HANDLERS = {
     "build-scheme": _build,
     "check-scheme": _check,
+    "evaluate": run_evaluate,
     "freeze-labels": run_freeze_labels,
     "show": _show,
     "tree": _tree,

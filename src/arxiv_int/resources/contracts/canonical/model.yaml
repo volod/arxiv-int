@@ -13,6 +13,8 @@ semanticTerms:
     valueType: number
   urn:arxiv-int:term:allocation-group-id:
     valueType: string
+  urn:arxiv-int:term:alternate-class-ids:
+    valueType: string
   urn:arxiv-int:term:alternative-group-id:
     valueType: string
   urn:arxiv-int:term:amount:
@@ -47,6 +49,8 @@ semanticTerms:
     valueType: string
   urn:arxiv-int:term:catalog-kind:
     valueType: string
+  urn:arxiv-int:term:calibration-profile:
+    valueType: string
   urn:arxiv-int:term:checksum:
     valueType: string
   urn:arxiv-int:term:child-object-id:
@@ -62,6 +66,12 @@ semanticTerms:
   urn:arxiv-int:term:class-id:
     valueType: string
   urn:arxiv-int:term:class-namespace:
+    valueType: string
+  urn:arxiv-int:term:class-scores:
+    valueType: string
+  urn:arxiv-int:term:classification-id:
+    valueType: string
+  urn:arxiv-int:term:classifier-id:
     valueType: string
   urn:arxiv-int:term:cluster-id:
     valueType: string
@@ -92,6 +102,8 @@ semanticTerms:
   urn:arxiv-int:term:dimensions:
     valueType: integer
   urn:arxiv-int:term:direction:
+    valueType: string
+  urn:arxiv-int:term:decisive-evidence:
     valueType: string
   urn:arxiv-int:term:document-count:
     valueType: integer
@@ -231,6 +243,8 @@ semanticTerms:
     valueType: string
   urn:arxiv-int:term:policy-fingerprint:
     valueType: string
+  urn:arxiv-int:term:producer-fingerprint:
+    valueType: string
   urn:arxiv-int:term:predicate-id:
     valueType: string
   urn:arxiv-int:term:preferred-label:
@@ -362,6 +376,8 @@ entities:
     contract: odcs/ontology_term.odcs.yaml
   classification_class:
     contract: odcs/classification_class.odcs.yaml
+  file_classification:
+    contract: odcs/file_classification.odcs.yaml
   embedding:
     contract: odcs/embedding.odcs.yaml
   source_occurrence:

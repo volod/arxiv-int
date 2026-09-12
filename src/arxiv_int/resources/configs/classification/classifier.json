@@ -1,0 +1,28 @@
+{
+  "profileId": "taxonomy-caption-overlap-v1",
+  "profileVersion": "1.0.0",
+  "algorithmVersion": "1",
+  "batchRows": 64,
+  "maxTextChars": 120000,
+  "maxAlternates": 3,
+  "minimumMatchedFeatures": 2,
+  "primaryThreshold": 0.45,
+  "marginThreshold": 0.08,
+  "alternateThreshold": 0.35,
+  "weights": {
+    "text": 3.0,
+    "title": 4.0,
+    "path": 5.0,
+    "selfCaption": 3.0,
+    "ancestorCaption": 1.0
+  },
+  "evaluationGates": {
+    "exactAccuracy": 0.75,
+    "hierarchicalF1": 0.85,
+    "meanHierarchicalDistance": 0.5,
+    "calibrationError": 0.2,
+    "exceptionalF1": 0.95,
+    "minimumThroughputFilesPerSecond": 20.0,
+    "maximumPeakMemoryMiB": 512.0
+  }
+}

@@ -1,0 +1,252 @@
+{
+  "contractId": "file-classifications",
+  "fieldIdentity": "schema-qualified",
+  "fields": {
+    "file_classification.alternate_class_ids_json": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "file_classification.ancestor_path": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "file_classification.calibration_profile": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "file_classification.classification_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "file_classification.classifier_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "file_classification.confidence": {
+      "logicalType": "number",
+      "physicalType": "double",
+      "required": true
+    },
+    "file_classification.configuration_sha256": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "file_classification.contract_version": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "file_classification.document_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "file_classification.evidence_json": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "file_classification.extraction_fingerprint": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "file_classification.failure_reason": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "file_classification.generation_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "file_classification.normalizer_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "file_classification.occurrence_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "file_classification.primary_class_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "file_classification.relative_path": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "file_classification.review_state": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "file_classification.run_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "file_classification.scheme_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "file_classification.scores_json": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "file_classification.silo_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    }
+  },
+  "fingerprints": {
+    "avroSha256": "2b9083c38df3e657f3bc6dd30ab0247513c824fc6bd213ebf1da4f6d56bcdcf8",
+    "generatorVersion": "2.1.0",
+    "postgresSha256": "d72af1d89d40fe6b3cc628b9e662598b0358c2e8843e4b2534000193d552ca5a",
+    "semanticMetadataHash": "edd4f1e0591ddce1a93fe4e069b7d5ade15b8d6fadcb0752919103a2bea07c0a"
+  },
+  "history": [
+    {
+      "contractId": "file-classifications",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "file_classification.alternate_class_ids_json": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "file_classification.ancestor_path": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "file_classification.calibration_profile": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "file_classification.classification_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "file_classification.classifier_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "file_classification.confidence": {
+          "logicalType": "number",
+          "physicalType": "double",
+          "required": true
+        },
+        "file_classification.configuration_sha256": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "file_classification.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "file_classification.document_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "file_classification.evidence_json": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "file_classification.extraction_fingerprint": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "file_classification.failure_reason": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "file_classification.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "file_classification.normalizer_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "file_classification.occurrence_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "file_classification.primary_class_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "file_classification.relative_path": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "file_classification.review_state": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "file_classification.run_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "file_classification.scheme_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "file_classification.scores_json": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "file_classification.silo_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "2b9083c38df3e657f3bc6dd30ab0247513c824fc6bd213ebf1da4f6d56bcdcf8",
+        "generatorVersion": "2.1.0",
+        "postgresSha256": "d72af1d89d40fe6b3cc628b9e662598b0358c2e8843e4b2534000193d552ca5a",
+        "semanticMetadataHash": "edd4f1e0591ddce1a93fe4e069b7d5ade15b8d6fadcb0752919103a2bea07c0a"
+      },
+      "odcsId": "urn:arxiv-int:contract:file-classifications:1.0.0",
+      "projections": {},
+      "version": "1.0.0"
+    }
+  ],
+  "odcsId": "urn:arxiv-int:contract:file-classifications:1.0.0",
+  "projections": {},
+  "version": "1.0.0"
+}

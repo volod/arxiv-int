@@ -61,3 +61,11 @@ def add_classification_parser(
     _scheme_option(labels)
     labels.add_argument("--labels", type=Path, required=True, help="gold label JSONL file")
     labels.add_argument("--label-set", required=True, help="stable label set id")
+    evaluate = commands.add_parser(
+        "evaluate", help="score one classification snapshot against frozen held-out labels"
+    )
+    _run_options(evaluate, required=True)
+    evaluate.add_argument("--classification", type=Path, required=True, help="classify manifest")
+    evaluate.add_argument("--labels", type=Path, required=True, help="frozen labels JSONL")
+    evaluate.add_argument("--label-set", required=True, help="stable label set id")
+    evaluate.add_argument("--split", default="test", help="frozen split name or all")

@@ -13,8 +13,8 @@ physical-to-canonical mapping,
 a canonical entity, and a reviewed semantic metadata hash. Shipped datasets cover documents, spans,
 chunks, objects, aliases, mentions, facts, topics, ontology terms, embeddings, source occurrences,
 document path events,
-transactions, catalogs, anomaly findings, evaluation items, classification scheme classes, and
-domain investigation artifact families (relationship map, BOM, supply chain, invoice/payment,
+transactions, catalogs, anomaly findings, evaluation items, classification scheme classes, file
+classifications, and domain investigation artifact families (relationship map, BOM, supply chain, invoice/payment,
 registry).
 
 `make contracts` syncs the `contracts` extra and runs `arxiv-int contracts lint`, which:
@@ -94,7 +94,7 @@ schema state the history produces. `src/arxiv_int/contracts/migrations/` impleme
 - `arxiv-int db adopt` / `make db-adopt` live-adopts when that URL is set: relocates leftover
   `public` tables into owned schemas when destinations are missing, refuses partial or drifted
   catalogs, and stamps `0001` when the overlay matches the current initial revision. Without a URL
-  it reports why stamping stays refused.
+  it reports why stamping stays refused. A proved current overlay stamps the reviewed head.
 
 Generated revisions are deterministic and frozen: a historical revision never imports today's
 contracts, and editing one after review fails the checksum gate. A revision that drops an owned table
@@ -113,7 +113,9 @@ The [boundary repair](../records/0028-store-refactor-foundation-store-acceptance
 and [prerelease consolidation](../records/0052-store-refactor-prerelease-migration-consolidation.md)
 record the amendment. Historical task snapshots describe their original implementation; their
 superseded revision numbers are not upgrade requirements for this unreleased baseline. Head
-is `0002`: additive revision `0002` creates `corpus.classification_classes`. Overlay tables
+is `0003`: additive revision `0002` creates `corpus.classification_classes`, and reviewed additive
+revision `0003` creates the partitioned `corpus.file_classification` mapping and classification
+staging tables. Overlay tables
 briefly authored as development-era revisions now live in the initial revision, as documented in
 [Canonical store](canonical-store.md).
 

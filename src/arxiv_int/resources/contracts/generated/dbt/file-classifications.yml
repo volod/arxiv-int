@@ -1,0 +1,206 @@
+sources:
+  - description: Canonical corpus relations owned by Alembic.
+    name: corpus
+    schema: corpus
+    tables:
+      - columns:
+          - description: classification_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - file-classifications.classification_id.type
+                - file-classifications.classification_id.nullability
+                - file-classifications.classification_id.batch_unique
+                - file-classifications.classification_id.unique
+            name: classification_id
+            tests:
+              - not_null
+              - unique
+          - description: occurrence_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - file-classifications.occurrence_id.type
+                - file-classifications.occurrence_id.nullability
+                - file-classifications.occurrence_id.relationship
+            name: occurrence_id
+            tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    field: occurrence_id
+                    to: "source('corpus', 'source_occurrences')"
+          - description: document_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - file-classifications.document_id.type
+                - file-classifications.document_id.relationship
+            name: document_id
+            tests:
+              - relationships:
+                  arguments:
+                    field: document_id
+                    to: "source('corpus', 'documents')"
+          - description: silo_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - file-classifications.silo_id.type
+                - file-classifications.silo_id.nullability
+            name: silo_id
+            tests:
+              - not_null
+          - description: relative_path must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - file-classifications.relative_path.type
+                - file-classifications.relative_path.nullability
+            name: relative_path
+            tests:
+              - not_null
+          - description: primary_class_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - file-classifications.primary_class_id.type
+                - file-classifications.primary_class_id.nullability
+            name: primary_class_id
+            tests:
+              - not_null
+          - description: alternate_class_ids_json must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - file-classifications.alternate_class_ids_json.type
+                - file-classifications.alternate_class_ids_json.nullability
+            name: alternate_class_ids_json
+            tests:
+              - not_null
+          - description: ancestor_path must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - file-classifications.ancestor_path.type
+                - file-classifications.ancestor_path.nullability
+            name: ancestor_path
+            tests:
+              - not_null
+          - description: confidence must match logical type number.
+            meta:
+              arxiv_int_rule_ids:
+                - file-classifications.confidence.type
+                - file-classifications.confidence.nullability
+            name: confidence
+            tests:
+              - not_null
+          - description: calibration_profile must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - file-classifications.calibration_profile.type
+                - file-classifications.calibration_profile.nullability
+            name: calibration_profile
+            tests:
+              - not_null
+          - description: scores_json must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - file-classifications.scores_json.type
+                - file-classifications.scores_json.nullability
+            name: scores_json
+            tests:
+              - not_null
+          - description: evidence_json must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - file-classifications.evidence_json.type
+                - file-classifications.evidence_json.nullability
+            name: evidence_json
+            tests:
+              - not_null
+          - description: failure_reason must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - file-classifications.failure_reason.type
+            name: failure_reason
+          - description: extraction_fingerprint must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - file-classifications.extraction_fingerprint.type
+                - file-classifications.extraction_fingerprint.nullability
+            name: extraction_fingerprint
+            tests:
+              - not_null
+          - description: normalizer_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - file-classifications.normalizer_id.type
+                - file-classifications.normalizer_id.nullability
+            name: normalizer_id
+            tests:
+              - not_null
+          - description: classifier_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - file-classifications.classifier_id.type
+                - file-classifications.classifier_id.nullability
+            name: classifier_id
+            tests:
+              - not_null
+          - description: configuration_sha256 must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - file-classifications.configuration_sha256.type
+                - file-classifications.configuration_sha256.nullability
+            name: configuration_sha256
+            tests:
+              - not_null
+          - description: scheme_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - file-classifications.scheme_id.type
+                - file-classifications.scheme_id.nullability
+            name: scheme_id
+            tests:
+              - not_null
+          - description: review_state must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - file-classifications.review_state.type
+                - file-classifications.review_state.nullability
+            name: review_state
+            tests:
+              - not_null
+          - description: run_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - file-classifications.run_id.type
+                - file-classifications.run_id.nullability
+            name: run_id
+            tests:
+              - not_null
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - file-classifications.generation_id.type
+                - file-classifications.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - file-classifications.contract_version.type
+                - file-classifications.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+          - description: Declared physical partition key from x-arxiv-int.partitionKey. bucket must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - file-classifications.bucket.type
+            name: bucket
+        config:
+          meta:
+            arxiv_int_contract_id: file-classifications
+        description: Complete, evidence-backed subject classification of physical archive files, including explicit unclassified and unreadable outcomes and the fingerprints needed to reproduce each decision.
+        meta:
+          odcs_id: "urn:arxiv-int:contract:file-classifications:1.0.0"
+          primary_key:
+            - classification_id
+          rule_catalog_version: 1.0.0
+        name: file_classification
+version: 2

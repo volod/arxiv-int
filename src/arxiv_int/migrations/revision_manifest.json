@@ -11,6 +11,12 @@
       "file": "0002_classification_scheme_classes.py",
       "message": "classification scheme classes",
       "sha256": "f70cb6e14e3015a210759f8e12d515e1c8184f44c2244bf80f524826acb4f09e"
+    },
+    "0003": {
+      "downRevision": "0002",
+      "file": "0003_file_classifications.py",
+      "message": "file classifications",
+      "sha256": "1bf1a9ee50b0dfb2ffab64397fc79e1a33ea492b76e54dca3c8ef49b0333b571"
     }
   }
 }

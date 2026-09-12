@@ -70,6 +70,10 @@ def write_project(
     policy["sources"] = ["sources/fixture.json"]
     policy["balance"]["maxDomainLeafShare"] = 0.5
     _write(configs / "scheme.json", policy)
+    classifier = json.loads(
+        (configs_root() / "classification" / "classifier.json").read_text("utf-8")
+    )
+    _write(configs / "classifier.json", classifier)
     _write(
         configs / "taxonomy.json",
         {

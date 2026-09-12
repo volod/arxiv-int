@@ -68,7 +68,8 @@ The ordered chain, the stage dependency closure and the remaining planned stages
 | `arxiv-int classification show CLASS\|CODE --run-id RUN_ID\|--scheme DIR` | available | Print a class with its path, captions, crosswalk and scheme version; a deep code reports its truncation; `make classification-show`. |
 | `arxiv-int classification tree [--root CODE] [--depth N] [--run-id RUN_ID\|--scheme DIR]` | available | Print taxonomy codes and English captions, from the packaged taxonomy by default; `make classification-tree`. |
 | `arxiv-int classification freeze-labels --run-id RUN_ID --labels FILE --label-set ID` | available | Validate gold labels and freeze leakage-free evaluation splits; `make classification-labels`. |
-| `arxiv-int stage classify --run-id RUN_ID` | planned | Assign every inventoried file to the taxonomy or an exceptional outcome. |
+| `arxiv-int stage classify --run-id RUN_ID` | available | Assign every physical inventory file exactly once to the taxonomy or an explicit exceptional outcome; `make stage STAGE=classify RUN_ID=...`. |
+| `arxiv-int classification evaluate --run-id RUN_ID --classification MANIFEST --labels FILE --label-set ID` | available | Score a sealed mapping against frozen labels and write hierarchical, calibration, selective-coverage, exceptional, reproducibility and resource metrics; `make classification-evaluate`. |
 
 See [archive classification](../impl/current/archive-classification.md).
 

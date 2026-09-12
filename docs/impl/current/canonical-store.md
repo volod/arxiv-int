@@ -6,10 +6,10 @@ application is in place: the irreversible initial Alembic revision `0001` owns e
 table, including `corpus.normalized_documents` and `corpus.duplicate_groups`, their HASH partitions
 and staging clones, provenance constraints, roles, the empty `derived` schema, versioned projection
 metadata, the run ledger, stage progress, and reconcile control tables; additive revision
-`0002` creates `corpus.classification_classes`. Head is `0002`. A local dbt project
-builds isolated derived generations
-and projection inputs. Search, vector, and graph projections are rebuildable and are never
-canonical.
+`0002` creates `corpus.classification_classes`, and additive `0003` creates the partitioned
+`corpus.file_classification` mapping plus classification staging tables. Head is `0003`. A local
+dbt project builds isolated derived generations and projection inputs. Search, vector, and graph
+projections are rebuildable and are never canonical.
 
 Accepted records:
 [0018 Build pinned ParadeDB + AGE image](../records/0018-store-build-pinned-paradedb-age-image.md);
@@ -80,11 +80,14 @@ beside it. Missing image or URL is `not-run`, never a pass.
 ## Canonical schema
 
 `src/arxiv_int/migrations/versions/0001_initial_store.py` is the initial revision; additive
-`0002_classification_scheme_classes.py` creates `corpus.classification_classes`. Head is `0002`.
+`0002_classification_scheme_classes.py` creates `corpus.classification_classes`, while reviewed
+`0003_file_classifications.py` adds the 16-way HASH-partitioned mapping, lookup indexes and staging
+clones. Head is `0003`.
 The operator authorized consolidating development-era revisions into `0001` before any deployed
 database or public release, so an empty database applies one readable CREATE-time schema rather
 than a development history. Every contract table that declares a partition key is created
-HASH-partitioned with a staging clone; no contract table is added by a later overlay. The revision
+HASH-partitioned with a staging clone, whether in the initial revision or a reviewed additive
+revision. Each revision
 freezes SQLAlchemy definitions and narrow PostgreSQL-specific SQL, without importing current
 contracts or runtime DDL copies. `revision_manifest.json` pins checksums; `head_state.json` tracks
 the contract state used by future revision generation. After deployment, schema changes require

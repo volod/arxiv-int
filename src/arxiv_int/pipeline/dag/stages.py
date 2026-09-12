@@ -102,6 +102,24 @@ STAGE_OVERRIDES: Mapping[str, StageOverride] = {
         ),
         dependency_packages=_LAKE_PACKAGES,
     ),
+    "classify": StageOverride(
+        contracts=("file-classifications", "classification-classes"),
+        validators=("file-classifications", "classification-classes"),
+        code_paths=(
+            "classification",
+            "extraction/artifacts.py",
+            "extraction/model.py",
+            "pipeline/normalize/artifacts.py",
+            "runtime/config.py",
+            "runtime/config_schema.py",
+            "runtime/dotenv.py",
+            "runtime/inference_config.py",
+            "runtime/project_root.py",
+            "resources/configs/classification",
+            *_LAKE_PATHS,
+        ),
+        dependency_packages=_LAKE_PACKAGES,
+    ),
     "load-lexical": StageOverride(
         contracts=("documents", "chunks"),
         validators=("documents", "chunks"),
@@ -186,6 +204,7 @@ def production_specs() -> tuple[StageSpec, ...]:
 
 def production_registry() -> StageRegistry:
     """Bind shipped runners onto production specs; others remain unregistered."""
+    from arxiv_int.classification.stage import ClassificationStage
     from arxiv_int.extraction.stage import ExtractionStage
     from arxiv_int.pipeline.chunk.stage import ChunkStage
     from arxiv_int.pipeline.dedupe.stage import DedupeStage
@@ -202,5 +221,6 @@ def production_registry() -> StageRegistry:
         .with_runner("normalize", NormalizeStage())
         .with_runner("dedupe", DedupeStage())
         .with_runner("chunk", ChunkStage())
+        .with_runner("classify", ClassificationStage())
         .with_runner("load-lexical", LoadLexicalStage())
     )

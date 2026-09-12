@@ -4,10 +4,10 @@ Typed stage, source, and artifact references, a generic run ledger, serialized p
 logging with bounded resource telemetry, a fixture-first DAG CLI, a registered preflight
 readability worker, a read-only pre-run forecast, profile-declared knowledge-base publication,
 read-only stage artifact inspection, incremental source reconciliation, two-phase stale prune,
-and read-only citation/source location lookup are available. Concrete corpus stages through `chunk`
-are registered, as is `load-lexical`
-([lexical retrieval](lexical-retrieval.md)); classification and later investigation stages remain
-[planned](../plan.md#archive-classification----archive-classification).
+and read-only citation/source location lookup are available. Concrete corpus stages through `chunk`,
+`classify`, and `load-lexical` are registered ([archive classification](archive-classification.md),
+[lexical retrieval](lexical-retrieval.md)); later investigation stages remain
+[planned](../plan.md).
 
 See [record 0040](../records/0040-pipeline-refactor-stage-and-artifact-interface-contracts.md),
 [record 0041](../records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md),
@@ -203,10 +203,11 @@ Alembic revision `0001` is frozen DDL for contract tables, HASH partitions inclu
 `corpus.document_path_event`, staging clones, projection metadata, `ctl.run`, `stage_run`,
 `shard_run`, `reuse_lease`, `checkpoint`, `shard_error`, `artifact_manifest`, `artifact_lineage`,
 `resource_lease`, `ctl.stage_progress`, `ctl.source_tombstone`, `ctl.prune_event`, and
-`ctl.artifact_pin`. Head is `0002`.
+`ctl.artifact_pin`. Classification revisions add the scheme and partitioned mapping tables; head is
+`0003`.
 `ctl.resource_lease` exists for later
 SQL writers; inference still appends JSONL. `0001` teardown remains refused. Complete current
-overlays stamp `0001`. Partial catalogs are refused.
+overlays stamp the reviewed head. Partial catalogs are refused.
 
 ## DAG registry and operator commands
 

@@ -28,50 +28,6 @@ and name ready/pending human decisions and the dependent work that must wait at 
 
 ### Archive classification -- `archive-classification`
 
-#### implement-hierarchical-file-classification
-
-Add a restartable stage that maps every inventoried physical file to primary and alternate
-subject-taxonomy classes or one explicit exceptional outcome.
-
-- Serves: `archive-classification` --
-[Hierarchical archive classification and optional reorganization](../design/spec.md#hierarchical-archive-classification-and-optional-reorganization)
-- Agent status: RUN NEEDED
-- Research: yes
-- Dependencies: [Versioned classification scheme](records/0076-archive-cls-establish-versioned-udc-derived-scheme.md);
-[MIT subject taxonomy](records/0077-archive-cls-adopt-permissive-subject-taxonomy.md);
-[Normalization, dedupe and chunking](records/0062-corpus-implement-normalization-dedupe-and-chunking.md);
-[Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md).
-Reviewed real-corpus quality is accepted by the separate proof/human tasks.
-[Corpus and control integrity checkpoint](records/0063-corpus-review-corpus-and-control-integrity.md).
-- Human review handoff:
-[approve-classification-operating-point](#approve-classification-operating-point)
-thresholds and exception examples.
-Packet: `$RUNS_DIR/<run-id>/review/classification/`.
-Draft contribution; the linked proof and other human prerequisites still apply.
-Blocked consumer:
-`publish-provided-archive-end-to-end-proof`
-and `approve-archive-organization-plan`.
-Report readiness using the human-handoff workflow; never self-approve.
-Decision: accept/revise the thresholds and exceptional outcomes, or retain unclassified.
-- User-visible outcome: Each source file has a searchable, evidence-backed hierarchical assignment,
-while random text and extraction failures remain visibly `unclassified` or `unreadable`.
-- Scope boundary: Produce mappings and review candidates only; do not move source files, classify
-virtual archive members as independently movable files, or force low-confidence assignments.
-- Data and artifact paths: `$RESULTS_DIR/normalized/classifications/`, `corpus.file_classification`,
-additive `src/arxiv_int/migrations/versions/`, `src/arxiv_int/classification/`, classifier profiles,
-and `$RUNS_DIR/<run-id>/evaluation/classification/`.
-- Execution path: Combine metadata and normalized-text rules with a measured lightweight classifier;
-allow bounded local-model assistance only when it improves held-out results; retain multi-label
-scores, one primary ancestor path, decisive evidence, failure taxonomy, and complete fingerprints;
-generate and apply reviewed classification Alembic Python revisions from the extended ODCS metadata;
-use Polars for batch feature preparation and shared Pandera checks for classification outputs.
-- Acceptance gates: Every inventory file appears exactly once; unreadability follows extraction
-evidence; exact and ancestor-aware precision/recall, hierarchical distance, calibration, selective
-coverage, exceptional-outcome confusion, reproducibility, throughput, and memory meet predeclared
-gates. A high `unclassified` or `unreadable` rate is a valid reported result.
-- Documentation target: `docs/impl/current/archive-classification.md`
-- Review checkpoint: `review-retrieval-and-classification-boundaries`.
-
 #### review-retrieval-and-classification-boundaries
 
 Review searchable/classifiable corpus accounting before archive quality and policy review.
@@ -83,7 +39,7 @@ Review searchable/classifiable corpus accounting before archive quality and poli
 [Russian lexical calibration second opinion](records/0072-lexical-review-and-deepen-russian-lexical-calibration.md);
 [Versioned classification scheme](records/0076-archive-cls-establish-versioned-udc-derived-scheme.md);
 [MIT subject taxonomy](records/0077-archive-cls-adopt-permissive-subject-taxonomy.md);
-`implement-hierarchical-file-classification`;
+[Hierarchical file classification](records/0079-archive-cls-implement-hierarchical-file-classification.md);
 [Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
 - Audit inputs: [AUD-review-corpus-and-control-integrity-7](records/0063-corpus-review-corpus-and-control-integrity.md#audit-handoff);
 [AUD-build-paradedb-lexical-1](records/0070-lexical-build-paradedb-lexical-load-and-query-path.md#audit-handoff);
@@ -122,7 +78,8 @@ Classify the supplied archive and validate its complete hierarchical mapping and
 - Serves: `archive-classification` --
 [Provided-archive integration runs](../design/spec.md#provided-archive-integration-runs)
 - Agent status: RUN NEEDED
-- Dependencies: `implement-hierarchical-file-classification`;
+- Dependencies:
+[Hierarchical file classification](records/0079-archive-cls-implement-hierarchical-file-classification.md);
 [Pipeline-control provided-archive proof](records/0053-pipeline-prove-pipeline-control-on-provided-archive.md);
 [Representative corpus approval](records/0023-corpus-approve-representative-corpus-and-gold.md).
 [Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
@@ -1117,8 +1074,10 @@ archive artifacts through an explicit integration test.
 [Provided-archive integration runs](../design/spec.md#provided-archive-integration-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `build-search-graph-and-report-interfaces`;
-`prove-domain-investigation-artifacts-on-provided-archive`; `prove-anomaly-analysis-on-provided-archive`;
-[Lexical retrieval provided-archive integration](records/0073-lexical-prove-lexical-retrieval-on-provided-archive.md). Viewer smoke is conditional on selecting that profile.
+`prove-domain-investigation-artifacts-on-provided-archive`;
+`prove-anomaly-analysis-on-provided-archive`;
+[Lexical retrieval provided-archive integration](records/0073-lexical-prove-lexical-retrieval-on-provided-archive.md).
+Viewer smoke is conditional on selecting that profile.
 - Human review handoff:
 [accept-operator-discovery-workflows](#accept-operator-discovery-workflows)
 executable scenario packet, results and issue ledger.
@@ -1248,7 +1207,8 @@ Exercise the complete investigation command on a mixed deterministic fixture and
 
 - Serves: `evaluation-evidence` -- [End-to-end run and output contract](../design/spec.md#end-to-end-run-and-output-contract)
 - Agent status: CLEAR
-- Dependencies: `build-search-graph-and-report-interfaces`; `implement-hierarchical-file-classification`;
+- Dependencies: `build-search-graph-and-report-interfaces`;
+[Hierarchical file classification](records/0079-archive-cls-implement-hierarchical-file-classification.md);
 [Investigation profile and output manifest](records/0045-pipeline-implement-investigation-profile-and-output-manifest.md);
 [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 - User-visible outcome: One directory-to-report command proves every required family is wired
@@ -1620,7 +1580,8 @@ test, or retain a measured not-selected verdict.
 [Provided-archive integration runs](../design/spec.md#provided-archive-integration-runs)
 - Agent status: RUN NEEDED
 - Dependencies: `compare-pgvector-paradedb-native-and-fallback-seam`;
-[Lexical retrieval provided-archive integration](records/0073-lexical-prove-lexical-retrieval-on-provided-archive.md); [Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md).
+[Lexical retrieval provided-archive integration](records/0073-lexical-prove-lexical-retrieval-on-provided-archive.md);
+[Evidence-based pipeline forecast](records/0044-pipeline-implement-evidence-based-pipeline-forecast.md).
 - User-visible outcome: Operators can inspect actual archive embeddings, vector/hybrid results,
 resource cost, and citations, or see why the branch remains disabled with lexical fallback working.
 - Scope boundary: Use only the forecast-approved selected tier and configured local models; do not
@@ -1684,7 +1645,8 @@ organization in both copy-to-target and in-place move modes.
 - Serves: `archive-organization` --
 [Separate archive organization utility](../design/spec.md#separate-archive-organization-utility)
 - Agent status: CLEAR
-- Dependencies: `implement-hierarchical-file-classification`;
+- Dependencies:
+[Hierarchical file classification](records/0079-archive-cls-implement-hierarchical-file-classification.md);
 [Run ledger and atomic artifacts](records/0041-pipeline-implement-run-ledger-and-atomic-artifacts.md);
 `implement-backup-restore-and-rebuild-runbook`
 for move recovery semantics; use disposable roots for acceptance.

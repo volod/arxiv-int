@@ -1,0 +1,94 @@
+{
+  "fields": [
+    {
+      "name": "classification_id",
+      "type": "string"
+    },
+    {
+      "name": "occurrence_id",
+      "type": "string"
+    },
+    {
+      "name": "document_id",
+      "type": "string"
+    },
+    {
+      "name": "silo_id",
+      "type": "string"
+    },
+    {
+      "name": "relative_path",
+      "type": "string"
+    },
+    {
+      "name": "primary_class_id",
+      "type": "string"
+    },
+    {
+      "name": "alternate_class_ids_json",
+      "type": "string"
+    },
+    {
+      "name": "ancestor_path",
+      "type": "string"
+    },
+    {
+      "name": "confidence",
+      "type": "double"
+    },
+    {
+      "name": "calibration_profile",
+      "type": "string"
+    },
+    {
+      "name": "scores_json",
+      "type": "string"
+    },
+    {
+      "name": "evidence_json",
+      "type": "string"
+    },
+    {
+      "name": "failure_reason",
+      "type": "string"
+    },
+    {
+      "name": "extraction_fingerprint",
+      "type": "string"
+    },
+    {
+      "name": "normalizer_id",
+      "type": "string"
+    },
+    {
+      "name": "classifier_id",
+      "type": "string"
+    },
+    {
+      "name": "configuration_sha256",
+      "type": "string"
+    },
+    {
+      "name": "scheme_id",
+      "type": "string"
+    },
+    {
+      "name": "review_state",
+      "type": "string"
+    },
+    {
+      "name": "run_id",
+      "type": "string"
+    },
+    {
+      "name": "generation_id",
+      "type": "string"
+    },
+    {
+      "name": "contract_version",
+      "type": "string"
+    }
+  ],
+  "name": "file_classification",
+  "type": "record"
+}

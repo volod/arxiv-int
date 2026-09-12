@@ -4,9 +4,9 @@ The versioned classification scheme is built from the **arxiv-int Subject Taxono
 project-authored hierarchy released under the project's MIT licence. The code includes the
 committed policy and taxonomy, CC0 source snapshots with an exact-once coverage gate, a balance gate,
 checksummed content-addressed snapshots, staleness checks, class inspection (`show`, `tree`), and
-frozen gold-label splits. The `classify` stage that assigns files to the scheme is not implemented;
-see
-[implement-hierarchical-file-classification](../plan.md#implement-hierarchical-file-classification).
+frozen gold-label splits. The restartable `classify` stage assigns every physical inventory file
+exactly once to a taxonomy class or the explicit `unclassified`/`unreadable` outcomes; see
+[record 0079](../records/0079-archive-cls-implement-hierarchical-file-classification.md).
 
 See [record 0076](../records/0076-archive-cls-establish-versioned-udc-derived-scheme.md) (first
 scheme, built on the UDC Summary and superseded) and
@@ -104,22 +104,59 @@ Output below `$RUNS_DIR/<run-id>/classification/evaluation/<label-set>/` is `lab
 `path`/`primary` shape scored by `score_classification`), `evaluation-items.jsonl` (validated
 against `evaluation-items`) and `splits.json`.
 
+## Classification stage
+
+The deterministic `taxonomy-caption-overlap-v1` profile combines normalized text, titles and the
+original relative path with separately scored English, Russian and Ukrainian class captions.
+Domain, field and subfield candidates receive multi-label scores. A primary threshold, a minimum
+feature count and a margin gate prevent weak or cross-branch evidence from forcing a taxonomy
+assignment; qualifying secondary branches remain alternates. Each accepted decision retains the
+matched terms and normalized-document offsets. Inventory or extraction failures produce
+`unreadable`; usable low-signal and random text produce `unclassified`.
+
+Classification consumes checksum-validated inventory, extraction and normalization manifests. It
+streams normalized Parquet batches through Polars, reads at most 120,000 characters across each
+physical file and its archive members, and validates each output batch with the shared Pandera
+contract rules. Virtual archive members may inform their physical container but never receive an
+independently movable row. The stage checks every decision twice, reconciles its row count with the
+physical inventory denominator, publishes atomically in 64-row batches, and leaves no sealed
+snapshot after interruption. It never moves source files.
+
+The manifest records class distribution, thresholds, policy/scheme/upstream fingerprints,
+reproducibility, elapsed time, throughput and peak memory. The draft review packet at
+`$RUNS_DIR/<run-id>/review/classification/operating-point.json` binds the exact mapping checksum and
+contains bounded assigned, ambiguous and exceptional examples without source text.
+
+`classification evaluate` joins a sealed mapping to a frozen held-out label set and writes
+`$RUNS_DIR/<run-id>/evaluation/classification/<label-set>/metrics.json`. It reports exact accuracy,
+precision/recall/F1 across primary and alternate labels,
+ancestor precision/recall/F1, mean tree distance, ten-bin calibration error, selective coverage,
+exceptional-outcome confusion and macro-F1, reproducibility, throughput and peak memory against the
+predeclared profile gates. Fixture metrics validate the evaluator and wiring; only the separate
+provided-archive proof and human decision may establish real-corpus quality.
+
 ## Contract and store
 
 Product ODCS `classification-classes` binds `corpus.classification_classes` with the single key
 `scheme_class_id` (`<scheme id>:<class id>`) and columns for the code, captions in three languages,
-crosswalk and path token; Alembic revision `0002` creates the table. Loading snapshots into the
-store belongs to the classify stage.
+crosswalk and path token. Product ODCS `file-classifications` binds the complete mapping to
+`corpus.file_classification`, including source identity, primary/alternate classes, ancestor path,
+confidence/calibration, scores, evidence/failure reason and producer fingerprints. Alembic `0002`
+creates the scheme table; reviewed additive `0003` creates the mapping as a 16-way HASH-partitioned
+table, adds class/document/scheme lookup indexes, and provides protected staging clones for both
+classification datasets. Head `0003` was applied and inspected on a disposable PostgreSQL 17 store
+with no catalog findings.
 
 ## Commands
 
-`arxiv-int classification build-scheme|check-scheme|show|tree|freeze-labels`, with Make wrappers
+`arxiv-int classification build-scheme|check-scheme|show|tree|freeze-labels|evaluate`, with Make wrappers
 `classification-scheme`, `classification-check`, `classification-show`, `classification-tree` and
-`classification-labels`; see the
+`classification-labels` plus `classification-evaluate`; see the
 [command reference](../../guide/commands.md#classification-vocabulary). `tree` prints codes and
 English captions of the packaged taxonomy without a run. `build-scheme` also writes a draft
 `$RUNS_DIR/<run-id>/review/classification/vocabulary.json` packet for
-`approve-classification-operating-point`; it is not an approval and carries no thresholds yet.
+`approve-classification-operating-point`. Running `classify` replaces this vocabulary-only draft
+with a mapping-bound operating-point draft; neither packet is an approval.
 
 ## Maintaining the taxonomy
 
@@ -132,10 +169,34 @@ subdivisions belong in `extensions.json` rather than the shipped taxonomy.
 
 Run `run-82735ffc69b34708b0e2971260b65280` (2026-09-11) published `subjects-1c0d5213ec52`: 377
 classes (375 taxonomy plus 2 outcomes), no findings, coverage 252/252 and 68/68, the same id as an
-independent in-memory build. It uses no GPU and makes no real-archive classification-quality claim.
+independent in-memory build. The classification implementation was exercised on this CUDA host
+(RTX 4060 Ti, 16 GiB); the deterministic CPU profile was retained because no frozen real-archive
+labels justify local-model promotion. The frozen 32-item integration fixture produced exact and
+hierarchical scores of 1.0, mean distance 0, calibration error 0, exceptional macro-F1 1.0,
+59.1 files/s and 247.0 MiB peak memory. These are wiring/regression results, not a real-archive
+quality claim.
+
+After the operator stopped Tesseract for a host shutdown, the interrupted stage-attempt directory
+had no files or seal, while the result root contained only an empty stage lock. The source snapshot
+was unchanged after remount. Conservative
+identity checks rejected reuse after mount and implementation drift, so run
+`run-a8e9c160b5584bd09abe83d5b6535d6c` reran Tesseract and the full bounded chain. Extraction sealed
+414 documents and 48,985 spans, with 121 quarantines and 33 reused documents; normalization sealed
+all 414 documents with no additional quarantine.
+
+The final classification manifest accounts for all 546 physical inventory rows exactly once and
+excludes 22 virtual archive members from independently movable output. It contains 7 taxonomy
+assignments, 431 `unclassified` outcomes and 108 extraction-backed `unreadable` outcomes. All 546
+decisions reproduced; classification ran in 15.1 seconds at 36.2 files/s with 317.4 MiB peak memory.
+The manifest digest is `f687e9605fac9adfd283a697fa2b242e9e2585aef972fcd5d5b430552393f7e1`,
+and an unchanged rerun was a cache hit. The high exceptional count is a valid complete result, not
+a quality claim; archive-label evaluation and the human operating-point decision remain pending.
+The complete interruption and rerun audit is in record 0079.
 
 ## Tests
 
 `tests/classification/` covers codes, tokens, closure and resolution, every validation finding,
 coverage and balance gates, build identity and staleness, the packaged taxonomy (licence, coverage,
-balance, trilingual captions, ASCII file), labels and splits, and the CLI end to end.
+balance, trilingual captions, ASCII file), labels and splits, classifier decisions and evidence,
+physical/member accounting, interruption/retry, upstream tamper refusal, evaluation metrics and the
+CLI end to end.

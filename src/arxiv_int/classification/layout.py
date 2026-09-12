@@ -48,6 +48,15 @@ class ClassificationLayout:
     def evaluation(self, label_set: str) -> Path:
         return self.root / EVALUATION_DIRNAME / safe_id(label_set, "label set")
 
+    def quality_evaluation(self, label_set: str) -> Path:
+        """Return the classifier-quality root required by the implementation plan."""
+        return (
+            self.run_root
+            / EVALUATION_DIRNAME
+            / CLASSIFICATION_DIRNAME
+            / safe_id(label_set, "label set")
+        )
+
 
 def write_jsonl(path: Path, rows: Iterable[Mapping[str, Any]]) -> None:
     """Write rows as sorted-key ASCII JSON lines."""
