@@ -10,10 +10,13 @@ import pytest
 from arxiv_int.classification.artifacts import validate_manifest
 from arxiv_int.classification.model import Classification, PhysicalFile
 from arxiv_int.classification.publish import ClassificationPublisher
+from arxiv_int.classification.source import physical_files, source_snapshots
 from arxiv_int.extraction.model import ExtractionError
 from arxiv_int.interfaces.extraction import ExtractedDocument
 from arxiv_int.interfaces.sources import SourceAnchor, SourceOccurrence
+from tests.classification.stage_helpers import class_rows as _class_rows
 from tests.classification.stage_helpers import classify as _classify
+from tests.classification.stage_helpers import classify_context as _context
 from tests.classification.stage_helpers import rows as _rows
 from tests.pipeline.chain import run_chain
 
@@ -55,6 +58,7 @@ def test_stage_maps_every_physical_file_once_with_explicit_outcomes(tmp_path: Pa
     assert summary["accounting"] == {
         "classified_rows": 4,
         "physical_inventory_rows": 4,
+        "text_budget_truncated_rows": 0,
         "virtual_member_rows": 0,
     }
     assert len({row["occurrence_id"] for row in rows}) == len(rows) == 4
@@ -160,3 +164,81 @@ def test_interruption_leaves_no_sealed_mapping_and_a_retry_succeeds(
 
     monkeypatch.setattr(ClassificationPublisher, "add", original)
     assert _classify(run).outcome == "produced"
+
+
+def test_text_budget_truncation_is_reported_not_silently_dropped(tmp_path: Path) -> None:
+    run = run_chain(
+        tmp_path,
+        fixtures={"long.txt": "Machine learning artificial intelligence and data science " * 40},
+    )
+    snapshots = source_snapshots(_context(run))
+
+    generous = next(physical_files(snapshots, max_text_chars=100_000))
+    clipped = next(physical_files(snapshots, max_text_chars=12))
+
+    assert generous.truncated_document_ids == ()
+    assert clipped.truncated_document_ids == tuple(item.document_id for item in generous.documents)
+
+
+def test_review_packet_names_the_upstream_chain_and_its_denominators(tmp_path: Path) -> None:
+    run = run_chain(
+        tmp_path,
+        fixtures={
+            "machine-learning.txt": "Machine learning artificial intelligence data science",
+            "blank.txt": "​\n",
+        },
+    )
+    result = _classify(run)
+    manifest = Path(result.outputs[0].partition["manifest"])
+    summary = validate_manifest(manifest, str(result.outputs[0].partition["sha256"]))
+    packet = json.loads(
+        (
+            run.context.results_dir / "runs/run-chain/review/classification/operating-point.json"
+        ).read_text(encoding="ascii")
+    )
+
+    assert packet["upstream"] == summary["upstream"]
+    assert set(packet["upstream"]) == {"inventory", "extraction", "normalization"}
+    assert all({"manifest", "sha256"} == set(value) for value in packet["upstream"].values())
+    assert packet["accounting"] == summary["accounting"]
+    assert packet["accounting"]["classified_rows"] == sum(packet["countsByPrimary"].values())
+    assert packet["accounting"]["text_budget_truncated_rows"] == 0
+    assert packet["scheme"] == summary["scheme"]
+
+
+def test_every_assigned_class_and_ancestor_resolves_to_a_published_scheme_row(
+    tmp_path: Path,
+) -> None:
+    run = run_chain(
+        tmp_path,
+        fixtures={
+            "machine-learning.txt": "Machine learning artificial intelligence data science",
+            "structures.txt": "Structural engineering structural analysis and design",
+            "random.txt": "xqz unrelated gibberish 193847",
+            "blank.txt": "​\n",
+        },
+    )
+    result = _classify(run)
+    manifest = Path(result.outputs[0].partition["manifest"])
+    summary = validate_manifest(manifest, str(result.outputs[0].partition["sha256"]))
+    scheme_id = str(summary["scheme"]["scheme_id"])
+    published = {
+        str(row["class_id"]): row
+        for row in _class_rows(manifest)
+        if str(row["scheme_id"]) == scheme_id
+    }
+    exceptional = {"unclassified", "unreadable"}
+    rows = _rows(manifest)
+
+    assert published and exceptional <= set(published)
+    for row in rows:
+        assert str(row["scheme_id"]) == scheme_id
+        path = str(row["ancestor_path"]).split(">")
+        assert path[-1] == str(row["primary_class_id"])
+        assert set(path) <= set(published)
+        alternates = json.loads(str(row["alternate_class_ids_json"]))
+        assert set(alternates) <= set(published) - exceptional
+        if str(row["primary_class_id"]) in exceptional:
+            assert row["failure_reason"] and path == [str(row["primary_class_id"])]
+        else:
+            assert row["failure_reason"] is None and len(path) > 1

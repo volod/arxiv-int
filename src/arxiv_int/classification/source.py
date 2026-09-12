@@ -99,7 +99,7 @@ def physical_files(
                 continue
             key = (str(row["silo_id"]), str(row["relative_path"]))
             document_ids = tuple(dict.fromkeys(mapped.get(key, ())))
-            available = _read_documents(document_ids, documents, max_text_chars)
+            available, truncated = _read_documents(document_ids, documents, max_text_chars)
             missing = tuple(
                 normalization_failures.get(item, f"normalization-missing:{item}")
                 for item in document_ids
@@ -114,6 +114,7 @@ def physical_files(
                 reason=None if row.get("reason") is None else str(row["reason"]),
                 documents=available,
                 extraction_failures=tuple(failures.get(key, ())) + missing,
+                truncated_document_ids=truncated,
             )
 
 
@@ -148,19 +149,30 @@ def _read_documents(
     document_ids: tuple[str, ...],
     locators: Mapping[str, _DocumentLocator],
     max_text_chars: int,
-) -> tuple[DocumentText, ...]:
-    """Read at most one file-level character budget across a container and its members."""
+) -> tuple[tuple[DocumentText, ...], tuple[str, ...]]:
+    """Read at most one file-level character budget across a container and its members.
+
+    The second element names every present document the budget cut short or skipped, so a
+    partial read is a recorded denominator instead of a silent omission.
+    """
     remaining = max_text_chars
     found = []
+    truncated = []
     for document_id in document_ids:
         locator = locators.get(document_id)
-        if locator is None or remaining <= 0:
+        if locator is None:
             continue
         if locator.text_path.is_symlink() or not locator.text_path.is_file():
             raise ValueError("normalized search view is not a real file")
+        if remaining <= 0:
+            truncated.append(locator.document_id)
+            continue
         with locator.text_path.open(encoding="utf-8") as handle:
             text = handle.read(remaining)
+            clipped = bool(handle.read(1))
         remaining -= len(text)
+        if clipped:
+            truncated.append(locator.document_id)
         found.append(
             DocumentText(
                 locator.document_id,
@@ -169,7 +181,7 @@ def _read_documents(
                 text,
             )
         )
-    return tuple(found)
+    return tuple(found), tuple(truncated)
 
 
 def _jsonl(path: Path) -> Iterator[dict[str, Any]]:

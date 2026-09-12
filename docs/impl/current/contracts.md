@@ -160,7 +160,10 @@ Batch rules (type, nullability, max length, decimal, accepted values, unit compa
 in-batch uniqueness) run against eager Polars frames through Pandera/Polars. Snapshot uniqueness
 and relationships are declared as dbt tests and executed by a disk-backed Polars adapter; skipping
 them leaves `not-run` and cannot be publishable. LazyFrame schema-only validation is refused.
-Unknown ODCS `quality` types, engines, or rules fail closed at compile time.
+Unknown ODCS `quality` types, engines, or rules fail closed at compile time. Uniqueness is compiled
+per column, so a contract that declares a composite primary key is refused with
+`UnsupportedQualityMappingError` rather than compiling rules its own key does not satisfy; no
+contract declares one today.
 
 `arxiv-int data-quality check DATASET --run-id RUN_ID --input PATH` and `make data-quality`
 write secret-free evidence under `$DATA_DIR/data-quality/<run-id>/`. `--publish` copies the same

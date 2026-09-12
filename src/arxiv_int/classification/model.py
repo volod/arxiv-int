@@ -76,6 +76,7 @@ class PhysicalFile:
     reason: str | None
     documents: tuple[DocumentText, ...]
     extraction_failures: tuple[str, ...]
+    truncated_document_ids: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

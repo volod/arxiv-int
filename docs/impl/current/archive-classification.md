@@ -111,21 +111,30 @@ original relative path with separately scored English, Russian and Ukrainian cla
 Domain, field and subfield candidates receive multi-label scores. A primary threshold, a minimum
 feature count and a margin gate prevent weak or cross-branch evidence from forcing a taxonomy
 assignment; qualifying secondary branches remain alternates. Each accepted decision retains the
-matched terms and normalized-document offsets. Inventory or extraction failures produce
-`unreadable`; usable low-signal and random text produce `unclassified`.
+matched terms and the span of the characters that produced them. Every evidence item names its
+coordinate space: `normalized-search` offsets index the named document's normalized search view,
+`relative-path` and `title` index the file's own path and title. Spans are token-boundary
+occurrences in the text as stored, so neither a substring of a longer word nor a fold that changes
+length can move one. Inventory or extraction failures produce `unreadable`; usable low-signal and
+random text produce `unclassified`.
 
 Classification consumes checksum-validated inventory, extraction and normalization manifests. It
 streams normalized Parquet batches through Polars, reads at most 120,000 characters across each
-physical file and its archive members, and validates each output batch with the shared Pandera
+physical file and its archive members, records every document that budget cut short or skipped,
+and validates each output batch with the shared Pandera
 contract rules. Virtual archive members may inform their physical container but never receive an
 independently movable row. The stage checks every decision twice, reconciles its row count with the
 physical inventory denominator, publishes atomically in 64-row batches, and leaves no sealed
 snapshot after interruption. It never moves source files.
 
 The manifest records class distribution, thresholds, policy/scheme/upstream fingerprints,
-reproducibility, elapsed time, throughput and peak memory. The draft review packet at
-`$RUNS_DIR/<run-id>/review/classification/operating-point.json` binds the exact mapping checksum and
-contains bounded assigned, ambiguous and exceptional examples without source text.
+reproducibility, elapsed time, throughput and peak memory. Its `accounting` block reconciles
+`classified_rows` with `physical_inventory_rows`, and reports `virtual_member_rows` and
+`text_budget_truncated_rows` as separate denominators. The draft review packet at
+`$RUNS_DIR/<run-id>/review/classification/operating-point.json` binds the exact mapping checksum,
+repeats that accounting block, the frozen scheme identity and the inventory, extraction and
+normalization manifest paths with their checksums, and contains bounded assigned, ambiguous and
+exceptional examples without source text.
 
 `classification evaluate` joins a sealed mapping to a frozen held-out label set and writes
 `$RUNS_DIR/<run-id>/evaluation/classification/<label-set>/metrics.json`. It reports exact accuracy,

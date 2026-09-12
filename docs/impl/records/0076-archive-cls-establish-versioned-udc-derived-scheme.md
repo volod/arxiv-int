@@ -124,7 +124,7 @@ The fetched pages and snapshot live under the configured `$RUNS_DIR` and are not
 
 | Note | Observation |
 | --- | --- |
-| `AUD-establish-versioned-udc-derived-scheme-1` | Nonblocking. `arxiv_int.data_quality.rules.field_rules` emits per-column `batch_unique` and `unique` rules for every primary-key column, so a composite ODCS key would wrongly require each column to be unique on its own. No current contract uses one; `classification-classes` uses the single `scheme_class_id`. Next check: compile one composite uniqueness rule or refuse composite keys before a contract declares one. Owner: [review-retrieval-and-classification-boundaries](../plan.md#review-retrieval-and-classification-boundaries). Disposition: open. |
+| `AUD-establish-versioned-udc-derived-scheme-1` | Nonblocking. `arxiv_int.data_quality.rules.field_rules` emits per-column `batch_unique` and `unique` rules for every primary-key column, so a composite ODCS key would wrongly require each column to be unique on its own. No current contract uses one; `classification-classes` uses the single `scheme_class_id`. Next check: compile one composite uniqueness rule or refuse composite keys before a contract declares one. Owner: [checkpoint 0080](0080-archive-cls-review-retrieval-and-classification-boundaries.md). Disposition: resolved by [repair 0081](0081-archive-cls-repair-retrieval-and-classification-identity-and-evidence.md); a composite primary key is refused at rule compilation. |
 
 Reviewed scope: licence and redistribution boundary, namespace disjointness, notation coverage on
 the full real Summary, staleness fingerprints, split leakage, contract and migration generation.

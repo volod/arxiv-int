@@ -70,9 +70,12 @@ def write_operating_point_packet(
         inspect_command=f"arxiv-int classification tree --run-id {context.run_id}",
     )
     packet.update(
+        accounting=summary["accounting"],
         classifier=summary["classifier"],
         countsByPrimary=summary["counts_by_primary"],
         mappingManifest={"path": str(mapping_manifest), "sha256": mapping_sha256},
+        scheme=summary["scheme"],
+        upstream=summary["upstream"],
         evaluation=None,
         pending=["prove-archive-classification-on-provided-archive"],
         readiness="draft",

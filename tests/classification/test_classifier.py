@@ -52,3 +52,36 @@ def test_unreadable_requires_recorded_upstream_failure() -> None:
     assert result.primary == "unreadable"
     assert result.confidence == 1.0
     assert result.failure_reason == "inventory-encrypted"
+
+
+def test_evidence_spans_address_real_token_occurrences_in_a_named_space() -> None:
+    text = "Relearning: machine relearning artificial intelligence data science. machine learning"
+    result = _classifier().classify(_file(text))
+    evidence = {str(item["term"]): item for item in result.evidence}
+
+    assert "learning" in evidence
+    for item in result.evidence:
+        term = str(item["term"])
+        source = str(item["source"])
+        start, end = int(str(item["start"])), int(str(item["end"]))
+        body = {"path": "folder/source.txt", "title": text}.get(source, text)
+        assert body[start:end].casefold() == term
+        before = body[start - 1] if start else ""
+        after = body[end] if end < len(body) else ""
+        assert not (before.isalnum() or after.isalnum())
+    assert {str(item["space"]) for item in result.evidence} <= {
+        "relative-path",
+        "title",
+        "normalized-search",
+    }
+
+
+def test_evidence_offsets_survive_a_length_changing_casefold() -> None:
+    # "\u00df" casefolds to two characters, so folded offsets drift from the real text.
+    body = "GRO\u00dfE STRA\u00dfE machine learning artificial intelligence data science"
+    result = _classifier().classify(_file(body))
+    machine = next(item for item in result.evidence if str(item["term"]) == "machine")
+
+    assert str(machine["space"]) == "title"
+    assert body[int(str(machine["start"])) : int(str(machine["end"]))] == "machine"
+    assert int(str(machine["start"])) == body.index("machine")

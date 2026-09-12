@@ -6,11 +6,18 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 
 from arxiv_int.classification.model import Candidate, Classification, ClassifierPolicy, PhysicalFile
-from arxiv_int.classification.text_features import feature_counts, words
+from arxiv_int.classification.text_features import feature_counts, word_spans, words
 from arxiv_int.classification.vocabulary.model import Scheme
 from arxiv_int.classification.vocabulary.outcomes import EXCEPTIONAL_OUTCOMES
 
 _MAX_EVIDENCE = 8
+# Coordinate space each evidence span addresses. SPACE_SEARCH offsets index the normalized
+# search view of the named document; the other two index the file's own path and title.
+SPACE_PATH = "relative-path"
+SPACE_TITLE = "title"
+SPACE_SEARCH = "normalized-search"
+# term -> (space, source, start, end)
+_Positions = dict[str, tuple[str, str, int, int]]
 
 
 @dataclass(frozen=True, slots=True)
@@ -152,32 +159,29 @@ class CaptionClassifier:
             tuple(sorted({document.document_id for document in item.documents})),
         )
 
-    def _file_features(
-        self, item: PhysicalFile
-    ) -> tuple[Mapping[str, float], dict[str, tuple[str, int, int]]]:
+    def _file_features(self, item: PhysicalFile) -> tuple[Mapping[str, float], _Positions]:
         weighted: dict[str, float] = defaultdict(float)
-        positions: dict[str, tuple[str, int, int]] = {}
-        sources = [("path", item.relative_path, self.policy.weights.path)]
+        positions: _Positions = {}
+        sources = [(SPACE_PATH, "path", item.relative_path, self.policy.weights.path)]
         sources.extend(
-            ("title", document.title, self.policy.weights.title) for document in item.documents
+            (SPACE_TITLE, "title", document.title, self.policy.weights.title)
+            for document in item.documents
         )
         sources.extend(
             (
+                SPACE_SEARCH,
                 document.document_id,
                 document.text[: self.policy.max_text_chars],
                 self.policy.weights.text,
             )
             for document in item.documents
         )
-        for source, text, weight in sources:
-            tokens = words(text)
-            for feature, count in feature_counts(tokens).items():
+        for space, source, text, weight in sources:
+            spans = word_spans(text)
+            for feature, count in feature_counts(token for token, _, _ in spans).items():
                 weighted[feature] += count * weight
-            folded = text.casefold()
-            for token in tokens:
-                start = folded.find(token)
-                if start >= 0:
-                    positions.setdefault(token, (source, start, start + len(token)))
+            for token, start, end in spans:
+                positions.setdefault(token, (space, source, start, end))
         return weighted, positions
 
     def _score(self, prototype: Prototype, document: Mapping[str, float]) -> Candidate:
@@ -208,12 +212,14 @@ class CaptionClassifier:
         return left in self.scheme.path(right) or right in self.scheme.path(left)
 
     def _evidence(
-        self, candidate: Candidate, positions: dict[str, tuple[str, int, int]]
+        self, candidate: Candidate, positions: _Positions
     ) -> tuple[dict[str, object], ...]:
         evidence = []
         for term in candidate.matched_terms[:_MAX_EVIDENCE]:
-            source, start, end = positions[term]
-            evidence.append({"source": source, "start": start, "end": end, "term": term})
+            space, source, start, end = positions[term]
+            evidence.append(
+                {"source": source, "space": space, "start": start, "end": end, "term": term}
+            )
         return tuple(evidence)
 
     def _exception(self, outcome: str, reason: str, item: PhysicalFile) -> Classification:

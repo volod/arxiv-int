@@ -44,6 +44,7 @@ class ClassificationPublisher:
         self.normalizer_id = normalizer_id
         self.counts: Counter[str] = Counter()
         self.rows = 0
+        self.truncated = 0
 
     def add_scheme(self, rows: Sequence[Mapping[str, Any]]) -> None:
         """Publish the exact scheme rows consumed by this classifier generation."""
@@ -97,9 +98,11 @@ class ClassificationPublisher:
             "classification_id": identity,
             "content_hash": item.content_hash,
             "document_ids": list(classification.document_ids),
+            "truncated_document_ids": list(item.truncated_document_ids),
         }
         self.snapshot.add_row(FILE_CLASSIFICATIONS, row, metadata)
         self.rows += 1
+        self.truncated += bool(item.truncated_document_ids)
         self.counts[classification.primary] += 1
 
     def finish(
@@ -128,6 +131,7 @@ class ClassificationPublisher:
                     "physical_inventory_rows": physical_inventory_rows,
                     "virtual_member_rows": virtual_member_rows,
                     "classified_rows": self.rows,
+                    "text_budget_truncated_rows": self.truncated,
                 },
                 "classifier": {
                     "algorithm_version": self.policy.algorithm_version,

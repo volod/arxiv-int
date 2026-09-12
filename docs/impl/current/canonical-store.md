@@ -65,7 +65,10 @@ make projections-cleanup RUN_ID=... # plan retired/failed drops (APPLY=1 execute
 CLI equivalents: `arxiv-int store build-image`, `arxiv-int store probe-image`,
 `arxiv-int store apply-schema`, and
 `arxiv-int transform parse|compile|build|test --run-id RUN_ID`.
-Projection commands: `arxiv-int store projections-build|status|cleanup --run-id RUN_ID`.
+Projection commands: `arxiv-int store projections-build|status|cleanup --run-id RUN_ID`. They act
+on the same canonical store the pipeline loads: an explicit `ARXIV_INT_MIGRATION_DATABASE_URL` wins,
+otherwise the configured loopback service is selected. A tree with no store configuration at all
+still reports `not-run` rather than acting on a disposable database.
 
 Default probe data lands under
 `$DATA_DIR/postgres-image-probe/<run-id>/pgdata`. Probe containers and Compose database runs use

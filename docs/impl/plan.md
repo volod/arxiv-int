@@ -28,49 +28,6 @@ and name ready/pending human decisions and the dependent work that must wait at 
 
 ### Archive classification -- `archive-classification`
 
-#### review-retrieval-and-classification-boundaries
-
-Review searchable/classifiable corpus accounting before archive quality and policy review.
-
-- Serves: `archive-classification` -- [Development integrity](../design/spec.md#development-integrity-and-review-checkpoints)
-- Agent status: CLEAR
-- Task kind: checkpoint
-- Dependencies: [Checkpoint 0063](records/0063-corpus-review-corpus-and-control-integrity.md);
-[Russian lexical calibration second opinion](records/0072-lexical-review-and-deepen-russian-lexical-calibration.md);
-[Versioned classification scheme](records/0076-archive-cls-establish-versioned-udc-derived-scheme.md);
-[MIT subject taxonomy](records/0077-archive-cls-adopt-permissive-subject-taxonomy.md);
-[Hierarchical file classification](records/0079-archive-cls-implement-hierarchical-file-classification.md);
-[Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
-- Audit inputs: [AUD-review-corpus-and-control-integrity-7](records/0063-corpus-review-corpus-and-control-integrity.md#audit-handoff);
-[AUD-build-paradedb-lexical-1](records/0070-lexical-build-paradedb-lexical-load-and-query-path.md#audit-handoff);
-[AUD-review-and-deepen-russian-lexical-calibration-1](records/0072-lexical-review-and-deepen-russian-lexical-calibration.md#audit-handoff);
-[AUD-review-and-deepen-russian-lexical-calibration-2](records/0072-lexical-review-and-deepen-russian-lexical-calibration.md#audit-handoff);
-[AUD-review-and-deepen-russian-lexical-calibration-3](records/0072-lexical-review-and-deepen-russian-lexical-calibration.md#audit-handoff);
-[AUD-build-paradedb-lexical-2](records/0070-lexical-build-paradedb-lexical-load-and-query-path.md#audit-handoff);
-[AUD-establish-versioned-udc-derived-scheme-1](records/0076-archive-cls-establish-versioned-udc-derived-scheme.md#audit-handoff).
-- User-visible outcome:
-Retrieval and classification proofs consume coherent source, vocabulary and query identities.
-- Scope boundary:
-Inspect fixture/store integration and retained calibration evidence before the provided-archive
-proofs. This review neither accepts a classification policy nor authorizes file placement.
-Review integrated behavior, not just test totals; no speculative rewrite or model promotion.
-- Data and artifact paths: Accepted producer records, current fixtures and retained proof evidence;
-`$DATA_DIR/architecture-review/<run-id>/`.
-- Execution path:
-Trace source/chunk/query ids, Russian normalized versus literal identifiers, hierarchy/ancestor
-metrics, excluded/unreadable/unclassified denominators, stale mappings, duplicate source occurrence
-lookup and empty results. Verify candidate policy packets expose errors and exact fingerprints.
-Map each producer invariant to evidence; add missing behavior regressions at stable seams.
-- Acceptance gates:
-Indexed, excluded and failed rows reconcile; snippets and class assignments resolve to sources;
-unknown classes and low-confidence assignments stay exceptional; changed tokenizer/vocabulary
-invalidates affected outputs. No relevance or classification-quality claim follows from counts.
-Record refactor/no-refactor and proceed/proceed-with-nonblocking-notes/blocked verdicts. Plan a
-focused prerequisite repair for any blocker and keep this checkpoint open until it passes.
-Run `make ci`; coverage is diagnostic. Route each nonblocking note to one explicit owner.
-- Documentation target: `docs/impl/current/archive-classification.md`
-- Review checkpoint: none; this is the bounded checkpoint.
-
 #### prove-archive-classification-on-provided-archive
 
 Classify the supplied archive and validate its complete hierarchical mapping and source references.
@@ -82,8 +39,13 @@ Classify the supplied archive and validate its complete hierarchical mapping and
 [Hierarchical file classification](records/0079-archive-cls-implement-hierarchical-file-classification.md);
 [Pipeline-control provided-archive proof](records/0053-pipeline-prove-pipeline-control-on-provided-archive.md);
 [Representative corpus approval](records/0023-corpus-approve-representative-corpus-and-gold.md).
-[Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md).
-`review-retrieval-and-classification-boundaries`.
+[Evidence and source location lookup](records/0051-pipeline-implement-evidence-and-source-location-lookup.md);
+[Retrieval and classification boundaries checkpoint](records/0080-archive-cls-review-retrieval-and-classification-boundaries.md);
+[Retrieval and classification identity repair](records/0081-archive-cls-repair-retrieval-and-classification-identity-and-evidence.md).
+- Audit inputs: [AUD-review-retrieval-and-classification-boundaries-8](records/0080-archive-cls-review-retrieval-and-classification-boundaries.md#audit-handoff);
+[AUD-review-retrieval-and-classification-boundaries-9](records/0080-archive-cls-review-retrieval-and-classification-boundaries.md#audit-handoff);
+[AUD-repair-retrieval-and-classification-identity-and-evidence-1](records/0081-archive-cls-repair-retrieval-and-classification-identity-and-evidence.md#audit-handoff);
+[AUD-repair-retrieval-and-classification-identity-and-evidence-2](records/0081-archive-cls-repair-retrieval-and-classification-identity-and-evidence.md#audit-handoff).
 - Human review handoff:
 [approve-classification-operating-point](#approve-classification-operating-point)
 final errors, calibration, coverage and operating-point decision packet.
@@ -125,6 +87,9 @@ versioned dictionaries without changing source evidence.
 - Dependencies: [Normalization, dedupe and chunking](records/0062-corpus-implement-normalization-dedupe-and-chunking.md);
 [Stage DAG CLI and Make targets](records/0042-pipeline-implement-stage-dag-cli-and-make-targets.md).
 [Corpus and control integrity checkpoint](records/0063-corpus-review-corpus-and-control-integrity.md).
+- Audit inputs: [AUD-review-retrieval-and-classification-boundaries-4](records/0080-archive-cls-review-retrieval-and-classification-boundaries.md#audit-handoff);
+[AUD-review-retrieval-and-classification-boundaries-6](records/0080-archive-cls-review-retrieval-and-classification-boundaries.md#audit-handoff);
+[AUD-review-retrieval-and-classification-boundaries-7](records/0080-archive-cls-review-retrieval-and-classification-boundaries.md#audit-handoff).
 - User-visible outcome: Russian and mixed-language documents expose normalized terms, lemmas where
 useful, abbreviations, and corpus terminology for search and extraction.
 - Scope boundary: Produce analysis views and mappings only; original text and offsets remain
@@ -1247,6 +1212,7 @@ covering every usable pipeline stage and artifact family.
 [Evaluation fixtures and metrics](records/0036-eval-found-create-evaluation-fixtures-and-metrics.md).
 Semantic proof is required only for a selected vector branch.
 `review-investigation-and-report-integrity`.
+- Audit inputs: [AUD-repair-retrieval-and-classification-identity-and-evidence-3](records/0081-archive-cls-repair-retrieval-and-classification-identity-and-evidence.md#audit-handoff).
 `approve-classification-operating-point`; `approve-entity-merge-and-ontology-policy`;
 `approve-fact-review-and-publication-policy`; `approve-domain-artifact-semantics-and-inclusion`;
 `approve-anomaly-triage-policy`; `accept-operator-discovery-workflows`.
@@ -1412,7 +1378,8 @@ index, and stale lease behavior before full-corpus authorization.
 [Incremental reconciliation and stale pruning](records/0049-pipeline-implement-incremental-reconciliation-and-stale-pruning.md).
 Organizer failure injection is separate.
 - Audit inputs: [AUD-review-corpus-and-control-integrity-4](records/0063-corpus-review-corpus-and-control-integrity.md#audit-handoff);
-[AUD-review-corpus-and-control-integrity-5](records/0063-corpus-review-corpus-and-control-integrity.md#audit-handoff).
+[AUD-review-corpus-and-control-integrity-5](records/0063-corpus-review-corpus-and-control-integrity.md#audit-handoff);
+[AUD-review-retrieval-and-classification-boundaries-5](records/0080-archive-cls-review-retrieval-and-classification-boundaries.md#audit-handoff).
 - Human review handoff:
 [accept-recovery-and-security-posture](#accept-recovery-and-security-posture)
 seal

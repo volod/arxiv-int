@@ -8,6 +8,7 @@ from arxiv_int.cli import build_parser, main
 from arxiv_int.contracts.migrations.runner import DATABASE_URL_VARIABLE
 from arxiv_int.data_quality.engine.model import STATUS_FAIL, STATUS_PASS
 from arxiv_int.quality.project_root import discover_project_root
+from arxiv_int.stores.postgres.selection import optional_store_url, store_database_url
 from arxiv_int.stores.projections.adapters.graph import write_open_exports
 from arxiv_int.stores.projections.ids import (
     UnsafeIdentifierError,
@@ -119,16 +120,31 @@ def test_requested_kinds() -> None:
         requested_kinds(["bm25"])
 
 
-def test_build_without_database_is_not_run(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def test_build_without_any_selectable_store_is_not_run(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     monkeypatch.delenv(DATABASE_URL_VARIABLE, raising=False)
     monkeypatch.setenv("DATA_DIR", str(tmp_path / "data"))
-    root = discover_project_root(Path(__file__))
+    unconfigured = tmp_path / "elsewhere"
+    unconfigured.mkdir()
     result = build_projections(
-        ProjectionRequest(run_id="offline", project_root=root, skip_dbt=True)
+        ProjectionRequest(run_id="offline", project_root=unconfigured, skip_dbt=True)
     )
     assert result.status == RUN_NOT_RUN
     assert result.activated is False
     assert (tmp_path / "data" / "projections" / "offline" / "result.json").is_file()
+
+
+def test_projection_store_selection_falls_back_to_the_configured_service(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.delenv(DATABASE_URL_VARIABLE, raising=False)
+    root = discover_project_root(Path(__file__))
+    explicit = "postgresql+psycopg://explicit/db"
+
+    assert optional_store_url(root) == store_database_url(root)
+    assert optional_store_url(root, explicit) == explicit
+    assert optional_store_url(tmp_path) is None
 
 
 def test_parser_accepts_projection_commands() -> None:
@@ -148,7 +164,27 @@ def test_cli_projection_status_not_run(monkeypatch: pytest.MonkeyPatch, tmp_path
     monkeypatch.delenv(DATABASE_URL_VARIABLE, raising=False)
     monkeypatch.setenv("DATA_DIR", str(tmp_path / "data"))
     monkeypatch.setattr(
-        "arxiv_int.runtime.project_root.find_project_root",
-        lambda explicit=None, environment=None: tmp_path,
+        "arxiv_int.stores.projections.commands.find_project_root", lambda _explicit: tmp_path
     )
     assert main(["store", "projections-status", "--run-id", "r1"]) == 2
+
+
+def test_cli_projection_status_uses_the_configured_service(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.delenv(DATABASE_URL_VARIABLE, raising=False)
+    monkeypatch.setenv("DATA_DIR", str(tmp_path / "data"))
+    root = discover_project_root(Path(__file__))
+    monkeypatch.setattr(
+        "arxiv_int.stores.projections.commands.find_project_root", lambda _explicit: root
+    )
+    asked: list[str] = []
+
+    def _refuse(url: str, **_kwargs: object) -> object:
+        asked.append(url)
+        raise RuntimeError("service offline")
+
+    monkeypatch.setattr("arxiv_int.stores.projections.commands.create_engine", _refuse)
+
+    assert main(["store", "projections-status", "--run-id", "r1"]) == 1
+    assert asked == [store_database_url(root)]
