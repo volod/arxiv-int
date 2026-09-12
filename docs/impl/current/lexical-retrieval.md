@@ -72,7 +72,12 @@ version. The selected `unicode-russian-v1` index profile keeps ParadeDB's defaul
 with the Russian stemmer and Russian stopwords for `body` and `title`;
 `identifiers` uses a whitespace tokenizer with lowercasing disabled so literal ids survive intact;
 `language` and `document_id` use fast keyword fields for filters and facets. The JSON profile is
-hashed into a tokenizer fingerprint that is retained with every load.
+hashed into a tokenizer fingerprint that is bound into the built version's
+`ctl.projections.input_fingerprint`. Resolving the active target recomputes that value, so a
+projection built under a different tokenizer profile is refused by name with the rebuild command
+instead of being searched and reported as current. `identifiers` currently carries the chunk id
+from the accepted dbt model, so literal lookup resolves chunk and document ids, not yet part
+numbers or model names extracted from the text.
 
 The selected `russian-guarded-v2` query profile applies NFC, then plans bounded, query-only
 variants in three stages.
@@ -91,7 +96,12 @@ variants in three stages.
   variant runs only when both earlier stages match nothing.
 
 A query that uses query syntax (field prefixes, quotes, grouping, leading `+`/`-`, AND/OR/NOT) is
-sent unchanged. Every variant is a separate bound parameter, with at most five per stage. Stored
+sent unchanged as the only primary variant. When its syntax is nothing but punctuation a Russian
+keyboard layout produces (Cyrillic x, hard sign, zhe and e sit on the Latin `[`, `]`, `;` and `'`
+keys), the mechanical readings stay available as a fallback stage and the unparseable literal is
+left out of that stage. A stage the engine refuses does not hide a later one; its message is still
+raised when no stage matches, so a genuinely broken query still reports its syntax error.
+Every variant is a separate bound parameter, with at most five per stage. Stored
 text and source snippets are never rewritten. Search JSON reports the profile, the policy
 fingerprint and `queryStage`. The previously accepted `russian-safe-v1` profile and its
 `legacy-v1` aliases stay declared only to replay record 0071. That legacy map contains an alias
@@ -104,6 +114,7 @@ filter field, is refused by name with the allowed set. `arxiv_int.retrieval.lexi
 `LexicalRequest`, ranked `search()`, literal `lookup()` and `explain()`; `retrieval.projection`
 resolves the active target, index sizes and in-flight BM25 builds; `retrieval.citations` resolves each
 hit back to its `corpus.chunks` chunker and source span and reports any hit that does not resolve.
+`retrieval.lexical_stages` owns stage planning and staged execution.
 
 ## Commands
 

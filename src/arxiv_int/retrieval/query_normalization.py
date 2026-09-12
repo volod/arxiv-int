@@ -67,7 +67,8 @@ class QueryPlan:
     """Bounded variants: primary always runs; fallback and fuzzy run only on no hits.
 
     ``fuzzy`` holds the long-word text of each primary variant; every word of one text
-    must match within the bounded edit distance.
+    must match within the bounded edit distance. ``literal_primary`` marks a base the syntax
+    guard held verbatim, so a later stage scores its readable variants alone.
     """
 
     profile_id: str
@@ -75,6 +76,7 @@ class QueryPlan:
     primary: tuple[str, ...]
     fallback: tuple[str, ...] = ()
     fuzzy: tuple[str, ...] = ()
+    literal_primary: bool = False
 
     @property
     def variants(self) -> tuple[str, ...]:
@@ -112,7 +114,11 @@ def query_plan(text: str, *, profile_id: str = SELECTED_QUERY_PROFILE) -> QueryP
         raise ValueError(f"unknown query profile {profile_id!r}") from error
     base = _base(text) if profile.unicode_nfc else text.strip()
     if profile.preserve_syntax and transforms.has_query_syntax(base):
-        return QueryPlan(profile_id, base, (base,))
+        # A wrong-layout word is unparseable as written, so its mechanical reading stays
+        # reachable as a fallback while the literal query keeps the primary stage.
+        artifact = transforms.is_layout_artifact(base)
+        rescue = _bounded(_mechanical(base, profile)) if artifact else ()
+        return QueryPlan(profile_id, base, (base,), rescue, literal_primary=True)
     primary = [base, *_alias_variants(base, profile, policy)]
     primary.extend(_optional(_homoglyph(base, profile)))
     if profile.fleeting_vowels:

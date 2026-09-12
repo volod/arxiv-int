@@ -3,7 +3,11 @@
 import json
 from pathlib import Path
 
-from arxiv_int.contracts.migrations.authoring import generate_revision, read_manifest
+from arxiv_int.contracts.migrations.authoring import (
+    generate_revision,
+    head_revision,
+    read_manifest,
+)
 from arxiv_int.contracts.migrations.check import check_migrations
 from arxiv_int.contracts.migrations.graph import (
     graph_findings,
@@ -30,7 +34,7 @@ def test_product_tree_has_one_head_and_no_pending_revision() -> None:
     report = check_migrations(root, contracts_root())
     assert report.ok, report.findings
     assert report.pending_operations == ()
-    assert report.head == "0001"
+    assert report.head == head_revision(read_manifest(root))
     assert report.live_evidence == "not-run"
 
 

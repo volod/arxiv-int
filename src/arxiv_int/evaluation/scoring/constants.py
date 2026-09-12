@@ -1,6 +1,8 @@
 """Stable defaults shared by reusable evaluation metrics."""
 
-EXCEPTIONAL_CLASSES = frozenset({"unclassified", "unreadable"})
+from arxiv_int.classification.vocabulary.outcomes import EXCEPTIONAL_OUTCOMES
+
+EXCEPTIONAL_CLASSES = EXCEPTIONAL_OUTCOMES
 LATENCY_P95 = 95.0
 RETRIEVAL_K = 5
 THRESHOLD_REVIEW_BUDGET = 0.5

@@ -1,0 +1,222 @@
+{
+  "contractId": "classification-classes",
+  "fieldIdentity": "schema-qualified",
+  "fields": {
+    "classification_classes.ancestor_path": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "classification_classes.caption_en": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "classification_classes.caption_ru": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "classification_classes.caption_uk": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "classification_classes.captions_json": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "classification_classes.class_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "classification_classes.class_kind": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "classification_classes.code": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "classification_classes.contract_version": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "classification_classes.crosswalk_json": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "classification_classes.depth": {
+      "logicalType": "integer",
+      "physicalType": "",
+      "required": true
+    },
+    "classification_classes.generation_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "classification_classes.namespace": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "classification_classes.parent_class_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    },
+    "classification_classes.path_token": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "classification_classes.scheme_class_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "classification_classes.scheme_id": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "classification_classes.scheme_version": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": true
+    },
+    "classification_classes.slug": {
+      "logicalType": "string",
+      "physicalType": "",
+      "required": false
+    }
+  },
+  "fingerprints": {
+    "avroSha256": "1b97e799658f22de82ba186c41bb17147dc3a93b8f95acb12db128a33e96c616",
+    "generatorVersion": "2.1.0",
+    "postgresSha256": "12ea007cef8e718a39fbaa792b4a65ef373dda2a25c422814b749520b4c08d2c",
+    "semanticMetadataHash": "f339f590b392ce6e346e197b81085c268cb874b360765aa83342abfc4d82ad61"
+  },
+  "history": [
+    {
+      "contractId": "classification-classes",
+      "fieldIdentity": "schema-qualified",
+      "fields": {
+        "classification_classes.ancestor_path": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "classification_classes.caption_en": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "classification_classes.caption_ru": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "classification_classes.caption_uk": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "classification_classes.captions_json": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "classification_classes.class_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "classification_classes.class_kind": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "classification_classes.code": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "classification_classes.contract_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "classification_classes.crosswalk_json": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "classification_classes.depth": {
+          "logicalType": "integer",
+          "physicalType": "",
+          "required": true
+        },
+        "classification_classes.generation_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "classification_classes.namespace": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "classification_classes.parent_class_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        },
+        "classification_classes.path_token": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "classification_classes.scheme_class_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "classification_classes.scheme_id": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "classification_classes.scheme_version": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": true
+        },
+        "classification_classes.slug": {
+          "logicalType": "string",
+          "physicalType": "",
+          "required": false
+        }
+      },
+      "fingerprints": {
+        "avroSha256": "1b97e799658f22de82ba186c41bb17147dc3a93b8f95acb12db128a33e96c616",
+        "generatorVersion": "2.1.0",
+        "postgresSha256": "12ea007cef8e718a39fbaa792b4a65ef373dda2a25c422814b749520b4c08d2c",
+        "semanticMetadataHash": "f339f590b392ce6e346e197b81085c268cb874b360765aa83342abfc4d82ad61"
+      },
+      "odcsId": "urn:arxiv-int:contract:classification-classes:1.0.0",
+      "projections": {},
+      "version": "1.0.0"
+    }
+  ],
+  "odcsId": "urn:arxiv-int:contract:classification-classes:1.0.0",
+  "projections": {},
+  "version": "1.0.0"
+}

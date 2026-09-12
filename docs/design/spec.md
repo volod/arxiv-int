@@ -9,12 +9,14 @@ objects, provenance-bearing facts, and the
 search, graph, and investigation views built from them. Its Python distribution and import package
 are both `arxiv-int` / `arxiv_int`. The system inventories and normalizes an immutable archive,
 builds reproducible lexical and selected semantic indexes, discovers topics, extracts and resolves
-entities and facts, classifies source files in a UDC-derived hierarchy, projects a knowledge graph
-and evidence-backed domain artifacts, and supports local search, analysis, and visualization without
-requiring document or prompt egress. Required outputs include company, product, and person catalogs,
-explainable anomaly findings, and an analyst report linking summaries to exact evidence. Financial,
-bookkeeping, and product-description lanes support party relationships, supply chains, and
-evidence-backed bills of materials. An explicit, separately authorized maintenance command can
+entities and facts, classifies source files in a versioned subject taxonomy, projects a knowledge
+graph and evidence-backed domain artifacts, and supports local search, analysis, and visualization
+without requiring document or prompt egress. Selectable branches add a canonical concept lexicon,
+concept relations, distant-link discovery, graph communities and topology metrics, and a bounded
+graph-constrained agent diagnostic over them. Required outputs include company, product, and person
+catalogs, explainable anomaly findings, and an analyst report linking summaries to exact evidence.
+Financial, bookkeeping, and product-description lanes support party relationships, supply chains,
+and evidence-backed bills of materials. An explicit, separately authorized maintenance command can
 reorganize the archive after classification -- copying the classified tree into a target directory,
 or moving the silo in place -- while preserving an auditable original-to-current path map.
 
@@ -46,7 +48,7 @@ project results.
 | [Apache AGE](https://github.com/apache/age/tree/0e30566226f017d53b7f52025803b38af3ad2b3f)                     | `0e30566`; README advertises AGE 1.8.0 and PostgreSQL 11-18 | AGE is feasible on the same PostgreSQL major, but the ParadeDB combination is not listed as an upstream-tested extension set and needs a project-owned image and compatibility gate.         |
 | [pgvector](https://github.com/pgvector/pgvector/tree/e48241b4dcc045b18902914f668d03d1d399dfbe)                | `e48241b`; README install pin `0.8.6`                       | Stable exact, HNSW, IVFFlat, half-vector, binary-quantization, and iterative-scan baseline; large HNSW builds remain memory and maintenance intensive.                                       |
 | [ODCS](https://github.com/bitol-io/open-data-contract-standard/tree/f5bfbb813fe2c0551e2c324913f330e7807885d8) | `f5bfbb8`; standard `3.1.0`                                 | ODCS is the human and machine-readable contract source of truth; its custom properties carry project generation hints that the standard does not define.                                     |
-| [UDC Consortium](https://udcc.org/index.php/site/page?view=about_structure) and [UDC Summary](https://udcsummary.info/php/index.php?lang=en) | Web references inspected 2026-09-04                        | UDC supplies a faceted, syntactically expressive hierarchy; the project must pin an authorized vocabulary snapshot and keep local outcomes/extensions distinguishable from official notation. |
+| [OpenAlex](https://docs.openalex.org/) domains, fields, subfields and topics | API snapshot 2026-09-11; data under CC0 | A modern research-literature subject hierarchy (4 domains, 26 fields, 252 subfields); it is the checked coverage crosswalk for the project-authored MIT subject taxonomy. The UDC Summary (CC BY-NC 4.0, uneven depth) was rejected for licence and balance reasons. |
 
 Relevant implementation constraints:
 
@@ -83,12 +85,19 @@ Relevant implementation constraints:
   structured output. See [Linux service setup](https://docs.ollama.com/linux),
   [embeddings](https://docs.ollama.com/api/embed), and
   [structured outputs](https://docs.ollama.com/capabilities/structured-outputs).
-- UDC notation is hierarchical and faceted: longer simple notations express narrower concepts, and
-  auxiliaries or connecting signs represent language, form, place, time, and relationships. The
-  freely reusable UDC Summary contains about 2,600 classes under CC BY-SA 3.0; software use of the
-  complete Master Reference File requires the applicable UDC Consortium licence. See the
-  [UDC Summary](https://udcsummary.info/php/index.php?lang=en) and
-  [UDC licence terms](https://udcc.org/index.php/site/page?view=licences).
+- Modularity-based community detection is a heuristic with known limits: Louvain is order- and
+  seed-dependent, can return internally disconnected communities, and modularity optimization has a
+  resolution limit that hides small modules in large graphs. Leiden addresses the connectivity
+  defect. The design therefore treats a partition as publishable structure only with a declared
+  algorithm, resolution, seed and node order plus a measured multi-seed agreement result, and keeps
+  Leiden as the declared comparison candidate rather than assuming either is correct. CPU graph
+  libraries supply the algorithms; the project owns the determinism, stability and provenance policy.
+- Candidate subject vocabularies were compared for licence and balance on 2026-09-11. The UDC
+  Summary is CC BY-NC 4.0 with same-licence redistribution and very uneven depth; MSC2020 and ACM
+  CCS are not permissively licensed; no maintained MIT subject taxonomy fits. OpenAlex publishes its
+  domain, field, subfield and topic hierarchy as CC0 data, so it can serve as a coverage source for
+  a project-authored taxonomy. See [OpenAlex](https://docs.openalex.org/) and the
+  [UDC Summary conditions of use](https://udcsummary.info/about.htm).
 
 ## Design principles
 
@@ -124,6 +133,9 @@ The governing principles are:
    file remaining at one path; every authorized physical move is precomputed and recorded.
 10. **Usable stages pass archive integration.** A stage group is not complete when only fixtures
     pass; its ordinary pipeline outputs must pass an explicit operator-archive integration test.
+11. **Topology is navigation, not evidence.** Communities, importance ranks, dependency depths and
+    effort scores order what an operator reads and what expensive work runs next. They never make a
+    claim true, rank a finding, or substitute for a cited source span.
 
 Ontology classes, predicates, and analyst-facing graph labels follow
 [Ontology design](#ontology-design).
@@ -136,7 +148,8 @@ The first production-shaped release includes:
   attribution, MIME/encoding/language detection, hashes, exact deduplication, and quarantines;
 - text and metadata extraction from common office, text, email, archive, image, and PDF formats,
   with OCR/layout lanes selected by policy;
-- versioned, multi-label hierarchical source classification derived from UDC, including explicit
+- versioned, multi-label hierarchical source classification over the project's MIT subject taxonomy,
+  including explicit
   `unclassified` and `unreadable` outcomes, plus a separately authorized archive-reorganization
   command that either copies the classified tree to a target directory or moves the silo in place,
   with a reversible path ledger;
@@ -146,6 +159,13 @@ The first production-shaped release includes:
   question answering is an optional discovery refinement;
 - topic discovery, entity mentions, entity resolution, provenance-bearing fact extraction, ontology
   assets, and graph projection;
+- a selectable concept layer: morphology-normalized canonical concepts with evidenced aliases and
+  extractive definitions, and concept relations asserted on pinned predicates with declared weights;
+- selectable graph analysis over that layer: two-pass distant-link discovery with bounded
+  adjudication, seeded community detection with published stability, and importance, dependency
+  depth and effort metrics;
+- a selectable graph-constrained agent diagnostic that assembles token-budgeted context packs from
+  the graph and reports concept coverage and blind spots without feeding any acceptance gate;
 - explicit company/legal-entity, product, and person catalogs with aliases, identifiers, roles,
   temporal relations, evidence, and unresolved identities;
 - registered relationship, bill-of-materials, supply-chain, and invoice/payment investigation
@@ -165,7 +185,10 @@ The initial release does not promise:
 
 - embedding or LLM-processing every byte in a multi-terabyte archive;
 - horizontal scale, high availability, or zero-downtime disaster failover on one workstation;
-- automatic acceptance of LLM-generated facts or ontology axioms as truth;
+- automatic acceptance of LLM-generated facts, concept definitions, relation weights, or ontology
+  axioms as truth;
+- a self-improving agent loop whose own verdicts count as quality evidence, or graph topology
+  presented as proof of a claim;
 - full Neo4j Graph Data Science parity, OpenSearch cluster parity, or Qdrant billion-vector parity;
 - automatic destructive schema migration;
 - unattended or confidence-only movement of source files;
@@ -304,7 +327,10 @@ arxiv-int/
     retrieval/
     nlp/
     identity/
+    concepts/
     graph/
+    graph_analytics/
+    agents/
     domain_artifacts/
     analytics/
     query/
@@ -986,6 +1012,10 @@ Embeddings are tiered:
 3. Tier 2: chunks selected by query logs, uncertainty, entity/fact density, or evaluation misses.
 4. Tier 3: an explicit operator-requested corpus slice.
 
+Concept context is a separate tier of the same profile system: when the semantic branch is selected,
+canonical concept labels, aliases and extractive definitions are embedded under their own declared
+profile so distant-link candidate generation never mixes concept and chunk vector spaces.
+
 Every embedding records model revision, pooling, normalization, dimensions, chunker, input hash, and
 inference backend. Changing any identity creates a new profile; vectors from incompatible profiles
 are never mixed.
@@ -993,7 +1023,10 @@ are never mixed.
 ### AGE graph projection
 
 AGE vertices and edges carry canonical ids and compact display/query properties. Full evidence and
-large text stay in relational tables. Projection state records canonical fact version, graph schema
+large text stay in relational tables. When the concept and analysis branches are selected, community
+id, importance rank, dependency depth and effort score project as vertex properties tagged with
+their producing snapshot; they remain analysis attributes and never become vertex labels or
+ontology classes. Projection state records canonical fact version, graph schema
 version, and last committed id. Rebuilding creates a versioned graph, validates counts and sampled
 paths, then switches the active graph pointer. Recursive SQL remains the correctness reference for
 bounded traversals.
@@ -1001,6 +1034,209 @@ bounded traversals.
 Ontology assets are also exported in open RDF formats such as Turtle, with SHACL shapes for
 validation. AGE is a property-graph query projection; it is not the formal ontology serialization.
 Analyst-facing vertex/edge labels follow [Ontology design](#ontology-design).
+
+## Concept layer and semantic graph construction
+
+Named entities and discovered topics do not carry the subject matter of a technical archive: the
+methods, requirements, standards, failure modes, material properties, procedures and design
+constraints a domain expert reasons with. Without that layer a graph of organizations, products and
+payments cannot say what a document is about at the level the operator asks, and relations whose two
+halves sit far apart in the corpus are never proposed at all.
+
+The `concepts` and `concept-relations` stages add the layer as an explicit selectable branch of the
+investigation profile. They are additive: the required outputs in
+[End-to-end run and output contract](#end-to-end-run-and-output-contract) do not change, a disabled
+branch records an explicit `not-selected` state with its reason, and promotion of any concept output
+to a required output needs its own measured evidence.
+
+A concept is an instance under the pinned vocabulary, never a new axiom. Concept work may propose
+terms, aliases, definitions and relation candidates; only the existing human ontology-policy gate
+publishes new classes, predicates or shapes ([Ontology design](#ontology-design)). A concept whose
+meaning has no published term stays unmapped and proposed, and is visible as such.
+
+### Concept extraction and canonicalization
+
+Cheap analysis gates expensive analysis here as everywhere. Candidates come from the deterministic
+terminology statistics and morphology views the `nlp` stage already produces, from pattern and
+dictionary matches for designations and standards, and only then from bounded local structured
+extraction over the chunks a declared selection policy admits. Every candidate retains document,
+chunk, byte/page/span, contract, code, model, prompt and schema provenance; a candidate with no
+resolvable evidence span is refused rather than stored.
+
+Canonical keys are built from Russian morphology, not surface strings:
+
+- lemma-normalized head-phrase keys from the morphology lane, with declared handling of case,
+  number and gender inflection and of genitive noun chains;
+- NFC plus e/yo folding and Cyrillic/Latin homoglyph folding applied to the key only; the original
+  surface form and its offsets stay authoritative in search, evidence and reports;
+- abbreviation and acronym expansion through the versioned dictionary lane, including standard and
+  document designations such as GOST, OST, TU, RD, SNiP, KD and ESKD forms; an expansion is an
+  evidenced alias and never replaces the source token;
+- mixed-script terms keep both the literal Latin technical token and its transliterated or
+  translated alias candidates, each language-tagged;
+- Ukrainian and English surface forms become language-tagged aliases of one concept only when
+  evidence links them; a cross-language homograph is not a merge;
+- multiword expressions are detected as units, and a modifier that changes meaning is not dropped
+  into its head term.
+
+Merging reuses the reversible identity overlay instead of adding a second mechanism. Concept
+candidates are blocked and compared through the same probabilistic linkage, thresholds, review
+states and cluster-version overlay that resolve organizations and products, with concept-specific
+blocking keys and comparison features. Automatic merges require the approved precision operating
+point; uncertain pairs stay separate and visible; a merge never rewrites a mention or a source span;
+a split restores the prior view.
+
+Each canonical concept records a preferred label per language, the alias set with evidence, a
+definition assembled only from cited source spans with an explicit undefined state when the corpus
+contains none, document and chunk counts, first and last evidence, subject-taxonomy and topic
+distribution, ontology mapping state, review state, and the identity and ontology snapshot ids it
+was built under. An extractive definition or an abstention are the only valid outcomes; an invented
+gloss is a defect, not a fallback.
+
+Evaluation: fixtures prove that inflected, abbreviated, transliterated and mixed-script variants of
+one term reach one canonical concept; that same-string different-domain terms, Russian/Ukrainian
+homographs and near-synonyms with disjoint ontology types stay separate; that a concept with no
+corpus definition is visible as undefined instead of described; that evidence-free candidates are
+refused; and that an unchanged rerun reuses the extraction and linkage results. Held-out
+human-reviewed concept labels remain the only evidence for promoting an operating point.
+
+### Concept relations
+
+Concept-to-concept claims are ordinary facts. They reuse `kg.fact`, the pinned predicates, the
+extraction provenance contract and the `validate-facts` checks; they get no parallel relation store,
+validator or review queue. Only published predicates may be asserted, with direction, source-valid
+and recorded time where the source states them, and evidence spans on both sides.
+
+Edge weight is a declared, versioned function of calibrated extraction confidence, independent
+evidence count and predicate class, published with its formula id. A model's self-reported score is
+one input feature, never the published weight. A relation without a resolvable evidence span cannot
+reach an accepted state.
+
+Relation extraction also states its non-implications. Co-occurrence in one chunk, lexical or
+embedding similarity, a shared abbreviation, a shared topic or a shared community cannot manufacture
+a relation, a broader/narrower ordering or a prerequisite claim.
+
+Evaluation: per-predicate precision and recall against reviewed pairs, direction correctness, the
+declared weight formula reproducing identical weights from identical inputs, refusal of evidence-free
+assertions, refusal of writes whose types are disjoint from the declared domain and range, and
+bounded fixtures that prove each non-implication above.
+
+## Distant-link discovery, communities, and topology metrics
+
+A chunk-local extractor reads each window in isolation, so a large corpus loses relations whose two
+halves are far apart: the same method named differently in two silos, a requirement and the part it
+constrains a thousand documents away. Three additive stages address that recall gap and make the
+resulting graph navigable. All three are rebuildable analysis projections over canonical facts. None
+of them creates evidence, and none of them edits the ontology.
+
+### Two-pass distant-link discovery
+
+The `refinder` stage proposes concept pairs a chunk-local extractor cannot see, then adjudicates
+them. It uses the retrieval projections the project already owns and adds no vector service or
+second index store. Candidate generation is pgvector or the selected ParadeDB vector index over a
+concept-embedding tier when the semantic branch is selected, and alias/term overlap with BM25 over
+concept context when it is not, so the stage is never hard-blocked by a disabled optional branch.
+
+Two passes, because approximate neighbourhoods are asymmetric:
+
+1. Forward pass: for a selected concept, take the top-k candidates under the declared generator and
+   record each candidate's rank and score.
+2. Backward pass: confirm the source concept appears inside each candidate's own top-k
+   neighbourhood. Reciprocal candidates are adjudicated first. One-directional candidates are
+   adjudicated only inside a declared residual budget and stay labelled as one-directional.
+
+Adjudication is a bounded local structured judgement that must cite an evidence span from each side
+and return one typed verdict: a published predicate with direction, an explicit no-relation, or an
+abstention when the retrieved evidence is insufficient. An accepted verdict enters the fact store as
+a proposed concept relation carrying `refinder` as its extractor identity, the candidate generator
+id, both ranks and both evidence spans, and passes the same validation as any other claim. It is
+never written as accepted. No-relation and abstention verdicts are retained so an identical rerun
+does not re-judge the same pair.
+
+Budgets are declared before the run, because the pair space is quadratic in concept count: a
+selected concept tier (high-importance, bridge-candidate, cross-partition, or under-connected
+concepts), a per-concept candidate cap, a corpus-wide adjudication-call budget, and a deterministic
+candidate ordering so an interrupted stage resumes and an unchanged rerun reuses verdicts. An
+exhausted budget is a reported partial result with its coverage denominator, not a silent stop.
+
+The branch is promoted only on measured evidence, and its edges stay separable so every downstream
+community and metric view can be computed with and without them. Predeclare the gate: added edges
+must improve a held-out multi-hop evidence-recall or cross-partition link-recall measure by the
+declared margin, at or below the declared false-link rate and adjudication cost. Retaining the
+baseline without refinder edges is a valid result.
+
+Evaluation uses planted links, not anecdotes. A fixture corpus places known relations between
+concepts in far-apart partitions whose surface forms differ by inflection, abbreviation,
+transliteration and language, and places planted distractor pairs that must not link: same-string
+different-domain terms, Russian/Ukrainian homographs, and near-synonyms whose ontology types are
+disjoint. Measure link recall at the declared budget, judged-edge precision, false-link rate on the
+distractors, abstention rate when supporting evidence is withheld, verdict determinism under an
+identical rerun, budget conformance under an interrupted and resumed run, and the measured
+difference between the two-pass and a forward-only ablation. Prompt-injection fixtures prove
+document text cannot direct the adjudicator.
+
+### Communities and bridges
+
+The `graph-communities` stage partitions the concept graph into thematic modules and names the
+concepts that hold modules together. Louvain modularity is the baseline; Leiden is the declared
+comparison candidate because Louvain can return internally disconnected communities. The selected
+algorithm, resolution parameter, random seed, node ordering and edge-weight source are part of the
+artifact identity. Computation runs on CPU over the contracted relational edge tables and is written
+back as a versioned projection; AGE carries no graph-algorithm library and is not used to compute it.
+
+Communities are analysis artifacts with their own id space. They are not ontology classes and they
+are not topics: `topics` clusters text, `graph-communities` partitions relations, and the two views
+are published separately and compared, never merged or renamed into each other. Bridge concepts come
+from declared measures -- participation across communities and bounded betweenness on the reduced
+graph -- recorded with the measure, threshold and community version.
+
+A partition is published as thematic structure only when it is stable. Repeat the run across
+declared seeds and node orders and publish the agreement (adjusted Rand index or normalized mutual
+information); a partition below the declared agreement threshold is published as unstable with its
+disagreement evidence instead. Also publish resolution sensitivity across a declared sweep, the
+modularity value, the share of proposed and refinder-derived edges the partition rests on, and the
+singleton and giant-component shares. A partition resting mainly on unreviewed edges is labelled
+low-confidence, and the resolution limit of modularity optimization is stated rather than implied
+away.
+
+Evaluation: planted-partition fixtures with known ground truth meet declared agreement floors;
+degenerate inputs -- an empty graph, no edges, one clique, a star hub, disconnected components,
+self-loops and duplicate edges -- produce explicit results instead of failures; identical inputs,
+seed and ordering reproduce an identical partition; input row order does not change the result; and
+an edge set dominated by proposed edges is reported unstable or low-confidence rather than published
+as discovered themes.
+
+### Topology and effort metrics
+
+The `graph-metrics` stage calculates per-concept topological weight for navigation and review
+prioritization.
+
+- Node importance: weighted PageRank over accepted edges, with declared damping, weight
+  normalization, convergence tolerance and dangling-node policy. A variant including proposed edges
+  is published under its own label; the two are never combined into one number. Publish rank
+  stability under a declared edge-weight perturbation, because an order that reshuffles under noise
+  is not a usable signal.
+- Dependency depth: the longest chain of prerequisite concepts needed to contextualize a target.
+  Longest path is defined only on an acyclic graph and extracted prerequisites contain cycles, so the
+  stage takes the prerequisite subgraph, condenses its strongly connected components, and measures
+  depth on the condensation. Every cycle is published as a named data-quality finding with its member
+  concepts and their evidence, because a circular prerequisite chain is an extraction or definition
+  defect worth review. A depth that crosses a condensed component says so.
+- Complexity and effort: a declared, versioned composite of intrinsic concept signals -- definition
+  length, alias and variant count, distinct predicate types, evidence dispersion -- and the
+  dependency closure. The formula id, its inputs, its weights and a sensitivity report are published
+  with the values.
+
+Metrics are navigation aids, not evidence and not findings. They may order a browse view and select
+a refinder or review tier. They may not rank analyst findings, establish that a claim is true, or
+override the declared ranking policy in
+[Analysis, graph, and visualization behavior](#analysis-graph-and-visualization-behavior).
+
+Evaluation: closed-form fixtures check importance against a reference implementation on small
+graphs and check depth on hand-built acyclic graphs, cycles, self-loops, disconnected components and
+sink and dangling nodes; ranks are deterministic for identical inputs; a declared-formula change
+creates a new metric profile id instead of silently changing published values; and a metrics run
+cannot activate against a mismatched community, identity, fact or ontology snapshot.
 
 ## Pipeline
 
@@ -1015,20 +1251,26 @@ orchestrator.
 | `normalize`    | UTF-8, Unicode normalization, boilerplate policy, language, metadata        | Canonical document records    |
 | `dedupe`       | Exact, normalized, lexical/MinHash, edition groups; no destructive deletion | Duplicate overlays            |
 | `chunk`        | Structure/table/sentence-aware chunks with overlap and source spans         | Chunk Parquet                 |
-| `classify`     | UDC-derived multi-label assignment, primary class, exceptional outcomes    | File-classification map       |
+| `classify`     | Subject-taxonomy multi-label assignment, primary class, exceptional outcomes | File-classification map       |
 | `load-lexical` | PostgreSQL bulk load and ParadeDB index build/refresh                       | Lexical search projection     |
 | `nlp`          | Russian morphology, NER, terminology, mention candidates                    | Mentions and term statistics  |
 | `embed`        | Selective embeddings and optional reranker candidates                       | Versioned embedding artifacts |
 | `load-vector`  | pgvector baseline and experimental ParadeDB vector projection               | Semantic search projection    |
 | `topics`       | Sample/incremental clustering, labels, drift and hierarchy                  | Topics and assignments        |
 | `entities`     | Blocking, probabilistic linkage, aliases, reversible clusters               | Canonical objects             |
+| `concepts`     | Morphology-normalized concept keys, evidenced aliases, extractive definitions | Canonical concept lexicon |
 | `facts`        | Rule/model/LLM structured extraction, validation, conflicts                 | Proposed facts with evidence  |
+| `concept-relations` | Concept-to-concept claims on pinned predicates with declared weights | Proposed concept relations |
 | `ontology`     | Load and validate pinned vocabulary, mappings, and SHACL assets | Versioned ontology configuration |
 | `validate-facts` | Type, evidence, temporal, unit, conflict and review-policy validation | Validated fact views and findings |
+| `refinder`     | Two-pass distant candidate search and bounded adjudication of long-range links | Proposed long-range relations |
+| `graph-communities` | Seeded modularity partition, stability agreement, bridge concepts | Versioned community assignment |
+| `graph-metrics` | Weighted importance, condensed dependency depth, declared effort composite | Per-concept topology metrics |
 | `graph`        | Build and validate AGE projection                                           | Active versioned graph        |
 | `domain-artifacts` | Relationship, BOM, supply-chain, and invoice/payment projections        | Registered investigation artifacts |
 | `catalogs`     | Company, product, and person lists with identity/role/evidence coverage | Versioned catalog tables |
 | `anomalies`    | Explainable data, transaction, graph, and product consistency signals | Finding tables and subgraphs |
+| `agent-diagnostics` | Graph-bounded probes, constrained analyst sessions, coded coverage scoring | Coverage and blind-spot report |
 | `evaluate`     | Retrieval, extraction, linkage, graph, cost, and resource metrics           | Immutable evaluation bundle   |
 | `report`       | Coverage, failures, topics, objects, facts, registered domain artifacts     | HTML/JSON/Parquet reports     |
 
@@ -1036,7 +1278,10 @@ The end-to-end command runs the dependency closure, not a hardcoded shell chain.
 orientation; the [stage dependency contract](architecture.md#stage-dependency-contract) is the DAG.
 Classification, lexical indexing, and topics branch from corpus artifacts; entity anchors and
 ontology schemas precede fact extraction. Domain artifacts and anomaly calculations depend on
-canonical facts and identity snapshots, not on AGE availability.
+canonical facts and identity snapshots, not on AGE availability. The concept lexicon branches from
+NLP terminology and identity anchors; concept relations, distant-link discovery, communities and
+topology metrics form one selectable analysis chain over validated facts; agent diagnostics consume
+only published snapshots and the bounded query surface.
 
 ### End-to-end run and output contract
 
@@ -1055,6 +1300,10 @@ catalog and domain-family entries, evaluates coverage, calculates anomalies, and
 knowledge-base generation. CPU rules and unresolved/proposed states allow useful output while a
 local model is unavailable; requested model work that cannot run is reported as partial or blocked.
 Vector search, generative answers, AGE, viewers, and archive placement are not prerequisites.
+The concept lexicon, concept relations, distant-link discovery, communities, topology metrics and
+agent diagnostics are selectable branches on the same terms: each records an explicit
+`not-selected` state with its reason, none is required for a complete investigation run, and none
+changes the required outputs below until its own measured evidence justifies promotion.
 
 Each completed generation publishes `$RUNS_DIR/<run-id>/knowledge-base.json` containing source and
 contract fingerprints, active canonical/projection snapshots, every output's schema/path/checksum,
@@ -1089,17 +1338,25 @@ union of independently produced milestone results.
 
 Operators need a navigable subject view of source silos without losing ambiguous material or the
 path from a derived claim back to its original file. The `classify` stage assigns every inventoried
-physical file a versioned result from a hierarchy derived from Universal Decimal Classification
-(UDC). It is multi-label because UDC can express several subjects and facets, while one declared
-primary simple class and its ancestors determine a possible physical filing path. Compound UDC
-expressions, auxiliary facets, alternate candidates, captions, scores, evidence, classifier
-identity, vocabulary version, and review state remain in the mapping artifact rather than being
-encoded completely into directory names.
+physical file a versioned result from the arxiv-int Subject Taxonomy: a project-authored hierarchy
+of domains, fields and subfields with English, Russian and Ukrainian captions, released under the
+project's MIT licence. It is multi-label because a document can concern several subjects, while one
+declared primary class and its ancestors determine a possible physical filing path. Alternate
+candidates, captions, scores, evidence, classifier identity, taxonomy version, and review state
+remain in the mapping artifact rather than being encoded completely into directory names.
 
-The vocabulary source is explicit and checksummed. The CC BY-SA UDC Summary is the distributable
-baseline; an operator may configure a licensed MRF or authorized service snapshot for deeper
-coverage. Locally required subdivisions use a separate project namespace and parent link and never
-masquerade as official UDC codes. Two project outcomes are mandatory and are not UDC notations:
+The taxonomy ships with the code under one licence, so classification needs no operator licence,
+secret, or vocabulary download. It is balanced: every leaf is a subfield at depth three, branching
+is bounded, and no domain holds more than a configured share of subfields. Science, computing,
+engineering and construction are detailed first. The taxonomy is compiled against permissively
+licensed sources kept as checksummed snapshots beside it, initially the CC0 OpenAlex subfields and
+construction topics; every source item maps to exactly one taxonomy class, so coverage of the source
+topics is checked rather than assumed. Each scheme snapshot is content-addressed and records the
+taxonomy, source, policy and extension fingerprints. Class ids use disjoint namespaces: `tax:<code>`
+for taxonomy classes, `ext:<name>` for operator-local subdivisions with an explicit parent, and the
+bare outcomes below. A code below the available depth resolves to its nearest present ancestor with
+the truncation recorded; no deeper class is guessed. Two outcomes are mandatory and are not
+taxonomy classes:
 
 - `unclassified`: usable content exists, but no supported class clears the acceptance threshold or
   the material is random/non-substantive;
@@ -1113,7 +1370,7 @@ extraction/classifier/configuration fingerprints, and run id.
 Low-confidence cases remain `unclassified`; unreadability is determined from recorded inventory and
 extraction outcomes, not guessed from filename extensions. A valid negative result is a complete
 mapping with a high exceptional-outcome rate and a recommendation to improve extraction or labels;
-the pipeline must not force ordinary UDC assignments to improve coverage.
+the pipeline must not force ordinary taxonomy assignments to improve coverage.
 
 ### Separate archive organization utility
 
@@ -1208,7 +1465,10 @@ Recommended lanes:
 - topics: CPU-first TF-IDF/NMF or MiniBatchKMeans baseline over sampled/centroided data, then a
   BERTopic-style embedding/HDBSCAN lane only for bounded subsets;
 - facts: deterministic patterns and dictionaries first, local LLM structured output second, and
-  human review for high-impact types or ontology changes.
+  human review for high-impact types or ontology changes;
+- concept canonicalization: lemma-normalized head-phrase keys, e/yo and homoglyph folding on the key
+  only, versioned abbreviation and designation expansion, multiword-expression detection, and
+  language-tagged Russian/Ukrainian/English aliases that never merge on a homograph alone.
 
 Both original and normalized text offsets are retained or mapped. Search and reports show original
 source snippets, not morphology-normalized reconstructions.
@@ -1236,6 +1496,10 @@ when policy permits, and records load time, throughput, peak VRAM, failures, and
 LLM outputs use generated JSON Schema/Pydantic validation, temperature near zero where supported,
 bounded repair, explicit refusal/malformed statuses, and source-evidence requirements. Prompt text,
 model id/digest, sampling settings, and output schema version are part of provenance.
+
+Every model profile declares its context length and its tokenizer revision, and every prompt built
+from corpus content is assembled against that declared budget through the
+[context assembly contract](#context-assembly-contract) rather than by truncating a string.
 
 ## CLI and Make interface
 
@@ -1638,6 +1902,13 @@ command or service, not browser access to arbitrary filesystem paths. A determin
 report is required; generative summaries and cited question answering are optional and must abstain
 when evidence is insufficient. No global performance/quality claim is inferred from missing gold.
 
+When the concept and analysis branches are selected, the report adds a concept view: canonical
+concepts with their extractive definitions and citations, community membership with its stability
+verdict, bridge concepts, importance and dependency-depth ordering with their declared formulas, and
+the prerequisite cycles the metrics stage found. Community and topic views are labelled separately
+and are not presented as one clustering. Concept ordering may drive browsing; it does not rank
+findings.
+
 Visualization uses:
 
 - AGE Viewer for exploratory Cypher subgraphs when the graph profile is active;
@@ -1777,13 +2048,85 @@ is unhelpful: retain constraints only, mark a statistical detector `not-selected
 supported findings. ML detectors are outside the required baseline and need their own measured
 proposal; no requirement to generate a nonempty anomaly list is allowed.
 
+## Graph-constrained context and agent diagnostics
+
+A local model has a fixed context window and an archive does not fit inside it. Selecting context by
+similarity alone is what produces confident unsupported answers. The graph is therefore the context
+selector: every model-facing context in this capability is assembled from named graph nodes and
+their cited evidence under an explicit token budget, and the selection is recorded so the same
+context can be rebuilt exactly.
+
+### Context assembly contract
+
+Context assembly takes one pinned generation -- ontology, identity, fact, community and metric
+snapshots -- an entry set of concept or object ids, and the selected model profile's declared context
+length. It returns a context pack: the entry concepts, their definitions, the traversed accepted
+edges, and the evidence spans supporting them, each item carrying its source citation.
+
+The budget is a contract, not a guideline:
+
+- reserve the declared instruction and output allowances first; what remains is the evidence budget;
+- count tokens with the selected model profile's own tokenizer through the existing inference seam,
+  never with a character or word heuristic;
+- traverse in a declared deterministic order -- entry concepts, then edges by predicate class and
+  weight, then evidence by quality -- under declared depth, fan-out, per-node and per-pack caps;
+- never truncate inside an evidence span and never separate a span from its citation: an item that
+  does not fit is dropped whole and counted;
+- record what was dropped, which cap dropped it, and the coverage denominator, and surface that with
+  any answer and in the report;
+- refuse instead of proceeding when the reserved allowances alone exceed the model's context length,
+  or when the requested entry set cannot yield one complete cited item.
+
+A pack is identified by its snapshot ids, entry set, policy fingerprint, model profile and tokenizer
+revision; identical inputs produce an identical pack. Packs are the only channel through which
+corpus text reaches a model in this capability. A model receives no filesystem path, no unbounded
+query and no tool that can write, and source text stays data even when it contains instructions.
+
+### Role-separated agent diagnostics
+
+The optional `agent-diagnostics` stage runs a bounded three-role loop against one pinned generation.
+Its product is a diagnostic about the graph and the retrieval path. It is not knowledge about the
+archive and not a quality measurement of it.
+
+1. Methodologist: selects a bounded region of the concept graph and generates analytical probes.
+   Each probe names its target region, its required and bonus concepts by canonical id from the
+   pinned snapshot, and the evidence it expects to be reachable. A probe is a reproducible stress
+   input; it is not a gold label and cannot enter an evaluation gate as truth.
+2. Analyst: attempts each probe using only context packs and the bounded read-only query surface. It
+   cites source spans for every claim and abstains when the packs contain no supporting evidence.
+   Its session log retains every pack id, query, budget outcome, citation and abstention.
+3. Coverage evaluator: scores the session in code, deterministically. It checks which required and
+   bonus concepts appeared, which citations resolve to valid spans through the ordinary source
+   lookup, which claims are unsupported, which required concepts were unreachable inside the budget,
+   and which were reachable but missed. A local model may add non-authoritative commentary; the
+   scored result is produced by code alone.
+
+The feedback loop is bounded by construction. The evaluator's report may influence only which
+regions and concepts the methodologist probes next, and it is published as a graph and corpus
+coverage report: concepts with no retrievable evidence, communities unreachable inside the declared
+budget, predicates whose evidence never validates, and probes the analyst could not attempt. It may
+not modify the ontology, accept or reject a fact, change an identity, classification or retrieval
+threshold, alter a prompt policy, or contribute to any gate in
+[Required acceptance gates](#required-acceptance-gates). Held-out human-reviewed gold remains the
+only evidence for quality promotion; a loop that grades its own output measures nothing.
+
+Evaluation: probes reference only concepts present in the pinned snapshot; an analyst claim with an
+unresolvable or fabricated citation scores as unsupported; withheld evidence produces abstention
+rather than an answer; identical inputs, seeds and model profile reproduce an identical scored
+report; budget refusals and drops are visible in the report; prompt-injection fixtures prove that
+probe text, document text and session history cannot grant the analyst an unbounded query, a
+filesystem path or a write; and the report cannot be presented as archive quality evidence or as a
+substitute for the reviewed final evaluation.
+
 ## Implementation boundaries
 
 Project modules own orchestration, contracts, policy, metrics, and backend-neutral interfaces.
 Maintained engines such as Tika, Docling, OCRmyPDF/Tesseract, PyArrow, Polars, DuckDB,
 Data Contract CLI, SQLAlchemy Core, Alembic, dbt Core, Pandera, ParadeDB, pgvector, AGE,
-rdflib/pySHACL, Splink, Ollama, and vLLM are integrated through narrow adapters rather than
-reimplemented. Optional stacks remain in the feature group that activates
+rdflib/pySHACL, Splink, a maintained CPU graph library for community detection and centrality,
+Ollama, and vLLM are integrated through narrow adapters rather than reimplemented. Distant-link
+candidate generation reuses the existing lexical and vector projections; no separate vector index
+service is added for it. Optional stacks remain in the feature group that activates
 them, and runtime artifacts never depend on a sibling source checkout.
 
 ### Development integrity and review checkpoints
@@ -1970,6 +2313,11 @@ archive paths into Git; a reviewer reads ordinary artifacts under the configured
 | Entity resolution | Precision at the proposed auto-merge threshold meets the predeclared high-precision target; uncertain pairs remain unmerged.                                                                     |
 | Facts             | Per-type precision/recall and citation-span validity meet declared thresholds; invalid structured output and ontology violations are accounted for.                                              |
 | Graph             | Counts reconcile with relational projection inputs; sampled SQL/Cypher paths agree; rebuild and backup/restore tests pass.                                                                       |
+| Concept layer     | Inflected, abbreviated, transliterated and mixed-script variants reach one canonical concept; homographs and disjoint-type near-synonyms stay separate; definitions are extractive or explicitly absent; concept relations carry evidence spans and a reproducible declared weight. |
+| Distant-link discovery | Planted long-range links are recovered at the declared budget with the declared judged-edge precision and distractor false-link rate; withheld evidence produces abstention; verdicts and budgets are deterministic across an identical and an interrupted rerun; added edges beat the no-refinder baseline on the predeclared measure or the branch is retained off. |
+| Communities       | Planted-partition fixtures meet the declared agreement floor; identical inputs, seed and node order reproduce the identical partition; row order changes nothing; degenerate graphs produce explicit results; multi-seed agreement, resolution sensitivity and proposed-edge share are published, and an unstable or low-confidence partition is labelled rather than presented as themes. |
+| Topology metrics  | Importance matches a reference implementation on closed-form fixtures; dependency depth is measured on the condensed prerequisite graph and every cycle is reported as a finding; the effort formula id, weights and sensitivity are published; a formula change creates a new profile id; mismatched snapshots cannot activate. |
+| Agent diagnostics | Context packs respect the declared tokenizer budget, drop only whole cited items, report what was dropped, and refuse impossible requests; probes reference only pinned snapshot concepts; unresolvable citations score unsupported; withheld evidence produces abstention; injection fixtures cannot widen the analyst surface; the report contributes to no other gate in this table. |
 | Catalogs and entry report | Company, product, and person outputs reconcile to identity snapshots; report drill-down reaches facts and source anchors without optional services. |
 | Anomalies | Predeclared per-detector accuracy/review-budget and coverage gates pass; insufficient evidence and no useful statistical detector are valid outcomes. |
 | End-to-end | One investigation command on one CUDA host publishes the required generation and entry report; no-op rerun reuses heavy work and source bytes remain unchanged. |
@@ -2049,13 +2397,16 @@ evidence exist. Registry order is the implementation line used by `plan.md`.
 | 11 | `russian-nlp` | planned | Language, morphology, terminology, and NER metrics pass per type | [Open work](../impl/plan.md#russian-nlp----russian-nlp) |
 | 12 | `identity-ontology-graph` | planned | Linkage, pinned ontology evolution, domain terms and typing, geotemporal uncertainty/as-of semantics, SQL/Cypher parity, rebuild, and bounded traversal gates pass | [Open work](../impl/plan.md#identity-ontology-and-graph----identity-ontology-graph) |
 | 13 | `knowledge-extraction` | planned | Structured extraction, evidence, fact quality, and contradiction gates pass | [Open work](../impl/plan.md#knowledge-extraction----knowledge-extraction) |
-| 14 | `domain-investigation-artifacts` | planned | Reviewed BOM, relationship, supply-chain, invoice/payment, render, and registry gates pass | [Open work](../impl/plan.md#domain-investigation-artifacts----domain-investigation-artifacts) |
-| 15 | `anomaly-analysis` | planned | Per-detector fixtures, cohort/time guards, review-budget precision, provenance, and bounded triage views pass | [Open work](../impl/plan.md#anomaly-analysis----anomaly-analysis) |
-| 16 | `discovery-visualization` | planned | Topic stability, three catalog parity, and analyst report/search/graph/anomaly drill-down scenarios pass | [Open work](../impl/plan.md#discovery-and-visualization----discovery-visualization) |
-| 17 | `evaluation-evidence` | planned | Artifact-lineage checks and representative scale pilots produce readable, capacity-aware verdicts | [Evaluation](../impl/current/evaluation.md); [Open work](../impl/plan.md#evaluation-and-evidence----evaluation-evidence) |
-| 18 | `operational-recovery` | planned | Security checks, backup/restore drill, disk exhaustion, interruption, and runbook tests pass | [Open work](../impl/plan.md#operational-recovery----operational-recovery) |
-| 19 | `semantic-retrieval` | planned | Selected-tier vector and hybrid candidates receive paired adopt/retain verdicts | [Open work](../impl/plan.md#semantic-retrieval----semantic-retrieval) |
-| 20 | `archive-organization` | planned | Artifact-only dry-run, independent copies, move backup, path accounting, resume, rollback, and lookup pass | [Open work](../impl/plan.md#separate-archive-organization----archive-organization) |
+| 14 | `concept-graph` | planned | Morphology-robust canonical concepts, evidenced aliases and definitions, pinned-predicate relations with reproducible declared weights, and non-implication fixtures pass | [Open work](../impl/plan.md#concept-graph----concept-graph) |
+| 15 | `graph-analytics` | planned | Planted-link recall/precision and budget determinism, planted-partition agreement and seeded reproducibility, and closed-form importance/depth/cycle fixtures pass | [Open work](../impl/plan.md#graph-analytics----graph-analytics) |
+| 16 | `domain-investigation-artifacts` | planned | Reviewed BOM, relationship, supply-chain, invoice/payment, render, and registry gates pass | [Open work](../impl/plan.md#domain-investigation-artifacts----domain-investigation-artifacts) |
+| 17 | `anomaly-analysis` | planned | Per-detector fixtures, cohort/time guards, review-budget precision, provenance, and bounded triage views pass | [Open work](../impl/plan.md#anomaly-analysis----anomaly-analysis) |
+| 18 | `discovery-visualization` | planned | Topic stability, three catalog parity, and analyst report/search/graph/anomaly drill-down scenarios pass | [Open work](../impl/plan.md#discovery-and-visualization----discovery-visualization) |
+| 19 | `evaluation-evidence` | planned | Artifact-lineage checks and representative scale pilots produce readable, capacity-aware verdicts | [Evaluation](../impl/current/evaluation.md); [Open work](../impl/plan.md#evaluation-and-evidence----evaluation-evidence) |
+| 20 | `operational-recovery` | planned | Security checks, backup/restore drill, disk exhaustion, interruption, and runbook tests pass | [Open work](../impl/plan.md#operational-recovery----operational-recovery) |
+| 21 | `semantic-retrieval` | planned | Selected-tier vector and hybrid candidates receive paired adopt/retain verdicts | [Open work](../impl/plan.md#semantic-retrieval----semantic-retrieval) |
+| 22 | `graph-constrained-agents` | planned | Tokenizer-budgeted context packs, deterministic coded coverage scoring, abstention and injection resistance, and proven isolation from every acceptance gate pass | [Open work](../impl/plan.md#graph-constrained-agents----graph-constrained-agents) |
+| 23 | `archive-organization` | planned | Artifact-only dry-run, independent copies, move backup, path accounting, resume, rollback, and lookup pass | [Open work](../impl/plan.md#separate-archive-organization----archive-organization) |
 
 ## Success criteria
 
@@ -2073,5 +2424,8 @@ lineage closure, stale derived data can be safely pruned or fully rebuilt, and f
 that cannot fit available storage. Every usable stage group has a current integration result from
 the provided archive and the full investigation profile passes one executable run. Independent
 copy/in-place organization consumes classification exports without joining the pipeline DAG.
+Selected concept, distant-link, community, metric and agent-diagnostic branches either publish
+measured evidence for their operating points or record an explicit not-selected verdict with a
+working baseline; none of them can promote itself on its own output.
 The PostgreSQL architecture remains in place only while measured quality,
 scale, and recovery evidence supports it.

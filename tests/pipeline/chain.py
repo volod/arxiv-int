@@ -7,7 +7,7 @@ from typing import cast
 from arxiv_int.extraction.model import ExtractionError, ExtractionPolicy
 from arxiv_int.extraction.router import TieredExtractor
 from arxiv_int.extraction.stage import ExtractionStage
-from arxiv_int.interfaces.extraction import ExtractedDocument
+from arxiv_int.interfaces.extraction import DocumentExtractor, ExtractedDocument
 from arxiv_int.interfaces.pipeline import StageContext, StageResult
 from arxiv_int.interfaces.sources import SiloRoot, SourceAnchor, SourceOccurrence
 from arxiv_int.pipeline.chunk.model import ChunkPolicy
@@ -92,6 +92,7 @@ class ChainRun:
     """Every stage result produced by one fixture corpus chain."""
 
     context: StageContext
+    inventory: StageResult
     extract: StageResult
     normalize: StageResult
     dedupe: StageResult
@@ -126,14 +127,19 @@ def run_chain(
     tmp_path: Path,
     *,
     fixtures: dict[str, str] | None = None,
+    raw_fixtures: dict[str, bytes] | None = None,
+    router: DocumentExtractor | None = None,
     chunk_policy: ChunkPolicy | None = None,
     dedupe_policy: DedupePolicy | None = None,
 ) -> ChainRun:
     """Publish one corpus chain over synthetic documents without external tools."""
     sources = tmp_path / "sources"
     sources.mkdir(parents=True, exist_ok=True)
-    for name, payload in (fixtures or FIXTURES).items():
+    chosen_fixtures = FIXTURES if fixtures is None else fixtures
+    for name, payload in chosen_fixtures.items():
         (sources / name).write_text(payload, encoding="utf-8", newline="")
+    for name, payload in (raw_fixtures or {}).items():
+        (sources / name).write_bytes(payload)
     context = StageContext(
         "inventory",
         "run-chain",
@@ -142,9 +148,9 @@ def run_chain(
         tmp_path / "results",
         {"project_root": str(Path.cwd()), "tmp_dir": str(tmp_path / "scratch")},
     )
-    InventoryStage().run(context)
+    inventory = InventoryStage().run(context)
     extract = ExtractionStage(
-        ExtractionPolicy(batch_rows=2), cast(TieredExtractor, ChainRouter())
+        ExtractionPolicy(batch_rows=2), cast(TieredExtractor, router or ChainRouter())
     ).run(replace(context, stage="extract"))
     normalize = NormalizeStage(NormalizePolicy(batch_rows=2)).run(
         replace(
@@ -172,7 +178,7 @@ def run_chain(
             },
         )
     )
-    return ChainRun(context, extract, normalize, dedupe, chunk)
+    return ChainRun(context, inventory, extract, normalize, dedupe, chunk)
 
 
 def _pointer(context: StageContext, name: str, result: StageResult, dataset: str) -> dict[str, str]:

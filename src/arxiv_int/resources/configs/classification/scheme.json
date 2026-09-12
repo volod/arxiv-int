@@ -1,0 +1,33 @@
+{
+  "policyVersion": "2.0.0",
+  "taxonomy": "taxonomy.json",
+  "sources": [
+    "sources/openalex-subfields.json",
+    "sources/openalex-construction-topics.json"
+  ],
+  "captionLanguages": ["en", "ru", "uk"],
+  "requiredCaptionLanguages": ["en", "ru", "uk"],
+  "tokens": {
+    "maxTokenBytes": 64,
+    "maxSlugBytes": 40
+  },
+  "outcomes": {
+    "unclassified": "Usable content exists, but no supported class clears the acceptance threshold or the material is random or non-substantive.",
+    "unreadable": "No usable content could be obtained: the input is inaccessible, encrypted, corrupt, unsupported, or an unknown or binary format whose extraction failed."
+  },
+  "primaryKinds": ["domain", "field", "subfield", "extension"],
+  "balance": {
+    "leafDepth": 3,
+    "minChildren": 2,
+    "maxChildren": 16,
+    "maxDomainLeafShare": 0.25
+  },
+  "evaluation": {
+    "seed": 13,
+    "splits": {
+      "calibration": 0.2,
+      "development": 0.3,
+      "test": 0.5
+    }
+  }
+}

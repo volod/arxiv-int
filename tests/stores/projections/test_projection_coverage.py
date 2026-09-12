@@ -321,7 +321,8 @@ def test_commands_build_cleanup_and_status(monkeypatch: pytest.MonkeyPatch, tmp_
     monkeypatch.setattr("arxiv_int.stores.projections.commands._run_cleanup", lambda *_a, **_k: 1)
     assert run_projection_command(args) == 1
     monkeypatch.setattr(
-        "arxiv_int.stores.projections.commands.resolve_database_url", lambda: "postgresql://x"
+        "arxiv_int.stores.projections.commands.optional_store_url",
+        lambda _root, explicit=None: "postgresql://x",
     )
     engine = MagicMock()
     engine.connect.return_value.__enter__.return_value.execute.return_value.fetchall.return_value = [

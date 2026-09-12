@@ -6,8 +6,8 @@ from pathlib import Path
 
 from sqlalchemy import create_engine, select
 
-from arxiv_int.contracts.migrations.runner import resolve_database_url
 from arxiv_int.runtime.project_root import ProjectRootError, find_project_root
+from arxiv_int.stores.postgres.selection import optional_store_url
 from arxiv_int.stores.projections.lifecycle import build_projections
 from arxiv_int.stores.projections.model import (
     ProjectionRequest,
@@ -57,9 +57,9 @@ def run_projection_command(args: argparse.Namespace) -> int:
 
 
 def _run_status(project_root: Path) -> int:
-    url = resolve_database_url()
+    url = optional_store_url(project_root)
     if not url:
-        _LOG.warning("projection status not-run: no migration database selected")
+        _LOG.warning("projection status not-run: no canonical store is configured")
         return 2
     engine = create_engine(url, pool_pre_ping=True)
     try:
@@ -86,9 +86,9 @@ def _run_cleanup(project_root: Path, run_id: str, *, apply: bool, kinds: tuple[s
     from arxiv_int.stores.projections.model import ProjectionResult
     from arxiv_int.stores.projections.paths import projection_artifact_dir
 
-    url = resolve_database_url()
+    url = optional_store_url(project_root)
     if not url:
-        _LOG.warning("projection cleanup not-run: no migration database selected")
+        _LOG.warning("projection cleanup not-run: no canonical store is configured")
         return 2
     engine = create_engine(url, pool_pre_ping=True)
     try:

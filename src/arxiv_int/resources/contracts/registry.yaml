@@ -65,6 +65,18 @@ contracts:
     canonicalEntity: ontology_term
     fingerprints:
       semanticMetadataHash: c9b2bf052d617fa9387f34dd1568bb46f6d89a46ce0205b73d65e35c45bc5e41
+  classification-classes:
+    odcs: datasets/classification-classes.odcs.yaml
+    mapping: mappings/classification-classes.mapping.yaml
+    canonicalEntity: classification_class
+    fingerprints:
+      semanticMetadataHash: f339f590b392ce6e346e197b81085c268cb874b360765aa83342abfc4d82ad61
+  file-classifications:
+    odcs: datasets/file-classifications.odcs.yaml
+    mapping: mappings/file-classifications.mapping.yaml
+    canonicalEntity: file_classification
+    fingerprints:
+      semanticMetadataHash: edd4f1e0591ddce1a93fe4e069b7d5ade15b8d6fadcb0752919103a2bea07c0a
   embeddings:
     odcs: datasets/embeddings.odcs.yaml
     mapping: mappings/embeddings.mapping.yaml

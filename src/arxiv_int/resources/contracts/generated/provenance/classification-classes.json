@@ -1,0 +1,27 @@
+{
+  "apiVersion": "v3.1.0",
+  "artifacts": {
+    "avro/classification-classes.avsc": "1b97e799658f22de82ba186c41bb17147dc3a93b8f95acb12db128a33e96c616",
+    "dbt/classification-classes.yml": "9f6ec76ae5727725cfdc58f4ad4507f645f80f8dd809289ebad30c080f6ede5d",
+    "jsonschema/classification-classes.schema.json": "e20debc9f3772782912faeac315af96ae9909fd550e9c11feb8b1a7f60e606e6",
+    "parquet/classification-classes.parquet.json": "5bef2e1b20b5bc8eaabdf24c61bec857858239683028f5c8c8d8bbbdd09e60ff",
+    "postgres/classification-classes.sql": "12ea007cef8e718a39fbaa792b4a65ef373dda2a25c422814b749520b4c08d2c",
+    "postgres/extensions/classification-classes.sql": "ab3d910c948771274fc4695862daf6b046ab38b22f49d52d5bdb8c2d39112942",
+    "pydantic/classification-classes.py": "8d44c63138e76eaefa9233c8803f615add43141b550e5c159cbce446beb912b4",
+    "quality/classification-classes.rules.json": "71b1c337bf09e250cf014a93b5b90ce9b03044880116d499f0b20641903f03e3"
+  },
+  "canonicalEntity": null,
+  "contractId": "classification-classes",
+  "customExtensionKeys": [
+    "schema",
+    "table"
+  ],
+  "odcsId": "urn:arxiv-int:contract:classification-classes:1.0.0",
+  "odcsVersion": "1.0.0",
+  "postgres": {
+    "partitionKey": null,
+    "schema": "corpus",
+    "table": "classification_classes"
+  },
+  "semanticMetadataHash": "f339f590b392ce6e346e197b81085c268cb874b360765aa83342abfc4d82ad61"
+}

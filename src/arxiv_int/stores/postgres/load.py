@@ -17,9 +17,11 @@ from arxiv_int.stores.postgres.hashing import partition_bucket
 
 PRIMARY_KEY_COLUMNS: dict[str, tuple[str, ...]] = {
     "corpus.chunks": ("chunk_id",),
+    "corpus.classification_classes": ("scheme_class_id",),
     "corpus.document_path_event": ("event_id",),
     "corpus.documents": ("document_id",),
     "corpus.duplicate_groups": ("duplicate_membership_id",),
+    "corpus.file_classification": ("classification_id",),
     "corpus.normalized_documents": ("normalized_document_id",),
     "corpus.source_occurrences": ("occurrence_id",),
     "corpus.spans": ("span_id",),

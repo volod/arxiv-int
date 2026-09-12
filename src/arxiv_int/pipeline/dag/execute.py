@@ -28,6 +28,7 @@ UPSTREAM_POINTERS: Mapping[str, str] = {
     "normalized-documents": "normalization",
     "duplicate-groups": "dedupe",
     "chunks": "chunking",
+    "file-classifications": "classification",
     "lexical-projection": "lexical",
 }
 

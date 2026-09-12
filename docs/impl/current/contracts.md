@@ -13,8 +13,9 @@ physical-to-canonical mapping,
 a canonical entity, and a reviewed semantic metadata hash. Shipped datasets cover documents, spans,
 chunks, objects, aliases, mentions, facts, topics, ontology terms, embeddings, source occurrences,
 document path events,
-transactions, catalogs, anomaly findings, evaluation items, and domain investigation artifact
-families (relationship map, BOM, supply chain, invoice/payment, registry).
+transactions, catalogs, anomaly findings, evaluation items, classification scheme classes, file
+classifications, and domain investigation artifact families (relationship map, BOM, supply chain, invoice/payment,
+registry).
 
 `make contracts` syncs the `contracts` extra and runs `arxiv-int contracts lint`, which:
 
@@ -93,7 +94,7 @@ schema state the history produces. `src/arxiv_int/contracts/migrations/` impleme
 - `arxiv-int db adopt` / `make db-adopt` live-adopts when that URL is set: relocates leftover
   `public` tables into owned schemas when destinations are missing, refuses partial or drifted
   catalogs, and stamps `0001` when the overlay matches the current initial revision. Without a URL
-  it reports why stamping stays refused.
+  it reports why stamping stays refused. A proved current overlay stamps the reviewed head.
 
 Generated revisions are deterministic and frozen: a historical revision never imports today's
 contracts, and editing one after review fails the checksum gate. A revision that drops an owned table
@@ -111,9 +112,11 @@ retained only as per-run evidence under `DATA_DIR`, not as a second committed sc
 The [boundary repair](../records/0028-store-refactor-foundation-store-acceptance-boundaries.md)
 and [prerelease consolidation](../records/0052-store-refactor-prerelease-migration-consolidation.md)
 record the amendment. Historical task snapshots describe their original implementation; their
-superseded revision numbers are not upgrade requirements for this unreleased baseline. Head is
-`0001`. Overlay tables that were briefly authored as `0002`-`0005` during development now live in
-that initial revision, as documented in
+superseded revision numbers are not upgrade requirements for this unreleased baseline. Head
+is `0003`: additive revision `0002` creates `corpus.classification_classes`, and reviewed additive
+revision `0003` creates the partitioned `corpus.file_classification` mapping and classification
+staging tables. Overlay tables
+briefly authored as development-era revisions now live in the initial revision, as documented in
 [Canonical store](canonical-store.md).
 
 Live initial schema, HASH partitions, roles, staging COPY, and disposable apply evidence are
@@ -157,7 +160,10 @@ Batch rules (type, nullability, max length, decimal, accepted values, unit compa
 in-batch uniqueness) run against eager Polars frames through Pandera/Polars. Snapshot uniqueness
 and relationships are declared as dbt tests and executed by a disk-backed Polars adapter; skipping
 them leaves `not-run` and cannot be publishable. LazyFrame schema-only validation is refused.
-Unknown ODCS `quality` types, engines, or rules fail closed at compile time.
+Unknown ODCS `quality` types, engines, or rules fail closed at compile time. Uniqueness is compiled
+per column, so a contract that declares a composite primary key is refused with
+`UnsupportedQualityMappingError` rather than compiling rules its own key does not satisfy; no
+contract declares one today.
 
 `arxiv-int data-quality check DATASET --run-id RUN_ID --input PATH` and `make data-quality`
 write secret-free evidence under `$DATA_DIR/data-quality/<run-id>/`. `--publish` copies the same

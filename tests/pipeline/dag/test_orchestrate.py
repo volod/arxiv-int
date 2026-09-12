@@ -1,5 +1,6 @@
 """Fixture DAG execution: skip, failure halt, aggregate vs atomic, resume, force."""
 
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -8,6 +9,7 @@ from arxiv_int.pipeline.dag.actions import fixture_plan, remaining_plan
 from arxiv_int.pipeline.dag.cancel import CancelToken
 from arxiv_int.pipeline.dag.orchestrate import Orchestrator
 from arxiv_int.pipeline.dag.registry import ResourceEstimate, StageRegistry, StageSpec
+from arxiv_int.pipeline.dag.stages import production_registry
 from arxiv_int.pipeline.run.errors import StaleUpstreamError, UnregisteredStageError
 from arxiv_int.pipeline.run.fixtures import (
     FIXTURE_OPTIONAL,
@@ -100,6 +102,17 @@ def test_unregistered_required_stages_fail_before_work(tmp_path: Path) -> None:
         Orchestrator(registry, context.runs_dir).execute_plan(
             context, fixture_plan(registry, profile_stages=("alpha", "beta"))
         )
+
+
+def test_production_classify_uses_executed_quality_boundary(tmp_path: Path) -> None:
+    context = replace(make_context(tmp_path), profile="investigation")
+    orchestrator = Orchestrator(production_registry(), context.runs_dir)
+
+    checks = orchestrator._stage_quality(context, "classify").checks()
+
+    assert [(item.rule_id, item.status) for item in checks] == [
+        ("classification.contracts-and-accounting", "pass")
+    ]
 
 
 def test_resume_after_cancel_continues_remaining_stages(tmp_path: Path) -> None:

@@ -7,7 +7,7 @@ from uuid import uuid4
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 
-from arxiv_int.contracts.migrations.runner import resolve_database_url
+from arxiv_int.stores.postgres.selection import optional_store_url
 from arxiv_int.stores.postgres_image.compatibility import load_age_compatibility
 from arxiv_int.stores.projections.artifacts import publish_result, write_result
 from arxiv_int.stores.projections.builder import build_kind
@@ -77,14 +77,14 @@ def build_projections(request: ProjectionRequest) -> ProjectionResult:
         version_id = sanitize_version_id(request.run_id)
     except ValueError as error:
         return _result(request, artifact_dir, status=RUN_FAILED, version_id="", detail=str(error))
-    url = resolve_database_url(request.database_url)
+    url = optional_store_url(request.project_root, request.database_url)
     if not url:
         return _result(
             request,
             artifact_dir,
             status=RUN_NOT_RUN,
             version_id=version_id,
-            detail="no projection database selected",
+            detail="no canonical store is configured",
         )
     try:
         with exclusive_version(request.project_root, version_id):

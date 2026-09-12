@@ -25,3 +25,16 @@ def store_database_url(project_root: Path) -> str:
             "no canonical store selected; run 'make setup-schema' or set "
             f"ARXIV_INT_MIGRATION_DATABASE_URL ({error})"
         ) from error
+
+
+def optional_store_url(project_root: Path, explicit: str | None = None) -> str | None:
+    """Return the explicit or configured store URL, or ``None`` when none can be selected.
+
+    Projection lifecycle commands act on the same canonical store the pipeline loads, so they
+    resolve the configured service rather than requiring an exported URL; a tree with no
+    configuration at all still yields ``None`` so the caller can report ``not-run``.
+    """
+    try:
+        return resolve_database_url(explicit) or store_database_url(project_root)
+    except StoreUnavailableError:
+        return None

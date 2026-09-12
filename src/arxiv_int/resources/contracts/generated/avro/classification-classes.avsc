@@ -1,0 +1,82 @@
+{
+  "fields": [
+    {
+      "name": "scheme_class_id",
+      "type": "string"
+    },
+    {
+      "name": "scheme_id",
+      "type": "string"
+    },
+    {
+      "name": "class_id",
+      "type": "string"
+    },
+    {
+      "name": "namespace",
+      "type": "string"
+    },
+    {
+      "name": "code",
+      "type": "string"
+    },
+    {
+      "name": "parent_class_id",
+      "type": "string"
+    },
+    {
+      "name": "ancestor_path",
+      "type": "string"
+    },
+    {
+      "name": "depth",
+      "type": "int"
+    },
+    {
+      "name": "class_kind",
+      "type": "string"
+    },
+    {
+      "name": "caption_en",
+      "type": "string"
+    },
+    {
+      "name": "caption_ru",
+      "type": "string"
+    },
+    {
+      "name": "caption_uk",
+      "type": "string"
+    },
+    {
+      "name": "captions_json",
+      "type": "string"
+    },
+    {
+      "name": "crosswalk_json",
+      "type": "string"
+    },
+    {
+      "name": "path_token",
+      "type": "string"
+    },
+    {
+      "name": "slug",
+      "type": "string"
+    },
+    {
+      "name": "scheme_version",
+      "type": "string"
+    },
+    {
+      "name": "generation_id",
+      "type": "string"
+    },
+    {
+      "name": "contract_version",
+      "type": "string"
+    }
+  ],
+  "name": "classification_classes",
+  "type": "record"
+}
