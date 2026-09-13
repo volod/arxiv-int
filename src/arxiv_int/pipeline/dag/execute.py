@@ -123,6 +123,7 @@ def try_reuse(entry: ReuseEntry | None, *, force: bool) -> StageExecution | None
 
 def _output_validators() -> tuple[Callable[[Path], None], ...]:
     """Return every producer-owned validator that guards one cached attempt."""
+    from arxiv_int.classification.reuse import validate_classification_output
     from arxiv_int.extraction.reuse import validate_extraction_output
     from arxiv_int.pipeline.chunk.reuse import validate_chunk_output
     from arxiv_int.pipeline.dedupe.reuse import validate_dedupe_output
@@ -131,6 +132,7 @@ def _output_validators() -> tuple[Callable[[Path], None], ...]:
     from arxiv_int.pipeline.normalize.reuse import validate_normalization_output
 
     return (
+        validate_classification_output,
         validate_inventory_output,
         validate_extraction_output,
         validate_normalization_output,

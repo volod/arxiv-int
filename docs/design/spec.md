@@ -1437,6 +1437,14 @@ locations through path events, so later knowledge artifacts continue to find the
 Evaluation uses a frozen, stratified file set with expert primary/alternate labels and expected
 unclassified/unreadable outcomes. It reports exact and ancestor-aware precision/recall, hierarchical
 distance, calibration/selective coverage, exceptional-outcome confusion, reproducibility, and cost.
+An operator-facing terminal review may display decoded UTF-8 captions, evidence and bounded source
+previews from the configured roots. A gold-label draft is bound to one sealed mapping and contains
+only rows explicitly confirmed by a human; classifier proposals are never copied into gold by
+default. Review can stop and resume without replacing confirmed rows. Freezing and held-out scoring
+remain separate validation gates. An interactive operating-point decision records the exact mapping,
+scheme, policy and evaluation identities without changing the classifier profile. It refuses
+acceptance until the held-out report passes; revise and retain-unclassified remain explicit human
+outcomes and authorize neither a taxonomy change nor archive placement.
 Placement fixtures prove byte-identical contents in both modes, one-to-one path accounting,
 collision refusal, interruption/resume, rollback, and source lookup. No real archive placement is
 accepted without review of the mapping, thresholds, directory vocabulary, dry-run diff, target space,

@@ -65,7 +65,13 @@ are accepted independently under `archive-organization`.
 `$RUNS_DIR/<run-id>/classification/`, plus test logs below
 `$DATA_DIR/integration/archive-classification/`.
 - Execution path: Forecast the closure; classify and validate coverage, hierarchy, evidence, exceptions,
-fingerprints, and physical/virtual source accounting; rerun unchanged and record cache hits.
+fingerprints, and physical/virtual source accounting with the in-place check under
+`tests/integration/classification/`; rerun unchanged and record cache hits. Score a frozen held-out
+set of reviewed archive labels for calibration, or leave this gate and packet readiness open when
+those labels are unavailable. Provide terminal Make reviews for an explicitly human-labeled,
+resumable archive gold JSONL and a fingerprint-bound operating-point decision; decode UTF-8 for
+inspection, never auto-promote a classifier proposal, and refuse acceptance before passing held-out
+calibration.
 - Acceptance gates: Every physical inventory item has one complete result; virtual members retain container
 links; source references and calibration metrics validate; supplied bytes remain unchanged; the
 identical rerun invokes no heavy classifier; ordinary artifact manifests and checksums are complete.
@@ -2343,9 +2349,9 @@ itself was accepted separately. This neither chooses a destination nor authorize
 files.
 - Data and artifact paths: `configs/policy/classification.yaml`, classifier profile, scheme
 manifest, and `$RUNS_DIR/<run-id>/review/classification/`.
-- Execution path: Present hierarchical errors, ancestor metrics, ambiguous/exception samples,
-thresholds, calibration and review effort; confirm the Russian and Ukrainian captions; record accept,
-revise, or retain-unclassified.
+- Execution path: Use the interactive operating-point Make review to present hierarchical errors,
+ancestor metrics, ambiguous/exception samples, thresholds, calibration and review effort; confirm
+the Russian and Ukrainian captions; record accept, revise, or retain-unclassified.
 - Acceptance gates: The exact scheme/profile/policy fingerprints and decision are recorded;
 low-confidence files remain exceptional; no filesystem mutation is requested.
 - Documentation target: `docs/impl/current/archive-classification.md`

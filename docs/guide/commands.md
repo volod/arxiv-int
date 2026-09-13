@@ -70,6 +70,8 @@ The ordered chain, the stage dependency closure and the remaining planned stages
 | `arxiv-int classification freeze-labels --run-id RUN_ID --labels FILE --label-set ID` | available | Validate gold labels and freeze leakage-free evaluation splits; `make classification-labels`. |
 | `arxiv-int stage classify --run-id RUN_ID` | available | Assign every physical inventory file exactly once to the taxonomy or an explicit exceptional outcome; `make stage STAGE=classify RUN_ID=...`. |
 | `arxiv-int classification evaluate --run-id RUN_ID --classification MANIFEST --labels FILE --label-set ID` | available | Score a sealed mapping against frozen labels and write hierarchical, calibration, selective-coverage, exceptional, reproducibility and resource metrics; `make classification-evaluate`. |
+| `arxiv-int classification review-gold --run-id RUN_ID --label-set ID [--limit N]` | available | Terminal review of bounded, stratified archive files with decoded previews; only explicit confirmations enter a resumable gold JSONL. `f` freezes and scores it; `make classification-gold-review`, or `make classification-calibrate` to run the archive gate afterward. |
+| `arxiv-int classification review-operating-point --run-id RUN_ID` | available | Display decoded captions/evidence, thresholds and calibration, then record one fingerprint-bound accept, revise, or retain-unclassified decision; `make classification-operating-review`. Accept is refused until held-out calibration passes. |
 
 See [archive classification](../impl/current/archive-classification.md).
 

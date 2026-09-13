@@ -162,7 +162,13 @@ def _scheme_snapshot(context: StageContext, project_root: Path) -> Snapshot:
     if directory.exists():
         findings = check_snapshot(directory, scheme_policy)
         if findings:
-            raise ValueError("classification scheme snapshot is stale or damaged")
+            details = "; ".join(f"{item.code}: {item.message}" for item in findings)
+            raise ValueError(
+                f"classification scheme snapshot is stale or damaged: {details}. "
+                "Preserve the immutable snapshot; create a fresh run with "
+                "`make run-create`, then rebuild with "
+                "`make classification-scheme RUN_ID=<new-run-id>`"
+            )
         return load_snapshot(directory)
     built = build_scheme(scheme_policy, run_id=context.run_id)
     if not built.publishable:

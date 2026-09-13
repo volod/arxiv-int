@@ -13,6 +13,7 @@ from arxiv_int.contracts.catalog.normalize import (
 )
 from arxiv_int.contracts.catalog.registry import FileRegistry
 from arxiv_int.interfaces.tokens import require_relative_path, require_token
+from arxiv_int.query.evidence.members import validate_member_address
 from arxiv_int.resources.paths import contracts_root
 
 DOCUMENTS_CONTRACT = "documents"
@@ -169,7 +170,10 @@ def _validate_occurrence(values: Mapping[str, str]) -> None:
     _optional_relative_path(values, "relative_path")
     _optional_token(values, "scan_id")
     _optional_relative_path(values, "container_path")
-    _optional_relative_path(values, "member_path")
+    member = values.get("member_path", "")
+    if member:
+        require_relative_path(values.get("container_path", ""), "container_path")
+        validate_member_address(member, quarantined=values.get("status") == "quarantined")
 
 
 _ROW_VALIDATORS: dict[str, Callable[[Mapping[str, str]], None]] = {

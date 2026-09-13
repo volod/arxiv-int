@@ -91,6 +91,10 @@ tokens, re-runs validation, and compares policy, taxonomy, source, extension and
 fingerprints; any drift is `stale-snapshot`. A code deeper than the taxonomy resolves to its nearest
 present class with `truncated: true`.
 
+The classification stage includes the specific stale-snapshot findings in its refusal message.
+Preserve the existing snapshot, create a fresh run with `make run-create`, and build its scheme
+with `make classification-scheme RUN_ID=<new-run-id>`.
+
 Tokens are `t<code>`, `x-<name>`, `_unclassified` and `_unreadable`; only `[0-9a-z.-]` pass
 through, and other bytes, `_` and a trailing `.` become `_hh`.
 
@@ -126,6 +130,9 @@ contract rules. Virtual archive members may inform their physical container but 
 independently movable row. The stage checks every decision twice, reconciles its row count with the
 physical inventory denominator, publishes atomically in 64-row batches, and leaves no sealed
 snapshot after interruption. It never moves source files.
+The DAG revalidates the external classification manifest and all referenced snapshot checksums,
+generation ids and complete physical-file accounting before reusing a cached `classify` attempt.
+A changed or missing external artifact therefore causes a cache miss instead of an unverified hit.
 
 The manifest records class distribution, thresholds, policy/scheme/upstream fingerprints,
 reproducibility, elapsed time, throughput and peak memory. Its `accounting` block reconciles
@@ -134,7 +141,8 @@ reproducibility, elapsed time, throughput and peak memory. Its `accounting` bloc
 `$RUNS_DIR/<run-id>/review/classification/operating-point.json` binds the exact mapping checksum,
 repeats that accounting block, the frozen scheme identity and the inventory, extraction and
 normalization manifest paths with their checksums, and contains bounded assigned, ambiguous and
-exceptional examples without source text.
+exceptional examples without source text after the archive integration check augments it. Before
+that check, the stage packet is a mapping-bound draft without those inspection examples.
 
 `classification evaluate` joins a sealed mapping to a frozen held-out label set and writes
 `$RUNS_DIR/<run-id>/evaluation/classification/<label-set>/metrics.json`. It reports exact accuracy,
@@ -166,6 +174,28 @@ English captions of the packaged taxonomy without a run. `build-scheme` also wri
 `$RUNS_DIR/<run-id>/review/classification/vocabulary.json` packet for
 `approve-classification-operating-point`. Running `classify` replaces this vocabulary-only draft
 with a mapping-bound operating-point draft; neither packet is an approval.
+
+For a terminal-guided human review, run `make classification-calibrate RUN_ID=<run-id>
+LABEL_SET=<new-id> LIMIT=40`. The command interleaves proposed taxonomy and exceptional outcomes,
+shows decoded UTF-8 captions, evidence terms and bounded normalized-text previews, and asks for an
+independent gold class/code and explicit `yes` per file. `?` shows root classes, `show CODE` shows
+captions, `s` skips, and `q` saves progress without freezing. The resumable, mapping-bound draft is
+`$RUNS_DIR/<run-id>/review/classification/gold-<label-set>.jsonl`; it contains only confirmed
+labels, not classifier proposals. Rerun with the same `LABEL_SET` to continue, and raise `LIMIT` to
+reach more files. `f` followed by `freeze` seals the reviewed labels and scores the held-out test
+split. If scoring passes, the Make command also runs the full archive integration gate. A failing
+metric leaves the operating point unapproved;
+use a new label-set id for a corrected review rather than overwriting frozen labels.
+
+After passing calibration, run `make classification-operating-review RUN_ID=<run-id>` in a terminal.
+It renders encoded packet strings as readable Unicode, presents the mapping fingerprint, thresholds,
+exception outcomes, representative cases and metrics, then asks the reviewer to accept, propose
+numeric threshold/exception changes, or retain unclassified. A rationale and typed confirmation are
+required. It writes one non-overwriting
+`$RUNS_DIR/<run-id>/review/classification/decision.json` bound to the exact packet, mapping,
+scheme, classifier and evaluation; it does not edit policy or authorize file placement. `accept`
+is unavailable while the packet is pending or held-out gates fail. `revise` and
+`retain-unclassified` are explicit non-approval outcomes.
 
 ## Maintaining the taxonomy
 
@@ -202,10 +232,70 @@ and an unchanged rerun was a cache hit. The high exceptional count is a valid co
 a quality claim; archive-label evaluation and the human operating-point decision remain pending.
 The complete interruption and rerun audit is in record 0079.
 
+The first provided-archive proof run `run-bf2bfde7672841eb89324c4844f9d436` sealed the
+forecasted closure through `classify`: 568 inventory occurrences (546 physical and 22 virtual),
+414 extracted and normalized documents, 48,985 extraction spans, and one classification row per
+physical file. The mapping has 7 taxonomy assignments, 431 `unclassified` and 108 `unreadable`
+outcomes. The in-place integration check rehashed every physical source, validated all 546 mapping
+and hierarchy records, resolved all 414 document source references including 9 member locations,
+and checked 695 classification evidence spans. An unchanged replay returned five cache hits and
+zero worker invocations. The mapping manifest SHA-256 is
+`0ab41dac059d29efd75f2418423d55cadb2ceb4e24bbb80b2fe0311b8e937ce5`;
+the local integrity report is under
+`$DATA_DIR/integration/archive-classification/<run-id>/integrity.json`.
+
+Classification took 7.09 seconds at 76.99 files/s with 317.09 MiB peak memory, passing both
+declared resource gates. This proves complete mechanical mapping and source integrity, not semantic
+accuracy. No separately reviewed archive labels were available, so the held-out calibration test
+fails as intended and the packet at
+`$RUNS_DIR/<run-id>/review/classification/operating-point.json` remains `pending`; its 20 bounded
+inspection cases are proposals, not gold labels or approval. The full task remains open in
+[record 0082](../records/0082-archive-cls-prove-archive-classification-on-provided-archive.md).
+
+After adding the terminal reviews, a final-code closure
+`run-0f7aac31db6b4e9c93eda26d8c7e0ffd` sealed the same 546 physical and 22 virtual inventory
+items. The integrity check again rehashed all source bytes, resolved 414 documents and 9 member
+locations, checked 695 evidence spans, and saw five unchanged-replay cache hits with zero workers.
+Its mapping manifest SHA-256 is
+`f27d8a01e1c5adfcd6f2050f353e9756c795aef07c00a411d72f64a4418ba1a5`.
+Classification took 6.99 seconds at 78.09 files/s with 218.89 MiB peak memory. Its packet is still
+`pending-reviewed-labels`; no gold row or operating decision was entered by the implementation
+run. An empty, resumable `gold-archive-gold-review.jsonl` draft was prepared under this run's
+review directory by quitting the terminal review without confirmation. Resume with
+`LABEL_SET=archive-gold-review`, or choose a new id. This remains mechanical evidence, not a
+semantic-quality or placement claim.
+
 ## Tests
+
+`tests/integration/classification/test_archive_classification.py` forecasts and executes the
+ordinary closure through `classify`, or checks the existing run selected by
+`ARCHIVE_CLASSIFICATION_RUN_ID`. It validates sealed attempts and contracts, physical/member
+accounting, every primary ancestor path, evidence token offsets and original-text bounds, initial
+source lookup, resource gates and a zero-worker unchanged replay. It rehashes every physical
+inventory source and checks the frozen source snapshot before accepting integrity evidence.
+
+Run the focused archive tests with configured roots:
+
+```bash
+source scripts/shared/common.sh
+arxiv_int_load_env
+ARCHIVE_CLASSIFICATION_RUN_ID=<run-id> .venv/bin/python -m pytest \
+  tests/integration/classification -m archive -q
+```
+
+The separate calibration test requires a mapping-bound `classification evaluate` report and its
+frozen `classification-labels` inputs. It checks checksums, taxonomy identity, actual-content split
+separation and metric reproducibility. Missing reviewed labels fail this gate; integrity alone
+does not establish classification quality. Labels and review decisions remain under configured
+operator roots. The ordinary operating-point packet records its readiness and missing inputs;
+the integration test never records a human decision. Run logs are under
+`$DATA_DIR/integration/archive-classification/<run-id>/`.
+
+Implementation and current run evidence:
+[record 0082](../records/0082-archive-cls-prove-archive-classification-on-provided-archive.md).
 
 `tests/classification/` covers codes, tokens, closure and resolution, every validation finding,
 coverage and balance gates, build identity and staleness, the packaged taxonomy (licence, coverage,
 balance, trilingual captions, ASCII file), labels and splits, classifier decisions and evidence,
-physical/member accounting, interruption/retry, upstream tamper refusal, evaluation metrics and the
-CLI end to end.
+physical/member accounting, interruption/retry, upstream and cached-output tamper refusal,
+evaluation metrics, calibration seal checks and the CLI end to end.

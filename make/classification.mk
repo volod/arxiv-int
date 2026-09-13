@@ -1,7 +1,8 @@
 # Subject-taxonomy classification scheme freeze, inspection, and gold-label splits.
 ##@ Classification
 .PHONY: classification-scheme classification-check classification-show classification-tree \
-	classification-labels classification-evaluate
+	classification-labels classification-evaluate classification-operating-review \
+	classification-gold-review classification-calibrate
 
 classification-scheme: ## Validate the packaged taxonomy and freeze a snapshot (RUN_ID= from make run-create)
 	@$(require_cli)
@@ -52,3 +53,31 @@ classification-evaluate: ## Score a classify manifest (RUN_ID= CLASSIFICATION= L
 		"$(CLI)" classification evaluate --run-id "$(RUN_ID)" \
 		--classification "$(CLASSIFICATION)" --labels "$(LABELS)" \
 		--label-set "$(LABEL_SET)" $(if $(SPLIT),--split "$(SPLIT)",)
+
+classification-operating-review: ## Interactively inspect decoded packet and record decision (RUN_ID=)
+	@$(require_cli)
+	@$(load_env) && arxiv_int_require_created_run_id "$(RUN_ID)" && \
+		"$(CLI)" classification review-operating-point --run-id "$(RUN_ID)"
+
+classification-gold-review: ## Interactively create/resume human gold JSONL and score it (RUN_ID= LABEL_SET= LIMIT=)
+	@$(require_cli)
+	@test -n "$(LABEL_SET)" || { echo "ERROR: set LABEL_SET=<label set id>"; exit 1; }
+	@$(load_env) && $(sync_extras) && \
+		arxiv_int_require_created_run_id "$(RUN_ID)" && \
+		"$(CLI)" classification review-gold --run-id "$(RUN_ID)" \
+		--label-set "$(LABEL_SET)" --limit "$(or $(LIMIT),40)"
+
+classification-calibrate: ## Review gold, then run complete archive calibration gate
+	@$(require_cli)
+	@test -n "$(LABEL_SET)" || { echo "ERROR: set LABEL_SET=<label set id>"; exit 1; }
+	@$(load_env) && $(sync_extras) && \
+		arxiv_int_require_created_run_id "$(RUN_ID)" && \
+		"$(CLI)" classification review-gold --run-id "$(RUN_ID)" \
+		--label-set "$(LABEL_SET)" --limit "$(or $(LIMIT),40)"; \
+		review_status=$$?; \
+		if [ "$$review_status" -eq 2 ]; then \
+			exit 0; \
+		fi; \
+		if [ "$$review_status" -ne 0 ]; then exit "$$review_status"; fi; \
+		ARCHIVE_CLASSIFICATION_RUN_ID="$(RUN_ID)" "$(PY)" -m pytest \
+		tests/integration/classification -m archive -q

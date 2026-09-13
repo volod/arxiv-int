@@ -69,3 +69,13 @@ def add_classification_parser(
     evaluate.add_argument("--labels", type=Path, required=True, help="frozen labels JSONL")
     evaluate.add_argument("--label-set", required=True, help="stable label set id")
     evaluate.add_argument("--split", default="test", help="frozen split name or all")
+    operating = commands.add_parser(
+        "review-operating-point", help="inspect decoded packet and record one human decision"
+    )
+    _run_options(operating, required=True)
+    gold = commands.add_parser(
+        "review-gold", help="interactively create, resume, freeze and score human archive labels"
+    )
+    _run_options(gold, required=True)
+    gold.add_argument("--label-set", required=True, help="stable review and frozen label set id")
+    gold.add_argument("--limit", type=int, default=40, help="maximum files in this review session")

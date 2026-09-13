@@ -7,6 +7,7 @@ from collections import Counter
 from collections.abc import Sequence
 
 from arxiv_int.classification.evaluation_command import run_evaluate
+from arxiv_int.classification.gold_terminal import run_gold_review
 from arxiv_int.classification.label_command import run_freeze_labels
 from arxiv_int.classification.layout import (
     ClassificationLayout,
@@ -14,6 +15,7 @@ from arxiv_int.classification.layout import (
     scheme_directory,
     validate_contract_rows,
 )
+from arxiv_int.classification.review_terminal import run_review
 from arxiv_int.classification.vocabulary.build import build_scheme, taxonomy_classes
 from arxiv_int.classification.vocabulary.describe import describe_class, tree_lines
 from arxiv_int.classification.vocabulary.model import Scheme
@@ -119,6 +121,8 @@ _HANDLERS = {
     "check-scheme": _check,
     "evaluate": run_evaluate,
     "freeze-labels": run_freeze_labels,
+    "review-gold": run_gold_review,
+    "review-operating-point": run_review,
     "show": _show,
     "tree": _tree,
 }

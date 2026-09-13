@@ -375,6 +375,12 @@ contract fields are refused on import.
 silo-root containment and current hashes. Locations stay silo-relative POSIX paths. Duplicate
 silos remain distinct occurrences. Nested members hash the container file, not a virtual member
 path. Original occurrence rows are never rewritten; rename and copy events overlay current paths.
+Inventory-produced JSON member address chains retain nested positions and names without being
+parsed as filesystem paths. For these rows, physical checksum validation uses the container
+occurrence from the same silo, scan and generation; the resolved content hash remains the member's
+own hash. A missing or conflicting container checksum leaves the location `unchecked`. Legacy
+plain member paths remain supported. See
+[record 0082](../records/0082-archive-cls-prove-archive-classification-on-provided-archive.md).
 Missing, changed, and escaped-link files are explicit statuses. `arxiv-int archive import-ledger`
 merges events by `event_id` and refuses conflicting payloads without rewriting a matching store.
 

@@ -7,7 +7,7 @@ links them. See [record rules](../../guide/planning-workflow.md#durable-task-rec
 and legacy work. Record results remain understandable without private runtime artifacts; unavailable
 evidence is explicit.
 
-Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0080` after the rows
+Next unused sequence: assign `max(NNNN) + 1` from this directory (currently `0082` after the rows
 below).
 
 | Record | Scope | Result |
@@ -93,3 +93,4 @@ below).
 | [0079 Hierarchical file classification](0079-archive-cls-implement-hierarchical-file-classification.md) | Restartable complete physical-file classification with hierarchical evidence and explicit exceptional outcomes | Accepted |
 | [0080 Retrieval and classification boundaries review](0080-archive-cls-review-retrieval-and-classification-boundaries.md) | Integrated retrieval and classification checkpoint before the provided-archive classification proof | Accepted; proceed with nonblocking notes |
 | [0081 Retrieval and classification identity repair](0081-archive-cls-repair-retrieval-and-classification-identity-and-evidence.md) | Focused integrity prerequisite for 0080: evidence spans, packet fingerprints, projection engine identity, store selection, wrong-layout queries and composite keys | Accepted |
+| [0082 Provided-archive classification proof](0082-archive-cls-prove-archive-classification-on-provided-archive.md) | Complete mapping, source/evidence checks, resource measurement and cache replay | Active; archive integrity passed, reviewed calibration labels pending |

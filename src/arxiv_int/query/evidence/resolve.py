@@ -57,7 +57,11 @@ def resolve_citation(
         findings.append(f"no source occurrences for {document_id}")
     tracks = overlay_events(occurrences, catalog.events, document_id)
     roots = silo_roots or {}
-    locations = tuple(item for track in tracks for item in _expand_track(track, document, roots))
+    locations = tuple(
+        item
+        for track in tracks
+        for item in _expand_track(track, document, roots, catalog.occurrences)
+    )
     ambiguous = citation_ambiguous or _colliding_currents(tracks)
     if ambiguous:
         findings.append("ambiguous source locations")
@@ -109,13 +113,16 @@ def _expand_track(
     track: LocationTrack,
     document: ContractRow,
     silo_roots: Mapping[str, Path],
+    occurrences: tuple[ContractRow, ...],
 ) -> tuple[SourceLocation, ...]:
     content_hash = track.occurrence.get("content_hash") or document.get("content_hash")
+    physical_hash = _physical_hash(track.occurrence, occurrences, content_hash)
     primary = _location(
         track,
         current_path=track.current_path,
         role="source",
         content_hash=content_hash,
+        physical_hash=physical_hash,
         silo_roots=silo_roots,
     )
     copies = tuple(
@@ -124,6 +131,7 @@ def _expand_track(
             current_path=path,
             role=COPY_KIND,
             content_hash=content_hash,
+            physical_hash=physical_hash,
             silo_roots=silo_roots,
         )
         for path in track.copies
@@ -137,6 +145,7 @@ def _location(
     current_path: str,
     role: str,
     content_hash: str,
+    physical_hash: str | None,
     silo_roots: Mapping[str, Path],
 ) -> SourceLocation:
     occurrence = track.occurrence
@@ -147,9 +156,9 @@ def _location(
     else:
         physical = current_path
     status = location_status(
-        silo_roots.get(occurrence.get("silo_id")),
+        silo_roots.get(occurrence.get("silo_id")) if physical_hash is not None else None,
         physical,
-        content_hash,
+        physical_hash or "",
     )
     return SourceLocation(
         silo_id=occurrence.get("silo_id"),
@@ -163,6 +172,24 @@ def _location(
         member_path=occurrence.get("member_path"),
         role=role,
     )
+
+
+def _physical_hash(
+    member: ContractRow, occurrences: tuple[ContractRow, ...], content_hash: str
+) -> str | None:
+    """Bind inventory member validation to its physical container in the same snapshot."""
+    if not member.get("member_path").startswith("["):
+        return content_hash
+    hashes = {
+        item.get("content_hash")
+        for item in occurrences
+        if not occurrence_is_member(item)
+        and item.get("silo_id") == member.get("silo_id")
+        and item.get("relative_path") == occurrence_physical_path(member)
+        and item.get("scan_id") == member.get("scan_id")
+        and item.get("generation_id") == member.get("generation_id")
+    }
+    return next(iter(hashes)) if len(hashes) == 1 and "" not in hashes else None
 
 
 def _colliding_currents(tracks: tuple[LocationTrack, ...]) -> bool:
