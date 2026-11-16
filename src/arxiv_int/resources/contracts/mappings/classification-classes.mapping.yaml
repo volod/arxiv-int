@@ -1,0 +1,62 @@
+metadata:
+  domain: arxiv-int
+  sourceContract: classification-classes
+  canonicalEntity: classification_class
+fieldMappings:
+  - sourceField: scheme_class_id
+    binding: classification_class.schemeClassId
+    semanticTerm: urn:arxiv-int:term:scheme-class-id
+  - sourceField: scheme_id
+    binding: classification_class.schemeId
+    semanticTerm: urn:arxiv-int:term:scheme-id
+  - sourceField: class_id
+    binding: classification_class.classId
+    semanticTerm: urn:arxiv-int:term:class-id
+  - sourceField: namespace
+    binding: classification_class.namespace
+    semanticTerm: urn:arxiv-int:term:class-namespace
+  - sourceField: code
+    binding: classification_class.code
+    semanticTerm: urn:arxiv-int:term:class-code
+  - sourceField: parent_class_id
+    binding: classification_class.parentClassId
+    semanticTerm: urn:arxiv-int:term:parent-class-id
+  - sourceField: ancestor_path
+    binding: classification_class.ancestorPath
+    semanticTerm: urn:arxiv-int:term:ancestor-path
+  - sourceField: depth
+    binding: classification_class.depth
+    semanticTerm: urn:arxiv-int:term:class-depth
+  - sourceField: class_kind
+    binding: classification_class.classKind
+    semanticTerm: urn:arxiv-int:term:kind
+  - sourceField: caption_en
+    binding: classification_class.captionEn
+    semanticTerm: urn:arxiv-int:term:caption-en
+  - sourceField: caption_ru
+    binding: classification_class.captionRu
+    semanticTerm: urn:arxiv-int:term:caption-ru
+  - sourceField: caption_uk
+    binding: classification_class.captionUk
+    semanticTerm: urn:arxiv-int:term:caption-uk
+  - sourceField: captions_json
+    binding: classification_class.captionsJson
+    semanticTerm: urn:arxiv-int:term:captions-json
+  - sourceField: crosswalk_json
+    binding: classification_class.crosswalkJson
+    semanticTerm: urn:arxiv-int:term:crosswalk-json
+  - sourceField: path_token
+    binding: classification_class.pathToken
+    semanticTerm: urn:arxiv-int:term:path-token
+  - sourceField: slug
+    binding: classification_class.slug
+    semanticTerm: urn:arxiv-int:term:slug
+  - sourceField: scheme_version
+    binding: classification_class.schemeVersion
+    semanticTerm: urn:arxiv-int:term:scheme-version
+  - sourceField: generation_id
+    binding: classification_class.generationId
+    semanticTerm: urn:arxiv-int:term:generation-id
+  - sourceField: contract_version
+    binding: classification_class.contractVersion
+    semanticTerm: urn:arxiv-int:term:contract-version

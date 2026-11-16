@@ -17,6 +17,7 @@ def compile_rule_catalog(
     odcs: dict[str, Any],
 ) -> RuleCatalog:
     """Build the stable rule catalog for one normalized contract table."""
+    primary_key = _primary_key(table)
     rules: list[QualityRule] = []
     for column in table.columns:
         rules.extend(column_rules(table, column, tables))
@@ -29,12 +30,29 @@ def compile_rule_catalog(
         description=table.description,
         schema_name=table.schema_name,
         table_name=table.table_name,
-        primary_key=tuple(
-            column.name
-            for column in sorted(
-                (item for item in table.columns if item.primary_key_position is not None),
-                key=lambda item: item.primary_key_position or 0,
-            )
-        ),
+        primary_key=primary_key,
         rules=tuple(rules),
     )
+
+
+def _primary_key(table: NormalizedTable) -> tuple[str, ...]:
+    """Return the ordered key, refusing a composite one until it can be compiled.
+
+    Uniqueness rules are compiled per column, so a composite key would wrongly require each of
+    its columns to be unique on its own. No contract declares one; refusing here keeps a future
+    contract from silently publishing rules that its own key does not satisfy.
+    """
+    names = tuple(
+        column.name
+        for column in sorted(
+            (item for item in table.columns if item.primary_key_position is not None),
+            key=lambda item: item.primary_key_position or 0,
+        )
+    )
+    if len(names) > 1:
+        listed = ", ".join(names)
+        raise UnsupportedQualityMappingError(
+            f"{table.contract_id}: composite primary key ({listed}) has no compiled uniqueness "
+            "rule; declare one key column or add a composite rule kind first"
+        )
+    return names

@@ -16,6 +16,7 @@ from arxiv_int.stores.projections.adapters.lexical_search import (
     INDEX_SIZE_SQL,
 )
 from arxiv_int.stores.projections.model import KIND_LEXICAL, STATUS_ACTIVE
+from arxiv_int.stores.projections.profiles import projection_input_fingerprint
 from arxiv_int.stores.projections.tables import ACTIVE, PROJECTIONS
 
 BUILD_QUERY_PATTERN = "%using bm25%"
@@ -65,6 +66,7 @@ def active_target(connection: Connection) -> LexicalTarget:
             PROJECTIONS.c.status,
             PROJECTIONS.c.row_count,
             PROJECTIONS.c.checksum,
+            PROJECTIONS.c.input_fingerprint,
         )
         .select_from(
             ACTIVE.join(PROJECTIONS, ACTIVE.c.projection_id == PROJECTIONS.c.projection_id)
@@ -96,6 +98,13 @@ def active_target(connection: Connection) -> LexicalTarget:
     if target.status != STATUS_ACTIVE:
         raise LexicalUnavailableError(
             f"lexical projection {target.projection_id} is {target.status}, not active"
+        )
+    expected = projection_input_fingerprint(KIND_LEXICAL, version_id, target.checksum)
+    if str(row.input_fingerprint or "") != expected:
+        raise LexicalUnavailableError(
+            f"lexical projection {target.projection_id} was built under a different tokenizer "
+            f"profile than {TOKENIZER_FINGERPRINT}; rebuild it with "
+            "'arxiv-int store projections-build --kind lexical --activate'"
         )
     return target
 

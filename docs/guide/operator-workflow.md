@@ -240,10 +240,10 @@ make prune
 the sole recovery copy. `make update` reconciles a changed archive into a new generation.
 
 The remaining investigation stages below are one valid linear expansion of the baseline registry,
-not a second executable DAG definition. They fail as unregistered until their capabilities land:
+not a second executable DAG definition. `classify` is registered; later entries fail as
+unregistered until their capabilities land:
 
 ```bash
-make stage STAGE=classify RUN_ID="$RUN_ID"
 make stage STAGE=nlp RUN_ID="$RUN_ID"
 make stage STAGE=topics RUN_ID="$RUN_ID"
 make stage STAGE=entities RUN_ID="$RUN_ID"

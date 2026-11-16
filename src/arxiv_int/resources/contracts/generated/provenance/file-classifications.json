@@ -1,0 +1,28 @@
+{
+  "apiVersion": "v3.1.0",
+  "artifacts": {
+    "avro/file-classifications.avsc": "2b9083c38df3e657f3bc6dd30ab0247513c824fc6bd213ebf1da4f6d56bcdcf8",
+    "dbt/file-classifications.yml": "611b6b8b4c14412f7d72429f0fc734cea4e3302d2a9f4697bccee5431836c24d",
+    "jsonschema/file-classifications.schema.json": "100e7ea340efbbc9275074ae966b753d6f97a87e07dde186573feb64dc92a324",
+    "parquet/file-classifications.parquet.json": "13179456b3e3ef111912a56b181a7d65d302709f696b1f3c2cafb1245b858e2f",
+    "postgres/extensions/file-classifications.sql": "62beba700116855b445fad1e9176c473353cff7f64d2d5c8c01848f066fc693b",
+    "postgres/file-classifications.sql": "d72af1d89d40fe6b3cc628b9e662598b0358c2e8843e4b2534000193d552ca5a",
+    "pydantic/file-classifications.py": "cc8fce16f352db2e00307d138fb0ef323c3c58c4ba5f6fd15f10c837a2b20612",
+    "quality/file-classifications.rules.json": "31f9c682138774c0ee75d7d7b3d4583635d130368c66664ac5f89dc2527d50f7"
+  },
+  "canonicalEntity": null,
+  "contractId": "file-classifications",
+  "customExtensionKeys": [
+    "partitionKey",
+    "schema",
+    "table"
+  ],
+  "odcsId": "urn:arxiv-int:contract:file-classifications:1.0.0",
+  "odcsVersion": "1.0.0",
+  "postgres": {
+    "partitionKey": "bucket",
+    "schema": "corpus",
+    "table": "file_classification"
+  },
+  "semanticMetadataHash": "edd4f1e0591ddce1a93fe4e069b7d5ade15b8d6fadcb0752919103a2bea07c0a"
+}

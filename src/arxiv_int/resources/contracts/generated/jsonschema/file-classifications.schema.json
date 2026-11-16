@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "alternate_class_ids_json": {
+      "type": "string"
+    },
+    "ancestor_path": {
+      "type": "string"
+    },
+    "calibration_profile": {
+      "type": "string"
+    },
+    "classification_id": {
+      "primaryKey": true,
+      "type": "string"
+    },
+    "classifier_id": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number"
+    },
+    "configuration_sha256": {
+      "type": "string"
+    },
+    "contract_version": {
+      "type": "string"
+    },
+    "document_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "evidence_json": {
+      "type": "string"
+    },
+    "extraction_fingerprint": {
+      "type": "string"
+    },
+    "failure_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "generation_id": {
+      "type": "string"
+    },
+    "normalizer_id": {
+      "type": "string"
+    },
+    "occurrence_id": {
+      "type": "string"
+    },
+    "primary_class_id": {
+      "type": "string"
+    },
+    "relative_path": {
+      "type": "string"
+    },
+    "review_state": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "scheme_id": {
+      "type": "string"
+    },
+    "scores_json": {
+      "type": "string"
+    },
+    "silo_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "classification_id",
+    "occurrence_id",
+    "silo_id",
+    "relative_path",
+    "primary_class_id",
+    "alternate_class_ids_json",
+    "ancestor_path",
+    "confidence",
+    "calibration_profile",
+    "scores_json",
+    "evidence_json",
+    "extraction_fingerprint",
+    "normalizer_id",
+    "classifier_id",
+    "configuration_sha256",
+    "scheme_id",
+    "review_state",
+    "run_id",
+    "generation_id",
+    "contract_version"
+  ],
+  "type": "object"
+}

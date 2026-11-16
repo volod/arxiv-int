@@ -1,0 +1,97 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "ancestor_path": {
+      "type": "string"
+    },
+    "caption_en": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "caption_ru": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "caption_uk": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "captions_json": {
+      "type": "string"
+    },
+    "class_id": {
+      "type": "string"
+    },
+    "class_kind": {
+      "type": "string"
+    },
+    "code": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "contract_version": {
+      "type": "string"
+    },
+    "crosswalk_json": {
+      "type": "string"
+    },
+    "depth": {
+      "type": "integer"
+    },
+    "generation_id": {
+      "type": "string"
+    },
+    "namespace": {
+      "type": "string"
+    },
+    "parent_class_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "path_token": {
+      "type": "string"
+    },
+    "scheme_class_id": {
+      "primaryKey": true,
+      "type": "string"
+    },
+    "scheme_id": {
+      "type": "string"
+    },
+    "scheme_version": {
+      "type": "string"
+    },
+    "slug": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "scheme_class_id",
+    "scheme_id",
+    "class_id",
+    "namespace",
+    "ancestor_path",
+    "depth",
+    "class_kind",
+    "captions_json",
+    "crosswalk_json",
+    "path_token",
+    "scheme_version",
+    "generation_id",
+    "contract_version"
+  ],
+  "type": "object"
+}

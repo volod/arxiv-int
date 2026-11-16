@@ -1,0 +1,5 @@
+-- arxiv-int postgres extensions for file-classifications
+-- source: urn:arxiv-int:contract:file-classifications:1.0.0@1.0.0
+-- table columns and constraints are owned by corpus.file_classification metadata revisions
+-- HASH partition template for corpus.file_classification USING (bucket)
+-- CREATE TABLE corpus.file_classification_p0 PARTITION OF corpus.file_classification FOR VALUES WITH (MODULUS 16, REMAINDER 0);

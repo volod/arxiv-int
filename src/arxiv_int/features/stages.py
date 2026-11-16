@@ -23,10 +23,29 @@ STAGE_FEATURES: Mapping[str, StageFeatureSet] = {
     "load-vector": _features("store"),
     "topics": _features("data-quality", "lake"),
     "entities": _features("data-quality", "lake", "store"),
+    "concepts": _features(
+        "concepts", "data-quality", "inference", "lake", "nlp", "store", conditional=("gpu",)
+    ),
     "facts": _features("data-quality", "inference", "lake", "store", conditional=("gpu",)),
+    "concept-relations": _features(
+        "concepts", "data-quality", "inference", "lake", "store", conditional=("gpu",)
+    ),
     "ontology": _features("graph"),
+    "refinder": _features(
+        "concepts",
+        "data-quality",
+        "inference",
+        "lake",
+        "store",
+        conditional=("embeddings", "gpu"),
+    ),
+    "graph-communities": _features("data-quality", "graph-analytics", "lake", "store", "transform"),
+    "graph-metrics": _features("data-quality", "graph-analytics", "lake", "store", "transform"),
     "graph": _features("graph", "store", "transform"),
     "domain-artifacts": _features("data-quality", "lake", "store", "transform"),
+    "agent-diagnostics": _features(
+        "agents", "data-quality", "inference", "lake", "store", conditional=("gpu",)
+    ),
     "evaluate": _features("data-quality", "evaluation", "lake"),
     "report": _features("data-quality", "lake", "store", "transform", conditional=("ui",)),
 }

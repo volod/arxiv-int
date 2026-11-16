@@ -9,6 +9,7 @@ include $(PROJECT_ROOT)/make/contracts.mk
 include $(PROJECT_ROOT)/make/transform.mk
 include $(PROJECT_ROOT)/make/inference.mk
 include $(PROJECT_ROOT)/make/pipeline.mk
+include $(PROJECT_ROOT)/make/classification.mk
 include $(PROJECT_ROOT)/make/quality.mk
 
 .DEFAULT_GOAL := help

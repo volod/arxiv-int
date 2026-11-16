@@ -35,7 +35,7 @@ def test_active_projection_refused_before_preparing_inputs(
 
 def test_cleanup_command_never_builds(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(commands, "find_project_root", lambda _: tmp_path)
-    monkeypatch.setattr(commands, "resolve_database_url", lambda: None)
+    monkeypatch.setattr(commands, "optional_store_url", lambda _root, explicit=None: None)
     monkeypatch.delenv("ARXIV_INT_MIGRATION_DATABASE_URL", raising=False)
     built: list[bool] = []
     monkeypatch.setattr(commands, "build_projections", lambda *a: built.append(True))

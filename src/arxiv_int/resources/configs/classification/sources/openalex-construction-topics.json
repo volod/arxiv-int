@@ -1,0 +1,352 @@
+{
+  "items": [
+    {
+      "id": "openalex:topic/T10033",
+      "name": "Concrete and Cement Materials Research",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T10121",
+      "name": "Building Energy and Comfort Optimization",
+      "subfield": "openalex:subfield/2215"
+    },
+    {
+      "id": "openalex:topic/T10160",
+      "name": "Seismic Performance and Analysis",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T10233",
+      "name": "Geotechnical Engineering and Soil Mechanics",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T10264",
+      "name": "Asphalt Pavement Performance Evaluation",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T10284",
+      "name": "Anaerobic Digestion and Biogas Production",
+      "subfield": "openalex:subfield/2215"
+    },
+    {
+      "id": "openalex:topic/T10479",
+      "name": "Structural Behavior of Reinforced Concrete",
+      "subfield": "openalex:subfield/2215"
+    },
+    {
+      "id": "openalex:topic/T10484",
+      "name": "Wood Treatment and Properties",
+      "subfield": "openalex:subfield/2215"
+    },
+    {
+      "id": "openalex:topic/T10534",
+      "name": "Structural Health Monitoring Techniques",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T10687",
+      "name": "Innovative concrete reinforcement materials",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T10690",
+      "name": "Vibration Control and Rheological Fluids",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T10713",
+      "name": "Structural Load-Bearing Analysis",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T10716",
+      "name": "Soil and Unsaturated Flow",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T11006",
+      "name": "BIM and Construction Integration",
+      "subfield": "openalex:subfield/2215"
+    },
+    {
+      "id": "openalex:topic/T11115",
+      "name": "Topology Optimization in Engineering",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T11220",
+      "name": "Water Systems and Optimization",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T11344",
+      "name": "Traffic Prediction and Management Techniques",
+      "subfield": "openalex:subfield/2215"
+    },
+    {
+      "id": "openalex:topic/T11352",
+      "name": "Masonry and Concrete Structural Analysis",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T11375",
+      "name": "Geotechnical Engineering and Soil Stabilization",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T11511",
+      "name": "Dyeing and Modifying Textile Fibers",
+      "subfield": "openalex:subfield/2215"
+    },
+    {
+      "id": "openalex:topic/T11606",
+      "name": "Infrastructure Maintenance and Monitoring",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T11672",
+      "name": "Recycling and utilization of industrial and municipal waste in materials production",
+      "subfield": "openalex:subfield/2215"
+    },
+    {
+      "id": "openalex:topic/T11807",
+      "name": "Infrastructure Resilience and Vulnerability Analysis",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T11847",
+      "name": "Recycled Aggregate Concrete Performance",
+      "subfield": "openalex:subfield/2215"
+    },
+    {
+      "id": "openalex:topic/T11850",
+      "name": "Concrete Corrosion and Durability",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T11870",
+      "name": "Structural Analysis and Optimization",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T11874",
+      "name": "Structural Response to Dynamic Loads",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T11933",
+      "name": "Mining and Resource Management",
+      "subfield": "openalex:subfield/2215"
+    },
+    {
+      "id": "openalex:topic/T11978",
+      "name": "Soil Mechanics and Vehicle Dynamics",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T11988",
+      "name": "Sustainable Building Design and Assessment",
+      "subfield": "openalex:subfield/2215"
+    },
+    {
+      "id": "openalex:topic/T12022",
+      "name": "Hydraulic flow and structures",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T12102",
+      "name": "Fire effects on concrete materials",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T12105",
+      "name": "Hygrothermal properties of building materials",
+      "subfield": "openalex:subfield/2215"
+    },
+    {
+      "id": "openalex:topic/T12152",
+      "name": "Concrete Properties and Behavior",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T12188",
+      "name": "Architecture, Modernity, and Design",
+      "subfield": "openalex:subfield/2216"
+    },
+    {
+      "id": "openalex:topic/T12190",
+      "name": "Innovations in Concrete and Construction Materials",
+      "subfield": "openalex:subfield/2215"
+    },
+    {
+      "id": "openalex:topic/T12233",
+      "name": "Geotechnical Engineering and Underground Structures",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T12239",
+      "name": "Construction Management and Sustainability",
+      "subfield": "openalex:subfield/2215"
+    },
+    {
+      "id": "openalex:topic/T12293",
+      "name": "Dam Engineering and Safety",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T12306",
+      "name": "Urban and Freight Transport Logistics",
+      "subfield": "openalex:subfield/2215"
+    },
+    {
+      "id": "openalex:topic/T12325",
+      "name": "Urban Design and Spatial Analysis",
+      "subfield": "openalex:subfield/2215"
+    },
+    {
+      "id": "openalex:topic/T12435",
+      "name": "Bladed Disk Vibration Dynamics",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T12442",
+      "name": "Thermal Radiation and Cooling Technologies",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T12482",
+      "name": "Tunneling and Rock Mechanics",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T12487",
+      "name": "Structural Engineering and Vibration Analysis",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T12546",
+      "name": "Smart Parking Systems Research",
+      "subfield": "openalex:subfield/2215"
+    },
+    {
+      "id": "openalex:topic/T12698",
+      "name": "3D Modeling in Geospatial Applications",
+      "subfield": "openalex:subfield/2215"
+    },
+    {
+      "id": "openalex:topic/T12865",
+      "name": "Tailings Management and Properties",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T12940",
+      "name": "Structural Engineering and Materials Analysis",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T13031",
+      "name": "Civil and Structural Engineering Research",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T13236",
+      "name": "Geotechnical and construction materials studies",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T13263",
+      "name": "Building energy efficiency and sustainability",
+      "subfield": "openalex:subfield/2215"
+    },
+    {
+      "id": "openalex:topic/T13477",
+      "name": "Sustainable Design and Development",
+      "subfield": "openalex:subfield/2215"
+    },
+    {
+      "id": "openalex:topic/T13511",
+      "name": "Geodetic Measurements and Engineering Structures",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T13518",
+      "name": "Architecture and Computational Design",
+      "subfield": "openalex:subfield/2216"
+    },
+    {
+      "id": "openalex:topic/T13527",
+      "name": "Transportation Systems and Logistics",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T13596",
+      "name": "Grouting, Rheology, and Soil Mechanics",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T13601",
+      "name": "Urban Transport Systems Analysis",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T13682",
+      "name": "Engineering Education and Pedagogy",
+      "subfield": "openalex:subfield/2216"
+    },
+    {
+      "id": "openalex:topic/T13689",
+      "name": "Underground infrastructure and sustainability",
+      "subfield": "openalex:subfield/2215"
+    },
+    {
+      "id": "openalex:topic/T13808",
+      "name": "Construction Engineering and Safety",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T13852",
+      "name": "Seismic and Structural Analysis of Tall Buildings",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T13941",
+      "name": "Geotechnical and Mining Engineering",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T14146",
+      "name": "Earthquake and Tsunami Effects",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T14156",
+      "name": "Engineering Applied Research",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T14390",
+      "name": "Real estate and construction management",
+      "subfield": "openalex:subfield/2216"
+    },
+    {
+      "id": "openalex:topic/T14445",
+      "name": "Transportation Safety and Impact Analysis",
+      "subfield": "openalex:subfield/2205"
+    },
+    {
+      "id": "openalex:topic/T14456",
+      "name": "Blasting Impact and Analysis",
+      "subfield": "openalex:subfield/2215"
+    }
+  ],
+  "licence": {
+    "name": "CC0 1.0",
+    "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  "publisher": "OpenAlex (OurResearch)",
+  "retrievedAt": "2026-09-11",
+  "sourceId": "openalex-construction-topics",
+  "url": "https://api.openalex.org/topics?filter=subfield.id:2205|2215|2216&per-page=200"
+}

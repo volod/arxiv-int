@@ -4,7 +4,6 @@ from pathlib import Path
 
 from sqlalchemy import Connection
 
-from arxiv_int.contracts.generate.normalize import sha256_text
 from arxiv_int.stores.projections.adapters.graph import (
     EDGE_COLUMNS,
     VERTEX_COLUMNS,
@@ -42,6 +41,7 @@ from arxiv_int.stores.projections.model import (
     KindBuild,
     ProjectionRequest,
 )
+from arxiv_int.stores.projections.profiles import projection_input_fingerprint
 from arxiv_int.stores.projections.quality import (
     RULE_CHECKSUM,
     RULE_ENGINE,
@@ -147,7 +147,7 @@ def build_kind(
         row_count=len(observed),
         checksum=checksum,
         quality_status=quality.status,
-        input_fingerprint=sha256_text(f"{kind}|{version_id}|{checksum}"),
+        input_fingerprint=projection_input_fingerprint(kind, version_id, checksum),
         last_committed_id=observed[-1] if observed else None,
     )
     write_evidence_rows(connection, ident, evidence_maps(quality))

@@ -10,7 +10,7 @@ from arxiv_int.data_quality.engine.model import (
     KIND_UNIT,
 )
 from arxiv_int.data_quality.rules import UnsupportedQualityMappingError, compile_rule_catalog
-from tests.contracts.sqlalchemy._builders import odcs_document
+from tests.contracts.sqlalchemy._builders import odcs_document, property_field
 from tests.data_quality._builders import compile_rows_catalog, documents_odcs, rows_odcs
 
 
@@ -159,3 +159,21 @@ def test_partition_key_is_not_a_global_unique_rule() -> None:
     unique_columns = {rule.column for rule in catalog.rules if rule.kind == KIND_UNIQUE}
     assert "document_id" in unique_columns
     assert "bucket" not in unique_columns
+
+
+def test_a_composite_primary_key_is_refused_instead_of_compiled_per_column() -> None:
+    document = odcs_document(
+        contract_id="pairs",
+        schema_name="pairs",
+        pg_schema="kg",
+        table="pairs",
+        properties=[
+            property_field("left_id", primaryKey=True, primaryKeyPosition=1, required=True),
+            property_field("right_id", primaryKey=True, primaryKeyPosition=2, required=True),
+        ],
+        partition_key=None,
+    )
+    table = normalize_contract(document, "pairs")
+
+    with pytest.raises(UnsupportedQualityMappingError, match="composite primary key"):
+        compile_rule_catalog(table, (table,), document)

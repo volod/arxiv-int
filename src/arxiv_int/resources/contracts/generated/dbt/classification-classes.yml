@@ -1,0 +1,154 @@
+sources:
+  - description: Canonical corpus relations owned by Alembic.
+    name: corpus
+    schema: corpus
+    tables:
+      - columns:
+          - description: scheme_class_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - classification-classes.scheme_class_id.type
+                - classification-classes.scheme_class_id.nullability
+                - classification-classes.scheme_class_id.batch_unique
+                - classification-classes.scheme_class_id.unique
+            name: scheme_class_id
+            tests:
+              - not_null
+              - unique
+          - description: scheme_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - classification-classes.scheme_id.type
+                - classification-classes.scheme_id.nullability
+            name: scheme_id
+            tests:
+              - not_null
+          - description: class_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - classification-classes.class_id.type
+                - classification-classes.class_id.nullability
+            name: class_id
+            tests:
+              - not_null
+          - description: namespace must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - classification-classes.namespace.type
+                - classification-classes.namespace.nullability
+            name: namespace
+            tests:
+              - not_null
+          - description: code must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - classification-classes.code.type
+            name: code
+          - description: parent_class_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - classification-classes.parent_class_id.type
+            name: parent_class_id
+          - description: ancestor_path must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - classification-classes.ancestor_path.type
+                - classification-classes.ancestor_path.nullability
+            name: ancestor_path
+            tests:
+              - not_null
+          - description: depth must match logical type integer.
+            meta:
+              arxiv_int_rule_ids:
+                - classification-classes.depth.type
+                - classification-classes.depth.nullability
+            name: depth
+            tests:
+              - not_null
+          - description: class_kind must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - classification-classes.class_kind.type
+                - classification-classes.class_kind.nullability
+            name: class_kind
+            tests:
+              - not_null
+          - description: caption_en must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - classification-classes.caption_en.type
+            name: caption_en
+          - description: caption_ru must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - classification-classes.caption_ru.type
+            name: caption_ru
+          - description: caption_uk must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - classification-classes.caption_uk.type
+            name: caption_uk
+          - description: captions_json must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - classification-classes.captions_json.type
+                - classification-classes.captions_json.nullability
+            name: captions_json
+            tests:
+              - not_null
+          - description: crosswalk_json must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - classification-classes.crosswalk_json.type
+                - classification-classes.crosswalk_json.nullability
+            name: crosswalk_json
+            tests:
+              - not_null
+          - description: path_token must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - classification-classes.path_token.type
+                - classification-classes.path_token.nullability
+            name: path_token
+            tests:
+              - not_null
+          - description: slug must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - classification-classes.slug.type
+            name: slug
+          - description: scheme_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - classification-classes.scheme_version.type
+                - classification-classes.scheme_version.nullability
+            name: scheme_version
+            tests:
+              - not_null
+          - description: generation_id must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - classification-classes.generation_id.type
+                - classification-classes.generation_id.nullability
+            name: generation_id
+            tests:
+              - not_null
+          - description: contract_version must match logical type string.
+            meta:
+              arxiv_int_rule_ids:
+                - classification-classes.contract_version.type
+                - classification-classes.contract_version.nullability
+            name: contract_version
+            tests:
+              - not_null
+        config:
+          meta:
+            arxiv_int_contract_id: classification-classes
+        description: "Frozen classes of one versioned subject-taxonomy classification scheme: taxonomy classes, operator extensions and the unclassified/unreadable outcomes, with parent closure, multilingual captions, source crosswalk, and reversible path tokens."
+        meta:
+          odcs_id: "urn:arxiv-int:contract:classification-classes:1.0.0"
+          primary_key:
+            - scheme_class_id
+          rule_catalog_version: 1.0.0
+        name: classification_classes
+version: 2

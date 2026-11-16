@@ -1,0 +1,71 @@
+metadata:
+  domain: arxiv-int
+  sourceContract: file-classifications
+  canonicalEntity: file_classification
+fieldMappings:
+  - sourceField: classification_id
+    binding: file_classification.classificationId
+    semanticTerm: urn:arxiv-int:term:classification-id
+  - sourceField: occurrence_id
+    binding: file_classification.occurrenceId
+    semanticTerm: urn:arxiv-int:term:occurrence-id
+  - sourceField: document_id
+    binding: file_classification.documentId
+    semanticTerm: urn:arxiv-int:term:document-id
+  - sourceField: silo_id
+    binding: file_classification.siloId
+    semanticTerm: urn:arxiv-int:term:silo-id
+  - sourceField: relative_path
+    binding: file_classification.relativePath
+    semanticTerm: urn:arxiv-int:term:relative-path
+  - sourceField: primary_class_id
+    binding: file_classification.primaryClassId
+    semanticTerm: urn:arxiv-int:term:class-id
+  - sourceField: alternate_class_ids_json
+    binding: file_classification.alternateClassIdsJson
+    semanticTerm: urn:arxiv-int:term:alternate-class-ids
+  - sourceField: ancestor_path
+    binding: file_classification.ancestorPath
+    semanticTerm: urn:arxiv-int:term:ancestor-path
+  - sourceField: confidence
+    binding: file_classification.confidence
+    semanticTerm: urn:arxiv-int:term:confidence
+  - sourceField: calibration_profile
+    binding: file_classification.calibrationProfile
+    semanticTerm: urn:arxiv-int:term:calibration-profile
+  - sourceField: scores_json
+    binding: file_classification.scoresJson
+    semanticTerm: urn:arxiv-int:term:class-scores
+  - sourceField: evidence_json
+    binding: file_classification.evidenceJson
+    semanticTerm: urn:arxiv-int:term:decisive-evidence
+  - sourceField: failure_reason
+    binding: file_classification.failureReason
+    semanticTerm: urn:arxiv-int:term:failure-reason
+  - sourceField: extraction_fingerprint
+    binding: file_classification.extractionFingerprint
+    semanticTerm: urn:arxiv-int:term:producer-fingerprint
+  - sourceField: normalizer_id
+    binding: file_classification.normalizerId
+    semanticTerm: urn:arxiv-int:term:normalizer-id
+  - sourceField: classifier_id
+    binding: file_classification.classifierId
+    semanticTerm: urn:arxiv-int:term:classifier-id
+  - sourceField: configuration_sha256
+    binding: file_classification.configurationSha256
+    semanticTerm: urn:arxiv-int:term:checksum
+  - sourceField: scheme_id
+    binding: file_classification.schemeId
+    semanticTerm: urn:arxiv-int:term:scheme-id
+  - sourceField: review_state
+    binding: file_classification.reviewState
+    semanticTerm: urn:arxiv-int:term:review-state
+  - sourceField: run_id
+    binding: file_classification.runId
+    semanticTerm: urn:arxiv-int:term:run-id
+  - sourceField: generation_id
+    binding: file_classification.generationId
+    semanticTerm: urn:arxiv-int:term:generation-id
+  - sourceField: contract_version
+    binding: file_classification.contractVersion
+    semanticTerm: urn:arxiv-int:term:contract-version

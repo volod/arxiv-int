@@ -41,7 +41,10 @@ class ContractBatchValidator:
             )
             for field in spec["fields"]
         ]
-        fields.append(self.arrow.field(spec["partitionKey"], self.arrow.string(), nullable=False))
+        if spec["partitionKey"]:
+            fields.append(
+                self.arrow.field(spec["partitionKey"], self.arrow.string(), nullable=False)
+            )
         self.arrow_schema = self.arrow.schema(fields)
 
     def batch(self, rows: list[dict[str, object]]) -> Any:

@@ -27,6 +27,7 @@ _KEYBOARD_TO = (
     "\u044f\u0447\u0441\u043c\u0438\u0442\u044c\u0431\u044e"
 )
 _KEYBOARD = str.maketrans(_KEYBOARD_FROM, _KEYBOARD_TO)
+_LAYOUT_KEYS = frozenset("[];',.")
 _LOWER_LOOKALIKES = "acekmoptxy"
 _LOWER_CYRILLIC = "\u0430\u0441\u0435\u043a\u043c\u043e\u0440\u0442\u0445\u0443"
 _UPPER_LOOKALIKES = "ABCEHKMOPTXY"
@@ -76,6 +77,18 @@ def only_latin_letters(text: str) -> bool:
 def has_query_syntax(text: str) -> bool:
     """Return whether the text uses field, phrase, grouping, prefix, or boolean syntax."""
     return bool(_SYNTAX.search(text))
+
+
+def is_layout_artifact(text: str) -> bool:
+    """Return whether the only query syntax is punctuation a Russian layout would produce.
+
+    Cyrillic ``\u0445``, ``\u044a``, ``\u0436`` and ``\u044d`` sit on the Latin ``[``, ``]``,
+    ``;`` and ``'`` keys, so a wrong-layout word reads as query syntax. Deliberate field, phrase,
+    grouping, prefix or boolean syntax uses characters the layout never emits and is left alone.
+    """
+    if not only_latin_letters(text) or not has_query_syntax(text):
+        return False
+    return not has_query_syntax("".join(char for char in text if char not in _LAYOUT_KEYS))
 
 
 def keyboard_v1(text: str) -> str | None:

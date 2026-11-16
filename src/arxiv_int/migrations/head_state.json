@@ -1,5 +1,5 @@
 {
-  "revision": "0001",
+  "revision": "0003",
   "schemas": [
     "corpus",
     "ctl",
@@ -98,6 +98,154 @@
       ],
       "schema": "corpus",
       "table": "chunks"
+    },
+    "corpus.classification_classes": {
+      "columns": {
+        "ancestor_path": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "caption_en": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "caption_ru": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "caption_uk": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "captions_json": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "class_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "class_kind": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "code": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "crosswalk_json": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "depth": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "BIGINT"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "namespace": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "parent_class_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "path_token": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "scheme_class_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "scheme_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "scheme_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "slug": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        }
+      },
+      "comment": "Frozen classes of one versioned subject-taxonomy classification scheme: taxonomy classes, operator extensions and the unclassified/unreadable outcomes, with parent closure, multilingual captions, source crosswalk, and reversible path tokens.",
+      "constraintNames": {
+        "foreignKeys": {},
+        "primaryKey": "pk_classification_classes"
+      },
+      "contractId": "classification-classes",
+      "primaryKey": [
+        "scheme_class_id"
+      ],
+      "schema": "corpus",
+      "table": "classification_classes"
     },
     "corpus.document_path_event": {
       "columns": {
@@ -392,6 +540,189 @@
       ],
       "schema": "corpus",
       "table": "duplicate_groups"
+    },
+    "corpus.file_classification": {
+      "columns": {
+        "alternate_class_ids_json": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "ancestor_path": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "bucket": {
+          "comment": "Declared physical partition key from x-arxiv-int.partitionKey.",
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "calibration_profile": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "classification_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": true,
+          "type": "TEXT"
+        },
+        "classifier_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "confidence": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "DOUBLE PRECISION"
+        },
+        "configuration_sha256": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "contract_version": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "document_id": {
+          "comment": null,
+          "foreignKeys": [
+            "corpus.documents.document_id"
+          ],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "evidence_json": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "extraction_fingerprint": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "failure_reason": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": true,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "generation_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "normalizer_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "occurrence_id": {
+          "comment": null,
+          "foreignKeys": [
+            "corpus.source_occurrences.occurrence_id"
+          ],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "primary_class_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "relative_path": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "review_state": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "run_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "scheme_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "scores_json": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        },
+        "silo_id": {
+          "comment": null,
+          "foreignKeys": [],
+          "nullable": false,
+          "primaryKey": false,
+          "type": "TEXT"
+        }
+      },
+      "comment": "Complete, evidence-backed subject classification of physical archive files, including explicit unclassified and unreadable outcomes and the fingerprints needed to reproduce each decision.",
+      "constraintNames": {
+        "foreignKeys": {
+          "document_id": "fk_file_classification_document_id",
+          "occurrence_id": "fk_file_classification_occurrence_id"
+        },
+        "primaryKey": "pk_file_classification"
+      },
+      "contractId": "file-classifications",
+      "primaryKey": [
+        "classification_id"
+      ],
+      "schema": "corpus",
+      "table": "file_classification"
     },
     "corpus.normalized_documents": {
       "columns": {

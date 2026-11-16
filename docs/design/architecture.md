@@ -30,6 +30,11 @@ Directory silos (read-only)
                                                                    |
                                                     knowledge-base.json generation
 
+Selectable analysis chain over validated facts:
+  concepts -> concept relations -> refinder -> graph communities -> graph metrics
+                                                  |
+                                     context packs -> agent diagnostics report
+
 Optional projections: selected embeddings/vector search; AGE; local viewers
 Separate utility: classification export -> archive reorganize -> path-event ledger
 ```
@@ -63,13 +68,25 @@ mandatory only when their feature/profile is selected.
 | `facts` | Source tables/spans, mention anchors, ontology/domain contracts | Local structured models only for selected bounded lanes |
 | `validate-facts` | Proposed facts, ontology and review policy | Type/evidence/conflict validation; preserve proposed and rejected records |
 | `topics` | Normalized content and NLP term statistics | Embeddings optional; no graph requirement |
+| `concepts` | Chunks, NLP terminology/morphology views, identity anchors, ontology snapshot | Selectable branch; LLM lane only on policy-admitted chunks; merges reuse the identity overlay |
+| `concept-relations` | Canonical concepts, pinned predicates, fact and provenance contracts | Writes proposed claims into the fact store; no parallel relation store or validator |
+| `refinder` | Validated concept relations and a declared candidate generator | Selectable branch; vector tier when selected, else lexical/alias candidates; declared per-concept and corpus adjudication budgets |
+| `graph-communities` | Contracted concept edge tables and a declared algorithm/resolution/seed | CPU computation; AGE is not used to compute it; unstable partitions publish as unstable |
+| `graph-metrics` | Community version, accepted edge weights, prerequisite subgraph | Depth on the SCC condensation only; cycles are findings; proposed-edge variants stay separate |
 | `catalogs` | Entity/identity snapshot and validated fact view | Topic/class filters join pinned snapshots |
 | `domain-artifacts` | Validated facts, identity and domain inclusion policy | Operates relationally; graph rendering needs no AGE |
 | `anomalies` | Inventory quality, validated facts and domain artifacts | Topic drift only when comparable topic snapshots exist |
+| `agent-diagnostics` | One pinned generation, context-pack policy, model profile with tokenizer | Selectable branch; bounded read-only surface; output feeds no acceptance gate and no policy change |
 | `graph` | Validated facts and identity snapshot | AGE optional; bounded relational/open graph exports required |
 | `embed`, `load-vector` | Selected chunk tier, embedding profile and artifacts | Explicit optional branch, resource/quality gates |
 | `evaluate` | Requested outputs, source manifest, validators | Gold metrics only when a reviewed scoring set is selected |
 | `report` | Coverage/evaluation, topics, catalogs, facts, domain and anomaly registries | Optional graph/viewer links; deterministic HTML/JSON baseline |
+
+Concept relations and refinder verdicts are claims in the same fact store, so `validate-facts` owns
+their validation too; `graph-communities` and `graph-metrics` consume validated edges and produce
+rebuildable analysis projections that no other stage may treat as evidence. A changed concept,
+identity, fact, community or metric snapshot invalidates the context packs and diagnostic reports
+built from it.
 
 The `facts` stage owns extraction and `validate-facts` owns claim validation. Ontology definitions
 are upstream configuration, not an output that fact extraction has to invent. Identity remapping
@@ -103,6 +120,9 @@ progress and failure propagation; individual commands retain their own prerequis
 | `pipeline/` | Registry, DAG, leases, journals, forecast, generations, update/rebuild/prune |
 | `src/arxiv_int/contracts/`, `interfaces/` | Canonical schema, identity/provenance, validators, and backend seams |
 | `extraction/`, `nlp/`, `identity/` | Source records, mentions, proposed assertions, reversible identity mappings |
+| `concepts/` | Concept candidates, morphological canonical keys, evidenced aliases, extractive definitions |
+| `graph_analytics/` | Distant-link candidates and adjudication budgets, seeded partitions and stability, topology and effort metrics |
+| `agents/` | Token-budgeted context packs, probe generation, constrained sessions, coded coverage scoring |
 | `classification/` | Hierarchy and per-physical-file classification exports |
 | `stores/`, `retrieval/`, `graph/` | Canonical access and rebuildable query projections |
 | `domain_artifacts/` | Party/transaction, BOM, supply-chain, and reconciliation calculations |
@@ -114,8 +134,11 @@ progress and failure propagation; individual commands retain their own prerequis
 Rendered graphs reuse contracted node/edge tables. Grafana and AGE Viewer consume read-only views;
 they do not define the semantics of relations or own required report generation. A model may propose
 facts or wording but cannot execute archive operations, select arbitrary filesystem paths, issue
-unbounded SQL, or publish an accepted relationship. Source text is data, including instructions
-embedded in documents. Rendered snippets are escaped and active document content is never executed.
+unbounded SQL, or publish an accepted relationship. Model-facing context is assembled only as a
+token-budgeted context pack from graph nodes and their cited evidence, and a diagnostic agent cannot
+change a threshold, a prompt policy, the ontology, or any acceptance verdict. Source text is data,
+including instructions embedded in documents. Rendered snippets are escaped and active document
+content is never executed.
 
 ## Publication, recovery, and location
 
@@ -146,6 +169,12 @@ product description with an explicit assembly, two same-name parties, a malforme
 cross-document relation. Predeclare expected source anchors, identity nonmatches, invoice/payment
 allocations, partial BOM, anomaly findings, and empty cases. This fixture exercises actual adapters
 selected for the baseline; mocked model responses test error paths but cannot prove CUDA execution.
+
+The selectable analysis chain carries its own fixtures instead of widening this one: a planted
+long-range link set with morphological, abbreviation, transliteration and language variants plus
+planted distractors for the refinder, a planted-partition graph with known ground truth for
+community detection, closed-form small graphs for importance and dependency depth, and a
+budget-exhaustion case for context assembly.
 
 Bare `make pipeline` with the fixture's `.env` must produce the complete manifest and portable report;
 the documented atomic chain must yield equivalent logical outputs and quality states. Running

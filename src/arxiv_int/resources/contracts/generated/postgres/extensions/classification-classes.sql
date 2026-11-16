@@ -1,0 +1,3 @@
+-- arxiv-int postgres extensions for classification-classes
+-- source: urn:arxiv-int:contract:classification-classes:1.0.0@1.0.0
+-- table columns and constraints are owned by corpus.classification_classes metadata revisions

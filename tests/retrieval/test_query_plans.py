@@ -193,3 +193,17 @@ def test_search_stops_at_the_first_stage_with_hits() -> None:
     assert result.query_stage == "primary"
     assert [hit.chunk_id for hit in result.hits] == ["c1"]
     assert len(recorder.statements) == 1
+
+
+def test_wrong_layout_punctuation_keeps_the_cyrillic_reading_reachable() -> None:
+    # "postavkah" and "hash" typed on a Latin keyboard land on bracket and quote keys.
+    for typed, intended in (("gjcnfdrf[", "поставках"), ("['i", "хэш")):
+        assert has_query_syntax(typed)
+        plan = query_plan(typed, profile_id=GUARDED)
+        assert plan.primary == (typed,)
+        assert intended in plan.fallback
+
+
+def test_deliberate_query_syntax_gains_no_mechanical_fallback() -> None:
+    for query in ("title:x", '"a b"', "a AND b", "(a OR b) c", "-modbus x"):
+        assert not query_plan(query, profile_id=GUARDED).fallback

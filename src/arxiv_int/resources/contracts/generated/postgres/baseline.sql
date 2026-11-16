@@ -6,6 +6,29 @@ CREATE SCHEMA IF NOT EXISTS eval;
 CREATE SCHEMA IF NOT EXISTS kg;
 CREATE SCHEMA IF NOT EXISTS ontology;
 CREATE SCHEMA IF NOT EXISTS search;
+CREATE TABLE corpus.classification_classes (
+	scheme_class_id TEXT NOT NULL,
+	scheme_id TEXT NOT NULL,
+	class_id TEXT NOT NULL,
+	namespace TEXT NOT NULL,
+	code TEXT,
+	parent_class_id TEXT,
+	ancestor_path TEXT NOT NULL,
+	depth BIGINT NOT NULL,
+	class_kind TEXT NOT NULL,
+	caption_en TEXT,
+	caption_ru TEXT,
+	caption_uk TEXT,
+	captions_json TEXT NOT NULL,
+	crosswalk_json TEXT NOT NULL,
+	path_token TEXT NOT NULL,
+	slug TEXT,
+	scheme_version TEXT NOT NULL,
+	generation_id TEXT NOT NULL,
+	contract_version TEXT NOT NULL,
+	CONSTRAINT pk_classification_classes PRIMARY KEY (scheme_class_id)
+);
+COMMENT ON TABLE corpus.classification_classes IS 'Frozen classes of one versioned subject-taxonomy classification scheme: taxonomy classes, operator extensions and the unclassified/unreadable outcomes, with parent closure, multilingual captions, source crosswalk, and reversible path tokens.';
 CREATE TABLE corpus.documents (
 	document_id TEXT NOT NULL,
 	content_hash TEXT,
@@ -168,6 +191,36 @@ CREATE TABLE corpus.duplicate_groups (
 );
 COMMENT ON TABLE corpus.duplicate_groups IS 'Reversible duplicate and edition group memberships proposed over normalized documents.';
 COMMENT ON COLUMN corpus.duplicate_groups.bucket IS 'Declared physical partition key from x-arxiv-int.partitionKey.';
+CREATE TABLE corpus.file_classification (
+	classification_id TEXT NOT NULL,
+	occurrence_id TEXT NOT NULL,
+	document_id TEXT,
+	silo_id TEXT NOT NULL,
+	relative_path TEXT NOT NULL,
+	primary_class_id TEXT NOT NULL,
+	alternate_class_ids_json TEXT NOT NULL,
+	ancestor_path TEXT NOT NULL,
+	confidence DOUBLE PRECISION NOT NULL,
+	calibration_profile TEXT NOT NULL,
+	scores_json TEXT NOT NULL,
+	evidence_json TEXT NOT NULL,
+	failure_reason TEXT,
+	extraction_fingerprint TEXT NOT NULL,
+	normalizer_id TEXT NOT NULL,
+	classifier_id TEXT NOT NULL,
+	configuration_sha256 TEXT NOT NULL,
+	scheme_id TEXT NOT NULL,
+	review_state TEXT NOT NULL,
+	run_id TEXT NOT NULL,
+	generation_id TEXT NOT NULL,
+	contract_version TEXT NOT NULL,
+	bucket TEXT,
+	CONSTRAINT pk_file_classification PRIMARY KEY (classification_id),
+	CONSTRAINT fk_file_classification_occurrence_id FOREIGN KEY(occurrence_id) REFERENCES corpus.source_occurrences (occurrence_id),
+	CONSTRAINT fk_file_classification_document_id FOREIGN KEY(document_id) REFERENCES corpus.documents (document_id)
+);
+COMMENT ON TABLE corpus.file_classification IS 'Complete, evidence-backed subject classification of physical archive files, including explicit unclassified and unreadable outcomes and the fingerprints needed to reproduce each decision.';
+COMMENT ON COLUMN corpus.file_classification.bucket IS 'Declared physical partition key from x-arxiv-int.partitionKey.';
 CREATE TABLE corpus.normalized_documents (
 	normalized_document_id TEXT NOT NULL,
 	document_id TEXT,
